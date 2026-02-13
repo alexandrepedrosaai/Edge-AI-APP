@@ -1093,6 +1093,52 @@ This repository uses GitHub Actions to:
 
 Status: ![Azure Docker Deploy](https://github.com/alexandrepedrosaai/Edge-AI-APP/actions/workflows/ci-azure-docker.yml/badge.svg)
 ```
+```.yaml
+<ACR_NAME>.azurecr.io/edge-ai-app:latest
+name: Build & Deploy to Azure
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: ACR Login
+        run: az acr login --name ${{ secrets.AZURE_ACR_NAME }}
+
+      - name: Build Docker Image
+        run: docker build -t ${{ secrets.AZURE_ACR_NAME }}.azurecr.io/edge-ai-app:latest .
+
+      - name: Push Docker Image
+        run: docker push ${{ secrets.AZURE_ACR_NAME }}.azurecr.io/edge-ai-app:latest
+
+      - name: Deploy to Azure WebApp
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: "edge-ai-app"
+          images: "${{ secrets.AZURE_ACR_NAME }}.azurecr.io/edge-ai-app:latest"
+```
+```bash
+curl https://edge-ai-app.azurewebsites.net/status
+```
+```.json
+{
+  "status": "ok",
+  "service": "Edge-AI-APP"
+}
+```
+
 # Computable Signature.py
 ```.py
 # -*- coding: utf-8 -*-
