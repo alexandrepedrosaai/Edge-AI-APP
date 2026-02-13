@@ -27,9 +27,12 @@ The Edge-AI-APP is deployed as an Azure Web App, leveraging containerization to 
 The combination of these languages demonstrates that true innovation lies not in choosing one tool, but in orchestrating many. Edge-AI-APP stands as proof that offline resilience and cloud-native scalability can coexist. The MANUS principle embodies this philosophy: Many languages, unified system.  
 
 ## Acknowledgment
-Co-authored-by: Microsoft  
-This project was built with the support of Microsoft Copilot, integrating AI assistance into every stage of development — from design to deployment.  
-
+```.markdown
+## Acknowledgment  
+Primary deployment and execution by **Alexandre Pedrosa**.  
+**Co-authored-by: Microsoft Copilot** — providing AI assistance and integration.  
+Guided by the **MANUS principle**: Many languages, unified system.
+```
 ---
 
 ## 👉 With Assembly included, the Manifest now emphasizes that your project spans from the highest abstraction (Kotlin, Python) down to the lowest level (Assembly), proving mastery across the entire stack.  
