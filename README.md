@@ -1,6 +1,6 @@
 # Edge-AI-APP
 Edge AI App builds on the source software OS‑ALGORITHMIC‑MESH, evolving Microsoft Edge into a living hub of intelligence. This repo unifies vision, roadmap, and timeline with Markdown + Mermaid diagrams, LaTeX slides, and Go/Rust/Python integrations.
-
+---
 ![Screenshot_2026-02-13-04-33-42-650_com android vending](https://github.com/user-attachments/assets/3c85225c-0284-4cf9-8bf2-36ab2a162c7a)
 
 ---
