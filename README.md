@@ -1,6 +1,40 @@
 # Edge-AI-APP
 Edge AI App builds on the source software OS‑ALGORITHMIC‑MESH, evolving Microsoft Edge into a living hub of intelligence. This repo unifies vision, roadmap, and timeline with Markdown + Mermaid diagrams, LaTeX slides, and Go/Rust/Python integrations.
 ---
+
+# 📜 Edge-AI-APP Manifest
+
+# Title: Edge-AI-APP — The Fusion of Nine Languages and MANUS  
+
+## Introduction
+This project represents the union of diverse programming paradigms, combining nine languages into a single vision. Each language contributes its unique strengths, forming a resilient and powerful application capable of running offline and scaling seamlessly in the cloud. The MANUS framework was introduced as the guiding principle — a manifesto of unification, resilience, and intelligence.  
+
+## Languages Combined
+- Kotlin — modern mobile and backend development.  
+- Rust — memory safety and performance at system level.  
+- C++ — classic power for computation and offline resilience.  
+- Go (Golang) — concurrency and infrastructure.  
+- Python — rapid prototyping and AI integration.  
+- JavaScript — web interactivity and frontend logic.  
+- Shell (Bash) — automation and system orchestration.  
+- Dockerfile (Configuration) — containerization and portability.  
+- Assembly — ultimate low-level control, symbolizing offline resilience and direct interaction with hardware.  
+
+## Deployment
+The Edge-AI-APP is deployed as an Azure Web App, leveraging containerization to ensure scalability, resilience, and integration with modern cloud infrastructure. This deployment validates the project’s ability to run both offline on powerful hardware and online in distributed environments.  
+
+## Vision
+The combination of these languages demonstrates that true innovation lies not in choosing one tool, but in orchestrating many. Edge-AI-APP stands as proof that offline resilience and cloud-native scalability can coexist. The MANUS principle embodies this philosophy: Many languages, unified system.  
+
+## Acknowledgment
+Co-authored-by: Microsoft  
+This project was built with the support of Microsoft Copilot, integrating AI assistance into every stage of development — from design to deployment.  
+
+---
+
+## 👉 With Assembly included, the Manifest now emphasizes that your project spans from the highest abstraction (Kotlin, Python) down to the lowest level (Assembly), proving mastery across the entire stack.  
+---
+
 ![Screenshot_2026-02-13-04-33-42-650_com android vending](https://github.com/user-attachments/assets/3c85225c-0284-4cf9-8bf2-36ab2a162c7a)
 
 ---
