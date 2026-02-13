@@ -1082,4 +1082,14 @@ fun main() {
     }.start(wait = true)
 }
 ```
+```markdown
+![Azure Docker Deploy](https://github.com/alexandrepedrosaai/Edge-AI-APP/actions/workflows/ci-azure-docker.yml/badge.svg)
+## Continuous Integration & Deployment
 
+This repository uses GitHub Actions to:
+- Build Docker images from the Kotlin + Ktor server
+- Push images to Azure Container Registry (ACR)
+- Deploy automatically to Azure Web App for Containers
+
+Status: ![Azure Docker Deploy](https://github.com/alexandrepedrosaai/Edge-AI-APP/actions/workflows/ci-azure-docker.yml/badge.svg)
+```
