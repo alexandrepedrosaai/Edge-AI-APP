@@ -1063,3 +1063,23 @@ Ele pode ser instanciado, referenciado, ou reinterpretado por agentes computacio
 
 \end{document}
 ```
+## Minimum Kotlin 
+```.kt
+import io.ktor.application.*
+import io.ktor.http.*
+import io.ktor.response.*
+import io.ktor.routing.*
+import io.ktor.server.engine.*
+import io.ktor.server.netty.*
+
+fun main() {
+    embeddedServer(Netty, port = 8080) {
+        routing {
+            get("/") {
+                call.respondText("Edge-AI-APP running on Kotlin + Azure!", ContentType.Text.Plain)
+            }
+        }
+    }.start(wait = true)
+}
+```
+
