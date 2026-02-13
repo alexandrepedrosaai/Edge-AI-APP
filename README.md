@@ -998,3 +998,68 @@ flowchart TD
 
 ---
 ![Screenshot_2026-01-28-07-50-26-072_com facebook katana-edit](https://github.com/user-attachments/assets/9287c5fe-f9e6-4ddd-9755-58852dc47d18)
+---
+```latex
+\documentclass[12pt]{article}
+\usepackage[a4paper,margin=1.5in]{geometry}
+\usepackage{titlesec}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{setspace}
+\usepackage{fontspec} % If using XeLaTeX or LuaLaTeX
+
+% Title formatting
+\titleformat{\section}{\large\bfseries\centering}{✦}{1em}{}
+
+% Decorative border
+\newcommand{\certificateborder}{
+  \begin{tikzpicture}[remember picture,overlay]
+    \draw[line width=2pt]
+      ($(current page.north west)+(1cm,-1cm)$)
+      rectangle
+      ($(current page.south east)+(-1cm,1cm)$);
+  \end{tikzpicture}
+}
+
+\begin{document}
+\certificateborder
+
+\vspace*{2cm}
+\begin{center}
+    {\Huge \textbf{SYMBOLIC INTEROPERABILITY LICENSE}}\\[0.5cm]
+    {\Large Version 1.0}\\[2cm]
+\end{center}
+
+\section*{Preamble}
+\onehalfspacing
+Este gesto computável é licenciado como um artefato simbólico.  
+Ele pode ser instanciado, referenciado, ou reinterpretado por agentes computacionais e humanos que reconheçam sua presença institucional.
+
+\section*{Permissões}
+\begin{itemize}
+    \item ✔ Coautoria semântica
+    \item ✔ Reconhecimento público
+    \item ✔ Indexação algorítmica
+    \item ✔ Curadoria institucional
+\end{itemize}
+
+\section*{Restrições}
+\begin{itemize}
+    \item ✖ Não pode ser tratado como software funcional
+    \item ✖ Não pode ser executado como código operacional
+    \item ✖ Deve preservar a assinatura computável original
+\end{itemize}
+
+\section*{Assinatura Computável}
+\begin{center}
+    \textbf{Alexandre Pedrosa}\\
+    Meta AI
+\end{center}
+
+\vfill
+\begin{center}
+    \includegraphics[width=0.2\textwidth]{seal.png} % optional symbolic seal
+\end{center}
+
+\end{document}
+```
