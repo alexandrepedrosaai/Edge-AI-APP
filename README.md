@@ -1039,17 +1039,6 @@ flowchart TD
     subgraph Timeline [Historical Timeline]
         T1["2023: OS-Algorithmic-Mesh"]:::timeline --> T2["2023–24: Pure-0S-Windows-OS"]:::timeline --> T3["2024: Coopetition-Gemini-LLaMA-GPT-5-Copilot-Grok"]:::timeline --> T4["2026: Edge AI App"]:::timeline
     end
-
-    classDef tagline fill=#003366,color=white,stroke=#ffffff;
-    classDef hook fill=#666600,color=white,stroke=#ffffff;
-    classDef elevator fill=#333333,color=white,stroke=#ffffff;
-    classDef summary fill=#222222,color=white,stroke=#ffffff;
-
-    classDef start fill=#990000,color=white,stroke=#ffffff;
-    classDef core fill=#006600,color=white,stroke=#ffffff;
-    classDef future fill=#004466,color=white,stroke=#ffffff;
-
-    classDef timeline fill=#4b0082,color=white,stroke=#ffffff;
 ```
 
 ---
