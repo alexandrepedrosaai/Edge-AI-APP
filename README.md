@@ -34,7 +34,46 @@ This project was built with the support of Microsoft Copilot, integrating AI ass
 
 ## 👉 With Assembly included, the Manifest now emphasizes that your project spans from the highest abstraction (Kotlin, Python) down to the lowest level (Assembly), proving mastery across the entire stack.  
 ---
+```.asm
+; Edge-AI-APP Manifest in Assembly
+; Demonstrating low-level language power, offline resilience, and Azure deployment.
 
+section .data
+    msg_offline db "Running offline on strong hardware...", 0
+    msg_cloud   db "Deploying to Azure Cloud App...", 0
+    msg_done    db "Manifest complete: 9 languages unified with MANUS principle.", 0
+
+section .text
+    global _start
+
+_start:
+    ; Print offline resilience message
+    mov eax, 4          ; syscall: write
+    mov ebx, 1          ; file descriptor: stdout
+    mov ecx, msg_offline
+    mov edx, 36         ; length of message
+    int 0x80
+
+    ; Print Azure deployment message
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, msg_cloud
+    mov edx, 34
+    int 0x80
+
+    ; Print MANUS principle acknowledgment
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, msg_done
+    mov edx, 64
+    int 0x80
+
+    ; Exit program
+    mov eax, 1
+    xor ebx, ebx
+    int 0x80
+```
+---
 ![Screenshot_2026-02-13-04-33-42-650_com android vending](https://github.com/user-attachments/assets/3c85225c-0284-4cf9-8bf2-36ab2a162c7a)
 
 ---
