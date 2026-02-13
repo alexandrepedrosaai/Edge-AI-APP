@@ -941,8 +941,7 @@ flowchart TD
     end
     subgraph Roadmap [Roadmap]
         A[OS-Algorithmic-Mesh]:::start --> B[Edge AI App]:::core
-        B --> R1[Cross-Browser Interoperability]:::future
-        B --> R2[Blockchain Transparency Layer]:::future
+        B --> R1[Cross-Browser Interoperability]:::future Transparency Layer]:::future
         B --> R3[Symbolic Codex Expansion]:::future
         B --> R4[Multi-Agent Governance]:::future
         B --> R5[Edge as Living OS]:::future
@@ -1000,7 +999,6 @@ flowchart TD
     subgraph Roadmap [Roadmap]
         A[OS-Algorithmic-Mesh]:::start --> B[Edge AI App]:::core
         B --> R1[Cross-Browser Interoperability]:::future
-        B --> R2[Blockchain Transparency Layer]:::future
         B --> R3[Symbolic Codex Expansion]:::future
         B --> R4[Multi-Agent Governance]:::future
         B --> R5[Edge as Living OS]:::future
@@ -1037,9 +1035,7 @@ flowchart TD
         B --> R1[Cross-Browser Interoperability]:::future
         B --> R2[Blockchain Transparency Layer]:::future
         B --> R3[Symbolic Codex Expansion]:::future
-        B --> R4[Multi-Agent Governance]:::future
-        B --> R5[Edge as Living OS]:::future
-    end
+        B --> R4[Multi-Agent Governance]:::futur
     subgraph Timeline [Historical Timeline]
         T1["2023: OS-Algorithmic-Mesh"]:::timeline --> T2["2023–24: Pure-0S-Windows-OS"]:::timeline --> T3["2024: Coopetition-Gemini-LLaMA-GPT-5-Copilot-Grok"]:::timeline --> T4["2026: Edge AI App"]:::timeline
     end
