@@ -1072,9 +1072,6 @@ flowchart TD
 - Copy this section into your README.md.  
 - GitHub will render both diagrams automatically.  
 - Readers can scroll and compare Light vs Dark Mode instantly.  
-
----
-![Screenshot_2026-01-28-07-50-26-072_com facebook katana-edit](https://github.com/user-attachments/assets/9287c5fe-f9e6-4ddd-9755-58852dc47d18)
 ---
 ```latex
 \documentclass[12pt]{article}
