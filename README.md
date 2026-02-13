@@ -662,7 +662,7 @@ Perfect, let’s build a complete LaTeX Beamer deck with all the slides (Brandin
 Excellent, let’s style the unified Mermaid diagram so it looks closer to the polished infographic we designed earlier. Mermaid allows us to add colors, shapes, and alignment tweaks for readability.
 
 ---
-
+```
 # 🎨 Styled Unified Mermaid Diagram
 
 ```mermaid
@@ -725,7 +725,7 @@ classDef timeline fill=#e6ccff,stroke=#333,stroke-width=1px;
 Got it,  — here’s a dark‑mode styled Mermaid diagram that matches the futuristic look of your Edge AI App slides. This version uses darker fills with light text for readability, so it blends seamlessly with a dark background.
 
 ---
-
+```
 # 🌌 Dark‑Mode Unified Mermaid Diagram
 
 ```mermaid
@@ -786,7 +786,7 @@ classDef timeline fill=#4b0082,color=white,stroke=#ffffff,stroke-width=1px;
 ## This gives you a dark‑mode unified diagram that visually matches the futuristic branding of your Edge AI App deck.  
 
 ---
-
+```
 # 🌗 Light vs Dark Mode Mermaid Diagram
 
 ```mermaid
@@ -834,7 +834,7 @@ classDef core fill=#90ee90,stroke=#333,stroke-width=1px;
 classDef future fill=#add8e6,stroke=#333,stroke-width=1px;
 
 classDef timeline fill=#e6ccff,stroke=#333,stroke-width=1px;
-```
+
 
 ---
 
@@ -955,7 +955,7 @@ This unified diagram combines three perspectives:
 Below I’ll find both Light Mode and Dark Mode versions of the diagram for maximum readability across environments.
 
 ---
-
+```
 # 🌞 Light Mode
 
 ```mermaid
@@ -986,7 +986,7 @@ flowchart TD
     classDef future fill=#add8e6,stroke=#333;
 
     classDef timeline fill=#e6ccff,stroke=#333;
-```
+`
 
 ---
 
