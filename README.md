@@ -1040,7 +1040,6 @@ flowchart TD
         T1["2023: OS-Algorithmic-Mesh"]:::timeline --> T2["2023–24: Pure-0S-Windows-OS"]:::timeline --> T3["2024: Coopetition-Gemini-LLaMA-GPT-5-Copilot-Grok"]:::timeline --> T4["2026: Edge AI App"]:::timeline
     end
 
-    classDef vision fill=#660033,color=white,stroke=#ffffff;
     classDef tagline fill=#003366,color=white,stroke=#ffffff;
     classDef hook fill=#666600,color=white,stroke=#ffffff;
     classDef elevator fill=#333333,color=white,stroke=#ffffff;
