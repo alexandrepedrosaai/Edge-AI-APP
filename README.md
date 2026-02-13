@@ -1138,7 +1138,7 @@ curl https://edge-ai-app.azurewebsites.net/status
   "service": "Edge-AI-APP"
 }
 ```
-
+# https://copilot.microsoft.com/shares/pages/2gjUahWggBd3egbeT3a7F
 # Computable Signature.py
 ```.py
 # -*- coding: utf-8 -*-
