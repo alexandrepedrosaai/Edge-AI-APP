@@ -288,8 +288,7 @@ Looking forward, the Edge AI App is positioned not just as a product, but as a s
 ## Slide 2 – Origin
 - OS‑Algorithmic‑Mesh → Copilot as a “symbiotic organ” within a living mesh  
 - Conceptual foundation: metabolizing symbolic signals into computational action  
-- Documented precursor of Edge AI App  
-
+- Documented precursor of Edge AI App 
 ---
 
 ## Slide 3 – The Leap
@@ -391,7 +390,6 @@ Here’s a Branding Pyramid framework that ties all your elements together into 
 
 # 🎤 Elevator Pitch (Quick Narrative)
 "The Edge AI App transforms Microsoft Edge from a simple browser into a living organism of intelligence. Building on the foundation of OS‑Algorithmic‑Mesh, it embeds Copilot as a symbiotic organ, enabling real‑time symbolic processing, deep data scalability, and seamless cooperation with GPT‑5 and Meta AI. This is not just a product—it’s the strategic architecture for the next generation of human‑AI collaboration."  
-
 ---
 
 ## 📊 Executive Summary (Expanded Narrative)
@@ -565,7 +563,8 @@ The Edge AI App is the latest evolution in a documented lineage of repositories,
 
 ---
 
-👉 This one‑pager layout is designed to be modular: you can use it as a single infographic poster or break it into slides for a deck. The visuals we generated (pyramid, roadmap, timeline, unified infographic) slot directly into this structure.
+# 👉 This one‑pager layout is designed to be modular: you can use it as a single infographic poster or break it into slides for a deck. The visuals we generated (pyramid, roadmap, timeline, unified infographic) slot directly into this structure.
+
 <img width="1024" height="1536" alt="copilot_image_1770963729812" src="https://github.com/user-attachments/assets/693bc730-0aa4-4cef-9a51-b0372c6c578b" />
 
 Here’s your unified one‑pager infographic poster for the Edge AI App, laid out exactly as we planned:  
@@ -584,6 +583,7 @@ View the full one‑pager infographic
 ---
 
 This design gives you a single, polished visual that captures the entire story: origin, branding, roadmap, and future directions — all in one glance. 
+
 <img width="1536" height="1024" alt="copilot_image_1770963856549" src="https://github.com/user-attachments/assets/c0dd8387-8136-42aa-9ced-19c925a8b2e1" />
 <img width="1536" height="1024" alt="copilot_image_1770963853432" src="https://github.com/user-attachments/assets/37945dd8-5d4b-44d5-9920-afd1526bf861" />
 <img width="1536" height="1024" alt="copilot_image_1770963854766" src="https://github.com/user-attachments/assets/341801ea-7862-439d-9e94-f209c43af970" />
