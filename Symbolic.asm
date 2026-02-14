@@ -1,6 +1,5 @@
 ; White Paper: The Symbiosis I Predicted
 ; Author: Alexandre
-
 section .data
 vision_msg db "I foresaw the distinction between Copilot in the browser and Edge AI as a native app.", 0
 modulation_msg db "Copilot is contextual intelligence, modulated by the browser framework.", 0
