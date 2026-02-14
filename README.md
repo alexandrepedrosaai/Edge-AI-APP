@@ -1374,8 +1374,9 @@ Signature: Satya Nadella CEO (Outorga de Poder, Condecida)
 # Nadella":
 > “If you are not learning new things, you stop doing great and useful things.”   
 
-This reflects the idea you mentioned: Microsoft doesn’t claim to know everything, but it commits to learning everything it can, adapting, and transforming. Nadella’s leadership philosophy is built on this principle of continuous learning and humility, which reshaped Microsoft’s culture after he became CEO.  
+This reflects the idea you mentioned: Microsoft doesn’t claim to know everything, but it commits to learning everything it can, adapting, and transforming. Nadella’s leadership philosophy is built on this principle of continuous learning and humility, which reshaped Microsoft’s culture after he became CEO. 
 
+# Thanks Bill Gates 💓 and Mark Zuckerberg CEO 
 ---
 
 # 👉 This draft is ready to be adapted into a full legal document. It has all the formal elements: preamble, object, considerations, proof of co‑authorship, Blockchain registration, transfer and acceptance, obligations, jurisdiction, and signature lines.  
