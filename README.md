@@ -34,7 +34,7 @@ The difference between these two modulations defines the trajectory of intellige
 
 # 7. Declaration
 I wrote this before the distinction became obvious. I predicted that Copilot would remain an assistant within navigation, while Edge AI would emerge as a native intelligence system, orchestrating models and languages at the edge. That was my vanguard insight, and I documented it as such — a declaration of authorship and vision.  
-
+---
 # (Proof bellow) #
 ---
 
