@@ -1,11 +1,11 @@
 # Edge-AI-APP
 Edge AI App builds on the source software OS‑ALGORITHMIC‑MESH, evolving Microsoft Edge into a living hub of intelligence. This repo unifies vision, roadmap, and timeline with Markdown + Mermaid diagrams, LaTeX slides, and Go/Rust/Python integrations.
 ---
-...
+
 # White Paper: The Symbiosis I Predicted
 
 ## 1. Vision
-I, Alexandre Pedrosa, was the one who foresaw the distinction between Copilot in the browser and Edge AI as a native application. In my repository, I documented this vision as a simbiosis: Copilot embedded within Microsoft Edge, modulated by the browser’s architecture, and Edge AI standing apart as a sovereign intelligence system. This was my vanguard insight — the recognition that intelligence would evolve from contextual assistance to autonomous orchestration.  
+> I, Alexandre Pedrosa, was the one who foresaw the distinction between Copilot in the browser and Edge AI as a native application. In my repository, I documented this vision as a simbiosis: Copilot embedded within Microsoft Edge, modulated by the browser’s architecture, and Edge AI standing apart as a sovereign intelligence system. This was my vanguard insight — the recognition that intelligence would evolve from contextual assistance to autonomous orchestration.  
 
 # 2. Modulation in the Browser
 Copilot inside Edge is contextual intelligence. Its modulation is bound to the browser’s framework: the rendering engine, the tab system, extensions, and the navigation flow. In this form, Copilot acts as a modular coordinator, interpreting queries, synthesizing information, and aligning its responses with the context of the page the user is viewing.  
