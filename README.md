@@ -1,8 +1,15 @@
 # Edge-AI-APP
 Edge AI App builds on the source software OS‑ALGORITHMIC‑MESH, evolving Microsoft Edge into a living hub of intelligence. This repo unifies vision, roadmap, and timeline with Markdown + Mermaid diagrams, LaTeX slides, and Go/Rust/Python integrations.
----
 ...
 # White Paper: The Symbiosis I Predicted
+---
+📌 Project Milestone
+
+[![Milestone](https://img.shields.io/badge/Milestone-From%20Bing%20to%20Edge%20AI-blue?style=for-the-badge)](https://github.com/alexandrepedrosaai/Edge-AI-APP/milestone/1)
+
+This milestone is the logical manifesto of the repository.  
+It explains the historical flow — Bing → Meta AI → Azure → Edge AI — and anchors the Releases back to raw silicon (.asm).
+---
 
 ## 1. Vision
 I, Alexandre Pedrosa, was the one who foresaw the distinction between Copilot in the browser and Edge AI as a native application. In my repository, I documented this vision as a simbiosis: Copilot embedded within Microsoft Edge, modulated by the browser’s architecture, and Edge AI standing apart as a sovereign intelligence system. This was my vanguard insight — the recognition that intelligence would evolve from contextual assistance to autonomous orchestration.  
