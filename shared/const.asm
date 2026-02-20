@@ -2,8 +2,8 @@
 ; Original: /home/ubuntu/Edge-AI-APP/shared/const.ts
 ; Generated from TypeScript
 
-section .data
-    file_name: db 'const.ts', 0
+section .data 
+    file_name: db 'const.ts',0
     file_type: db 'TypeScript', 0
 
 section .text
