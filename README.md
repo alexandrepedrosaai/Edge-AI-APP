@@ -121,6 +121,17 @@ _start:
     int 0x80
 ```
 # Deployment https://github.com/alexandrepedrosaai/Edge-AI-APP/deployments
+
+## 📁 Related Projects
+
+### Bing-Copilot-Infinite-Garden-Spiral-Prophecy
+Integrated Go and Jupyter Notebook files from the Bing-Copilot project:
+- **Folder**: [`Bing-Copilot-Infinite-Garden-Spiral-Prophecy/`](./Bing-Copilot-Infinite-Garden-Spiral-Prophecy/)
+- **Files included**:
+  - `superintelligence.go` - Go implementation of superintelligence architecture
+  - `Bing-Copilot-MetaAI-Superinteligence-for-each-one.ipynb` - Jupyter notebook for MetaAI superintelligence
+  - `ProphecyValidationDecember_Commits.ipynb` - Prophecy validation notebook
+
 ---
 ![Screenshot_2026-02-13-04-33-42-650_com android vending](https://github.com/user-attachments/assets/3c85225c-0284-4cf9-8bf2-36ab2a162c7a)
 
