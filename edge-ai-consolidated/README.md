@@ -104,5 +104,4 @@ pnpm build
 ---
 
 **Autor**: Alexandre Pedrosa  
-**Co-authored-by**: Manus AI  
-**Data**: Feb 20, 2026
+**Co-authored-by**: Manus AI
