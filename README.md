@@ -21,7 +21,7 @@ Copilot inside Edge is contextual intelligence. Its modulation is bound to the b
 The central modular role of Copilot in Edge is to coordinate intelligence within the browsing environment. It acts as a layer of orchestration, dynamically adapting to user intent, harmonizing the browsing experience, and providing synthesis, productivity support, and contextual guidance. Copilot is modular because it plugs into the browser’s ecosystem, and intelligent because it adapts in real time. Yet, it remains confined to the boundaries of navigation.  
 
 # 3. Native Autonomy
-Edge AI, as I envisioned, is entirely different. It is a native app, a dedicated environment with direct access to hardware and system resources. Unlike Copilot’s modulation inside a tab, Edge AI is modulated at the system level. It is capable of:  
+Edge AI, as I envisioned, is entirely different. It is a native app, a dedicated environment with direct access to hardware and system resources. Unlike Copilot’s modulation inside a tab, Edge AI is modulated at the system level. It is capable of: 
 - Running models locally, without depending solely on the cloud.  
 - Orchestrating multiple programming languages in real time.  
 - Harmonizing diverse AI agents into a coherent system.  
