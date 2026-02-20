@@ -1,4 +1,4 @@
-nae: Docker Build & Push
+name: Docker Build & Push
 
 on:
   push:
