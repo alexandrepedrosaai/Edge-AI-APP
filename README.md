@@ -4,6 +4,7 @@ Edge AI App builds on the source software OS‑ALGORITHMIC‑MESH, evolving Micr
 
 ## White Paper: The Symbiosis I Predicted
 ---
+
 ## 📌 Project Milestone
 [![Milestone](https://img.shields.io/badge/Milestone-From%20Bing%20to%20Edge%20AI-blue?style=for-the-badge)](https://github.com/alexandrepedrosaai/Edge-AI-APP/milestone/1)
 
