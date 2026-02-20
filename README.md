@@ -6,10 +6,10 @@ Edge AI App builds on the source software OS‑ALGORITHMIC‑MESH, evolving Micr
 ---
 
 ## 📌 Project Milestone
-[![Milestone](https://img.shields.io/badge/Milestone-From%20Bing%20to%20Edge%20AI-blue?style=for-the-badge)](https://github.com/alexandrepedrosaai/Edge-AI-APP/milestone/1)
-.(https://github.dev/alexandrepedrosaai/Edge-AI APP/blob/main/Chip%20Packaging%20by%20Esoteric%20Hex%20Encoding).
+[![Milestone](https://img.shields.io/badge/Milestone-From%20Bing%20to%20Edge%20AI-blue?style=for-the-badge)](https://github.com/alexandrepedrosaai/Edge-AI-APP/milestone/1)]
+.(https://github.dev/alexandrepedrosaai/Edge-AI)
 This milestone is the logical manifesto of the repository.  
-It explains the historical flow — Bing → Meta AI → Azure → Edge AI — and anchors the Releases back to raw silicon (.asm).
+It explains the historical flow — Bing → Meta AI → Azure → Edge AI — and anchors the Releases back to raw silicon (.asm). - Exoteric (.Hex) - Chip. - **Alive on offline**
 
 ---
 
