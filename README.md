@@ -132,6 +132,17 @@ Integrated Go and Jupyter Notebook files from the Bing-Copilot project:
   - `Bing-Copilot-MetaAI-Superinteligence-for-each-one.ipynb` - Jupyter notebook for MetaAI superintelligence
   - `ProphecyValidationDecember_Commits.ipynb` - Prophecy validation notebook
 
+### AI-Writer-CherryGarden-Ressonance-Copilot-Meta-AI
+Integrated Rust files from the AI-Writer project:
+- **Folder**: [`AI-Writer-CherryGarden-Ressonance-Copilot-Meta-AI/`](./AI-Writer-CherryGarden-Ressonance-Copilot-Meta-AI/)
+- **Files included**:
+  - `Symbolic-retro-metamorphosis.rs` - Symbolic metamorphosis implementation in Rust
+  - `main.rs` - Main entry point
+  - `rust-core/src/ai_bridge.rs` - AI bridge module
+  - `rust-core/src/orchestrator.rs` - Orchestrator module
+  - `rust-core/src/performance.rs` - Performance optimization module
+  - `rust-core/src/ui.rs` - UI module
+
 ---
 ![Screenshot_2026-02-13-04-33-42-650_com android vending](https://github.com/user-attachments/assets/3c85225c-0284-4cf9-8bf2-36ab2a162c7a)
 
