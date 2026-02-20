@@ -5,6 +5,7 @@ def main():
     input_file = "slides.md"
     output_file = "output.pdf"
 
+
     # Check if input exists
     if not os.path.exists(input_file):
         print(f"Error: Markdown file not found: {input_file}")
