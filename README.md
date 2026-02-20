@@ -9,7 +9,6 @@ Edge AI App builds on the source software OS‑ALGORITHMIC‑MESH, evolving Micr
 
 This milestone is the logical manifesto of the repository.  
 It explains the historical flow — Bing → Meta AI → Azure → Edge AI — and anchors the Releases back to raw silicon (.asm).
-
 ---
 
 ## 1. Vision
