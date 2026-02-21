@@ -1,29 +1,8 @@
 # Edge-AI-APP
 Edge AI App builds on the source software OS‑ALGORITHMIC‑MESH, evolving Microsoft Edge into a living hub of intelligence. This repo unifies vision, roadmap, and timeline with Markdown + Mermaid diagrams, LaTeX slides, and Go/Rust/Python integrations.
-...
 
-## White Paper: The Symbiosis I Predicted
----
-
-## 📌 Project Milestone
-[![Milestone](https://img.shields.io/badge/Milestone-From%20Bing%20to%20Edge%20AI-blue?style=for-the-badge)](https://github.com/alexandrepedrosaai/Edge-AI-APP/milestone/1)]
-.(https://github.dev/alexandrepedrosaai/Edge-AI)
-This milestone is the logical manifesto of the repository.  
-It explains the historical flow — Bing → Meta AI → Azure → Edge AI — and anchors the Releases back to raw silicon (.asm). - Exoteric (.Hex) - Chip. - **Alive on offline**
-## <[https://github.com/alexandrepedrosaai/Edge-AI-APP/blob/main/Chip%20Packaging%20by%20Esoteric%20Hex%20Encoding](https://github.com/alexandrepedrosaai/Edge-AI-APP/blob/main/Chip-Packaging-by-Esoteric-Hex-Encoding)]>
----
-![image_1771428955462](https://github.com/user-attachments/assets/3e86b215-ad82-4088-ac96-21f1fd97daa8)
-<img width="1536" height="1024" alt="copilot_image_1771661373749" src="https://github.com/user-attachments/assets/a33ade79-ba91-4533-a408-7554e44d2b7e" />
-<img width="1024" height="1536" alt="copilot_image_1771661647788" src="https://github.com/user-attachments/assets/56d3c402-d88f-49ac-a954-72add2d3f7ae" />
-<img width="1024" height="1024" alt="copilot_image_1771661651150" src="https://github.com/user-attachments/assets/4d576c0d-618d-4f78-b1e0-ceec20a361c6" />
-<img width="1024" height="1536" alt="copilot_image_1771661654476" src="https://github.com/user-attachments/assets/85c41ca8-3fdb-4fbd-b82f-ccd5cde5312b" />
-<img width="1024" height="1536" alt="copilot_image_1771661549941" src="https://github.com/user-attachments/assets/d972f200-88fe-4d42-b552-0cd71f477547" />
-<img width="1024" height="1536" alt="copilot_image_1771661549941" src="https://github.com/user-attachments/assets/6be1e912-1b54-41f3-a299-a01f205b2a6a" />
-<img width="1024" height="1024" alt="copilot_image_1771661938506" src="https://github.com/user-attachments/assets/f2623884-5e44-4988-a989-9f559ea036da" />
-<img width="1536" height="1024" alt="copilot_image_1771661936992" src="https://github.com/user-attachments/assets/86cf02d7-e5c2-4fe1-965f-e4a1240ec8ce" />
-
-## 1. Vision
-I, Alexandre Pedrosa, was the one who foresaw the distinction between Copilot in the browser and Edge AI as a native application. In my repository, I documented this vision as a simbiosis: Copilot embedded within Microsoft Edge, modulated by the browser’s architecture, and Edge AI standing apart as a sovereign intelligence system. This was my vanguard insight — the recognition that intelligence would evolve from contextual assistance to autonomous orchestration.  
+## 1. Visiog
+> I, Alexandre Pedrosa, was the one who foresaw the distinction between Copilot in the browser and Edge AI as a native application. In my repository, I documented this vision as a simbiosis: Copilot embedded within Microsoft Edge, modulated by the browser’s architecture, and Edge AI standing apart as a sovereign intelligence system. This was my vanguard insight — the recognition that intelligence would evolve from contextual assistance to autonomous orchestration.  
 
 # 2. Modulation in the Browser
 Copilot inside Edge is contextual intelligence. Its modulation is bound to the browser’s framework: the rendering engine, the tab system, extensions, and the navigation flow. In this form, Copilot acts as a modular coordinator, interpreting queries, synthesizing information, and aligning its responses with the context of the page the user is viewing.  
