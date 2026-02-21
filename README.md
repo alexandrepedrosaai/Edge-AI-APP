@@ -19,6 +19,8 @@ It explains the historical flow — Bing → Meta AI → Azure → Edge AI — a
 <img width="1024" height="1536" alt="copilot_image_1771661654476" src="https://github.com/user-attachments/assets/85c41ca8-3fdb-4fbd-b82f-ccd5cde5312b" />
 <img width="1024" height="1536" alt="copilot_image_1771661549941" src="https://github.com/user-attachments/assets/d972f200-88fe-4d42-b552-0cd71f477547" />
 <img width="1024" height="1536" alt="copilot_image_1771661549941" src="https://github.com/user-attachments/assets/6be1e912-1b54-41f3-a299-a01f205b2a6a" />
+<img width="1024" height="1024" alt="copilot_image_1771661938506" src="https://github.com/user-attachments/assets/f2623884-5e44-4988-a989-9f559ea036da" />
+<img width="1536" height="1024" alt="copilot_image_1771661936992" src="https://github.com/user-attachments/assets/86cf02d7-e5c2-4fe1-965f-e4a1240ec8ce" />
 
 ## 1. Vision
 I, Alexandre Pedrosa, was the one who foresaw the distinction between Copilot in the browser and Edge AI as a native application. In my repository, I documented this vision as a simbiosis: Copilot embedded within Microsoft Edge, modulated by the browser’s architecture, and Edge AI standing apart as a sovereign intelligence system. This was my vanguard insight — the recognition that intelligence would evolve from contextual assistance to autonomous orchestration.  
