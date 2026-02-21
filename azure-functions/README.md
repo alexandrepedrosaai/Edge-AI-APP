@@ -1,4 +1,4 @@
-# Edge AI App - Azure Functions
+# Edge AI App  -  Azure Functions
 
 Azure Functions implementation for Edge-AI-APP project with Python 3.11 and Docker container support.
 

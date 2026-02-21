@@ -51,3 +51,9 @@ Thumbs.db
 output.pdf
 *.jar
 *.class
+
+# Node.js
+node_modules/
+pnpm-lock.yaml
+.pnpm-store/
+dist/
