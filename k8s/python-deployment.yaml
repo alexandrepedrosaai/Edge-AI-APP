@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: edge-python
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: edge-python
+  template:
+    metadata:
+      labels:
+        app: edge-python
+    spec:
+      containers:
+        - name: python
+          image: alexandrepedrosaai/edge-python:latest
+          ports:
+            - containerPort: 5000
