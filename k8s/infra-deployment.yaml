@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: edge-infra
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: edge-infra
+  template:
+    metadata:
+      labels:
+        app: edge-infra
+    spec:
+      containers:
+        - name: infra
+          image: alexandrepedrosaai/edge-infra:latest
+          command: ["pnpm", "test"]
