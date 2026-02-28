@@ -1,0 +1,41 @@
+name: Generate SBOMs
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  sbom:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Syft
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
+
+      - name: Generate SBOM for frontend
+        run: syft docker:alexandrepedrosaai/edge-frontend:latest -o cyclonedx-json > sbom/frontend-sbom.json
+
+      - name: Generate SBOM for backend
+        run: syft docker:alexandrepedrosaai/edge-backend:latest -o cyclonedx-json > sbom/backend-sbom.json
+
+      - name: Generate SBOM for infra
+        run: syft docker:alexandrepedrosaai/edge-infra:latest -o cyclonedx-json > sbom/infra-sbom.json
+
+      - name: Generate SBOM for python
+        run: syft docker:alexandrepedrosaai/edge-python:latest -o cyclonedx-json > sbom/python-sbom.json
+
+      - name: Generate SBOM for deploy
+        run: syft docker:alexandrepedrosaai/edge-deploy:latest -o cyclonedx-json > sbom/deploy-sbom.json
+
+      - name: Commit and push updated SBOMs
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+          git add sbom/*.json
+          git commit -m "Update SBOMs [CI]"
+          git push
