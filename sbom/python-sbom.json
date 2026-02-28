@@ -1,0 +1,27 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.4",
+  "version": 1,
+  "metadata": {
+    "component": {
+      "type": "application",
+      "name": "edge-python",
+      "version": "1.0.0",
+      "purl": "pkg:docker/edge-python@sha256:YOUR_DIGEST"
+    }
+  },
+  "components": [
+    {
+      "type": "library",
+      "name": "numpy",
+      "version": "1.26.0",
+      "purl": "pkg:pypi/numpy@1.26.0"
+    },
+    {
+      "type": "library",
+      "name": "pandas",
+      "version": "2.1.0",
+      "purl": "pkg:pypi/pandas@2.1.0"
+    }
+  ]
+}
