@@ -1,0 +1,27 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.4",
+  "version": 1,
+  "metadata": {
+    "component": {
+      "type": "application",
+      "name": "edge-backend",
+      "version": "1.0.0",
+      "purl": "pkg:docker/edge-backend@sha256:YOUR_DIGEST"
+    }
+  },
+  "components": [
+    {
+      "type": "library",
+      "name": "express",
+      "version": "4.18.2",
+      "purl": "pkg:npm/express@4.18.2"
+    },
+    {
+      "type": "library",
+      "name": "mongoose",
+      "version": "7.6.0",
+      "purl": "pkg:npm/mongoose@7.6.0"
+    }
+  ]
+}
