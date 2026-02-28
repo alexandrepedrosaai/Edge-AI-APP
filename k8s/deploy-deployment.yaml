@@ -1,0 +1,12 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: edge-deploy
+spec:
+  template:
+    spec:
+      containers:
+        - name: deploy
+          image: alexandrepedrosaai/edge-deploy:latest
+          command: ["pnpm", "release"]
+      restartPolicy: OnFailure
