@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: edge-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: edge-frontend
+  template:
+    metadata:
+      labels:
+        app: edge-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: alexandrepedrosaai/edge-frontend:latest
+          ports:
+            - containerPort: 3000
