@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: edge-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: edge-backend
+  template:
+    metadata:
+      labels:
+        app: edge-backend
+    spec:
+      containers:
+        - name: backend
+          image: alexandrepedrosaai/edge-backend:latest
+          ports:
+            - containerPort: 4000
