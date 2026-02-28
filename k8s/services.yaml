@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: edge-frontend-service
+spec:
+  selector:
+    app: edge-frontend
+  ports:
+    - port: 3000
+      targetPort: 3000
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: edge-backend-service
+spec:
+  selector:
+    app: edge-backend
+  ports:
+    - port: 4000
+      targetPort: 4000
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: edge-python-service
+spec:
+  selector:
+    app: edge-python
+  ports:
+    - port: 5000
+      targetPort: 5000
+  type: ClusterIP
