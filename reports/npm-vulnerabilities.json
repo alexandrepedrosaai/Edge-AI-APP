@@ -3,16 +3,16 @@
   "Trivy": {
     "Version": "0.69.3"
   },
-  "ReportID": "019d0042-54b2-73b9-8ecd-3a4f3f6808b9",
-  "CreatedAt": "2026-03-18T09:24:00.306246125Z",
-  "ArtifactID": "sha256:993067edda4eb2de34f5f2b9d31f2a9ba97a7da83ff7c0ff7e774dcea7a7d9f5",
+  "ReportID": "019d0047-3970-78a3-8eb5-37fb9d985d75",
+  "CreatedAt": "2026-03-18T09:29:21.008567457Z",
+  "ArtifactID": "sha256:2eba5c0942ff7e6e47bdba89fa00b01c8b1def8beffbf6299a294a28bb50d11a",
   "ArtifactName": ".",
   "ArtifactType": "repository",
   "Metadata": {
     "RepoURL": "https://github.com/alexandrepedrosaai/Edge-AI-APP",
     "Branch": "main",
-    "Commit": "27b48b966c348888e3e694072ca695a3f89ca8d6",
-    "CommitMsg": "fix: Add robust workflows for dependencies, SBOM, and build with error handling",
+    "Commit": "1fdacc2c5667229202ad956d1b6e9288bb3dd326",
+    "CommitMsg": "fix: Simplify Dockerfile and docker-image workflow for reliable builds",
     "Author": "Alexandre Pedrosa \u003calexandrepedrosa@example.com\u003e",
     "Committer": "Alexandre Pedrosa \u003calexandrepedrosa@example.com\u003e"
   }
