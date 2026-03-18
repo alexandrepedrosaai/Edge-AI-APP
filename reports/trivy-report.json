@@ -3,17 +3,17 @@
   "Trivy": {
     "Version": "0.69.3"
   },
-  "ReportID": "019d0050-e612-7825-8765-ebff5613618c",
-  "CreatedAt": "2026-03-18T09:39:55.026535089Z",
-  "ArtifactID": "sha256:b3f2da9d660f03b756db163cdf5978946280cfa28628560b579ad3fe7288ce5c",
+  "ReportID": "019d0056-5c7e-79bf-87a2-d4e25041e776",
+  "CreatedAt": "2026-03-18T09:45:53.02264087Z",
+  "ArtifactID": "sha256:15cc94d42efcbff6e7b3d1dadbf99a9e142df45ab64c73edee27361d8c6a0b1c",
   "ArtifactName": ".",
   "ArtifactType": "repository",
   "Metadata": {
     "RepoURL": "https://github.com/alexandrepedrosaai/Edge-AI-APP",
     "Branch": "main",
-    "Commit": "61f908802fd4841b431b8a5088dfe162e723f4e2",
-    "CommitMsg": "Update ci-azure-docker.yml",
-    "Author": "Alexandre Pedrosa \u003c232003965+alexandrepedrosaai@users.noreply.github.com\u003e",
-    "Committer": "GitHub \u003cnoreply@github.com\u003e"
+    "Commit": "a12b5ca15a3f5129279ae8eaa4052fc24b9fa501",
+    "CommitMsg": "fix: Use Vite build instead of Webpack in build-and-test workflow",
+    "Author": "Alexandre Pedrosa \u003calexandrepedrosa@example.com\u003e",
+    "Committer": "Alexandre Pedrosa \u003calexandrepedrosa@example.com\u003e"
   }
 }
