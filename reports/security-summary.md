@@ -8,7 +8,7 @@
 - sbom/frontend-sbom.json (406)
 - sbom/infra-sbom.json (403)
 - sbom/python-sbom.json (404)
-- sbom/root-sbom.json (29K)
+- sbom/root-sbom.json (31K)
 - sbom/server-sbom.json (404)
 
-Generated at: Wed Mar 18 10:17:20 UTC 2026
+Generated at: Wed Mar 18 10:20:05 UTC 2026
