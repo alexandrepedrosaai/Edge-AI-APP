@@ -69,6 +69,8 @@ RUN if [ -f "pnpm-lock.yaml" ]; then \
       pnpm install --frozen-lockfile; \
     elif [ -f "package.json" ]; then \
       pnpm install; \
+    else \
+      echo "No package.json or pnpm-lock.yaml found"; \
     fi
 
 # ============================================================================
@@ -76,6 +78,8 @@ RUN if [ -f "pnpm-lock.yaml" ]; then \
 # ============================================================================
 RUN if [ -f "requirements.txt" ]; then \
       python3 -m pip install --no-cache-dir -r requirements.txt; \
+    else \
+      echo "No requirements.txt found"; \
     fi
 
 # ============================================================================
@@ -83,6 +87,8 @@ RUN if [ -f "requirements.txt" ]; then \
 # ============================================================================
 RUN if [ -f "package.json" ] && grep -q '"build"' package.json; then \
       pnpm run build; \
+    else \
+      echo "No build script found"; \
     fi
 
 # ============================================================================
