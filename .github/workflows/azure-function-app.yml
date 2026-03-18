@@ -103,12 +103,10 @@ jobs:
           name: function-app-build
           path: deployment/
       
-      - name: Azure Login with OIDC
+      - name: Azure Login with Client Secret
         uses: azure/login@v1
         with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
       
       - name: Deploy to Azure Function App
         uses: Azure/functions-action@v1
@@ -212,12 +210,10 @@ jobs:
       id-token: write
     
     steps:
-      - name: Azure Login with OIDC
+      - name: Azure Login with Client Secret
         uses: azure/login@v1
         with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
       
       - name: Trigger rollback
         run: |
