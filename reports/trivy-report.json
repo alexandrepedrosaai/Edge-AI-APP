@@ -3,16 +3,16 @@
   "Trivy": {
     "Version": "0.69.3"
   },
-  "ReportID": "019d005c-e677-71b0-be49-af1ae28f5b62",
-  "CreatedAt": "2026-03-18T09:53:01.559111991Z",
-  "ArtifactID": "sha256:723ce03f83890aef7c7d6831425c42d99c6e7be8d7949933168c6ba966191695",
+  "ReportID": "019d0061-2bbe-7400-adce-f8dd5181a4c3",
+  "CreatedAt": "2026-03-18T09:57:41.438263576Z",
+  "ArtifactID": "sha256:943b47e093d80651093b36a3201bae53a4f1791ad480028d8d7eaf56579374a0",
   "ArtifactName": ".",
   "ArtifactType": "repository",
   "Metadata": {
     "RepoURL": "https://github.com/alexandrepedrosaai/Edge-AI-APP",
     "Branch": "main",
-    "Commit": "4e465f87b62cdf2e87240ada673fc217ea79d678",
-    "CommitMsg": "fix: Improve Node.js setup and pnpm caching in workflows",
+    "Commit": "2b7afbfeb7f022c6fe1b8a1b4f3f351223f3cd63",
+    "CommitMsg": "fix: Remove missing @builder.io/vite-plugin-jsx-loc and create missing utils.ts",
     "Author": "Alexandre Pedrosa \u003calexandrepedrosa@example.com\u003e",
     "Committer": "Alexandre Pedrosa \u003calexandrepedrosa@example.com\u003e"
   }
