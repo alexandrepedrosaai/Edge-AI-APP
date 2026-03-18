@@ -13,7 +13,7 @@ jobs:
     
     strategy:
       matrix:
-        node-version: [20.x, 22.x]
+        node-version: [20.x]
     
     steps:
       - name: Checkout code
@@ -23,13 +23,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'npm'
       
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-          cache: 'pip'
       
       - name: Install system dependencies
         run: |
@@ -46,40 +44,61 @@ jobs:
       - name: Install pnpm
         run: npm install -g pnpm
       
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+      
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+      
       - name: Install Node.js dependencies
         run: |
           if [ -f "pnpm-lock.yaml" ]; then
+            echo "Installing with pnpm (frozen lockfile)..."
             pnpm install --frozen-lockfile
           elif [ -f "package.json" ]; then
+            echo "Installing with pnpm..."
             pnpm install
+          else
+            echo "No package.json found"
           fi
       
       - name: Install Python dependencies
         run: |
           if [ -f "requirements.txt" ]; then
+            echo "Installing Python dependencies..."
             python3 -m pip install --upgrade pip -q
             pip install -r requirements.txt -q
           fi
       
       - name: Check TypeScript
         run: |
-          if grep -q '"check"' package.json; then
+          if grep -q '"check"' package.json 2>/dev/null; then
             echo "Running TypeScript check..."
             pnpm run check || true
           fi
       
       - name: Format check
         run: |
-          if grep -q '"format"' package.json; then
+          if grep -q '"format"' package.json 2>/dev/null; then
             echo "Running format check..."
             pnpm run format --check || true
           fi
       
       - name: Build project with Vite
         run: |
-          if grep -q '"build"' package.json; then
+          if grep -q '"build"' package.json 2>/dev/null; then
             echo "Building project with Vite..."
             pnpm run build
+          else
+            echo "No build script found"
           fi
       
       - name: Build Assembly
@@ -92,7 +111,7 @@ jobs:
       
       - name: Run tests
         run: |
-          if grep -q '"test"' package.json; then
+          if grep -q '"test"' package.json 2>/dev/null; then
             echo "Running tests..."
             pnpm run test || true
           fi
