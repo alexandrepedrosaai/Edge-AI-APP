@@ -3,17 +3,17 @@
   "Trivy": {
     "Version": "0.69.3"
   },
-  "ReportID": "019d0061-2bbe-7400-adce-f8dd5181a4c3",
-  "CreatedAt": "2026-03-18T09:57:41.438263576Z",
-  "ArtifactID": "sha256:943b47e093d80651093b36a3201bae53a4f1791ad480028d8d7eaf56579374a0",
+  "ReportID": "019d0067-4ded-74e8-934f-69e77546d0dd",
+  "CreatedAt": "2026-03-18T10:04:23.405323255Z",
+  "ArtifactID": "sha256:e27f036ff750202926b9ded86e482f281c4eba93c68715af965a8bdc0ee3e56e",
   "ArtifactName": ".",
   "ArtifactType": "repository",
   "Metadata": {
     "RepoURL": "https://github.com/alexandrepedrosaai/Edge-AI-APP",
     "Branch": "main",
-    "Commit": "2b7afbfeb7f022c6fe1b8a1b4f3f351223f3cd63",
-    "CommitMsg": "fix: Remove missing @builder.io/vite-plugin-jsx-loc and create missing utils.ts",
-    "Author": "Alexandre Pedrosa \u003calexandrepedrosa@example.com\u003e",
-    "Committer": "Alexandre Pedrosa \u003calexandrepedrosa@example.com\u003e"
+    "Commit": "c0bc0be8ba7eed391e6080a5a6db6f032983c71e",
+    "CommitMsg": "trigger: Re-run all workflows",
+    "Author": "Bot \u003cbot@example.com\u003e",
+    "Committer": "Bot \u003cbot@example.com\u003e"
   }
 }
