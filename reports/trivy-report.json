@@ -3,16 +3,16 @@
   "Trivy": {
     "Version": "0.69.3"
   },
-  "ReportID": "019d0067-4ded-74e8-934f-69e77546d0dd",
-  "CreatedAt": "2026-03-18T10:04:23.405323255Z",
-  "ArtifactID": "sha256:e27f036ff750202926b9ded86e482f281c4eba93c68715af965a8bdc0ee3e56e",
+  "ReportID": "019d006c-445e-78ce-9b15-ba23db33fd2d",
+  "CreatedAt": "2026-03-18T10:09:48.638578626Z",
+  "ArtifactID": "sha256:722160d851ea1a0de8271da40ccc9cbd41c2db93103e57098aedbe0a5fff47d9",
   "ArtifactName": ".",
   "ArtifactType": "repository",
   "Metadata": {
     "RepoURL": "https://github.com/alexandrepedrosaai/Edge-AI-APP",
     "Branch": "main",
-    "Commit": "c0bc0be8ba7eed391e6080a5a6db6f032983c71e",
-    "CommitMsg": "trigger: Re-run all workflows",
+    "Commit": "1125090c82dead71ac928f4c1effc6f3ad03bb90",
+    "CommitMsg": "trigger: Clear cache and re-run workflows",
     "Author": "Bot \u003cbot@example.com\u003e",
     "Committer": "Bot \u003cbot@example.com\u003e"
   }
