@@ -3,16 +3,16 @@
   "Trivy": {
     "Version": "0.69.3"
   },
-  "ReportID": "019d004b-1bdd-73c4-86a3-40eceb6c7690",
-  "CreatedAt": "2026-03-18T09:33:35.581249643Z",
-  "ArtifactID": "sha256:60fc345afa2d2412ccf80afbc7aa75fb92bdc833f19932d69a33938c6626f1fb",
+  "ReportID": "019d004f-f107-75a2-b23a-94d6927daebb",
+  "CreatedAt": "2026-03-18T09:38:52.295370995Z",
+  "ArtifactID": "sha256:92c3ad4249716da5096378ebd675261c7498ae8920156010e6085273ec8d110a",
   "ArtifactName": ".",
   "ArtifactType": "repository",
   "Metadata": {
     "RepoURL": "https://github.com/alexandrepedrosaai/Edge-AI-APP",
     "Branch": "main",
-    "Commit": "5073637beebeb18854b302bc35e6bf9f66244d40",
-    "CommitMsg": "fix: Add install-deps script and robust SBOM workflow with error handling",
+    "Commit": "c15f7eb9bc36e9d87b628d9169d77434912cd8c9",
+    "CommitMsg": "fix: SBOM workflow - scan local directories instead of Docker images",
     "Author": "Alexandre Pedrosa \u003calexandrepedrosa@example.com\u003e",
     "Committer": "Alexandre Pedrosa \u003calexandrepedrosa@example.com\u003e"
   }

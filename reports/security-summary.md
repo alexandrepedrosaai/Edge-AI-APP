@@ -5,6 +5,8 @@ Generated: $(date)
 ## Project Structure
 - Client: $([ -d client ] && echo "✓" || echo "✗")
 - Server: $([ -d server ] && echo "✓" || echo "✗")
+- Backend: $([ -d backend ] && echo "✓" || echo "✗")
+- Frontend: $([ -d frontend ] && echo "✓" || echo "✗")
 - Azure Functions: $([ -d azure-functions ] && echo "✓" || echo "✗")
 - Python: $([ -d python ] && echo "✓" || echo "✗")
 
@@ -13,9 +15,9 @@ Generated: $(date)
 - requirements.txt: $([ -f requirements.txt ] && echo "✓" || echo "✗")
 - Dockerfile: $([ -f Dockerfile ] && echo "✓" || echo "✗")
 
-## SBOM Files
-$(ls -1 sbom/ 2>/dev/null | sed 's/^/- /' || echo "No SBOM files generated")
+## SBOM Files Generated
+$(ls -1 sbom/*.json 2>/dev/null | wc -l) SBOM files
 
 ## Scan Reports
-$(ls -1 reports/ 2>/dev/null | sed 's/^/- /' || echo "No scan reports generated")
+$(ls -1 reports/ 2>/dev/null | grep -v security-summary | wc -l) report files
 
