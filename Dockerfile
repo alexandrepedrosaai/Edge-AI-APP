@@ -2,16 +2,14 @@
 # Edge-AI-APP Docker Build
 # Multi-stage build for Assembly, Node.js, and Python development
 # ============================================================================
-
 FROM node:22-alpine AS builder
-
 WORKDIR /app
 
 # Copy package files
-COPY package.json ./
+COPY package*.json ./
 
-# Install dependencies using npm install
-RUN npm install
+# Install dependencies using npm ci (uses package-lock.json)
+RUN npm ci
 
 # Copy source code
 COPY . .
@@ -22,9 +20,7 @@ RUN npm run build
 # ============================================================================
 # Production stage
 # ============================================================================
-
 FROM ubuntu:22.04
-
 LABEL maintainer="Alexandre Pedrosa <alexandrepedrosa@example.com>"
 LABEL description="Edge-AI-APP - Assembly, Node.js, and Python Development Environment"
 
