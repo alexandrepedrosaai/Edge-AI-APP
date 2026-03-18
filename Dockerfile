@@ -5,14 +5,11 @@
 FROM node:22-alpine AS builder
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy ALL files first (including package files)
+COPY . .
 
 # Install dependencies using npm ci (uses package-lock.json)
 RUN npm ci
-
-# Copy source code
-COPY . .
 
 # Build the application
 RUN npm run build
@@ -43,9 +40,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Copy built application from builder
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package.json ./
+COPY --from=builder /app/package-lock.json ./
 
 # Install production dependencies only
-RUN npm install --only=production
+RUN npm ci --only=production
 
 # Create non-root user
 RUN useradd -m -u 1000 appuser && \
