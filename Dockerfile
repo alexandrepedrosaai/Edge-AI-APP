@@ -1,17 +1,17 @@
 # ============================================================================
 # Edge-AI-APP Docker Build
-# Multi-purpose image for Assembly, Node.js, and Python development
+# Multi-stage build for Assembly, Node.js, and Python development
 # ============================================================================
 
 FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-# Copy only package files first
-COPY package*.json ./
+# Copy package files
+COPY package.json ./
 
-# Install dependencies using npm
-RUN npm ci --only=production
+# Install dependencies using npm install
+RUN npm install
 
 # Copy source code
 COPY . .
@@ -40,20 +40,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     python3 \
     python3-pip \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install Node.js
-RUN apt-get update && apt-get install -y --no-install-recommends \
     nodejs \
     npm \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy built application from builder
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/package.json ./
 
-# Install production dependencies
-RUN npm ci --only=production
+# Install production dependencies only
+RUN npm install --only=production
 
 # Create non-root user
 RUN useradd -m -u 1000 appuser && \
