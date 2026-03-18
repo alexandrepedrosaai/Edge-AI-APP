@@ -3,17 +3,17 @@
   "Trivy": {
     "Version": "0.69.3"
   },
-  "ReportID": "019d004f-f107-75a2-b23a-94d6927daebb",
-  "CreatedAt": "2026-03-18T09:38:52.295370995Z",
-  "ArtifactID": "sha256:92c3ad4249716da5096378ebd675261c7498ae8920156010e6085273ec8d110a",
+  "ReportID": "019d0050-e612-7825-8765-ebff5613618c",
+  "CreatedAt": "2026-03-18T09:39:55.026535089Z",
+  "ArtifactID": "sha256:b3f2da9d660f03b756db163cdf5978946280cfa28628560b579ad3fe7288ce5c",
   "ArtifactName": ".",
   "ArtifactType": "repository",
   "Metadata": {
     "RepoURL": "https://github.com/alexandrepedrosaai/Edge-AI-APP",
     "Branch": "main",
-    "Commit": "c15f7eb9bc36e9d87b628d9169d77434912cd8c9",
-    "CommitMsg": "fix: SBOM workflow - scan local directories instead of Docker images",
-    "Author": "Alexandre Pedrosa \u003calexandrepedrosa@example.com\u003e",
-    "Committer": "Alexandre Pedrosa \u003calexandrepedrosa@example.com\u003e"
+    "Commit": "61f908802fd4841b431b8a5088dfe162e723f4e2",
+    "CommitMsg": "Update ci-azure-docker.yml",
+    "Author": "Alexandre Pedrosa \u003c232003965+alexandrepedrosaai@users.noreply.github.com\u003e",
+    "Committer": "GitHub \u003cnoreply@github.com\u003e"
   }
 }
