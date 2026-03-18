@@ -3,16 +3,16 @@
   "Trivy": {
     "Version": "0.69.3"
   },
-  "ReportID": "019d0056-5c7e-79bf-87a2-d4e25041e776",
-  "CreatedAt": "2026-03-18T09:45:53.02264087Z",
-  "ArtifactID": "sha256:15cc94d42efcbff6e7b3d1dadbf99a9e142df45ab64c73edee27361d8c6a0b1c",
+  "ReportID": "019d005c-e677-71b0-be49-af1ae28f5b62",
+  "CreatedAt": "2026-03-18T09:53:01.559111991Z",
+  "ArtifactID": "sha256:723ce03f83890aef7c7d6831425c42d99c6e7be8d7949933168c6ba966191695",
   "ArtifactName": ".",
   "ArtifactType": "repository",
   "Metadata": {
     "RepoURL": "https://github.com/alexandrepedrosaai/Edge-AI-APP",
     "Branch": "main",
-    "Commit": "a12b5ca15a3f5129279ae8eaa4052fc24b9fa501",
-    "CommitMsg": "fix: Use Vite build instead of Webpack in build-and-test workflow",
+    "Commit": "4e465f87b62cdf2e87240ada673fc217ea79d678",
+    "CommitMsg": "fix: Improve Node.js setup and pnpm caching in workflows",
     "Author": "Alexandre Pedrosa \u003calexandrepedrosa@example.com\u003e",
     "Committer": "Alexandre Pedrosa \u003calexandrepedrosa@example.com\u003e"
   }
