@@ -87,7 +87,7 @@ jobs:
     
     environment:
       name: ${{ github.event.inputs.environment || 'staging' }}
-      url: https://${{ secrets.AZURE_FUNCTION_APP_NAME }}.azurewebsites.net
+      url: https://${{ secrets.AZURE_FUNCTIONAPP_NAME }}.azurewebsites.net
     
     steps:
       - name: Checkout code
@@ -109,7 +109,7 @@ jobs:
       - name: Deploy to Azure Function App
         uses: Azure/functions-action@v1
         with:
-          app-name: ${{ secrets.AZURE_FUNCTION_APP_NAME }}
+          app-name: ${{ secrets.AZURE_FUNCTIONAPP_NAME }}
           package: deployment/
           publish-profile: ${{ secrets.AZURE_FUNCTION_PUBLISH_PROFILE }}
           scm-do-build-during-deployment: true
@@ -117,7 +117,7 @@ jobs:
       
       - name: Verify deployment
         run: |
-          FUNCTION_APP_NAME="${{ secrets.AZURE_FUNCTION_APP_NAME }}"
+          FUNCTION_APP_NAME="${{ secrets.AZURE_FUNCTIONAPP_NAME }}"
           RESOURCE_GROUP="${{ secrets.AZURE_RESOURCE_GROUP }}"
           
           echo "Verifying Function App deployment..."
@@ -140,7 +140,7 @@ jobs:
       
       - name: Health check
         run: |
-          FUNCTION_APP_NAME="${{ secrets.AZURE_FUNCTION_APP_NAME }}"
+          FUNCTION_APP_NAME="${{ secrets.AZURE_FUNCTIONAPP_NAME }}"
           RESOURCE_GROUP="${{ secrets.AZURE_RESOURCE_GROUP }}"
           
           # Get the default hostname
@@ -166,7 +166,7 @@ jobs:
       
       - name: Configure application settings
         run: |
-          FUNCTION_APP_NAME="${{ secrets.AZURE_FUNCTION_APP_NAME }}"
+          FUNCTION_APP_NAME="${{ secrets.AZURE_FUNCTIONAPP_NAME }}"
           RESOURCE_GROUP="${{ secrets.AZURE_RESOURCE_GROUP }}"
           
           echo "Configuring application settings..."
@@ -217,7 +217,7 @@ jobs:
       
       - name: Trigger rollback
         run: |
-          FUNCTION_APP_NAME="${{ secrets.AZURE_FUNCTION_APP_NAME }}"
+          FUNCTION_APP_NAME="${{ secrets.AZURE_FUNCTIONAPP_NAME }}"
           RESOURCE_GROUP="${{ secrets.AZURE_RESOURCE_GROUP }}"
           
           echo "⚠️ Deployment failed! Initiating rollback..."
