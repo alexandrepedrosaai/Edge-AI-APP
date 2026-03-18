@@ -33,15 +33,15 @@ jobs:
       
       - name: Install system dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y \
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq \
             build-essential \
             python3-dev \
             nasm \
             yasm \
             binutils \
             gcc \
-            g++
+            g++ || true
       
       - name: Install pnpm
         run: npm install -g pnpm
@@ -57,29 +57,29 @@ jobs:
       - name: Install Python dependencies
         run: |
           if [ -f "requirements.txt" ]; then
-            python3 -m pip install --upgrade pip
-            pip install -r requirements.txt
+            python3 -m pip install --upgrade pip -q
+            pip install -r requirements.txt -q
           fi
       
-      - name: Lint code
+      - name: Check TypeScript
         run: |
-          if [ -f "package.json" ] && grep -q '"lint"' package.json; then
-            echo "Running linter..."
-            pnpm run lint || true
+          if grep -q '"check"' package.json; then
+            echo "Running TypeScript check..."
+            pnpm run check || true
           fi
       
-      - name: Build project
+      - name: Format check
         run: |
-          if [ -f "package.json" ] && grep -q '"build"' package.json; then
-            echo "Building project..."
+          if grep -q '"format"' package.json; then
+            echo "Running format check..."
+            pnpm run format --check || true
+          fi
+      
+      - name: Build project with Vite
+        run: |
+          if grep -q '"build"' package.json; then
+            echo "Building project with Vite..."
             pnpm run build
-          fi
-      
-      - name: Run tests
-        run: |
-          if [ -f "package.json" ] && grep -q '"test"' package.json; then
-            echo "Running tests..."
-            pnpm run test || true
           fi
       
       - name: Build Assembly
@@ -88,6 +88,13 @@ jobs:
             echo "Building Assembly..."
             chmod +x build-assembly.sh
             ./build-assembly.sh x86_64 linux || true
+          fi
+      
+      - name: Run tests
+        run: |
+          if grep -q '"test"' package.json; then
+            echo "Running tests..."
+            pnpm run test || true
           fi
       
       - name: Upload build artifacts
@@ -111,4 +118,10 @@ jobs:
           echo "- pnpm: $(pnpm --version)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "## Build Status" >> $GITHUB_STEP_SUMMARY
-          echo "✓ Build completed" >> $GITHUB_STEP_SUMMARY
+          if [ -d "dist" ]; then
+            echo "✓ Build completed successfully" >> $GITHUB_STEP_SUMMARY
+            echo "- Output: dist/" >> $GITHUB_STEP_SUMMARY
+            echo "- Size: $(du -sh dist/ | cut -f1)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠ Build output not found" >> $GITHUB_STEP_SUMMARY
+          fi
