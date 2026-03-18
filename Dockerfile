@@ -1,122 +1,110 @@
 # ============================================================================
-# Edge-AI-APP Multi-Stage Docker Build
-# Supports Assembly, Node.js, Python, and Azure Functions
+# Edge-AI-APP Docker Build
+# Multi-purpose image for Assembly, Node.js, and Python development
 # ============================================================================
 
-# Stage 1: Assembly Build Environment
-FROM ubuntu:22.04 AS assembly-builder
+FROM ubuntu:22.04
+
+LABEL maintainer="Alexandre Pedrosa <alexandrepedrosa@example.com>"
+LABEL description="Edge-AI-APP - Assembly, Node.js, and Python Development Environment"
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    NODE_ENV=production \
+    PORT=3000
 
 WORKDIR /app
 
-# Install Assembly development tools
-RUN apt-get update && apt-get install -y \
+# ============================================================================
+# Install system dependencies
+# ============================================================================
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    # Build tools
+    build-essential \
+    curl \
+    wget \
+    git \
+    ca-certificates \
+    \
+    # Assembly tools
     nasm \
     yasm \
     binutils \
     gcc \
     g++ \
+    \
+    # Debuggers
     gdb \
-    lldb \
-    build-essential \
-    clang \
-    lld \
-    strace \
-    ltrace \
-    valgrind \
+    \
+    # Analysis tools
     checksec \
-    python3 \
-    python3-pip \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copy project files
-COPY . .
-
-# Build Assembly files
-RUN chmod +x build-assembly.sh && \
-    ./build-assembly.sh x86_64 linux || true
-
-# Stage 2: Node.js Build Environment
-FROM node:22-alpine AS node-builder
-
-WORKDIR /app
-
-# Install dependencies
-RUN npm install -g pnpm
-
-# Copy package files
-COPY package.json pnpm-lock.yaml* ./
-
-# Install dependencies
-RUN pnpm install --frozen-lockfile || pnpm install
-
-# Copy source code
-COPY client ./client
-COPY server ./server
-COPY shared ./shared
-
-# Build the project
-RUN pnpm run build || true
-
-# Stage 3: Python Azure Functions Runtime
-FROM mcr.microsoft.com/azure-functions/python:4-python3.11 AS python-runtime
-
-ENV AzureWebJobsScriptRoot=/home/site/wwwroot \
-    AzureFunctionsVersion=4
-
-WORKDIR /home/site/wwwroot
-
-# Copy Azure Functions
-COPY azure-functions/ .
-
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Stage 4: Final Runtime Image
-FROM ubuntu:22.04
-
-WORKDIR /app
-
-# Install runtime dependencies
-RUN apt-get update && apt-get install -y \
+    \
+    # Runtime
     nodejs \
     npm \
     python3 \
     python3-pip \
-    curl \
-    wget \
-    git \
-    ca-certificates \
+    \
+    # Utilities
+    jq \
     && rm -rf /var/lib/apt/lists/*
 
-# Install pnpm
+# ============================================================================
+# Install Node.js tools
+# ============================================================================
 RUN npm install -g pnpm
 
-# Copy built Assembly artifacts
-COPY --from=assembly-builder /app/build /app/build
-
-# Copy Node.js build artifacts
-COPY --from=node-builder /app/dist /app/dist
-COPY --from=node-builder /app/node_modules /app/node_modules
-COPY --from=node-builder /app/package.json /app/package.json
-
-# Copy source files
+# ============================================================================
+# Copy project files
+# ============================================================================
+COPY package*.json pnpm-lock.yaml* ./
 COPY client ./client
 COPY server ./server
 COPY shared ./shared
 COPY . .
 
+# ============================================================================
+# Install Node.js dependencies
+# ============================================================================
+RUN if [ -f "pnpm-lock.yaml" ]; then \
+      pnpm install --frozen-lockfile; \
+    elif [ -f "package.json" ]; then \
+      pnpm install; \
+    fi
+
+# ============================================================================
+# Install Python dependencies
+# ============================================================================
+RUN if [ -f "requirements.txt" ]; then \
+      python3 -m pip install --no-cache-dir -r requirements.txt; \
+    fi
+
+# ============================================================================
+# Build project
+# ============================================================================
+RUN if [ -f "package.json" ] && grep -q '"build"' package.json; then \
+      pnpm run build; \
+    fi
+
+# ============================================================================
 # Create non-root user
+# ============================================================================
 RUN useradd -m -u 1000 appuser && \
     chown -R appuser:appuser /app
 
 USER appuser
 
+# ============================================================================
 # Health check
+# ============================================================================
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:3000/ || exit 1
 
+# ============================================================================
 # Expose ports
+# ============================================================================
 EXPOSE 3000 8080 7071
 
+# ============================================================================
 # Default command
+# ============================================================================
 CMD ["node", "dist/index.js"]
