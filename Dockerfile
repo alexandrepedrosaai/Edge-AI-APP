@@ -18,78 +18,40 @@ WORKDIR /app
 # Install system dependencies
 # ============================================================================
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    # Build tools
     build-essential \
     curl \
     wget \
     git \
     ca-certificates \
-    \
-    # Assembly tools
     nasm \
     yasm \
     binutils \
     gcc \
     g++ \
-    \
-    # Debuggers
     gdb \
-    \
-    # Analysis tools
     checksec \
-    \
-    # Runtime
     nodejs \
     npm \
     python3 \
     python3-pip \
-    \
-    # Utilities
     jq \
     && rm -rf /var/lib/apt/lists/*
 
 # ============================================================================
-# Install Node.js tools
+# Install pnpm
 # ============================================================================
 RUN npm install -g pnpm
 
 # ============================================================================
 # Copy project files
 # ============================================================================
-COPY package*.json pnpm-lock.yaml* ./
-COPY client ./client
-COPY server ./server
-COPY shared ./shared
 COPY . .
 
 # ============================================================================
-# Install Node.js dependencies
+# Install dependencies and build
 # ============================================================================
-RUN if [ -f "pnpm-lock.yaml" ]; then \
-      pnpm install --frozen-lockfile; \
-    elif [ -f "package.json" ]; then \
-      pnpm install; \
-    else \
-      echo "No package.json or pnpm-lock.yaml found"; \
-    fi
-
-# ============================================================================
-# Install Python dependencies
-# ============================================================================
-RUN if [ -f "requirements.txt" ]; then \
-      python3 -m pip install --no-cache-dir -r requirements.txt; \
-    else \
-      echo "No requirements.txt found"; \
-    fi
-
-# ============================================================================
-# Build project
-# ============================================================================
-RUN if [ -f "package.json" ] && grep -q '"build"' package.json; then \
-      pnpm run build; \
-    else \
-      echo "No build script found"; \
-    fi
+RUN pnpm install && \
+    pnpm run build
 
 # ============================================================================
 # Create non-root user
