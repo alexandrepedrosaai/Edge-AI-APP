@@ -54,3 +54,12 @@ jobs:
       
       - name: Run tests
         run: pnpm run test 2>/dev/null || echo "No tests configured"
+      
+      - name: Upload build artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts-node${{ matrix.node-version }}
+          path: dist/
+          if-no-files-found: ignore
+          retention-days: 7

@@ -126,9 +126,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build-artifacts-node${{ matrix.node-version }}
-          path: |
-            dist/
-            build/
+          path: dist/
+          if-no-files-found: ignore
           retention-days: 7
       
       - name: Create build summary
