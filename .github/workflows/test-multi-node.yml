@@ -45,6 +45,11 @@ jobs:
         run: pnpm install
       
       - name: Build with Vite
+        env:
+          VITE_ANALYTICS_ENDPOINT: "https://analytics.example.com"
+          VITE_ANALYTICS_WEBSITE_ID: "default"
+          VITE_APP_TITLE: "Edge AI App"
+          VITE_APP_LOGO: "/logo.svg"
         run: pnpm run build
       
       - name: Run tests

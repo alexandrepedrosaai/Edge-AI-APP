@@ -93,6 +93,11 @@ jobs:
           fi
       
       - name: Build project with Vite
+        env:
+          VITE_ANALYTICS_ENDPOINT: "https://analytics.example.com"
+          VITE_ANALYTICS_WEBSITE_ID: "default"
+          VITE_APP_TITLE: "Edge AI App"
+          VITE_APP_LOGO: "/logo.svg"
         run: |
           if grep -q '"build"' package.json 2>/dev/null; then
             echo "Building project with Vite..."
