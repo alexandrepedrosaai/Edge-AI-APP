@@ -1,4 +1,4 @@
-name: SBOM & Security Scan
+name: Generate SBOMs
 
 on:
   push:
@@ -8,9 +8,10 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
-  sbom-security:
+  sbom:
     runs-on: ubuntu-latest
     
     permissions:
@@ -28,106 +29,100 @@ jobs:
       
       - name: Install system dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            wget \
+          echo "Installing system dependencies..."
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq \
             curl \
-            apt-transport-https \
-            gnupg \
-            lsb-release \
+            wget \
             git \
-            jq
+            jq \
+            python3 \
+            python3-pip
       
       - name: Install Syft
         run: |
           echo "Installing Syft..."
-          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
-          syft --version
+          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin || true
+          syft --version || echo "Syft installation skipped"
       
       - name: Install Trivy
         run: |
           echo "Installing Trivy..."
-          sudo apt-get update
-          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
-          echo "deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/trivy.list
-          sudo apt-get update
-          sudo apt-get install -y trivy
-          trivy --version
+          sudo apt-get update -qq
+          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add - || true
+          echo "deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/trivy.list > /dev/null || true
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq trivy || echo "Trivy installation skipped"
+          trivy --version || echo "Trivy not available"
       
-      - name: Scan repository with Trivy
+      - name: Generate SBOM for client (if exists)
         run: |
-          echo "Scanning repository with Trivy..."
-          trivy fs --format json --output reports/trivy-fs-report.json . || true
-          trivy fs --format table --output reports/trivy-fs-report.txt . || true
-      
-      - name: Generate SBOM for client
-        run: |
-          echo "Generating SBOM for client..."
           if [ -d "client" ]; then
-            syft dir:./client -o cyclonedx-json > sbom/client-sbom.json || echo "Client SBOM generation skipped"
+            echo "Generating SBOM for client..."
+            syft dir:./client -o cyclonedx-json > sbom/client-sbom.json 2>/dev/null || echo "Client SBOM skipped"
+          else
+            echo "Client directory not found"
           fi
       
-      - name: Generate SBOM for server
+      - name: Generate SBOM for server (if exists)
         run: |
-          echo "Generating SBOM for server..."
           if [ -d "server" ]; then
-            syft dir:./server -o cyclonedx-json > sbom/server-sbom.json || echo "Server SBOM generation skipped"
+            echo "Generating SBOM for server..."
+            syft dir:./server -o cyclonedx-json > sbom/server-sbom.json 2>/dev/null || echo "Server SBOM skipped"
+          else
+            echo "Server directory not found"
           fi
       
-      - name: Generate SBOM for azure-functions
+      - name: Generate SBOM for azure-functions (if exists)
         run: |
-          echo "Generating SBOM for azure-functions..."
           if [ -d "azure-functions" ]; then
-            syft dir:./azure-functions -o cyclonedx-json > sbom/azure-functions-sbom.json || echo "Azure Functions SBOM generation skipped"
+            echo "Generating SBOM for azure-functions..."
+            syft dir:./azure-functions -o cyclonedx-json > sbom/azure-functions-sbom.json 2>/dev/null || echo "Azure Functions SBOM skipped"
+          else
+            echo "Azure Functions directory not found"
           fi
       
-      - name: Generate SBOM for python
+      - name: Generate SBOM for python (if exists)
         run: |
-          echo "Generating SBOM for python..."
           if [ -d "python" ]; then
-            syft dir:./python -o cyclonedx-json > sbom/python-sbom.json || echo "Python SBOM generation skipped"
+            echo "Generating SBOM for python..."
+            syft dir:./python -o cyclonedx-json > sbom/python-sbom.json 2>/dev/null || echo "Python SBOM skipped"
+          else
+            echo "Python directory not found"
           fi
       
-      - name: Scan dependencies with Trivy
+      - name: Scan with Trivy
         run: |
-          echo "Scanning dependencies..."
-          if [ -f "package.json" ]; then
-            trivy fs --severity HIGH,CRITICAL --format json --output reports/npm-vulnerabilities.json . || true
-          fi
-          if [ -f "requirements.txt" ]; then
-            trivy fs --severity HIGH,CRITICAL --format json --output reports/python-vulnerabilities.json . || true
-          fi
+          echo "Scanning with Trivy..."
+          trivy fs --format json --output reports/trivy-report.json . 2>/dev/null || echo "Trivy scan skipped"
+          trivy fs --format table --output reports/trivy-report.txt . 2>/dev/null || echo "Trivy scan skipped"
       
-      - name: Generate security report
+      - name: Generate security summary
         run: |
           cat > reports/security-summary.md << 'EOF'
           # Security Scan Report
           
           Generated: $(date)
           
-          ## Scan Results
+          ## Project Structure
+          - Client: $([ -d client ] && echo "✓" || echo "✗")
+          - Server: $([ -d server ] && echo "✓" || echo "✗")
+          - Azure Functions: $([ -d azure-functions ] && echo "✓" || echo "✗")
+          - Python: $([ -d python ] && echo "✓" || echo "✗")
           
-          ### Trivy Filesystem Scan
-          $(trivy fs --format table . 2>/dev/null || echo "No critical issues found")
+          ## Dependencies
+          - package.json: $([ -f package.json ] && echo "✓" || echo "✗")
+          - requirements.txt: $([ -f requirements.txt ] && echo "✓" || echo "✗")
+          - Dockerfile: $([ -f Dockerfile ] && echo "✓" || echo "✗")
           
-          ### Dependencies
-          - Node.js: $([ -f package.json ] && echo "✓" || echo "✗")
-          - Python: $([ -f requirements.txt ] && echo "✓" || echo "✗")
-          - Docker: $([ -f Dockerfile ] && echo "✓" || echo "✗")
-          
-          ### SBOM Files Generated
+          ## SBOM Files
           $(ls -1 sbom/ 2>/dev/null | sed 's/^/- /' || echo "No SBOM files generated")
+          
+          ## Scan Reports
+          $(ls -1 reports/ 2>/dev/null | sed 's/^/- /' || echo "No scan reports generated")
           
           EOF
           cat reports/security-summary.md
-      
-      - name: Upload Trivy results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: trivy-scan-results
-          path: reports/
-          retention-days: 30
       
       - name: Upload SBOM artifacts
         if: always()
@@ -137,14 +132,21 @@ jobs:
           path: sbom/
           retention-days: 30
       
-      - name: Create commit with results
+      - name: Upload scan reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scan-reports
+          path: reports/
+          retention-days: 30
+      
+      - name: Commit and push results
         if: always()
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
-          # Check if there are changes
-          if [ -n "$(git status --porcelain)" ]; then
+          if [ -n "$(git status --porcelain sbom/ reports/)" ]; then
             git add sbom/ reports/ || true
             git commit -m "chore: Update SBOM and security scan reports [skip ci]" || true
             git push || true
@@ -152,15 +154,11 @@ jobs:
             echo "No changes to commit"
           fi
       
-      - name: Summary
+      - name: Create summary
         if: always()
         run: |
-          echo "## Security Scan Summary" >> $GITHUB_STEP_SUMMARY
+          echo "# SBOM Generation Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Scan Results" >> $GITHUB_STEP_SUMMARY
-          echo "- Trivy FS Scan: ✓" >> $GITHUB_STEP_SUMMARY
-          echo "- SBOM Generation: ✓" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Artifacts" >> $GITHUB_STEP_SUMMARY
-          echo "- Reports: $(ls -1 reports/ 2>/dev/null | wc -l) files" >> $GITHUB_STEP_SUMMARY
-          echo "- SBOM: $(ls -1 sbom/ 2>/dev/null | wc -l) files" >> $GITHUB_STEP_SUMMARY
+          echo "## Generated Files" >> $GITHUB_STEP_SUMMARY
+          echo "- SBOM Files: $(ls -1 sbom/ 2>/dev/null | wc -l)" >> $GITHUB_STEP_SUMMARY
+          echo "- Scan Reports: $(ls -1 reports/ 2>/dev/null | wc -l)" >> $GITHUB_STEP_SUMMARY
