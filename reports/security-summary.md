@@ -11,4 +11,4 @@
 - sbom/root-sbom.json (31K)
 - sbom/server-sbom.json (404)
 
-Generated at: Wed Mar 18 10:28:15 UTC 2026
+Generated at: Wed Mar 18 10:30:53 UTC 2026
