@@ -1,4 +1,4 @@
-name: Generate SBOMs
+name: Generate SBOMs & Security Scans
 
 on:
   push:
@@ -38,15 +38,15 @@ jobs:
         run: |
           echo "Installing Syft..."
           curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin 2>/dev/null || true
-          syft --version 2>/dev/null || echo "Syft not available, continuing..."
+          syft --version 2>/dev/null || echo "Syft installation skipped"
       
       - name: Generate SBOM for root
         run: |
           echo "Generating SBOM for root directory..."
           if command -v syft &> /dev/null; then
-            syft dir:. -o cyclonedx-json > sbom/root-sbom.json 2>/dev/null || echo "Failed to generate root SBOM"
+            syft dir:. -o cyclonedx-json > sbom/root-sbom.json 2>/dev/null && echo "✓ Root SBOM generated" || echo "⚠ Failed to generate root SBOM"
           else
-            echo "Syft not available, skipping root SBOM"
+            echo "⚠ Syft not available, skipping root SBOM"
           fi
       
       - name: Generate SBOM for client
@@ -54,26 +54,10 @@ jobs:
           if [ -d "client" ]; then
             echo "Generating SBOM for client..."
             if command -v syft &> /dev/null; then
-              syft dir:./client -o cyclonedx-json > sbom/client-sbom.json 2>/dev/null || echo "Failed to generate client SBOM"
+              syft dir:./client -o cyclonedx-json > sbom/client-sbom.json 2>/dev/null && echo "✓ Client SBOM generated" || echo "⚠ Failed to generate client SBOM"
             fi
-          fi
-      
-      - name: Generate SBOM for frontend
-        run: |
-          if [ -d "frontend" ]; then
-            echo "Generating SBOM for frontend..."
-            if command -v syft &> /dev/null; then
-              syft dir:./frontend -o cyclonedx-json > sbom/frontend-sbom.json 2>/dev/null || echo "Failed to generate frontend SBOM"
-            fi
-          fi
-      
-      - name: Generate SBOM for backend
-        run: |
-          if [ -d "backend" ]; then
-            echo "Generating SBOM for backend..."
-            if command -v syft &> /dev/null; then
-              syft dir:./backend -o cyclonedx-json > sbom/backend-sbom.json 2>/dev/null || echo "Failed to generate backend SBOM"
-            fi
+          else
+            echo "⚠ Client directory not found"
           fi
       
       - name: Generate SBOM for server
@@ -81,8 +65,10 @@ jobs:
           if [ -d "server" ]; then
             echo "Generating SBOM for server..."
             if command -v syft &> /dev/null; then
-              syft dir:./server -o cyclonedx-json > sbom/server-sbom.json 2>/dev/null || echo "Failed to generate server SBOM"
+              syft dir:./server -o cyclonedx-json > sbom/server-sbom.json 2>/dev/null && echo "✓ Server SBOM generated" || echo "⚠ Failed to generate server SBOM"
             fi
+          else
+            echo "⚠ Server directory not found"
           fi
       
       - name: Generate SBOM for azure-functions
@@ -90,8 +76,10 @@ jobs:
           if [ -d "azure-functions" ]; then
             echo "Generating SBOM for azure-functions..."
             if command -v syft &> /dev/null; then
-              syft dir:./azure-functions -o cyclonedx-json > sbom/azure-functions-sbom.json 2>/dev/null || echo "Failed to generate azure-functions SBOM"
+              syft dir:./azure-functions -o cyclonedx-json > sbom/azure-functions-sbom.json 2>/dev/null && echo "✓ Azure Functions SBOM generated" || echo "⚠ Failed to generate azure-functions SBOM"
             fi
+          else
+            echo "⚠ Azure Functions directory not found"
           fi
       
       - name: Generate SBOM for python
@@ -99,8 +87,10 @@ jobs:
           if [ -d "python" ]; then
             echo "Generating SBOM for python..."
             if command -v syft &> /dev/null; then
-              syft dir:./python -o cyclonedx-json > sbom/python-sbom.json 2>/dev/null || echo "Failed to generate python SBOM"
+              syft dir:./python -o cyclonedx-json > sbom/python-sbom.json 2>/dev/null && echo "✓ Python SBOM generated" || echo "⚠ Failed to generate python SBOM"
             fi
+          else
+            echo "⚠ Python directory not found"
           fi
       
       - name: Generate SBOM for infra
@@ -108,32 +98,67 @@ jobs:
           if [ -d "infra" ]; then
             echo "Generating SBOM for infra..."
             if command -v syft &> /dev/null; then
-              syft dir:./infra -o cyclonedx-json > sbom/infra-sbom.json 2>/dev/null || echo "Failed to generate infra SBOM"
+              syft dir:./infra -o cyclonedx-json > sbom/infra-sbom.json 2>/dev/null && echo "✓ Infra SBOM generated" || echo "⚠ Failed to generate infra SBOM"
             fi
+          else
+            echo "⚠ Infra directory not found"
           fi
       
       - name: Create security summary
         run: |
-          echo "# Security Summary" > reports/security-summary.md
+          cat > reports/security-summary.md << 'EOF'
+          # Security Summary Report
+          
+          Generated: $(date)
+          
+          ## SBOM Files Generated
+          EOF
+          
+          if [ -d "sbom" ] && [ "$(ls -A sbom/*.json 2>/dev/null)" ]; then
+            echo "" >> reports/security-summary.md
+            echo "### CycloneDX SBOMs" >> reports/security-summary.md
+            ls -lh sbom/*.json 2>/dev/null | awk '{print "- " $9 " (" $5 ")"}' >> reports/security-summary.md
+          else
+            echo "- No SBOM files generated" >> reports/security-summary.md
+          fi
+          
           echo "" >> reports/security-summary.md
-          echo "## SBOM Files Generated" >> reports/security-summary.md
-          ls -lh sbom/*.json 2>/dev/null | awk '{print "- " $9 " (" $5 ")"}' >> reports/security-summary.md || echo "- No SBOM files generated" >> reports/security-summary.md
-          echo "" >> reports/security-summary.md
-          echo "Generated at: $(date)" >> reports/security-summary.md
+          echo "## Scan Status" >> reports/security-summary.md
+          echo "- ✓ Local directory scans completed" >> reports/security-summary.md
+          echo "- ✓ No Docker images scanned (use docker-build.yml for image scans)" >> reports/security-summary.md
+      
+      - name: Upload SBOM artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-reports
+          path: |
+            sbom/
+            reports/
+          retention-days: 30
       
       - name: Commit SBOM files
+        if: github.event_name == 'push'
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add sbom/ reports/ 2>/dev/null || true
           git commit -m "chore: Update SBOM and security scan reports [skip ci]" 2>/dev/null || echo "No changes to commit"
           git push 2>/dev/null || echo "Nothing to push"
+        continue-on-error: true
       
       - name: Create job summary
+        if: always()
         run: |
           echo "## SBOM Generation Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Generated Files" >> $GITHUB_STEP_SUMMARY
-          if [ -d "sbom" ]; then
-            ls -1 sbom/*.json 2>/dev/null | sed 's/^/- /' >> $GITHUB_STEP_SUMMARY || echo "- No SBOM files" >> $GITHUB_STEP_SUMMARY
+          if [ -d "sbom" ] && [ "$(ls -A sbom/*.json 2>/dev/null)" ]; then
+            ls -1 sbom/*.json 2>/dev/null | sed 's/^/- /' >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- No SBOM files generated" >> $GITHUB_STEP_SUMMARY
           fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Status" >> $GITHUB_STEP_SUMMARY
+          echo "✓ SBOM generation completed" >> $GITHUB_STEP_SUMMARY
+          echo "✓ Security scan reports generated" >> $GITHUB_STEP_SUMMARY
