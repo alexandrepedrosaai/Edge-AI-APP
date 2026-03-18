@@ -1,0 +1,19 @@
+{
+  "SchemaVersion": 2,
+  "Trivy": {
+    "Version": "0.69.3"
+  },
+  "ReportID": "019d004b-1bdd-73c4-86a3-40eceb6c7690",
+  "CreatedAt": "2026-03-18T09:33:35.581249643Z",
+  "ArtifactID": "sha256:60fc345afa2d2412ccf80afbc7aa75fb92bdc833f19932d69a33938c6626f1fb",
+  "ArtifactName": ".",
+  "ArtifactType": "repository",
+  "Metadata": {
+    "RepoURL": "https://github.com/alexandrepedrosaai/Edge-AI-APP",
+    "Branch": "main",
+    "Commit": "5073637beebeb18854b302bc35e6bf9f66244d40",
+    "CommitMsg": "fix: Add install-deps script and robust SBOM workflow with error handling",
+    "Author": "Alexandre Pedrosa \u003calexandrepedrosa@example.com\u003e",
+    "Committer": "Alexandre Pedrosa \u003calexandrepedrosa@example.com\u003e"
+  }
+}
