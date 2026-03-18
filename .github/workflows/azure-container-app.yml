@@ -109,7 +109,7 @@ jobs:
     
     environment:
       name: ${{ github.event.inputs.environment || 'staging' }}
-      url: https://${{ secrets.AZURE_CONTAINER_APP_NAME }}.azurecontainerapps.io
+      url: https://edge-ai-app.azurecontainerapps.io
     
     steps:
       - name: Checkout code

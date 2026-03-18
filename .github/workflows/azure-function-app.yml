@@ -91,7 +91,7 @@ jobs:
     
     environment:
       name: ${{ github.event.inputs.environment || 'staging' }}
-      url: https://${{ secrets.AZURE_FUNCTIONAPP_NAME }}.azurewebsites.net
+      url: https://edge-ai-functions.azurewebsites.net
     
     steps:
       - name: Checkout code
