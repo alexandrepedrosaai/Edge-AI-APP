@@ -1,13 +1,66 @@
 version: '3.8'
 
 services:
+  # Main Application
   app:
     build:
       context: .
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
+      - "8080:8080"
     environment:
       - NODE_ENV=production
       - PORT=3000
+      - DEBUG=false
     restart: unless-stopped
+    networks:
+      - edge-ai-network
+    depends_on:
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - edge-ai-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  # PostgreSQL Database (optional)
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: edge_ai
+      POSTGRES_PASSWORD: edge_ai_password
+      POSTGRES_DB: edge_ai_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - edge-ai-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U edge_ai"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+volumes:
+  postgres_data:
+
+networks:
+  edge-ai-network:
+    driver: bridge

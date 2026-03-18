@@ -1,0 +1,112 @@
+name: Assembly Build Pipeline
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+    paths:
+      - '.ASM_HEX/**'
+      - 'build-assembly.sh'
+      - 'Makefile.asm'
+      - 'ASSEMBLY_PIPELINE.md'
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  assembly-build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Install Assembly tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            nasm \
+            yasm \
+            binutils \
+            gcc \
+            g++ \
+            gdb \
+            lldb \
+            build-essential \
+            clang \
+            lld \
+            strace \
+            ltrace \
+            valgrind \
+            checksec
+      
+      - name: Verify tools installation
+        run: |
+          echo "=== NASM ==="
+          nasm --version
+          echo "=== YASM ==="
+          yasm --version
+          echo "=== GCC ==="
+          gcc --version
+          echo "=== GDB ==="
+          gdb --version
+          echo "=== Checksec ==="
+          checksec --version
+      
+      - name: Make build script executable
+        run: chmod +x build-assembly.sh
+      
+      - name: Run Assembly build pipeline
+        run: ./build-assembly.sh x86_64 linux
+      
+      - name: Display build report
+        if: always()
+        run: |
+          if [ -f build/logs/build-report.txt ]; then
+            echo "=== Build Report ==="
+            cat build/logs/build-report.txt
+          fi
+      
+      - name: List build artifacts
+        if: always()
+        run: |
+          echo "=== Build Artifacts ==="
+          find build -type f -exec ls -lh {} \; | head -20
+      
+      - name: Upload build artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: assembly-build-artifacts
+          path: build/
+          retention-days: 30
+      
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: assembly-build-logs
+          path: build/logs/
+          retention-days: 30
+      
+      - name: Analyze binary security
+        if: success()
+        run: |
+          if [ -f build/bin/edge-ai-app ]; then
+            echo "=== Binary Analysis ==="
+            file build/bin/edge-ai-app
+            size build/bin/edge-ai-app || true
+            checksec --file=build/bin/edge-ai-app || true
+            echo "=== Binary Sections ==="
+            objdump -h build/bin/edge-ai-app | head -15 || true
+          fi
+      
+      - name: Create summary
+        if: always()
+        run: |
+          echo "# Assembly Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Build Status" >> $GITHUB_STEP_SUMMARY
+          if [ -f build/logs/build-report.txt ]; then
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            cat build/logs/build-report.txt >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          fi

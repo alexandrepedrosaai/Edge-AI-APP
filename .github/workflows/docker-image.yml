@@ -7,12 +7,42 @@ on:
     branches: [ "main" ]
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
-
+    
     steps:
-    - uses: actions/checkout@v4
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Build Docker image
+        run: |
+          docker build \
+            --tag edge-ai-app:latest \
+            --tag edge-ai-app:$(date +%s) \
+            --file Dockerfile \
+            .
+      
+      - name: Verify Docker image
+        run: |
+          docker image inspect edge-ai-app:latest
+          docker images | grep edge-ai-app
+      
+      - name: Test Docker image
+        run: |
+          docker run --rm edge-ai-app:latest --version || true
+          docker run --rm edge-ai-app:latest ls -la /app || true
+      
+      - name: Save Docker image
+        run: |
+          mkdir -p docker-artifacts
+          docker save edge-ai-app:latest -o docker-artifacts/edge-ai-app.tar
+      
+      - name: Upload Docker image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-image
+          path: docker-artifacts/
+          retention-days: 7
