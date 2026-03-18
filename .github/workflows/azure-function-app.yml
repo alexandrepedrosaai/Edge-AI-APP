@@ -26,6 +26,10 @@ env:
   AZURE_FUNCTIONAPP_PACKAGE_PATH: './azure-functions'
   NODE_VERSION: '20.x'
   PYTHON_VERSION: '3.11'
+  VITE_ANALYTICS_ENDPOINT: "https://analytics.example.com"
+  VITE_ANALYTICS_WEBSITE_ID: "default"
+  VITE_APP_TITLE: "Edge AI App"
+  VITE_APP_LOGO: "/logo.svg"
 
 jobs:
   build:

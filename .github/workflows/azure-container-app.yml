@@ -27,6 +27,10 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
   AZURE_SUBSCRIPTION_ID: f7fc86dd-bd9f-43a6-80a4-0bb6cab950ec
+  VITE_ANALYTICS_ENDPOINT: "https://analytics.example.com"
+  VITE_ANALYTICS_WEBSITE_ID: "default"
+  VITE_APP_TITLE: "Edge AI App"
+  VITE_APP_LOGO: "/logo.svg"
 
 jobs:
   build-and-push:
