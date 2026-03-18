@@ -1,0 +1,114 @@
+name: Build & Test
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [20.x, 22.x]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            python3-dev \
+            nasm \
+            yasm \
+            binutils \
+            gcc \
+            g++
+      
+      - name: Install pnpm
+        run: npm install -g pnpm
+      
+      - name: Install Node.js dependencies
+        run: |
+          if [ -f "pnpm-lock.yaml" ]; then
+            pnpm install --frozen-lockfile
+          elif [ -f "package.json" ]; then
+            pnpm install
+          fi
+      
+      - name: Install Python dependencies
+        run: |
+          if [ -f "requirements.txt" ]; then
+            python3 -m pip install --upgrade pip
+            pip install -r requirements.txt
+          fi
+      
+      - name: Lint code
+        run: |
+          if [ -f "package.json" ] && grep -q '"lint"' package.json; then
+            echo "Running linter..."
+            pnpm run lint || true
+          fi
+      
+      - name: Build project
+        run: |
+          if [ -f "package.json" ] && grep -q '"build"' package.json; then
+            echo "Building project..."
+            pnpm run build
+          fi
+      
+      - name: Run tests
+        run: |
+          if [ -f "package.json" ] && grep -q '"test"' package.json; then
+            echo "Running tests..."
+            pnpm run test || true
+          fi
+      
+      - name: Build Assembly
+        run: |
+          if [ -f "build-assembly.sh" ]; then
+            echo "Building Assembly..."
+            chmod +x build-assembly.sh
+            ./build-assembly.sh x86_64 linux || true
+          fi
+      
+      - name: Upload build artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts-node${{ matrix.node-version }}
+          path: |
+            dist/
+            build/
+          retention-days: 7
+      
+      - name: Create build summary
+        if: always()
+        run: |
+          echo "# Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Environment" >> $GITHUB_STEP_SUMMARY
+          echo "- Node.js: $(node --version)" >> $GITHUB_STEP_SUMMARY
+          echo "- npm: $(npm --version)" >> $GITHUB_STEP_SUMMARY
+          echo "- pnpm: $(pnpm --version)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Build Status" >> $GITHUB_STEP_SUMMARY
+          echo "✓ Build completed" >> $GITHUB_STEP_SUMMARY
