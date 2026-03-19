@@ -1,35 +1,18 @@
 # MLP | hex_asm
-# Hex-encoded MLP neural-network bytecode + Assembly forward-pass
+# Hex-encoded MLP/CNN neural-network bytecode decoded to Assembly and assembled
 # Author: Alexandre Pedrosa - EVP Multimodal AI Engineer (Meta / Microsoft Azure)
 
 FROM ubuntu:22.04 AS hex-decoder
-LABEL org.opencontainers.image.source="https://github.com/alexandrepedrosaai/Edge-AI-APP"
-LABEL org.opencontainers.image.description="Edge-AI-APP container: mlp"
-LABEL org.opencontainers.image.licenses="All rights reserved"
 LABEL container="MLP" combination="hex_asm"
+LABEL org.opencontainers.image.source="https://github.com/alexandrepedrosaai/Edge-AI-APP"
+LABEL org.opencontainers.image.description="MLP: hex_asm neural-network container"
 
 RUN apt-get update && apt-get install -y python3 && apt-get clean
 
 WORKDIR /mlp
 COPY .ASM_HEX/ ./.ASM_HEX/
-
-RUN python3 -c "
-import os, glob
-os.makedirs('decoded', exist_ok=True)
-files = glob.glob('.ASM_HEX/*MLP*') + glob.glob('.ASM_HEX/*CNN*') + glob.glob('.ASM_HEX/*Hybrid*')
-if not files:
-    files = glob.glob('.ASM_HEX/*.hex')[:10]
-for hex_file in files:
-    with open(hex_file) as f:
-        h = f.read().replace('\n','').replace(' ','').strip()
-    try:
-        content = bytes.fromhex(h).decode('utf-8', errors='replace')
-        out = 'decoded/' + os.path.basename(hex_file).replace('.hex','.asm')
-        open(out,'w').write(content)
-        print('OK', os.path.basename(hex_file))
-    except Exception as e:
-        print('ERR', hex_file, e)
-"
+COPY containers/MLP/decode_mlp.py ./decode_mlp.py
+RUN python3 decode_mlp.py
 
 FROM ubuntu:22.04 AS assembler
 RUN apt-get update && apt-get install -y nasm yasm binutils && apt-get clean
@@ -42,6 +25,7 @@ done
 
 FROM alpine:3.19 AS runtime
 LABEL container="MLP"
+LABEL org.opencontainers.image.source="https://github.com/alexandrepedrosaai/Edge-AI-APP"
 WORKDIR /mlp
 COPY --from=assembler /mlp/decoded/ ./decoded/
 COPY --from=assembler /mlp/obj/     ./obj/

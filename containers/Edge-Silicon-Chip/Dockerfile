@@ -3,10 +3,9 @@
 # Author: Alexandre Pedrosa - EVP Multimodal AI Engineer (Meta / Microsoft Azure)
 
 FROM ubuntu:22.04 AS asm-builder
-LABEL org.opencontainers.image.source="https://github.com/alexandrepedrosaai/Edge-AI-APP"
-LABEL org.opencontainers.image.description="Edge-AI-APP container: edge-silicon-chip"
-LABEL org.opencontainers.image.licenses="All rights reserved"
 LABEL container="Edge-Silicon-Chip" combination="asm-syscalls+pqc"
+LABEL org.opencontainers.image.source="https://github.com/alexandrepedrosaai/Edge-AI-APP"
+LABEL org.opencontainers.image.description="Edge-Silicon-Chip: pure Assembly syscalls + PQC"
 
 RUN apt-get update && apt-get install -y nasm yasm binutils python3 && apt-get clean
 
@@ -37,32 +36,22 @@ RUN printf '%s\n' \
     echo "syscall_hello built OK" && ./syscall_hello
 
 FROM python:3.11-slim AS pqc-signer
+LABEL org.opencontainers.image.source="https://github.com/alexandrepedrosaai/Edge-AI-APP"
+
 RUN pip install --no-cache-dir cryptography
+
 WORKDIR /pqc
 COPY --from=asm-builder /silicon-chip/build/obj/ ./obj/
 COPY --from=asm-builder /silicon-chip/syscall_hello ./syscall_hello
-
-RUN python3 -c "
-import os, glob, json, hashlib
-from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
-key = Ed25519PrivateKey.generate()
-manifest = {}
-for fpath in glob.glob('obj/*.asm') + ['syscall_hello']:
-    if not os.path.exists(fpath): continue
-    data = open(fpath,'rb').read()
-    sha3 = hashlib.sha3_512(data).hexdigest()
-    sig  = key.sign(data).hex()
-    name = os.path.basename(fpath)
-    manifest[name] = {'sha3_512': sha3, 'dilithium5_sim': sig[:32]+'...', 'size': len(data)}
-    print(f'Signed {name}  SHA3={sha3[:16]}...')
-json.dump(manifest, open('pqc_manifest.json','w'), indent=2)
-print(f'PQC manifest: {len(manifest)} artifacts')
-"
+COPY containers/Edge-Silicon-Chip/sign_artifacts.py ./sign_artifacts.py
+RUN python3 sign_artifacts.py
 
 FROM alpine:3.19 AS runtime
 LABEL container="Edge-Silicon-Chip"
+LABEL org.opencontainers.image.source="https://github.com/alexandrepedrosaai/Edge-AI-APP"
+
 WORKDIR /app
-COPY --from=pqc-signer /pqc/obj/             ./obj/
+COPY --from=pqc-signer /pqc/obj/              ./obj/
 COPY --from=pqc-signer /pqc/pqc_manifest.json .
 COPY --from=asm-builder /silicon-chip/syscall_hello .
 CMD ["sh", "-c", "./syscall_hello && echo '' && cat pqc_manifest.json | head -30"]
