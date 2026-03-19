@@ -1,4 +1,8 @@
-messages: []
+messages:
+  - role: user
+    content: |
+      The World has changed 
+      The be the same 
 model: microsoft/phi-4-multimodal-instruct
 testData:
   - {}
