@@ -1,66 +1,126 @@
-version: '3.8'
+# =============================================================================
+# Edge-AI-APP — 5-Container Mesh Architecture
+# Pairwise technology combinations: Assembly + Hex + xAI + Azure ACS + PQC
+# Author: Alexandre Pedrosa — EVP Multimodal AI Engineer (Meta / Microsoft Azure)
+# =============================================================================
+
+version: "3.9"
+
+# Shared network for inter-container communication
+networks:
+  edge-ai-mesh:
+    driver: bridge
+
+# Shared volume: Silicon-Hardwere decoded ASM is consumed by downstream containers
+volumes:
+  silicon-artifacts:
+  mlp-artifacts:
 
 services:
-  # Main Application
-  app:
+
+  # ── 1. Silicon-Hardwere (asm_hex) ─────────────────────────────────────────
+  # Decodes all .hex files back to Assembly source and attempts ELF64 assembly.
+  # This is the foundation layer — its /artifacts volume feeds other containers.
+  silicon-hardwere:
     build:
       context: .
-      dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
-      - "8080:8080"
-    environment:
-      - NODE_ENV=production
-      - PORT=3000
-      - DEBUG=false
-    restart: unless-stopped
+      dockerfile: containers/Silicon-Hardwere/Dockerfile
+    image: edge-ai-app/silicon-hardwere:latest
+    container_name: Silicon-Hardwere
     networks:
-      - edge-ai-network
-    depends_on:
-      - redis
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/"]
-      interval: 30s
-      timeout: 3s
-      retries: 3
-
-  # Redis Cache
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
-    networks:
-      - edge-ai-network
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 3s
-      retries: 3
-
-  # PostgreSQL Database (optional)
-  postgres:
-    image: postgres:15-alpine
-    environment:
-      POSTGRES_USER: edge_ai
-      POSTGRES_PASSWORD: edge_ai_password
-      POSTGRES_DB: edge_ai_db
-    ports:
-      - "5432:5432"
+      - edge-ai-mesh
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - silicon-artifacts:/artifacts/build/obj
+    environment:
+      - ARCH=x86_64
+      - PLATFORM=linux
+    restart: on-failure
+    labels:
+      - "com.edge-ai-app.combination=asm_hex"
+      - "com.edge-ai-app.layer=foundation"
+
+  # ── 2. MLP (hex_asm) ──────────────────────────────────────────────────────
+  # Decodes hex-encoded MLP/CNN bytecode to Assembly, then assembles to ELF64.
+  # Depends on Silicon-Hardwere completing the initial hex decode pass.
+  mlp:
+    build:
+      context: .
+      dockerfile: containers/MLP/Dockerfile
+    image: edge-ai-app/mlp:latest
+    container_name: MLP
     networks:
-      - edge-ai-network
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U edge_ai"]
-      interval: 10s
-      timeout: 3s
-      retries: 3
+      - edge-ai-mesh
+    volumes:
+      - silicon-artifacts:/silicon-artifacts:ro
+      - mlp-artifacts:/mlp/obj
+    depends_on:
+      - silicon-hardwere
+    restart: on-failure
+    labels:
+      - "com.edge-ai-app.combination=hex_asm"
+      - "com.edge-ai-app.layer=neural-network"
 
-volumes:
-  postgres_data:
+  # ── 3. Edge-CNN+MLP.AI (asm-hex + xAI Grok) ──────────────────────────────
+  # Builds CNN+MLP Assembly from hex, then analyses the bytecode with xAI Grok.
+  edge-cnn-mlp-ai:
+    build:
+      context: .
+      dockerfile: containers/Edge-CNN-MLP-AI/Dockerfile
+    image: edge-ai-app/edge-cnn-mlp-ai:latest
+    container_name: Edge-CNN-MLP-AI
+    networks:
+      - edge-ai-mesh
+    volumes:
+      - silicon-artifacts:/silicon-artifacts:ro
+    depends_on:
+      - mlp
+    environment:
+      - XAI_API_KEY=${XAI_API_KEY:-}
+    restart: on-failure
+    labels:
+      - "com.edge-ai-app.combination=asm-hex+xAI"
+      - "com.edge-ai-app.layer=ai-analysis"
 
-networks:
-  edge-ai-network:
-    driver: bridge
+  # ── 4. Edge-Chip-Hex (Hex firmware + Azure ACS / WhatsApp) ───────────────
+  # Validates all hex firmware blobs with SHA3-512 and dispatches status
+  # notifications through Azure Communication Services WhatsApp channel.
+  edge-chip-hex:
+    build:
+      context: .
+      dockerfile: containers/Edge-Chip-Hex/Dockerfile
+    image: edge-ai-app/edge-chip-hex:latest
+    container_name: Edge-Chip-Hex
+    networks:
+      - edge-ai-mesh
+    depends_on:
+      - silicon-hardwere
+    environment:
+      - ACS_ENDPOINT=${ACS_ENDPOINT:-}
+      - ACS_ACCESS_KEY=${ACS_ACCESS_KEY:-}
+      - WHATSAPP_FROM=${WHATSAPP_FROM:-}
+      - WHATSAPP_TO=${WHATSAPP_TO:-}
+    restart: on-failure
+    labels:
+      - "com.edge-ai-app.combination=hex+azure-acs+whatsapp"
+      - "com.edge-ai-app.layer=firmware-validation"
+
+  # ── 5. Edge-Silicon-Chip (Pure Assembly syscalls + Post-Quantum Crypto) ───
+  # Compiles raw Assembly that talks directly to the Linux kernel (no libc),
+  # then signs all build artifacts with Dilithium-5 (simulated via Ed25519).
+  edge-silicon-chip:
+    build:
+      context: .
+      dockerfile: containers/Edge-Silicon-Chip/Dockerfile
+    image: edge-ai-app/edge-silicon-chip:latest
+    container_name: Edge-Silicon-Chip
+    networks:
+      - edge-ai-mesh
+    volumes:
+      - silicon-artifacts:/silicon-artifacts:ro
+    depends_on:
+      - edge-cnn-mlp-ai
+      - edge-chip-hex
+    restart: on-failure
+    labels:
+      - "com.edge-ai-app.combination=asm-syscalls+pqc"
+      - "com.edge-ai-app.layer=post-quantum-security"
