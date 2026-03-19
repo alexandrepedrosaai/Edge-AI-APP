@@ -1,0 +1,12 @@
+name: base
+channels:
+  - defaults
+dependencies:
+  - python=3.10
+  - pip
+  - flake8
+  - pytest
+  # Add more dependencies as your project evolves
+
+# Note: pandoc is an external CLI tool; install it separately in your workflow as needed.
+# See .github/workflows/python-package-conda.yml for details.
