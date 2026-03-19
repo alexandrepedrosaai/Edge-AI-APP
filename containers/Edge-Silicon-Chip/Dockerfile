@@ -3,6 +3,9 @@
 # Author: Alexandre Pedrosa - EVP Multimodal AI Engineer (Meta / Microsoft Azure)
 
 FROM ubuntu:22.04 AS asm-builder
+LABEL org.opencontainers.image.source="https://github.com/alexandrepedrosaai/Edge-AI-APP"
+LABEL org.opencontainers.image.description="Edge-AI-APP container: edge-silicon-chip"
+LABEL org.opencontainers.image.licenses="All rights reserved"
 LABEL container="Edge-Silicon-Chip" combination="asm-syscalls+pqc"
 
 RUN apt-get update && apt-get install -y nasm yasm binutils python3 && apt-get clean

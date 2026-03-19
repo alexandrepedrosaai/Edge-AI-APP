@@ -3,6 +3,9 @@
 # Author: Alexandre Pedrosa - EVP Multimodal AI Engineer (Meta / Microsoft Azure)
 
 FROM ubuntu:22.04 AS hex-decoder
+LABEL org.opencontainers.image.source="https://github.com/alexandrepedrosaai/Edge-AI-APP"
+LABEL org.opencontainers.image.description="Edge-AI-APP container: mlp"
+LABEL org.opencontainers.image.licenses="All rights reserved"
 LABEL container="MLP" combination="hex_asm"
 
 RUN apt-get update && apt-get install -y python3 && apt-get clean

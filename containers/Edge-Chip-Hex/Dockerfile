@@ -3,6 +3,9 @@
 # Author: Alexandre Pedrosa - EVP Multimodal AI Engineer (Meta / Microsoft Azure)
 
 FROM python:3.11-slim AS hex-validator
+LABEL org.opencontainers.image.source="https://github.com/alexandrepedrosaai/Edge-AI-APP"
+LABEL org.opencontainers.image.description="Edge-AI-APP container: edge-chip-hex"
+LABEL org.opencontainers.image.licenses="All rights reserved"
 LABEL container="Edge-Chip-Hex" combination="hex+azure-acs+whatsapp"
 
 RUN pip install --no-cache-dir cryptography

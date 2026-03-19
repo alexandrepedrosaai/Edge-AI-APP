@@ -3,6 +3,9 @@
 # Author: Alexandre Pedrosa - EVP Multimodal AI Engineer (Meta / Microsoft Azure)
 
 FROM ubuntu:22.04 AS builder
+LABEL org.opencontainers.image.source="https://github.com/alexandrepedrosaai/Edge-AI-APP"
+LABEL org.opencontainers.image.description="Edge-AI-APP container: silicon-hardwere"
+LABEL org.opencontainers.image.licenses="All rights reserved"
 LABEL container="Silicon-Hardwere" combination="asm_hex"
 
 RUN apt-get update && apt-get install -y build-essential nasm yasm binutils python3 git \
