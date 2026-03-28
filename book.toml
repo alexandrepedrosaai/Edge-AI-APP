@@ -1,0 +1,9 @@
+[book]
+title = "Edge-AI-APP Documentation"
+description = "Edge AI App — Silicon-Hardwere, MLP, Edge-CNN+MLP.AI, Edge-Chip-Hex, Edge-Silicon-Chip"
+authors = ["alexandrepedrosaai"]
+language = "en"
+src = "src"
+
+[output.html]
+site-url = "/Edge-AI-APP/"
