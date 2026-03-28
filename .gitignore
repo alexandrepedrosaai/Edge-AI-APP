@@ -56,3 +56,5 @@ output.pdf
 node_modules/
 .pnpm-store/
 dist/
+
+# Allow frontend source lib directory
