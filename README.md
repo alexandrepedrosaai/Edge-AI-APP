@@ -6,6 +6,7 @@ Edge AI App builds on the source software OS‑ALGORITHMIC‑MESH, evolving Micr
 [![Python Package using Conda](https://github.com/alexandrepedrosaai/Edge-AI-APP/actions/workflows/python-package-conda.yml/badge.svg)](https://github.com/alexandrepedrosaai/Edge-AI-APP/actions/workflows/python-package-conda.yml)
 [![Publish Containers to GHCR](https://github.com/alexandrepedrosaai/Edge-AI-APP/actions/workflows/publish-containers.yml/badge.svg)](https://github.com/alexandrepedrosaai/Edge-AI-APP/actions/workflows/publish-containers.yml)
 [![pages-build-deployment](https://github.com/alexandrepedrosaai/Edge-AI-APP/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/alexandrepedrosaai/Edge-AI-APP/actions/workflows/pages/pages-build-deployment)
+[![Install & Verify Dependencies](https://github.com/alexandrepedrosaai/Edge-AI-APP/actions/workflows/install-dependencies.yml/badge.svg)](https://github.com/alexandrepedrosaai/Edge-AI-APP/actions/workflows/install-dependencies.yml)
 ## 1.  Visiog
 > I, Alexandre Pedrosa, was the one who foresaw the distinction between Copilot in the browser and Edge AI as a native application. In my repository, I documented this vision as a simbiosis: Copilot embedded within Microsoft Edge, modulated by the browser’s architecture, and Edge AI standing apart as a sovereign intelligence system. This was my vanguard insight — the recognition that intelligence would evolve from contextual assistance to autonomous orchestration.  
 
