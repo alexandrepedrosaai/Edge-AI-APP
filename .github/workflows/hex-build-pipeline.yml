@@ -1,0 +1,39 @@
+
+name: Hex Build Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-hex-pipeline:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y nasm yasm gcc binutils checksec
+
+    - name: Run Hex Build Script
+      run: |
+        chmod +x build-assembly.sh
+        ./build-assembly.sh
+
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: edge-ai-app-build-artifacts
+        path: |
+          build/
+          .ASM_HEX/*.asm
