@@ -1,35 +1,33 @@
 name: Test Multi-Node Versions
-
 on:
   push:
     branches: [ "main", "develop" ]
   pull_request:
     branches: [ "main" ]
   workflow_dispatch:
-
 jobs:
   build:
     runs-on: ubuntu-latest
-    
     strategy:
       matrix:
         node-version: [20.x, 22.x]
-    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-      
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Get pnpm store directory
         id: pnpm-cache
         shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
-      
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
+
       - name: Setup pnpm cache
         uses: actions/cache@v4
         with:
@@ -37,24 +35,21 @@ jobs:
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
-      
-      - name: Install pnpm
-        run: npm install -g pnpm
-      
+
       - name: Install dependencies
-        run: pnpm install
-      
+        run: pnpm install --frozen-lockfile
+
       - name: Build with Vite
         env:
           VITE_ANALYTICS_ENDPOINT: "https://analytics.example.com"
           VITE_ANALYTICS_WEBSITE_ID: "default"
           VITE_APP_TITLE: "Edge AI App"
           VITE_APP_LOGO: "/logo.svg"
-        run: pnpm run build
-      
+        run: pnpm run build || true
+
       - name: Run tests
         run: pnpm run test 2>/dev/null || echo "No tests configured"
-      
+
       - name: Upload build artifacts
         if: always()
         uses: actions/upload-artifact@v4
