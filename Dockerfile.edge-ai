@@ -1,0 +1,35 @@
+
+# ============================================================================
+# Edge-AI-APP Optimized Assembly Runtime Environment
+# ============================================================================
+FROM debian:bookworm-slim
+
+# Metadados da imagem
+LABEL org.opencontainers.image.source="https://github.com/alexandrepedrosaai/Edge-AI-APP"
+LABEL org.opencontainers.image.description="Optimized runtime for Edge AI Assembly components"
+
+# Instalação de dependências mínimas para execução e depuração de Assembly
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    binutils \
+    nasm \
+    yasm \
+    ca-certificates \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Diretório de trabalho
+WORKDIR /app
+
+# Argumento para definir qual artefato será incluído
+ARG HEX_FILE
+ENV HEX_FILE_NAME=${HEX_FILE}
+
+# Copia o artefato .hex e o script de build para o container
+COPY .ASM_HEX/${HEX_FILE} /app/source.hex
+COPY build-assembly.sh /app/build-assembly.sh
+
+# Script de entrada para processar o hex e rodar (se possível)
+RUN chmod +x /app/build-assembly.sh
+
+# Configuração padrão de execução
+ENTRYPOINT ["/bin/bash", "-c", "echo 'Processing artifact: $HEX_FILE_NAME' && /app/build-assembly.sh && /bin/bash"]
