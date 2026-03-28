@@ -58,3 +58,5 @@ node_modules/
 dist/
 
 # Allow frontend source lib directory
+!client/src/lib/
+!client/src/lib/**
