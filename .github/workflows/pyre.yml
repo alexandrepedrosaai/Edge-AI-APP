@@ -17,9 +17,10 @@ name: Pyre
 
 on:
   workflow_dispatch:
-  # push and pull_request disabled: facebook/pyre-action uses deprecated
-  # actions/upload-artifact@v2 internally (blocked since Feb 2024)
-  # Re-enable when pyre-action is updated to use upload-artifact@v4
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
 
 permissions:
     contents: read
@@ -37,7 +38,8 @@ jobs:
           submodules: true
 
       - name: Run Pyre
-        uses: facebook/pyre-action@60697a7858f7cc8470d8cc494a3cf2ad6b06560d
+        # Updated to latest commit which uses actions/upload-artifact@v7 (not deprecated v2)
+        uses: facebook/pyre-action@872625cb9629e2fa5da1b6710a12ffbff27288b2
         with:
           # To customize these inputs:
           # See https://github.com/facebook/pyre-action#inputs
