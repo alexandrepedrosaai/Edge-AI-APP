@@ -60,3 +60,9 @@ dist/
 # Allow frontend source lib directory
 !client/src/lib/
 !client/src/lib/**
+
+# Jekyll
+_site/
+.bundle/
+vendor/bundle/
+Gemfile.lock
