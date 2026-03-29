@@ -1,4 +1,4 @@
-name: Docker Image CI | CD Build conteiner and Deploy Environment 
+name: Docker Image CI | CD Build conteiner and Deploy Environment
 
 on:
   push:
@@ -7,14 +7,10 @@ on:
     branches: [ "main" ]
 
 jobs:
-
-  build: 
-
+  build:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v4
-    - name: Build the Docker conteiner image 
+    - name: Build the Docker conteiner image
       continue-on-error: false
-        
       run: docker build . --file Dockerfile --tag edge-ai-from-cloud-sky-to-silicon-metal-prisioner-at-the-exoteric-hex-chip:$(date +%s)
