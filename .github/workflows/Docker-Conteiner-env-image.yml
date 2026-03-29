@@ -17,4 +17,4 @@ jobs:
     - name: Build the Docker conteiner image 
       continue-on-error: false
         
-      run: docker build . --file Dockerfile --tag Edge-AI-from-Cloud-Sky-to-Silicon-metal-Prisioner-at-The-Exoteric-Hex-Chip:$(date +%s)
+      run: docker build . --file Dockerfile --tag edge-ai-from-cloud-sky-to-silicon-metal-prisioner-at-the-exoteric-hex-chip:$(date +%s)
