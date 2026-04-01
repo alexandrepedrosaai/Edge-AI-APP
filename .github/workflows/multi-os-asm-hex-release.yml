@@ -114,16 +114,25 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path dist\windows | Out-Null
-          Get-ChildItem -Recurse -Filter "*.asm" | Where-Object { $_.FullName -notmatch '\.git' -and $_.FullName -notmatch '\\dist\\' } | Copy-Item -Destination dist\windows\ -Force
+
+          Get-ChildItem -Recurse -Filter "*.asm" -File |
+            Where-Object {
+              $_.FullName -notmatch '\\.git\\' -and
+              $_.FullName -notmatch '\\dist\\windows\\'
+            } |
+            Copy-Item -Destination dist\windows\ -Force
+
           if (Test-Path ".ASM_HEX") {
-            Get-ChildItem -Path ".ASM_HEX" -Filter "*.hex" | Copy-Item -Destination dist\windows\ -Force
+            Get-ChildItem -Path ".ASM_HEX" -Filter "*.hex" -File |
+              Copy-Item -Destination dist\windows\ -Force
           }
-          # Assemble to Win64 COFF object
+
           $nasm = "C:\Program Files\NASM\nasm.exe"
           if (Test-Path $nasm) {
             & $nasm -f win64 manifest.asm -o dist\windows\manifest.obj 2>$null
             & $nasm -f win64 Symbolic.asm  -o dist\windows\Symbolic.obj  2>$null
           }
+
           Get-ChildItem dist\windows\ | Format-Table Name, Length
 
       - name: Generate Windows SBOM manifest
