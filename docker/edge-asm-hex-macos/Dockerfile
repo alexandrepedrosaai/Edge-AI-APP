@@ -11,14 +11,14 @@ RUN apt-get update -qq && apt-get install -y --no-install-recommends \
 
 WORKDIR /edge-ai
 
+# Copy all .asm files from root
 COPY *.asm ./
+# Copy all .HEX sources
 COPY .ASM_HEX/ ./.ASM_HEX/
-COPY manifest.asm Symbolic.asm Pseudo-bytecode.asm vite.config.asm ./
 
-# Assemble to Mach-O compatible flat binary (cross-compile notation)
-RUN for f in manifest.asm Symbolic.asm; do \
-      nasm -f bin "$f" -o "${f%.asm}.macho.bin" 2>/dev/null || true; \
-    done
+# Assemble to flat binary (Mach-O compatible, cross-compile)
+RUN nasm -f bin manifest.asm -o manifest.macho.bin 2>/dev/null || true && \
+    nasm -f bin Symbolic.asm  -o Symbolic.macho.bin  2>/dev/null || true
 
 RUN echo '{"platform":"macos-x64","sha256":"74041e2c0c79382c1479ce58df73e5ded4b93c42e5c7d69dd809c10ac9046563","built_at":"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"}' > /edge-ai/build-manifest.json
 

@@ -11,15 +11,14 @@ RUN apt-get update -qq && apt-get install -y --no-install-recommends \
 
 WORKDIR /edge-ai
 
-# Copy all .asm and .HEX sources
+# Copy all .asm files from root
 COPY *.asm ./
+# Copy all .HEX sources
 COPY .ASM_HEX/ ./.ASM_HEX/
-COPY manifest.asm Symbolic.asm Pseudo-bytecode.asm vite.config.asm ./
 
-# Assemble to ELF64 objects
-RUN for f in manifest.asm Symbolic.asm; do \
-      nasm -f elf64 "$f" -o "${f%.asm}.o" 2>/dev/null || true; \
-    done
+# Assemble to ELF64 objects (non-fatal)
+RUN nasm -f elf64 manifest.asm -o manifest.o 2>/dev/null || true && \
+    nasm -f elf64 Symbolic.asm  -o Symbolic.o  2>/dev/null || true
 
 # Generate build manifest
 RUN echo '{"platform":"linux-x64","sha256":"15206001eacc685c24c8cd3c448d23822a90f833a0dc57176a4bfdcb86319ad0","built_at":"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"}' > /edge-ai/build-manifest.json
