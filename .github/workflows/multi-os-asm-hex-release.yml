@@ -114,7 +114,7 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path dist\windows | Out-Null
-          Get-ChildItem -Recurse -Filter "*.asm" | Where-Object { $_.FullName -notmatch '\.git' } | Copy-Item -Destination dist\windows\ -Force
+          Get-ChildItem -Recurse -Filter "*.asm" | Where-Object { $_.FullName -notmatch '\.git' -and $_.FullName -notmatch '\\dist\\' } | Copy-Item -Destination dist\windows\ -Force
           if (Test-Path ".ASM_HEX") {
             Get-ChildItem -Path ".ASM_HEX" -Filter "*.hex" | Copy-Item -Destination dist\windows\ -Force
           }
