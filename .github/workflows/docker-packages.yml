@@ -1,0 +1,223 @@
+name: Build & Push Docker Packages
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  OWNER: alexandrepedrosaai
+
+jobs:
+
+  # ============================================================
+  # 1. edge-asm-hex-linux
+  # ============================================================
+  edge-asm-hex-linux:
+    name: Package — edge-asm-hex-linux
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/edge-asm-hex-linux/Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.OWNER }}/edge-asm-hex-linux:latest
+            ${{ env.REGISTRY }}/${{ env.OWNER }}/edge-asm-hex-linux:sha-${{ github.sha }}
+          labels: |
+            org.opencontainers.image.revision=${{ github.sha }}
+            sha256.artifact=15206001eacc685c24c8cd3c448d23822a90f833a0dc57176a4bfdcb86319ad0
+
+  # ============================================================
+  # 2. edge-asm-hex-macos
+  # ============================================================
+  edge-asm-hex-macos:
+    name: Package — edge-asm-hex-macos
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/edge-asm-hex-macos/Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.OWNER }}/edge-asm-hex-macos:latest
+            ${{ env.REGISTRY }}/${{ env.OWNER }}/edge-asm-hex-macos:sha-${{ github.sha }}
+          labels: |
+            org.opencontainers.image.revision=${{ github.sha }}
+            sha256.artifact=74041e2c0c79382c1479ce58df73e5ded4b93c42e5c7d69dd809c10ac9046563
+
+  # ============================================================
+  # 3. edge-asm-hex-windows
+  # ============================================================
+  edge-asm-hex-windows:
+    name: Package — edge-asm-hex-windows
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/edge-asm-hex-windows/Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.OWNER }}/edge-asm-hex-windows:latest
+            ${{ env.REGISTRY }}/${{ env.OWNER }}/edge-asm-hex-windows:sha-${{ github.sha }}
+          labels: |
+            org.opencontainers.image.revision=${{ github.sha }}
+            sha256.artifact=72f50483b7a90a979c04be802e48fb02f995869bb539c9bca37218cd83b4acdb
+
+  # ============================================================
+  # 4. matrix-edge-ai (with sbom.json)
+  # ============================================================
+  matrix-edge-ai:
+    name: Package — matrix-edge-ai
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/matrix-edge-ai/Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.OWNER }}/matrix-edge-ai:latest
+            ${{ env.REGISTRY }}/${{ env.OWNER }}/matrix-edge-ai:multi-os-v5
+            ${{ env.REGISTRY }}/${{ env.OWNER }}/matrix-edge-ai:sha-${{ github.sha }}
+          labels: |
+            org.opencontainers.image.revision=${{ github.sha }}
+            sbom.version=multi-os-v5
+
+  # ============================================================
+  # 5. immutable-edge-ai (with immutable.json)
+  # ============================================================
+  immutable-edge-ai:
+    name: Package — immutable-edge-ai
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/immutable-edge-ai/Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.OWNER }}/immutable-edge-ai:latest
+            ${{ env.REGISTRY }}/${{ env.OWNER }}/immutable-edge-ai:eternal-build-5
+            ${{ env.REGISTRY }}/${{ env.OWNER }}/immutable-edge-ai:sha-${{ github.sha }}
+          labels: |
+            org.opencontainers.image.revision=${{ github.sha }}
+            inscription=Edge-AI-APP---from-cloud-sky-to-silicon-metal---exoteric-hex-chip---eternal-build-5
+
+  # ============================================================
+  # 6. edge-border-ai (Telegram Desktop 6.6.2)
+  # ============================================================
+  edge-border-ai:
+    name: Package — edge-border-ai
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/edge-border-ai/Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.OWNER }}/edge-border-ai:latest
+            ${{ env.REGISTRY }}/${{ env.OWNER }}/edge-border-ai:tsetup-6.6.2
+            ${{ env.REGISTRY }}/${{ env.OWNER }}/edge-border-ai:sha-${{ github.sha }}
+          labels: |
+            org.opencontainers.image.revision=${{ github.sha }}
+            release.asset=tsetup.6.6.2.tar.xz
+
+  # ============================================================
+  # 7. ubiquitous-ai (VSCode 1.107.1)
+  # ============================================================
+  ubiquitous-ai:
+    name: Package — Ubiquitous-AI-from-Edge-to-Silicon-Cloud-and-Chip
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/ubiquitous-ai/Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.OWNER }}/ubiquitous-ai-from-edge-to-silicon-cloud-and-chip-from-chip-to-edge-metamorphosis:latest
+            ${{ env.REGISTRY }}/${{ env.OWNER }}/ubiquitous-ai-from-edge-to-silicon-cloud-and-chip-from-chip-to-edge-metamorphosis:vscode-1.107.1
+            ${{ env.REGISTRY }}/${{ env.OWNER }}/ubiquitous-ai-from-edge-to-silicon-cloud-and-chip-from-chip-to-edge-metamorphosis:sha-${{ github.sha }}
+          labels: |
+            org.opencontainers.image.revision=${{ github.sha }}
+            release.asset=code_1.107.1-1765982436_amd64.deb

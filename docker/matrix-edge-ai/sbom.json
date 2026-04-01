@@ -1,0 +1,10 @@
+{
+  "name": "edge-ai-from-cloud-sky-to-silicon-metal-prisioner-at-the-exoteric-hex-chip",
+  "version": "multi-os-v5",
+  "commit": "6ae9ec7598252fe3113b2f25c56c9d5128c3ec61",
+  "date": "2026-04-01T13:12:05Z",
+  "platforms": ["linux-x64", "macos-x64", "windows-x64"],
+  "artifacts": ["multi-os-linux-5.tar.gz", "multi-os-macos-5.tar.gz", "multi-os-windows-5.zip"],
+  "asm_files": ["manifest.asm", "Symbolic.asm", "Pseudo-bytecode.asm", "vite.config.asm"],
+  "hex_source": ".ASM_HEX/"
+}
