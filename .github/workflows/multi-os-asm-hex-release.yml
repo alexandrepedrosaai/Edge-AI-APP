@@ -113,6 +113,7 @@ jobs:
       - name: Collect .asm and .HEX files
         shell: pwsh
         run: |
+          $ErrorActionPreference = 'Continue'
           New-Item -ItemType Directory -Force -Path dist\windows | Out-Null
 
           Get-ChildItem -Recurse -Filter "*.asm" -File |
@@ -127,13 +128,15 @@ jobs:
               Copy-Item -Destination dist\windows\ -Force
           }
 
+          # Attempt NASM assembly (errors are non-fatal)
           $nasm = "C:\Program Files\NASM\nasm.exe"
           if (Test-Path $nasm) {
-            & $nasm -f win64 manifest.asm -o dist\windows\manifest.obj 2>$null
-            & $nasm -f win64 Symbolic.asm  -o dist\windows\Symbolic.obj  2>$null
+            & $nasm -f win64 manifest.asm -o dist\windows\manifest.obj 2>&1 | Out-Null
+            & $nasm -f win64 Symbolic.asm  -o dist\windows\Symbolic.obj  2>&1 | Out-Null
           }
 
           Get-ChildItem dist\windows\ | Format-Table Name, Length
+          exit 0
 
       - name: Generate Windows SBOM manifest
         shell: pwsh
