@@ -10,29 +10,61 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         rust: [stable, nightly]
         arch: [x86_64, aarch64]
+        exclude:
+          # aarch64 cross-compilation on Windows is not straightforward
+          - os: windows-latest
+            arch: aarch64
+
+    defaults:
+      run:
+        working-directory: AI-Writer-CherryGarden-Ressonance-Copilot-Meta-AI/rust-core
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
       - name: Install Rust
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.rust }}
-          override: true
 
-      - name: Build project
-        run: cargo build --release --target ${{ matrix.arch }}
+      - name: Add cross-compilation target (Linux aarch64)
+        if: matrix.arch == 'aarch64' && matrix.os == 'ubuntu-latest'
+        run: rustup target add aarch64-unknown-linux-gnu
 
-      - name: Run tests
+      - name: Install cross-linker (Linux aarch64)
+        if: matrix.arch == 'aarch64' && matrix.os == 'ubuntu-latest'
+        run: sudo apt-get install -y gcc-aarch64-linux-gnu
+
+      - name: Add cross-compilation target (macOS aarch64)
+        if: matrix.arch == 'aarch64' && matrix.os == 'macos-latest'
+        run: rustup target add aarch64-apple-darwin
+
+      - name: Build project (x86_64)
+        if: matrix.arch == 'x86_64'
+        run: cargo build --release
+
+      - name: Build project (Linux aarch64)
+        if: matrix.arch == 'aarch64' && matrix.os == 'ubuntu-latest'
+        run: cargo build --release --target aarch64-unknown-linux-gnu
+        env:
+          CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: aarch64-linux-gnu-gcc
+
+      - name: Build project (macOS aarch64)
+        if: matrix.arch == 'aarch64' && matrix.os == 'macos-latest'
+        run: cargo build --release --target aarch64-apple-darwin
+
+      - name: Run tests (x86_64 only)
+        if: matrix.arch == 'x86_64'
         run: cargo test
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: edge-ai-app-${{ matrix.os }}-${{ matrix.rust }}-${{ matrix.arch }}
-          path: target/release/
+          path: AI-Writer-CherryGarden-Ressonance-Copilot-Meta-AI/rust-core/target/
