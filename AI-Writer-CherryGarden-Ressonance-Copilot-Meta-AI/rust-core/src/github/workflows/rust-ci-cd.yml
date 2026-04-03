@@ -1,0 +1,38 @@
+name: Rust CI/CD Matrix
+
+on:
+  push:
+    branches: [ "main" ]
+  release:
+    types: [created]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        rust: [stable, nightly]
+        arch: [x86_64, aarch64]
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.rust }}
+          override: true
+
+      - name: Build project
+        run: cargo build --release --target ${{ matrix.arch }}
+
+      - name: Run tests
+        run: cargo test
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: edge-ai-app-${{ matrix.os }}-${{ matrix.rust }}-${{ matrix.arch }}
+          path: target/release/
