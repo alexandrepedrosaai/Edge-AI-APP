@@ -44,10 +44,15 @@ jobs:
     outputs:
       image-tag: ${{ steps.meta.outputs.tags }}
       image-digest: ${{ steps.build.outputs.digest }}
+      image-name-lower: ${{ steps.lower.outputs.name }}
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      
+      - name: Set lowercase image name
+        id: lower
+        run: echo "name=$(echo '${{ env.IMAGE_NAME }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
       
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -89,7 +94,7 @@ jobs:
       - name: Security scan with Trivy
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }}
+          image-ref: ${{ env.REGISTRY }}/${{ steps.lower.outputs.name }}@${{ steps.build.outputs.digest }}
           format: 'sarif'
           output: 'trivy-results.sarif'
         continue-on-error: true
@@ -109,7 +114,7 @@ jobs:
     
     environment:
       name: ${{ github.event.inputs.environment || 'staging' }}
-      url: https://edge-ai-app.azurecontainerapps.io
+      url: https://edge-ai-app.jollymoss-4b53b752.eastus.azurecontainerapps.io
     
     steps:
       - name: Checkout code
