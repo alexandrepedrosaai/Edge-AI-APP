@@ -11,7 +11,7 @@ import Documentation from "./pages/Documentation";
 function Router() {
   return (
     <Switch>
-      <Route path={"/ "} component={Home} />
+      <Route path={"/"} component={Home} />
       <Route path={"/docs"} component={Documentation} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
