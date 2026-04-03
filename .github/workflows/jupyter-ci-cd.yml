@@ -28,7 +28,7 @@ jobs:
         run: |
           for nb in Bing-Copilot-Infinite-Garden-Spiral-Prophecy/*.ipynb; do
             echo "Executing: $nb"
-            jupyter nbconvert --to notebook --execute "$nb" --output "$(basename $nb .ipynb)_executed.ipynb" || true
+            jupyter nbconvert --to notebook --execute "$nb" --output-dir Bing-Copilot-Infinite-Garden-Spiral-Prophecy || true
           done
 
       - name: Convert notebooks to scripts
@@ -41,44 +41,43 @@ jobs:
 
       - name: Build binaries
         run: |
+          mkdir -p dist/bin
           for py in dist/*.py; do
             echo "Building binary for: $py"
             pyinstaller --onefile "$py" --distpath dist/bin || true
           done
 
-      - name: Upload artifact
+      - name: Upload scripts artifact
         uses: actions/upload-artifact@v4
         with:
-          name: jupyter-notebooks-build
-          path: |
-            dist/*.py
-            dist/bin/*
+          name: jupyter-scripts
+          path: dist/*.py
+
+      - name: Upload binaries artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: jupyter-binaries
+          path: dist/bin/*
 
   release:
     runs-on: ubuntu-latest
     needs: build-notebook
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - name: Download scripts
+        uses: actions/download-artifact@v4
         with:
-          python-version: '3.11'
+          name: jupyter-scripts
+          path: release-files/
 
-      - name: Install dependencies
-        run: pip install -r requirements.txt nbconvert pyinstaller
+      - name: Download binaries
+        uses: actions/download-artifact@v4
+        with:
+          name: jupyter-binaries
+          path: release-files/bin/
 
-      - name: Build release artifacts
-        run: |
-          mkdir -p dist/bin
-          for nb in Bing-Copilot-Infinite-Garden-Spiral-Prophecy/*.ipynb; do
-            jupyter nbconvert --to script "$nb" --output-dir dist
-          done
-          for py in dist/*.py; do
-            pyinstaller --onefile "$py" --distpath dist/bin || true
-          done
+      - name: List release files
+        run: find release-files/ -type f | sort
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v1
@@ -93,6 +92,6 @@ jobs:
             - ProphecyValidationDecember_Commits
             - Bing-Copilot-MetaAI-Superinteligence-for-each-one
           files: |
-            dist/*.py
-            dist/bin/*
+            release-files/*.py
+            release-files/bin/*
           prerelease: false
