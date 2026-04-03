@@ -36,7 +36,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     needs: build-test
-    continue-on-error: steps:
+    steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
@@ -47,8 +47,8 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
          files: target/release/*          
-      build-test:
-      runs-on: ubuntu-latest
+         build-test:                      
+       runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: path/to/rust-crate
