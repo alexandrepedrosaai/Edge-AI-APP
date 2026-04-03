@@ -1,0 +1,193 @@
+name: FPGA CI/CD — Simulate, Package & Release
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: write
+
+jobs:
+  # ── Job 1: VHDL simulation with GHDL ─────────────────────────────────────
+  simulate-vhdl:
+    name: VHDL Simulation (GHDL)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install GHDL
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ghdl ghdl-mcode
+
+      - name: Create output directory
+        run: mkdir -p fpga_build
+
+      - name: Analyse VHDL sources
+        run: |
+          ghdl -a --std=08 src/vhdl/top_entity.vhd
+          ghdl -a --std=08 tests/tb_top.vhd
+
+      - name: Elaborate testbench
+        run: ghdl -e --std=08 tb_top
+
+      - name: Run simulation (generate VCD waveform)
+        run: |
+          ghdl -r --std=08 tb_top \
+            --vcd=fpga_build/tb_top_vhdl.vcd \
+            --stop-time=500ns 2>&1 | tee fpga_build/vhdl_sim.log || true
+
+      - name: Generate simulation report
+        run: |
+          echo "# VHDL Simulation Report" > fpga_build/vhdl_report.md
+          echo "**Date:** $(date -u)" >> fpga_build/vhdl_report.md
+          echo "**Commit:** ${{ github.sha }}" >> fpga_build/vhdl_report.md
+          echo "" >> fpga_build/vhdl_report.md
+          echo "## Simulation Log" >> fpga_build/vhdl_report.md
+          echo '```' >> fpga_build/vhdl_report.md
+          cat fpga_build/vhdl_sim.log >> fpga_build/vhdl_report.md
+          echo '```' >> fpga_build/vhdl_report.md
+
+      - name: Upload VHDL simulation artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: vhdl-simulation
+          path: |
+            fpga_build/tb_top_vhdl.vcd
+            fpga_build/vhdl_sim.log
+            fpga_build/vhdl_report.md
+
+  # ── Job 2: Verilog simulation with Icarus Verilog ─────────────────────────
+  simulate-verilog:
+    name: Verilog Simulation (Icarus)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Icarus Verilog
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y iverilog
+
+      - name: Create output directory
+        run: mkdir -p fpga_build
+
+      - name: Compile Verilog design + testbench
+        run: |
+          iverilog -o fpga_build/tb_top_sim \
+            src/verilog/top_entity.v \
+            tests/tb_top.v
+
+      - name: Run simulation (generate VCD waveform)
+        run: |
+          cd fpga_build
+          ./tb_top_sim 2>&1 | tee verilog_sim.log || true
+
+      - name: Generate simulation report
+        run: |
+          echo "# Verilog Simulation Report" > fpga_build/verilog_report.md
+          echo "**Date:** $(date -u)" >> fpga_build/verilog_report.md
+          echo "**Commit:** ${{ github.sha }}" >> fpga_build/verilog_report.md
+          echo "" >> fpga_build/verilog_report.md
+          echo "## Simulation Log" >> fpga_build/verilog_report.md
+          echo '```' >> fpga_build/verilog_report.md
+          cat fpga_build/verilog_sim.log >> fpga_build/verilog_report.md
+          echo '```' >> fpga_build/verilog_report.md
+
+      - name: Upload Verilog simulation artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: verilog-simulation
+          path: |
+            fpga_build/tb_top.vcd
+            fpga_build/verilog_sim.log
+            fpga_build/verilog_report.md
+
+  # ── Job 3: Package sources + publish release ──────────────────────────────
+  release:
+    name: Package & Release
+    runs-on: ubuntu-latest
+    needs: [simulate-vhdl, simulate-verilog]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download VHDL simulation artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: vhdl-simulation
+          path: release/vhdl-sim/
+
+      - name: Download Verilog simulation artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: verilog-simulation
+          path: release/verilog-sim/
+
+      - name: Package HDL sources
+        run: |
+          mkdir -p release
+          zip -r release/fpga-hdl-sources.zip \
+            src/ constraints/ scripts/ tests/ \
+            -x "*.git*"
+
+      - name: Package VHDL simulation results
+        run: |
+          zip -r release/vhdl-simulation-results.zip \
+            release/vhdl-sim/
+
+      - name: Package Verilog simulation results
+        run: |
+          zip -r release/verilog-simulation-results.zip \
+            release/verilog-sim/
+
+      - name: Generate combined release notes
+        run: |
+          cat > release/RELEASE_NOTES.md << NOTES
+          # FPGA Release — Edge-AI-APP
+
+          **Commit:** ${{ github.sha }}
+          **Branch:** ${{ github.ref_name }}
+          **Date:** $(date -u)
+
+          ## Contents
+
+          | File | Description |
+          |------|-------------|
+          | fpga-hdl-sources.zip | All HDL sources (VHDL + Verilog), constraints, scripts, testbenches |
+          | vhdl-simulation-results.zip | GHDL simulation: VCD waveform + log + report |
+          | verilog-simulation-results.zip | Icarus Verilog simulation: VCD waveform + log + report |
+
+          ## Supported Targets
+
+          | Target | Tool | Constraints file |
+          |--------|------|-----------------|
+          | Intel Cyclone V (DE1-SoC) | Quartus Prime | constraints/cycloneV.qsf |
+          | Xilinx Artix-7 (Basys3) | Vivado | constraints/artix7.xdc |
+
+          ## Build Instructions
+
+          **Cyclone V:**
+          \`\`\`bash
+          ./scripts/build_cyclonev.sh
+          \`\`\`
+
+          **Artix-7:**
+          \`\`\`bash
+          vivado -mode batch -source scripts/build_artix7.tcl
+          \`\`\`
+          NOTES
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: fpga-latest
+          name: "FPGA Build — Latest"
+          body_path: release/RELEASE_NOTES.md
+          files: |
+            release/fpga-hdl-sources.zip
+            release/vhdl-simulation-results.zip
+            release/verilog-simulation-results.zip
+          prerelease: false
