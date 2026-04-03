@@ -1,8 +1,5 @@
-`cpp
-
-ifndef SERVER_H
-
-define SERVER_H
+#ifndef SERVER_H
+#define SERVER_H
 
 class Server {
 public:
@@ -11,3 +8,5 @@ public:
 private:
     int port_;
 };
+
+#endif // SERVER_H
