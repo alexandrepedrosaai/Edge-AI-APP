@@ -36,7 +36,7 @@ jobs:
           mkdir -p dist
           for nb in Bing-Copilot-Infinite-Garden-Spiral-Prophecy/*.ipynb; do
             echo "Converting: $nb"
-            jupyter nbconvert --to script "$nb" --output "dist/$(basename $nb .ipynb)"
+            jupyter nbconvert --to script "$nb" --output-dir dist
           done
 
       - name: Build binaries
@@ -74,7 +74,7 @@ jobs:
         run: |
           mkdir -p dist/bin
           for nb in Bing-Copilot-Infinite-Garden-Spiral-Prophecy/*.ipynb; do
-            jupyter nbconvert --to script "$nb" --output "dist/$(basename $nb .ipynb)"
+            jupyter nbconvert --to script "$nb" --output-dir dist
           done
           for py in dist/*.py; do
             pyinstaller --onefile "$py" --distpath dist/bin || true
