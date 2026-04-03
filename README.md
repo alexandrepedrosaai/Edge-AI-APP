@@ -1,5 +1,6 @@
 # Edge-AI-APP 
 ## https://edge-ai-functions.azurewebsites.net/
+## https://edge-ai-app.jollymoss-4b53b752.eastus.azurecontainerapps.io/
 Edge AI App builds on the source software OS‑ALGORITHMIC‑MESH, evolving Microsoft Edge into a living hub of intelligence. This repo unifies vision, roadmap, and timeline with Markdown + Mermaid diagrams, LaTeX slides, and Go/Rust/Python integrations.
 [![Assembly Build Pipeline](https://github.com/alexandrepedrosaai/Edge-AI-APP/actions/workflows/assembly-build.yml/badge.svg)](https://github.com/alexandrepedrosaai/Edge-AI-APP/actions/workflows/assembly-build.yml)
 [![Hex Build Pipeline](https://github.com/alexandrepedrosaai/Edge-AI-APP/actions/workflows/hex-build-pipeline.yml/badge.svg)](https://github.com/alexandrepedrosaai/Edge-AI-APP/actions/workflows/hex-build-pipeline.yml)
