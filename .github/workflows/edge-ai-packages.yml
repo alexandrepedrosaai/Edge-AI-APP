@@ -34,7 +34,7 @@ jobs:
           - name: "mlp"
             file: "Multilayer-Perceptron-MLP.asm.hex"
           - name: "neural-forward-pass"
-            file: "Neural-Forward-Pass-Unified.asm.asm.hex"
+            file: "Neural-Forward-Pass-Unified.asm.hex"
           - name: "app"
             file: "App.hex"
 
