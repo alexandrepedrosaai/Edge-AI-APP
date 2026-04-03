@@ -4,11 +4,8 @@ on:
   push:
     branches: [ "main" ]
     paths:
-      - 'azure-functions/**'
+      - 'azure-functions-node/**'
       - 'server/**'
-      - 'package.json'
-      - 'pnpm-lock.yaml'
-      - 'requirements.txt'
       - '.github/workflows/azure-function-app.yml'
   workflow_dispatch:
     inputs:
@@ -22,217 +19,136 @@ on:
           - production
 
 env:
-  AZURE_SUBSCRIPTION_ID: f7fc86dd-bd9f-43a6-80a4-0bb6cab950ec
-  AZURE_FUNCTIONAPP_PACKAGE_PATH: './azure-functions'
-  NODE_VERSION: '20.x'
-  PYTHON_VERSION: '3.11'
-  VITE_ANALYTICS_ENDPOINT: "https://analytics.example.com"
-  VITE_ANALYTICS_WEBSITE_ID: "default"
-  VITE_APP_TITLE: "Edge AI App"
-  VITE_APP_LOGO: "/logo.svg"
+  AZURE_FUNCTIONAPP_NAME: "edge-ai-functions"
+  AZURE_RESOURCE_GROUP: "edge-ai-rg"
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: "azure-functions-node"
+  NODE_VERSION: "20"
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    
+
+    environment:
+      name: ${{ github.event.inputs.environment || 'production' }}
+      url: https://edge-ai-functions.azurewebsites.net
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-      
-      - name: Setup Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-      
-      - name: Install pnpm
-        run: npm install -g pnpm
-      
-      - name: Install Node.js dependencies
+          cache: "npm"
+          cache-dependency-path: "${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/package.json"
+
+      - name: Install dependencies
         run: |
           cd ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
-          pnpm install
-          pnpm run build 2>/dev/null || echo "No build script"
-      
-      - name: Install Python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          if [ -f "requirements.txt" ]; then
-            pip install -r requirements.txt
-          fi
-      
-      - name: Create deployment package
-        run: |
-          mkdir -p deployment
-          cp -r ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/* deployment/
-          cp -r server/* deployment/ 2>/dev/null || true
-          cd deployment
-          npm install --production 2>/dev/null || pnpm install --prod
-      
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: function-app-build
-          path: deployment/
-          retention-days: 1
+          npm install --production
 
-  deploy-to-azure:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
-    
-    environment:
-      name: ${{ github.event.inputs.environment || 'staging' }}
-      url: https://edge-ai-functions.azurewebsites.net
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: function-app-build
-          path: deployment/
-      
       - name: Azure Login with Client Secret
         uses: azure/login@v1
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-      
+          creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+
       - name: Deploy to Azure Function App
         uses: Azure/functions-action@v1
         with:
-          app-name: ${{ secrets.AZURE_FUNCTIONAPP_NAME }}
-          package: deployment/
-          publish-profile: ${{ secrets.AZURE_FUNCTION_PUBLISH_PROFILE }}
+          app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
+          package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
           scm-do-build-during-deployment: true
           enable-oryx-build: true
-      
+
       - name: Verify deployment
         run: |
-          FUNCTION_APP_NAME="${{ secrets.AZURE_FUNCTIONAPP_NAME }}"
-          RESOURCE_GROUP="${{ secrets.AZURE_RESOURCE_GROUP }}"
-          
           echo "Verifying Function App deployment..."
-          
-          # Get function app details
           az functionapp show \
-            --name "$FUNCTION_APP_NAME" \
-            --resource-group "$RESOURCE_GROUP" \
+            --name "${{ env.AZURE_FUNCTIONAPP_NAME }}" \
+            --resource-group "${{ env.AZURE_RESOURCE_GROUP }}" \
             --query "{name: name, state: state, hostNames: defaultHostName}" \
             --output table
-          
-          # List deployed functions
+
           echo ""
           echo "Deployed Functions:"
           az functionapp function list \
-            --name "$FUNCTION_APP_NAME" \
-            --resource-group "$RESOURCE_GROUP" \
-            --query "[].{name: name, trigger: trigger.type}" \
-            --output table || echo "No functions found"
-      
+            --name "${{ env.AZURE_FUNCTIONAPP_NAME }}" \
+            --resource-group "${{ env.AZURE_RESOURCE_GROUP }}" \
+            --query "[].{name: name}" \
+            --output table || echo "Functions still initializing..."
+
       - name: Health check
         run: |
-          FUNCTION_APP_NAME="${{ secrets.AZURE_FUNCTIONAPP_NAME }}"
-          RESOURCE_GROUP="${{ secrets.AZURE_RESOURCE_GROUP }}"
-          
-          # Get the default hostname
           HOSTNAME=$(az functionapp show \
-            --name "$FUNCTION_APP_NAME" \
-            --resource-group "$RESOURCE_GROUP" \
+            --name "${{ env.AZURE_FUNCTIONAPP_NAME }}" \
+            --resource-group "${{ env.AZURE_RESOURCE_GROUP }}" \
             --query "defaultHostName" -o tsv)
-          
+
           echo "Testing Function App: https://$HOSTNAME/api/health"
-          
-          # Try to access the health endpoint
-          for i in {1..10}; do
-            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "https://$HOSTNAME/api/health" 2>/dev/null || echo "000")
+
+          for i in {1..6}; do
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "https://$HOSTNAME/api/health" --max-time 15 2>/dev/null || echo "000")
             echo "Attempt $i: HTTP $HTTP_CODE"
-            
             if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "404" ]; then
-              echo "✓ Function App is responding!"
+              echo "Function App is responding!"
               break
             fi
-            
-            sleep 5
+            sleep 10
           done
-      
+
       - name: Configure application settings
         run: |
-          FUNCTION_APP_NAME="${{ secrets.AZURE_FUNCTIONAPP_NAME }}"
-          RESOURCE_GROUP="${{ secrets.AZURE_RESOURCE_GROUP }}"
-          
-          echo "Configuring application settings..."
-          
           az functionapp config appsettings set \
-            --name "$FUNCTION_APP_NAME" \
-            --resource-group "$RESOURCE_GROUP" \
+            --name "${{ env.AZURE_FUNCTIONAPP_NAME }}" \
+            --resource-group "${{ env.AZURE_RESOURCE_GROUP }}" \
             --settings \
-              VITE_ANALYTICS_ENDPOINT="https://analytics.example.com" \
-              VITE_ANALYTICS_WEBSITE_ID="default" \
               VITE_APP_TITLE="Edge AI App" \
               VITE_APP_LOGO="/logo.svg" \
-              ENABLE_MSAL_LOGGING="false" \
-              ASPNETCORE_ENVIRONMENT="Production"
-      
+              NODE_ENV="production"
+
       - name: Create deployment summary
         if: always()
         run: |
           echo "# Azure Function App Deployment" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "## Deployment Details" >> $GITHUB_STEP_SUMMARY
-          echo "- **Environment**: ${{ github.event.inputs.environment || 'staging' }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Function App**: ${{ secrets.AZURE_FUNCTIONAPP_NAME }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment**: ${{ github.event.inputs.environment || 'production' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Function App**: ${{ env.AZURE_FUNCTIONAPP_NAME }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Package**: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "## Status" >> $GITHUB_STEP_SUMMARY
-          echo "✓ Deployment completed" >> $GITHUB_STEP_SUMMARY
-      
+          echo "Deployment completed" >> $GITHUB_STEP_SUMMARY
+
       - name: Azure Logout
         if: always()
         run: az logout
 
   rollback-on-failure:
     if: failure()
+    needs: build-and-deploy
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      id-token: write
-    
+
     steps:
       - name: Azure Login with Client Secret
         uses: azure/login@v1
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-      
+          creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+
       - name: Trigger rollback
         run: |
-          FUNCTION_APP_NAME="${{ secrets.AZURE_FUNCTIONAPP_NAME }}"
-          RESOURCE_GROUP="${{ secrets.AZURE_RESOURCE_GROUP }}"
-          
-          echo "⚠️ Deployment failed! Initiating rollback..."
-          
-          # Get previous deployment slot if available
-          SLOTS=$(az functionapp deployment slot list \
-            --name "$FUNCTION_APP_NAME" \
-            --resource-group "$RESOURCE_GROUP" \
-            --query "[].name" -o tsv)
-          
-          if [ -n "$SLOTS" ]; then
-            echo "Available slots: $SLOTS"
-            echo "Manual rollback may be required. Check Azure Portal for deployment history."
-          fi
-      
+          echo "Deployment failed! Check Azure Portal for deployment history."
+          az functionapp show \
+            --name "edge-ai-functions" \
+            --resource-group "edge-ai-rg" \
+            --query "{name: name, state: state}" -o table
+
       - name: Azure Logout
         if: always()
         run: az logout
