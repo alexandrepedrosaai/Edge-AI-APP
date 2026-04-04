@@ -1,6 +1,7 @@
 ; Release: Metamorphosis and retro metamorphosis to silicon hardware's 
 ; Tag: Metamorphosis-and-retro-metamorphosis-to-silicon-hardware
 ; Extracted from GitHub Release
+; NOTE: Conceptual/pseudocode only — not intended for assembly. Pseudo-ISA for conceptual representation.
 ;
 ; === Inline ASM 1 ===
 global add_numbers

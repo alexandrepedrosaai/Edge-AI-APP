@@ -1,0 +1,3 @@
+# Force GitHub Linguist to treat .ASM/** as plain text (conceptual/pseudocode, not real assembly)
+.ASM/**  linguist-language=Text
+.ASM/**  linguist-documentation=true

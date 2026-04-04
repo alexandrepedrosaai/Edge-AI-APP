@@ -4,10 +4,10 @@
 
 ## Description
 
-```.asm
+```text
 ---
 
-📘 Neural Forward Pass — Unified .asm
+📘 Neural Forward Pass — Unified (Conceptual/Pseudocode)
 
 1. Input Preprocessing (Hub CPU)
 
@@ -41,4 +41,4 @@
 
 ## Files
 
-- `Neural-Forward-Pass-Unified.asm.asm` - Extracted ASM code from this release
+- `Neural-Forward-Pass-Unified.asm` - Extracted conceptual/pseudocode from this release

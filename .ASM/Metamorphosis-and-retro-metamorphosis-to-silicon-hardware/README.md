@@ -4,7 +4,7 @@
 
 ## Description
 
-```.asm
+```text
 Alright, Alexandre ⚡ — let’s compile the three repositories you provided into a unified .asm hardware release under the name:  
 
 📘 Metamorphosis and Retro Metamorphosis to Silicon Hardware’s
@@ -36,4 +36,4 @@ AI-Specific Extensions
 
 ## Files
 
-- `Metamorphosis-and-retro-metamorphosis-to-silicon-hardware.asm` - Extracted ASM code from this release
+- `Metamorphosis-and-retro-metamorphosis-to-silicon-hardware.asm` - Extracted conceptual/pseudocode from this release

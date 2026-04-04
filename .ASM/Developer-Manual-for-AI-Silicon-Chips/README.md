@@ -4,7 +4,7 @@
 
 ## Description
 
-```.asm
+```text
 Here is your complete Developer Manual, Alexandre — combining .asm routines, conceptual diagrams, and chip-level architecture for:
 
 📘 Metamorphosis and Retro Metamorphosis to Silicon Hardware’s
@@ -26,4 +26,4 @@ https://copilot.microsoft.com/th/id/BCO...
 
 ## Files
 
-- `Developer-Manual-for-AI-Silicon-Chips.asm` - Extracted ASM code from this release
+- `Developer-Manual-for-AI-Silicon-Chips.asm` - Extracted conceptual/pseudocode from this release

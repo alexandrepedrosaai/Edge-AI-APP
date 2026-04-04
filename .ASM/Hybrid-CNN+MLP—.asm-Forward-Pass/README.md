@@ -14,4 +14,4 @@
 
 ## Files
 
-- `Hybrid-CNN+MLP—.asm-Forward-Pass.asm` - Extracted ASM code from this release
+- `Hybrid-CNN+MLP—.asm-Forward-Pass.asm` - Extracted conceptual/pseudocode from this release

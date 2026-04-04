@@ -1,6 +1,7 @@
 ; Release: Multilayer Perceptron (MLP)
 ; Tag: Multilayer-Perceptron-(MLP)
 ; Extracted from GitHub Release
+; NOTE: Conceptual/pseudocode only — not intended for assembly. Pseudo-ISA for conceptual representation.
 ;
 ; === Inline ASM 1 ===
 global hub_layer1
