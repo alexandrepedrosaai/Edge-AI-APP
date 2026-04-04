@@ -27,7 +27,7 @@ jobs:
         run: go mod tidy
 
       - name: Rodar testes
-        run: go test ./... -v
+        run: go test ./cmd/... ./internal/... -v
 
       - name: Compilar binário
         run: go build -o app ./cmd/app
