@@ -1,0 +1,27 @@
+name: VHDL CI/CD
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  simulate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install GHDL
+        run: sudo apt-get install -y ghdl
+      - name: Compile VHDL
+        run: ghdl -a vhdl/counter.vhdl && ghdl -a vhdl/counter_tb.vhdl
+      - name: Elaborate
+        run: ghdl -e counter_tb
+      - name: Run Simulation
+        run: ghdl -r counter_tb --stop-time=100ns
+      - name: Generate SHA256
+        run: sha256sum counter_tb > counter_tb.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vhdl-sim
+          path: |
+            counter_tb
+            counter_tb.sha256
