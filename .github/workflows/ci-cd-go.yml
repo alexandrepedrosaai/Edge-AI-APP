@@ -7,6 +7,9 @@ on:
     branches: [ "main" ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     name: Build Go Binary
@@ -39,6 +42,7 @@ jobs:
     name: Criar Release Automática
     needs: build
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
@@ -51,6 +55,17 @@ jobs:
       - name: Criar Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: go-latest
+          name: "Go Edge AI App — Latest Build"
+          body: |
+            Automated Go binary build.
+
+            **Commit:** ${{ github.sha }}
+
+            ## Binary
+            | File | Description |
+            |------|-------------|
+            | `app` | Edge AI App binary (Linux x86_64) |
           files: app
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
