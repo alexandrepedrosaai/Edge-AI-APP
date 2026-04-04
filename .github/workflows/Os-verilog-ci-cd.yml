@@ -34,7 +34,7 @@ jobs:
       - name: Install Icarus Verilog (Windows)
         if: runner.os == 'Windows'
         run: |
-          pacman -S --noconfirm mingw-w64-x86_64-iverilog
+          C:/msys64/usr/bin/pacman -S --noconfirm mingw-w64-x86_64-iverilog
           echo "C:/msys64/mingw64/bin" >> $GITHUB_PATH
 
       - name: Compile Verilog
