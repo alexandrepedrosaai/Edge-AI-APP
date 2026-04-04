@@ -2,18 +2,69 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: edge-backend
+  labels:
+    app.kubernetes.io/name: edge-backend
+    app.kubernetes.io/component: backend
+    app.kubernetes.io/part-of: edge-ai-app
+    app.kubernetes.io/managed-by: kustomize
 spec:
   replicas: 2
+  revisionHistoryLimit: 3
   selector:
     matchLabels:
       app: edge-backend
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   template:
     metadata:
       labels:
         app: edge-backend
+        app.kubernetes.io/name: edge-backend
+        app.kubernetes.io/component: backend
+        app.kubernetes.io/part-of: edge-ai-app
     spec:
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
       containers:
         - name: backend
+          # TODO: replace :latest with an immutable digest tag (e.g. sha256:...) for production stability
           image: alexandrepedrosaai/edge-backend:latest
+          imagePullPolicy: Always
           ports:
-            - containerPort: 4000
+            - name: http
+              containerPort: 4000
+              protocol: TCP
+          securityContext:
+            allowPrivilegeEscalation: false
+            # readOnlyRootFilesystem is not set here because the backend may need to write to /tmp or other paths;
+            # enable it once confirmed safe for this image
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          readinessProbe:
+            tcpSocket:
+              port: 4000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            tcpSocket:
+              port: 4000
+            initialDelaySeconds: 20
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
