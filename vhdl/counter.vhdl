@@ -1,7 +1,7 @@
 -- Simple 4-bit counter in VHDL
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.STD_LOGIC_UNSIGNED.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
 entity counter is
     Port (
@@ -12,15 +12,15 @@ entity counter is
 end counter;
 
 architecture Behavioral of counter is
-    signal cnt : STD_LOGIC_VECTOR (3 downto 0) := "0000";
+    signal cnt : unsigned (3 downto 0) := (others => '0');
 begin
     process(clk, reset)
     begin
         if reset = '1' then
-            cnt <= "0000";
+            cnt <= (others => '0');
         elsif rising_edge(clk) then
             cnt <= cnt + 1;
         end if;
     end process;
-    count <= cnt;
+    count <= std_logic_vector(cnt);
 end Behavioral;

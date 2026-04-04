@@ -1,7 +1,7 @@
 -- Testbench for counter in VHDL
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.STD_LOGIC_UNSIGNED.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
 entity counter_tb is
 end counter_tb;

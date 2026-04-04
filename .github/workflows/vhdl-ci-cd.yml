@@ -3,25 +3,77 @@ name: VHDL CI/CD
 on:
   push:
     branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   simulate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Install GHDL
-        run: sudo apt-get install -y ghdl
+        run: sudo apt-get update && sudo apt-get install -y ghdl
+
       - name: Compile VHDL
-        run: ghdl -a vhdl/counter.vhdl && ghdl -a vhdl/counter_tb.vhdl
+        run: |
+          ghdl -a --std=08 vhdl/counter.vhdl
+          ghdl -a --std=08 vhdl/counter_tb.vhdl
+
       - name: Elaborate
-        run: ghdl -e counter_tb
+        run: ghdl -e --std=08 counter_tb
+
       - name: Run Simulation
-        run: ghdl -r counter_tb --stop-time=100ns
+        run: ghdl -r --std=08 counter_tb --vcd=counter_tb.vcd --stop-time=200ns
+
       - name: Generate SHA256
-        run: sha256sum counter_tb > counter_tb.sha256
-      - uses: actions/upload-artifact@v4
+        run: |
+          sha256sum counter_tb > counter_tb.sha256
+          sha256sum counter_tb.vcd >> counter_tb.sha256
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
         with:
           name: vhdl-sim
           path: |
             counter_tb
+            counter_tb.vcd
             counter_tb.sha256
+
+  release:
+    runs-on: ubuntu-latest
+    needs: simulate
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download simulation artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: vhdl-sim
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: vhdl-latest
+          name: "VHDL Simulation — Latest Build"
+          body: |
+            Automated VHDL simulation build using GHDL.
+
+            **Commit:** ${{ github.sha }}
+
+            | File | Description |
+            |------|-------------|
+            | `counter_tb` | GHDL simulation binary |
+            | `counter_tb.vcd` | VCD waveform (open with GTKWave) |
+            | `counter_tb.sha256` | SHA256 checksums |
+          files: |
+            counter_tb
+            counter_tb.vcd
+            counter_tb.sha256
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
