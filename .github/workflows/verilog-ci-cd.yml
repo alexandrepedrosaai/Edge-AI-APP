@@ -1,0 +1,25 @@
+name: Verilog CI/CD
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  simulate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Icarus Verilog
+        run: sudo apt-get install -y iverilog
+      - name: Compile Verilog
+        run: iverilog -o countertb verilog/countertb.v verilog/counter.v
+      - name: Run Simulation
+        run: vvp counter_tb
+      - name: Generate SHA256
+        run: sha256sum countertb > countertb.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: verilog-sim
+          path: |
+            counter_tb
+            counter_tb.sha256
