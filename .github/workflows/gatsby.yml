@@ -63,9 +63,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            public
-            .cache
-          key: ${{ runner.os }}-gatsby-build-${{ hashFiles('public') }}
+            dist/public
+            node_modules/.cache
+          key: ${{ runner.os }}-gatsby-build-${{ hashFiles('pnpm-lock.yaml', 'vite.config.ts', 'client/**') }}
           restore-keys: |
             ${{ runner.os }}-gatsby-build-
       - name: Install dependencies
@@ -74,6 +74,13 @@ jobs:
         env:
           PREFIX_PATHS: 'true'
         run: ${{ steps.detect-package-manager.outputs.manager }} run build
+      - name: Verify build output
+        run: |
+          if [ ! -d "dist/public" ]; then
+            echo "::error::Build output directory 'dist/public' was not produced. Check the build step above for errors."
+            exit 1
+          fi
+          echo "Build output verified: dist/public exists."
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
