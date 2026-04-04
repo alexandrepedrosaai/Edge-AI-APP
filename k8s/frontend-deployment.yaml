@@ -2,18 +2,69 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: edge-frontend
+  labels:
+    app.kubernetes.io/name: edge-frontend
+    app.kubernetes.io/component: frontend
+    app.kubernetes.io/part-of: edge-ai-app
+    app.kubernetes.io/managed-by: kustomize
 spec:
   replicas: 2
+  revisionHistoryLimit: 3
   selector:
     matchLabels:
       app: edge-frontend
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   template:
     metadata:
       labels:
         app: edge-frontend
+        app.kubernetes.io/name: edge-frontend
+        app.kubernetes.io/component: frontend
+        app.kubernetes.io/part-of: edge-ai-app
     spec:
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
       containers:
         - name: frontend
+          # TODO: replace :latest with an immutable digest tag (e.g. sha256:...) for production stability
           image: alexandrepedrosaai/edge-frontend:latest
+          imagePullPolicy: Always
           ports:
-            - containerPort: 3000
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          securityContext:
+            allowPrivilegeEscalation: false
+            # readOnlyRootFilesystem is not set here because the frontend (e.g. Next.js/React) may write
+            # to /tmp or cache directories at runtime; enable once confirmed safe for this image
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          readinessProbe:
+            tcpSocket:
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            tcpSocket:
+              port: 3000
+            initialDelaySeconds: 20
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3

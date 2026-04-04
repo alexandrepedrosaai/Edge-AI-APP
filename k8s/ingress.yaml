@@ -2,9 +2,21 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: edge-ingress
+  labels:
+    app.kubernetes.io/name: edge-ingress
+    app.kubernetes.io/component: ingress
+    app.kubernetes.io/part-of: edge-ai-app
+    app.kubernetes.io/managed-by: kustomize
   annotations:
+    # Legacy annotation kept for compatibility with older NGINX Ingress controller versions
     kubernetes.io/ingress.class: nginx
+    # Optional timeout annotations (adjust values to match your SLO requirements)
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "10"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
 spec:
+  # Preferred modern field for AKS NGINX Ingress Controller; kept alongside annotation for compatibility
+  ingressClassName: nginx
   rules:
     - host: edge-ai.example.com
       http:

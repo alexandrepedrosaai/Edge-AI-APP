@@ -2,17 +2,52 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: edge-infra
+  labels:
+    app.kubernetes.io/name: edge-infra
+    app.kubernetes.io/component: infra
+    app.kubernetes.io/part-of: edge-ai-app
+    app.kubernetes.io/managed-by: kustomize
 spec:
   replicas: 1
+  revisionHistoryLimit: 3
   selector:
     matchLabels:
       app: edge-infra
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   template:
     metadata:
       labels:
         app: edge-infra
+        app.kubernetes.io/name: edge-infra
+        app.kubernetes.io/component: infra
+        app.kubernetes.io/part-of: edge-ai-app
     spec:
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
       containers:
         - name: infra
+          # TODO: replace :latest with an immutable digest tag (e.g. sha256:...) for production stability
           image: alexandrepedrosaai/edge-infra:latest
+          imagePullPolicy: Always
           command: ["pnpm", "test"]
+          securityContext:
+            allowPrivilegeEscalation: false
+            # readOnlyRootFilesystem is not set here because pnpm test may write coverage/report files;
+            # enable once confirmed safe for this image
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
