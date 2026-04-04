@@ -7,6 +7,9 @@ on:
     branches: [ "main" ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     name: Build Go Binary (Multi-OS)
@@ -27,15 +30,26 @@ jobs:
         run: go mod tidy
 
       - name: Rodar testes
-        run: go test ./... -v
+        run: go test ./cmd/... ./internal/... -v
 
-      - name: Compilar binário
+      - name: Compilar binário (Linux/macOS)
+        if: runner.os != 'Windows'
         run: go build -o app-${{ matrix.os }} ./cmd/app
 
-      - name: Gerar SHA256
+      - name: Compilar binário (Windows)
+        if: runner.os == 'Windows'
+        run: go build -o app-${{ matrix.os }}.exe ./cmd/app
+
+      - name: Gerar SHA256 (Linux/macOS)
+        if: runner.os != 'Windows'
         run: sha256sum app-${{ matrix.os }} > app-${{ matrix.os }}.sha256
 
-      - name: Upload artefatos
+      - name: Gerar SHA256 (Windows)
+        if: runner.os == 'Windows'
+        run: certutil -hashfile app-${{ matrix.os }}.exe SHA256 > app-${{ matrix.os }}.sha256
+
+      - name: Upload artefatos (Linux/macOS)
+        if: runner.os != 'Windows'
         uses: actions/upload-artifact@v4
         with:
           name: go-binary-${{ matrix.os }}
@@ -43,10 +57,20 @@ jobs:
             app-${{ matrix.os }}
             app-${{ matrix.os }}.sha256
 
+      - name: Upload artefatos (Windows)
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: go-binary-${{ matrix.os }}
+          path: |
+            app-${{ matrix.os }}.exe
+            app-${{ matrix.os }}.sha256
+
   release:
     name: Criar Release Automática
     needs: build
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
@@ -69,10 +93,24 @@ jobs:
       - name: Criar Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: go-multi-os-latest
+          name: "Go Multi-OS Edge AI App — Latest Build"
+          body: |
+            Automated multi-OS Go binary build.
+
+            **Commit:** ${{ github.sha }}
+
+            | Binary | OS |
+            |--------|----|
+            | `app-ubuntu-latest` | Linux x86_64 |
+            | `app-windows-latest.exe` | Windows x86_64 |
+            | `app-macos-latest` | macOS x86_64 |
           files: |
             app-ubuntu-latest
             app-ubuntu-latest.sha256
             app-windows-latest.exe
-            app-windows-latest.exe.sha256
+            app-windows-latest.sha256
             app-macos-latest
             app-macos-latest.sha256
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
