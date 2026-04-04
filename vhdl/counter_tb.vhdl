@@ -39,6 +39,6 @@ begin
         wait for 10 ns;
         reset <= '0';
         wait for 100 ns;
-        assert false report "Simulation finished" severity failure;
+        std.env.stop;
     end process;
 end Behavioral;
