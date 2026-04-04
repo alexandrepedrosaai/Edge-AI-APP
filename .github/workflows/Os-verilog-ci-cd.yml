@@ -1,0 +1,126 @@
+name: Verilog Multi-OS CI/CD
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  simulate:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Icarus Verilog (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y iverilog
+
+      - name: Install Icarus Verilog (macOS)
+        if: runner.os == 'macOS'
+        run: brew install icarus-verilog
+
+      - name: Install Icarus Verilog (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $url = "https://github.com/steveicarus/iverilog/releases/download/v12_0/iverilog-v12-20220611-setup.exe"
+          $installer = "$env:TEMP\iverilog-setup.exe"
+          Invoke-WebRequest -Uri $url -OutFile $installer
+          Start-Process -FilePath $installer -ArgumentList "/S" -Wait
+          echo "C:\iverilog\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Compile Verilog (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: iverilog -o counter_tb verilog/counter_tb.v verilog/counter.v
+
+      - name: Compile Verilog (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: iverilog -o counter_tb.exe verilog/counter_tb.v verilog/counter.v
+
+      - name: Run Simulation (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: vvp counter_tb
+
+      - name: Run Simulation (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: vvp counter_tb.exe
+
+      - name: Generate SHA256 (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: sha256sum counter_tb > counter_tb.sha256
+
+      - name: Generate SHA256 (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $hash = (Get-FileHash counter_tb.exe -Algorithm SHA256).Hash.ToLower()
+          "$hash  counter_tb.exe" | Out-File -FilePath counter_tb.sha256 -Encoding utf8
+
+      - name: Upload artifacts (Linux/macOS)
+        if: runner.os != 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: verilog-sim-${{ matrix.os }}
+          path: |
+            counter_tb
+            counter_tb.sha256
+
+      - name: Upload artifacts (Windows)
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: verilog-sim-${{ matrix.os }}
+          path: |
+            counter_tb.exe
+            counter_tb.sha256
+
+  release:
+    runs-on: ubuntu-latest
+    needs: simulate
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Flatten artifacts
+        run: |
+          mkdir -p release-files
+          find artifacts -type f | while read f; do
+            os=$(echo "$f" | sed 's|artifacts/verilog-sim-||; s|/.*||')
+            base=$(basename "$f")
+            cp "$f" "release-files/${os}-${base}"
+          done
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: verilog-multi-os-latest
+          name: "Verilog Multi-OS Simulation — Latest Build"
+          body: |
+            Automated multi-OS Verilog simulation build using Icarus Verilog.
+
+            **Commit:** ${{ github.sha }}
+
+            | Platform | Binary |
+            |----------|--------|
+            | Linux    | `ubuntu-latest-counter_tb` |
+            | Windows  | `windows-latest-counter_tb.exe` |
+            | macOS    | `macos-latest-counter_tb` |
+          files: release-files/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
