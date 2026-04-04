@@ -51,5 +51,5 @@ else:
                 result = r.json()["choices"][0]["message"]["content"]
                 print(f"\n--- {os.path.basename(f)} ---")
                 print(result)
-            except (KeyError, IndexError, ValueError) as e:
+            except (KeyError, IndexError, requests.exceptions.JSONDecodeError) as e:
                 print(f"ERR {os.path.basename(f)}: unexpected response: {e}")

@@ -20,7 +20,7 @@ for hex_file in glob.glob(".ASM_HEX/*.hex"):
         raw = bytes.fromhex(h)
         sha3 = hashlib.sha3_512(raw).hexdigest()
         name = os.path.basename(hex_file).replace(".hex", "")
-    except Exception as e:
+    except ValueError as e:
         print(f"ERR {hex_file}: {e}")
         continue
 
