@@ -1,0 +1,78 @@
+name: Go Multi-OS CI/CD
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Go Binary (Multi-OS)
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Configurar Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Instalar dependências
+        run: go mod tidy
+
+      - name: Rodar testes
+        run: go test ./... -v
+
+      - name: Compilar binário
+        run: go build -o app-${{ matrix.os }} ./cmd/app
+
+      - name: Gerar SHA256
+        run: sha256sum app-${{ matrix.os }} > app-${{ matrix.os }}.sha256
+
+      - name: Upload artefatos
+        uses: actions/upload-artifact@v4
+        with:
+          name: go-binary-${{ matrix.os }}
+          path: |
+            app-${{ matrix.os }}
+            app-${{ matrix.os }}.sha256
+
+  release:
+    name: Criar Release Automática
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Download binários Linux
+        uses: actions/download-artifact@v4
+        with:
+          name: go-binary-ubuntu-latest
+
+      - name: Download binários Windows
+        uses: actions/download-artifact@v4
+        with:
+          name: go-binary-windows-latest
+
+      - name: Download binários macOS
+        uses: actions/download-artifact@v4
+        with:
+          name: go-binary-macos-latest
+
+      - name: Criar Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            app-ubuntu-latest
+            app-ubuntu-latest.sha256
+            app-windows-latest.exe
+            app-windows-latest.exe.sha256
+            app-macos-latest
+            app-macos-latest.sha256
