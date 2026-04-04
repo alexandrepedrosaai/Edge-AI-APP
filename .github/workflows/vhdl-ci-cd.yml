@@ -31,16 +31,13 @@ jobs:
         run: ghdl -r --std=08 counter_tb --vcd=counter_tb.vcd --stop-time=200ns
 
       - name: Generate SHA256
-        run: |
-          sha256sum counter_tb > counter_tb.sha256
-          sha256sum counter_tb.vcd >> counter_tb.sha256
+        run: sha256sum counter_tb.vcd > counter_tb.sha256
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: vhdl-sim
           path: |
-            counter_tb
             counter_tb.vcd
             counter_tb.sha256
 
@@ -68,11 +65,9 @@ jobs:
 
             | File | Description |
             |------|-------------|
-            | `counter_tb` | GHDL simulation binary |
             | `counter_tb.vcd` | VCD waveform (open with GTKWave) |
-            | `counter_tb.sha256` | SHA256 checksums |
+            | `counter_tb.sha256` | SHA256 checksum |
           files: |
-            counter_tb
             counter_tb.vcd
             counter_tb.sha256
         env:
