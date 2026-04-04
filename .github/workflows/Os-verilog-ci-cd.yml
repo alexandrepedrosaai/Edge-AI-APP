@@ -1,0 +1,38 @@
+name: Verilog Multi-OS CI/CD
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  simulate:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Icarus Verilog (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: sudo apt-get update && sudo apt-get install -y iverilog
+
+      - name: Install Icarus Verilog (Windows)
+        if: runner.os == 'Windows'
+        run: choco install icarus-verilog -y
+
+      - name: Compile Verilog
+        run: iverilog -o counter_tb verilog/counter_tb.v verilog/counter.v
+
+      - name: Run Simulation
+        run: vvp counter_tb
+
+      - name: Generate SHA256
+        run: sha256sum counter_tb > counter_tb.sha256
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: verilog-sim-${{ matrix.os }}
+          path: |
+            counter_tb
+            counter_tb.sha256
