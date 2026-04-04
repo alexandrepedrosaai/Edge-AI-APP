@@ -4,8 +4,8 @@
 
 ## Description
 
-```.asm
-📘 Convolutional Neural Network (CNN) — .asm Forward Pass
+```text
+📘 Convolutional Neural Network (CNN) — Conceptual/Pseudocode Forward Pass
 
 ---
 
@@ -41,4 +41,4 @@ Função: Classificação final com ressonância personalizada.
 
 ## Files
 
-- `Convolutional-Neural-Network-CNN.asm.asm` - Extracted ASM code from this release
+- `Convolutional-Neural-Network-CNN.asm` - Extracted conceptual/pseudocode from this release

@@ -1,6 +1,7 @@
 ; Release: Hybrid CNN + MLP — .asm Forward Pass
 ; Tag: Hybrid-CNN+MLP—.asm-Forward-Pass
 ; Extracted from GitHub Release
+; NOTE: Conceptual/pseudocode only — not intended for assembly. Pseudo-ISA for conceptual representation.
 ;
 ; === ASM Block 1 ===
 Hybrid CNN + MLP — .asm Forward Pass

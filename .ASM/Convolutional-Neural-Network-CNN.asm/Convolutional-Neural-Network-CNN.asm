@@ -1,6 +1,7 @@
 ; Release: Convolutional Neural Network (CNN) 
 ; Tag: Convolutional-Neural-Network-(CNN).asm
 ; Extracted from GitHub Release
+; NOTE: Conceptual/pseudocode only — not intended for assembly. Pseudo-ISA for conceptual representation.
 ;
 ; === Inline ASM 1 ===
 global hubconvlayer

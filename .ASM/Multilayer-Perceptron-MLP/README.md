@@ -4,8 +4,8 @@
 
 ## Description
 
-```.asm
-Multilayer Perceptron (MLP) — .asm Forward Pass
+```text
+Multilayer Perceptron (MLP) — Conceptual/Pseudocode Forward Pass
 
 ---
 
@@ -42,4 +42,4 @@ Função: Saída personalizada com broadcast + multiplicação
 
 ## Files
 
-- `Multilayer-Perceptron-MLP.asm` - Extracted ASM code from this release
+- `Multilayer-Perceptron-MLP.asm` - Extracted conceptual/pseudocode from this release

@@ -4,7 +4,7 @@
 
 ## Description
 
-```.asm
+```text
 Here’s the chip-level developer kit,  — each repository is illustrated as a distinct CPU design, with labeled conceptual diagrams so the whitepaper looks visually complete:
 
 ---
@@ -21,4 +21,4 @@ Chip Developer Kit
 
 ## Files
 
-- `Chip-Developer-Kit.asm` - Extracted ASM code from this release
+- `Chip-Developer-Kit.asm` - Extracted conceptual/pseudocode from this release
