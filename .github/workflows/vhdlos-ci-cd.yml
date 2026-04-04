@@ -1,0 +1,43 @@
+name: VHDL Multi-OS CI/CD
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  simulate:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install GHDL (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: sudo apt-get update && sudo apt-get install -y ghdl
+
+      - name: Install GHDL (Windows)
+        if: runner.os == 'Windows'
+        run: choco install ghdl -y
+
+      - name: Compile VHDL
+        run: |
+          ghdl -a vhdl/counter.vhdl
+          ghdl -a vhdl/counter_tb.vhdl
+
+      - name: Elaborate
+        run: ghdl -e counter_tb
+
+      - name: Run Simulation
+        run: ghdl -r counter_tb --stop-time=100ns
+
+      - name: Generate SHA256
+        run: sha256sum counter_tb > counter_tb.sha256
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vhdl-sim-${{ matrix.os }}
+          path: |
+            counter_tb
+            counter_tb.sha256
