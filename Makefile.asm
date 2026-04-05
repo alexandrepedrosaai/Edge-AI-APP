@@ -89,29 +89,20 @@ $(BUILD_DIR) $(BIN_DIR) $(OBJ_DIR) $(LOG_DIR):
 .PHONY: hex-to-asm
 hex-to-asm: $(BUILD_DIR) $(OBJ_DIR)
 	@echo "$(YELLOW)[*] Converting HEX files to ASM...$(NC)"
-	@$(PYTHON) << 'EOF'
-import os
-import glob
-
-hex_dir = "$(ASM_DIR)"
-asm_dir = "$(OBJ_DIR)"
-
-for hex_file in glob.glob(os.path.join(hex_dir, "*.hex")):
-    filename = os.path.basename(hex_file)
-    asm_file = os.path.join(asm_dir, filename.replace(".hex", ".asm"))
-    
-    try:
-        with open(hex_file, 'r') as f:
-            hex_content = f.read().replace('\n', '')
-        
-        asm_content = bytes.fromhex(hex_content).decode('utf-8', errors='ignore')
-        
-        with open(asm_file, 'w') as f:
-            f.write(asm_content)
-        
-        print(f"$(GREEN)✓$(NC) {filename} → {os.path.basename(asm_file)}")
-    except Exception as e:
-        print(f"$(RED)✗$(NC) {filename}: {e}")
+	@$(PYTHON) << 'EOF' \
+import os; \
+import glob; \
+hex_dir = "$(ASM_DIR)"; \
+asm_dir = "$(OBJ_DIR)"; \
+for hex_file in glob.glob(os.path.join(hex_dir, "*.hex")): \
+    filename = os.path.basename(hex_file); \
+    asm_file = os.path.join(asm_dir, filename.replace(".hex", ".asm")); \
+    try: \
+        with open(hex_file, 'r') as f: hex_content = f.read().replace('\n', ''); \
+        asm_content = bytes.fromhex(hex_content).decode('utf-8', errors='ignore'); \
+        with open(asm_file, 'w') as f: f.write(asm_content); \
+        print(f"$(GREEN)✓$(NC) {filename} → {os.path.basename(asm_file)}"); \
+    except Exception as e: print(f"$(RED)✗$(NC) {filename}: {e}"); \
 EOF
 
 # ============================================================================
