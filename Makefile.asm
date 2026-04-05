@@ -41,7 +41,7 @@ NC := \033[0m
 # ============================================================================
 # Default Target
 # ============================================================================
-all: clean install-deps build analyze report
+all: clean install-deps build
 	@echo "$(GREEN)✓ Complete build pipeline finished!$(NC)"
 
 # ============================================================================
@@ -87,23 +87,10 @@ $(BUILD_DIR) $(BIN_DIR) $(OBJ_DIR) $(LOG_DIR):
 # Convert HEX to ASM
 # ============================================================================
 .PHONY: hex-to-asm
-hex-to-asm: $(BUILD_DIR) $(OBJ_DIR)
+hex-to-asm: | $(BUILD_DIR) $(OBJ_DIR)
 	@echo "$(YELLOW)[*] Converting HEX files to ASM...$(NC)"
-	@$(PYTHON) << 'EOF' \
-import os; \
-import glob; \
-hex_dir = "$(ASM_DIR)"; \
-asm_dir = "$(OBJ_DIR)"; \
-for hex_file in glob.glob(os.path.join(hex_dir, "*.hex")): \
-    filename = os.path.basename(hex_file); \
-    asm_file = os.path.join(asm_dir, filename.replace(".hex", ".asm")); \
-    try: \
-        with open(hex_file, 'r') as f: hex_content = f.read().replace('\n', ''); \
-        asm_content = bytes.fromhex(hex_content).decode('utf-8', errors='ignore'); \
-        with open(asm_file, 'w') as f: f.write(asm_content); \
-        print(f"$(GREEN)✓$(NC) {filename} → {os.path.basename(asm_file)}"); \
-    except Exception as e: print(f"$(RED)✗$(NC) {filename}: {e}"); \
-EOF
+	@$(PYTHON) scripts/hex_to_asm.py "$(ASM_DIR)" "$(OBJ_DIR)"
+
 
 # ============================================================================
 # Assemble ASM files
@@ -166,8 +153,6 @@ analyze:
 		echo "$(RED)✗ No binary found$(NC)"; \
 	fi
 
-# ============================================================================
-# Validate Binary Security
 # ============================================================================
 .PHONY: validate
 validate:
