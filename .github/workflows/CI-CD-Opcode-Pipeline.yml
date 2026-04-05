@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Compile high-level code
         run: |
@@ -35,7 +35,7 @@ jobs:
           echo "Pacote de release criado com Opcode, HEX e Binary."
 
       - name: Publish release
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: opcode-release
           path: release_${{ github.sha }}.tar.gz
