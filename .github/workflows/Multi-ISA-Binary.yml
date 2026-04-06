@@ -1,0 +1,76 @@
+name: CI-CD Multi-OS Multi-ISA Binary Releases
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build-binary-matrix:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        isa: [x86, arm, riscv]
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Compile source
+        run: |
+          make build-${{ matrix.isa }}
+          echo "Compilando código em ${{ matrix.os }} para ISA ${{ matrix.isa }}..."
+
+      - name: Generate Binary Machine Code
+        run: |
+          ./tools/bin-encoder ./build/${{ matrix.isa }}/bin > ./artifacts/${{ matrix.os }}/${{ matrix.isa }}/machine_code.bin
+          echo "Binary Machine Code gerado em ./artifacts/${{ matrix.os }}/${{ matrix.isa }}/machine_code.bin"
+
+      - name: Run ISA simulation tests
+        run: |
+          ./simulators/${{ matrix.isa }} --load ./artifacts/${{ matrix.os }}/${{ matrix.isa }}/machine_code.bin
+
+      - name: Package artifacts
+        run: |
+          tar -czf release-${{ matrix.os }}-${{ matrix.isa }}-${{ github.sha }}.tar.gz ./artifacts/${{ matrix.os }}/${{ matrix.isa }}
+          echo "Pacote de release criado para ${{ matrix.os }} / ${{ matrix.isa }}."
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: binary-release-${{ matrix.os }}-${{ matrix.isa }}
+          path: release-${{ matrix.os }}-${{ matrix.isa }}-${{ github.sha }}.tar.gz
+
+  release:
+    needs: build-binary-matrix
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: ./releases
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: "Multi-OS Multi-ISA Release v1.0.${{ github.run_number }}"
+          body: "Automated release for OS + ISA binaries."
+          files: ./releases/**
+
+  deploy:
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Azure Artifacts
+        run: |
+          for os in ubuntu-latest windows-latest macos-latest; do
+            for isa in x86 arm riscv; do
+              az artifacts universal publish \
+                --organization "https://dev.azure.com/yourorg" \
+                --feed "EdgeAIApp" \
+                --package-name "binary-release-${os}-${isa}" \
+                --package-version "1.0.${{ github.run_number }}" \
+                --path release-${os}-${isa}-${{ github.sha }}.tar.gz
+            done
+          done
