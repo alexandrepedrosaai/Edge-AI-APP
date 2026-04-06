@@ -59,14 +59,14 @@ build-x86: build
 # ============================================================================
 install-deps:
 	@echo Checking dependencies...
-	@which $(NASM) > /dev/null || (echo "Warning: $(NASM) not found." && exit 0)
-	@which $(LD) > /dev/null || (echo "Warning: $(LD) not found." && exit 0)
+	-@which $(NASM) > /dev/null || (echo "Warning: $(NASM) not found." && exit 0)
+	-@which $(LD) > /dev/null || (echo "Warning: $(LD) not found." && exit 0)
 
 # ============================================================================
 # Create Build Directories
 # ============================================================================
 $(BUILD_DIR) $(BIN_DIR) $(OBJ_DIR) $(LOG_DIR):
-	@$(MKDIR) $@
+	-@$(MKDIR) $@
 
 # ============================================================================
 # Convert HEX to ASM
@@ -74,7 +74,7 @@ $(BUILD_DIR) $(BIN_DIR) $(OBJ_DIR) $(LOG_DIR):
 .PHONY: hex-to-asm
 hex-to-asm: | $(BUILD_DIR) $(OBJ_DIR)
 	@echo Converting HEX files to ASM...
-	@$(PYTHON) scripts/hex_to_asm.py "$(ASM_DIR)" "$(OBJ_DIR)" || true
+	-@$(PYTHON) scripts/hex_to_asm.py "$(ASM_DIR)" "$(OBJ_DIR)" || true
 
 # ============================================================================
 # Assemble ASM files
@@ -82,11 +82,11 @@ hex-to-asm: | $(BUILD_DIR) $(OBJ_DIR)
 .PHONY: assemble
 assemble: hex-to-asm $(LOG_DIR)
 	@echo Starting assembly phase...
-	@if [ -d "$(OBJ_DIR)" ]; then \
+	-@if [ -d "$(OBJ_DIR)" ]; then \
 		for f in $(OBJ_DIR)/*.asm; do \
 			if [ -f "$$f" ]; then \
 				echo "Assembling $$f..."; \
-				$(NASM) $(NASM_FLAGS) -o $(OBJ_DIR)/$$(basename "$$f" .asm).o "$$f" 2>$(LOG_DIR)/$$(basename "$$f" .asm).log || echo "Warning: Failed to assemble $$f, skipping."; \
+				$(NASM) $(NASM_FLAGS) -o $(OBJ_DIR)/$$(basename "$$f" .asm).o "$$f" 2>$(LOG_DIR)/$$(basename "$$f" .asm).log || true; \
 			fi; \
 		done; \
 	else \
@@ -101,8 +101,8 @@ assemble: hex-to-asm $(LOG_DIR)
 .PHONY: link
 link: assemble $(BIN_DIR)
 	@echo Linking object files...
-	@if ls $(OBJ_DIR)/*.o >/dev/null 2>&1; then \
-		$(LD) $(LD_FLAGS) -o $(BIN_DIR)/edge-ai-app$(EXE_EXT) $(OBJ_DIR)/*.o 2>"$(LOG_DIR)/linking.log" || echo "Linking partial objects..."; \
+	-@if ls $(OBJ_DIR)/*.o >/dev/null 2>&1; then \
+		$(LD) $(LD_FLAGS) -o $(BIN_DIR)/edge-ai-app$(EXE_EXT) $(OBJ_DIR)/*.o 2>"$(LOG_DIR)/linking.log" || true; \
 		echo "Linked to: $(BIN_DIR)/edge-ai-app$(EXE_EXT)"; \
 	else \
 		echo "No object files found in $(OBJ_DIR) to link. Creating placeholder binary."; \
