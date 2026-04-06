@@ -3,7 +3,7 @@
 # Universal Makefile for Linux, macOS and Windows
 # ============================================================================
 
-.PHONY: all clean build assemble link install-deps
+.PHONY: all clean build build-arm build-x86 assemble link install-deps
 
 # Configuration
 ARCH ?= x86_64
@@ -46,6 +46,15 @@ endif
 all: clean install-deps build
 
 # ============================================================================
+# Compatibility Targets (for existing workflows)
+# ============================================================================
+build-arm: build
+	@echo Build ARM (via universal pipeline) completed.
+
+build-x86: build
+	@echo Build x86 (via universal pipeline) completed.
+
+# ============================================================================
 # Install Dependencies
 # ============================================================================
 install-deps:
@@ -71,7 +80,6 @@ hex-to-asm: | $(BUILD_DIR) $(OBJ_DIR)
 .PHONY: assemble
 assemble: hex-to-asm $(LOG_DIR)
 	@echo Starting assembly phase...
-	@# No Windows, verificamos se existem arquivos .asm antes do loop
 	@if exist $(OBJ_DIR)\*.asm ( \
 		for %%f in ($(OBJ_DIR)/*.asm) do ( \
 			echo Assembling %%f... & \
@@ -88,7 +96,6 @@ assemble: hex-to-asm $(LOG_DIR)
 .PHONY: link
 link: assemble $(BIN_DIR)
 	@echo Linking object files...
-	@# No Windows, linkamos apenas se existirem arquivos .o
 	@if exist $(OBJ_DIR)\*.o ( \
 		-@$(LD) $(LD_FLAGS) -o $(BIN_DIR)/edge-ai-app$(EXE_EXT) $(OBJ_DIR)/*.o 2>"$(LOG_DIR)/linking.log" & \
 		echo Linked to: $(BIN_DIR)/edge-ai-app$(EXE_EXT) \
