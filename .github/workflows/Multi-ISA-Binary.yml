@@ -76,16 +76,34 @@ jobs:
   deploy:
     needs: release
     runs-on: ubuntu-latest
+    env:
+      AZURE_DEVOPS_ORG_URL: "https://dev.azure.com/yourorg"
+      AZURE_DEVOPS_FEED: "EdgeAIApp"
     steps:
+      - name: Download release artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./releases
+
+      - name: Install Azure CLI
+        run: |
+          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
+      - name: Add Azure DevOps extension
+        run: az extension add --name azure-devops
+
       - name: Deploy to Azure Artifacts
+        env:
+          AZURE_DEVOPS_EXT_PAT: ${{ secrets.AZURE_DEVOPS_EXT_PAT }}
         run: |
           for os in ubuntu-latest windows-latest macos-latest; do
             for isa in x86 arm riscv; do
+              artifact_path="./releases/binary-release-${os}-${isa}/release-${os}-${isa}-${{ github.sha }}.tar.gz"
               az artifacts universal publish \
-                --organization "https://dev.azure.com/yourorg" \
-                --feed "EdgeAIApp" \
-                --package-name "binary-release-${os}-${isa}" \
-                --package-version "1.0.${{ github.run_number }}" \
-                --path release-${os}-${isa}-${{ github.sha }}.tar.gz
+                --organization "${AZURE_DEVOPS_ORG_URL}" \
+                --feed "${AZURE_DEVOPS_FEED}" \
+                --name "binary-release-${os}-${isa}" \
+                --version "1.0.${{ github.run_number }}" \
+                --path "${artifact_path}"
             done
           done
