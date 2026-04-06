@@ -5,20 +5,6 @@
 
 .PHONY: all clean build assemble link analyze validate report help install-deps
 
-# Detect OS
-ifeq ($(OS),Windows_NT)
-    PLATFORM := windows
-    RM := del /Q /S
-    MKDIR := mkdir
-    # No Windows, o comando 'ls' pode não estar no PATH, então usamos uma alternativa
-    LS_OBJ := dir /B $(subst /,\,$(OBJ_DIR))\*.o 2>nul
-else
-    PLATFORM := $(shell uname -s | tr '[:upper:]' '[:lower:]')
-    RM := rm -rf
-    MKDIR := mkdir -p
-    LS_OBJ := ls $(OBJ_DIR)/*.o 2>/dev/null
-endif
-
 # Configuration
 ARCH ?= x86_64
 ASM_DIR := .ASM_HEX
@@ -38,19 +24,26 @@ READELF := readelf
 CHECKSEC := checksec
 PYTHON := python3
 
-# Flags
-NASM_FLAGS := -f elf64
-YASM_FLAGS := -f elf64
-GCC_FLAGS := -c -fno-builtin -nostdlib
-LD_FLAGS := -e _start
-
-# Ajustar flags para Windows/macOS se necessário
-ifeq ($(PLATFORM),windows)
+# Detect OS and set platform-specific commands
+ifeq ($(OS),Windows_NT)
+    PLATFORM := windows
+    RM := del /Q /S
+    MKDIR := mkdir
+    # No Windows, usamos o shell interno do make ou comandos simples
     NASM_FLAGS := -f win64
     LD_FLAGS := 
-endif
-ifeq ($(PLATFORM),darwin)
-    NASM_FLAGS := -f macho64
+    EXE_EXT := .exe
+else
+    PLATFORM := $(shell uname -s | tr '[:upper:]' '[:lower:]')
+    RM := rm -rf
+    MKDIR := mkdir -p
+    EXE_EXT := 
+    ifeq ($(PLATFORM),darwin)
+        NASM_FLAGS := -f macho64
+    else
+        NASM_FLAGS := -f elf64
+    endif
+    LD_FLAGS := -e _start
 endif
 
 # Colors (only for Unix-like)
@@ -67,6 +60,11 @@ else
     BLUE := 
     NC := 
 endif
+
+# Source and Object files
+# Usamos a função wildcard do Make que é universal
+ASM_SOURCES := $(wildcard $(OBJ_DIR)/*.asm)
+OBJECTS := $(ASM_SOURCES:$(OBJ_DIR)/%.asm=$(OBJ_DIR)/%.o)
 
 # ============================================================================
 # Default Target
@@ -108,22 +106,16 @@ hex-to-asm: | $(BUILD_DIR) $(OBJ_DIR)
 	@$(PYTHON) scripts/hex_to_asm.py "$(ASM_DIR)" "$(OBJ_DIR)"
 
 # ============================================================================
-# Assemble ASM files
+# Assemble ASM files (Pattern Rule)
+# Esta regra é nativa do Make e funciona em qualquer shell
 # ============================================================================
+$(OBJ_DIR)/%.o: $(OBJ_DIR)/%.asm | $(LOG_DIR)
+	@echo "$(YELLOW)[*] Assembling $<...$(NC)"
+	@$(NASM) $(NASM_FLAGS) -o $@ $< 2>"$(LOG_DIR)/$(notdir $*).log" || echo "$(RED)⚠ Failed to assemble $<$(NC)"
+
 .PHONY: assemble
-assemble: hex-to-asm $(LOG_DIR)
-	@echo "$(YELLOW)[*] Assembling ASM files...$(NC)"
-	@for asm_file in $(OBJ_DIR)/*.asm; do \
-		if [ -f "$$asm_file" ]; then \
-			filename=$$(basename "$$asm_file" .asm); \
-			obj_file="$(OBJ_DIR)/$${filename}.o"; \
-			if $(NASM) $(NASM_FLAGS) -o "$$obj_file" "$$asm_file" 2>"$(LOG_DIR)/$${filename}.log"; then \
-				echo "$(GREEN)✓$(NC) $${filename}.asm -> $${filename}.o"; \
-			else \
-				echo "$(YELLOW)⚠$(NC) $${filename}.asm: Failed"; \
-			fi; \
-		fi; \
-	done
+assemble: hex-to-asm $(OBJECTS)
+	@echo "$(GREEN)✓ Assembly phase completed$(NC)"
 
 # ============================================================================
 # Link Object files
@@ -131,15 +123,11 @@ assemble: hex-to-asm $(LOG_DIR)
 .PHONY: link
 link: assemble $(BIN_DIR)
 	@echo "$(YELLOW)[*] Linking object files...$(NC)"
-	@obj_files=$(shell $(LS_OBJ)); \
-	if [ -n "$$obj_files" ]; then \
-		if $(LD) $(LD_FLAGS) -o $(BIN_DIR)/edge-ai-app $$obj_files 2>"$(LOG_DIR)/linking.log"; then \
-			echo "$(GREEN)✓$(NC) Linked to: $(BIN_DIR)/edge-ai-app"; \
-		else \
-			echo "$(YELLOW)⚠$(NC) Linking completed with warnings"; \
-		fi; \
+	@if [ -n "$(OBJECTS)" ]; then \
+		$(LD) $(LD_FLAGS) -o $(BIN_DIR)/edge-ai-app$(EXE_EXT) $(OBJECTS) 2>"$(LOG_DIR)/linking.log" || echo "$(YELLOW)⚠ Linking warnings$(NC)"; \
+		echo "$(GREEN)✓ Linked to: $(BIN_DIR)/edge-ai-app$(EXE_EXT)$(NC)"; \
 	else \
-		echo "$(YELLOW)⚠$(NC) No object files found to link"; \
+		echo "$(YELLOW)⚠ No object files found to link$(NC)"; \
 	fi
 
 # ============================================================================
