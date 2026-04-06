@@ -36,7 +36,7 @@ jobs:
           echo "Pacote de release criado para ${{ matrix.os }} / ${{ matrix.isa }}."
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: binary-release-${{ matrix.os }}-${{ matrix.isa }}
           path: release-${{ matrix.os }}-${{ matrix.isa }}-${{ github.sha }}.tar.gz
