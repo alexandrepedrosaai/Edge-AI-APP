@@ -24,7 +24,8 @@ jobs:
 
       - name: Compile source
         run: |
-          make build
+          chmod +x scripts/robust_build.sh
+          ./scripts/robust_build.sh
           echo "Compilando código em linguagens de alto nível..."
 
       - name: Generate Binary Machine Code
