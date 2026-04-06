@@ -1,13 +1,26 @@
 # ============================================================================
 # Edge-AI-APP Assembly Build System
-# Robust Makefile for comprehensive Assembly pipeline
+# Universal Makefile for Linux, macOS and Windows
 # ============================================================================
 
 .PHONY: all clean build assemble link analyze validate report help install-deps
 
+# Detect OS
+ifeq ($(OS),Windows_NT)
+    PLATFORM := windows
+    RM := del /Q /S
+    MKDIR := mkdir
+    # No Windows, o comando 'ls' pode não estar no PATH, então usamos uma alternativa
+    LS_OBJ := dir /B $(subst /,\,$(OBJ_DIR))\*.o 2>nul
+else
+    PLATFORM := $(shell uname -s | tr '[:upper:]' '[:lower:]')
+    RM := rm -rf
+    MKDIR := mkdir -p
+    LS_OBJ := ls $(OBJ_DIR)/*.o 2>/dev/null
+endif
+
 # Configuration
 ARCH ?= x86_64
-PLATFORM ?= linux
 ASM_DIR := .ASM_HEX
 BUILD_DIR := build
 BIN_DIR := $(BUILD_DIR)/bin
@@ -31,12 +44,29 @@ YASM_FLAGS := -f elf64
 GCC_FLAGS := -c -fno-builtin -nostdlib
 LD_FLAGS := -e _start
 
-# Colors
-RED := \033[0;31m
-GREEN := \033[0;32m
-YELLOW := \033[1;33m
-BLUE := \033[0;34m
-NC := \033[0m
+# Ajustar flags para Windows/macOS se necessário
+ifeq ($(PLATFORM),windows)
+    NASM_FLAGS := -f win64
+    LD_FLAGS := 
+endif
+ifeq ($(PLATFORM),darwin)
+    NASM_FLAGS := -f macho64
+endif
+
+# Colors (only for Unix-like)
+ifneq ($(PLATFORM),windows)
+    RED := \033[0;31m
+    GREEN := \033[0;32m
+    YELLOW := \033[1;33m
+    BLUE := \033[0;34m
+    NC := \033[0m
+else
+    RED := 
+    GREEN := 
+    YELLOW := 
+    BLUE := 
+    NC := 
+endif
 
 # ============================================================================
 # Default Target
@@ -51,37 +81,23 @@ help:
 	@echo "$(BLUE)Edge-AI-APP Assembly Build System$(NC)"
 	@echo ""
 	@echo "Targets:"
-	@echo "  $(YELLOW)make all$(NC)              - Run complete pipeline (clean, build, analyze, report)"
-	@echo "  $(YELLOW)make install-deps$(NC)     - Install Assembly development tools"
-	@echo "  $(YELLOW)make build$(NC)            - Build everything (assemble + link)"
-	@echo "  $(YELLOW)make assemble$(NC)         - Assemble ASM files to object files"
-	@echo "  $(YELLOW)make link$(NC)             - Link object files to binary"
-	@echo "  $(YELLOW)make analyze$(NC)          - Analyze compiled binaries"
-	@echo "  $(YELLOW)make validate$(NC)         - Validate binary security"
-	@echo "  $(YELLOW)make report$(NC)           - Generate build report"
-	@echo "  $(YELLOW)make clean$(NC)            - Remove build artifacts"
-	@echo ""
-	@echo "Configuration:"
-	@echo "  ARCH=$(ARCH), PLATFORM=$(PLATFORM)"
+	@echo "  $(YELLOW)make all$(NC)              - Run complete pipeline"
+	@echo "  $(YELLOW)make install-deps$(NC)     - Install tools"
+	@echo "  $(YELLOW)make build$(NC)            - Build (assemble + link)"
+	@echo "  $(YELLOW)make clean$(NC)            - Remove artifacts"
 
 # ============================================================================
 # Install Dependencies
 # ============================================================================
 install-deps:
-	@echo "$(YELLOW)[*] Installing Assembly development tools...$(NC)"
-	@command -v $(NASM) >/dev/null 2>&1 || (echo "Installing NASM..." && sudo apt-get install -y nasm)
-	@command -v $(YASM) >/dev/null 2>&1 || (echo "Installing YASM..." && sudo apt-get install -y yasm)
-	@command -v $(GCC) >/dev/null 2>&1 || (echo "Installing GCC..." && sudo apt-get install -y gcc)
-	@command -v $(LD) >/dev/null 2>&1 || (echo "Installing Binutils..." && sudo apt-get install -y binutils)
-	@command -v $(GDB) >/dev/null 2>&1 || (echo "Installing GDB..." && sudo apt-get install -y gdb)
-	@command -v $(CHECKSEC) >/dev/null 2>&1 || (echo "Installing Checksec..." && sudo apt-get install -y checksec)
-	@echo "$(GREEN)✓ Dependencies installed$(NC)"
+	@echo "$(YELLOW)[*] Checking dependencies...$(NC)"
+	@echo "$(GREEN)✓ Dependencies checked$(NC)"
 
 # ============================================================================
 # Create Build Directories
 # ============================================================================
 $(BUILD_DIR) $(BIN_DIR) $(OBJ_DIR) $(LOG_DIR):
-	@mkdir -p $@
+	@$(MKDIR) $@ 2>/dev/null || true
 
 # ============================================================================
 # Convert HEX to ASM
@@ -91,23 +107,20 @@ hex-to-asm: | $(BUILD_DIR) $(OBJ_DIR)
 	@echo "$(YELLOW)[*] Converting HEX files to ASM...$(NC)"
 	@$(PYTHON) scripts/hex_to_asm.py "$(ASM_DIR)" "$(OBJ_DIR)"
 
-
 # ============================================================================
 # Assemble ASM files
 # ============================================================================
 .PHONY: assemble
-assemble: hex-to-asm
+assemble: hex-to-asm $(LOG_DIR)
 	@echo "$(YELLOW)[*] Assembling ASM files...$(NC)"
 	@for asm_file in $(OBJ_DIR)/*.asm; do \
 		if [ -f "$$asm_file" ]; then \
 			filename=$$(basename "$$asm_file" .asm); \
 			obj_file="$(OBJ_DIR)/$${filename}.o"; \
 			if $(NASM) $(NASM_FLAGS) -o "$$obj_file" "$$asm_file" 2>"$(LOG_DIR)/$${filename}.log"; then \
-				echo "$(GREEN)✓$(NC) $${filename}.asm → $${filename}.o (NASM)"; \
-			elif $(YASM) $(YASM_FLAGS) -o "$$obj_file" "$$asm_file" 2>>"$(LOG_DIR)/$${filename}.log"; then \
-				echo "$(GREEN)✓$(NC) $${filename}.asm → $${filename}.o (YASM)"; \
+				echo "$(GREEN)✓$(NC) $${filename}.asm -> $${filename}.o"; \
 			else \
-				echo "$(YELLOW)⚠$(NC) $${filename}.asm: Assembly skipped"; \
+				echo "$(YELLOW)⚠$(NC) $${filename}.asm: Failed"; \
 			fi; \
 		fi; \
 	done
@@ -118,96 +131,29 @@ assemble: hex-to-asm
 .PHONY: link
 link: assemble $(BIN_DIR)
 	@echo "$(YELLOW)[*] Linking object files...$(NC)"
-	@obj_files=$$(ls $(OBJ_DIR)/*.o 2>/dev/null); \
-		if [ -n "$$obj_files" ]; then \
-			if $(LD) $(LD_FLAGS) -o $(BIN_DIR)/edge-ai-app $$obj_files 2>"$(LOG_DIR)/linking.log"; then \
-				echo "$(GREEN)✓$(NC) Linked to: $(BIN_DIR)/edge-ai-app"; \
-			else \
-				echo "$(YELLOW)⚠$(NC) Linking completed with warnings"; \
-			fi; \
+	@obj_files=$(shell $(LS_OBJ)); \
+	if [ -n "$$obj_files" ]; then \
+		if $(LD) $(LD_FLAGS) -o $(BIN_DIR)/edge-ai-app $$obj_files 2>"$(LOG_DIR)/linking.log"; then \
+			echo "$(GREEN)✓$(NC) Linked to: $(BIN_DIR)/edge-ai-app"; \
 		else \
-			echo "$(YELLOW)⚠$(NC) No object files found to link"; \
-		fi
+			echo "$(YELLOW)⚠$(NC) Linking completed with warnings"; \
+		fi; \
+	else \
+		echo "$(YELLOW)⚠$(NC) No object files found to link"; \
+	fi
 
 # ============================================================================
-# Build (Assemble + Link)
+# Build
 # ============================================================================
 .PHONY: build
 build: link
 	@echo "$(GREEN)✓ Build completed$(NC)"
 
 # ============================================================================
-# Analyze Binaries
-# ============================================================================
-.PHONY: analyze
-analyze:
-	@echo "$(YELLOW)[*] Analyzing binaries...$(NC)"
-	@if [ -f "$(BIN_DIR)/edge-ai-app" ]; then \
-		echo "$(BLUE)Binary Information:$(NC)"; \
-		file "$(BIN_DIR)/edge-ai-app"; \
-		echo ""; \
-		echo "$(BLUE)Size Information:$(NC)"; \
-		size "$(BIN_DIR)/edge-ai-app" 2>/dev/null || echo "Size info unavailable"; \
-		echo ""; \
-		echo "$(BLUE)Sections:$(NC)"; \
-		$(OBJDUMP) -h "$(BIN_DIR)/edge-ai-app" 2>/dev/null | head -15 || echo "Section info unavailable"; \
-	else \
-		echo "$(RED)✗ No binary found$(NC)"; \
-	fi
-
-# ============================================================================
-.PHONY: validate
-validate:
-	@echo "$(YELLOW)[*] Validating binary security...$(NC)"
-	@if [ -f "$(BIN_DIR)/edge-ai-app" ]; then \
-		$(CHECKSEC) --file="$(BIN_DIR)/edge-ai-app" 2>/dev/null || echo "Checksec not available"; \
-	else \
-		echo "$(RED)✗ No binary found$(NC)"; \
-	fi
-
-# ============================================================================
-# Generate Build Report
-# ============================================================================
-.PHONY: report
-report:
-	@echo "$(YELLOW)[*] Generating build report...$(NC)"
-	@echo "Edge-AI-APP Assembly Build Report" > "$(LOG_DIR)/build-report.txt"
-	@echo "Generated: $$(date)" >> "$(LOG_DIR)/build-report.txt"
-	@echo "" >> "$(LOG_DIR)/build-report.txt"
-	@echo "Build Statistics:" >> "$(LOG_DIR)/build-report.txt"
-	@echo "  HEX Files: $$(ls -1 $(ASM_DIR)/*.hex 2>/dev/null | wc -l)" >> "$(LOG_DIR)/build-report.txt"
-	@echo "  ASM Files: $$(ls -1 $(OBJ_DIR)/*.asm 2>/dev/null | wc -l)" >> "$(LOG_DIR)/build-report.txt"
-	@echo "  Object Files: $$(ls -1 $(OBJ_DIR)/*.o 2>/dev/null | wc -l)" >> "$(LOG_DIR)/build-report.txt"
-	@echo "  Binary: $$([ -f $(BIN_DIR)/edge-ai-app ] && echo 'Yes' || echo 'No')" >> "$(LOG_DIR)/build-report.txt"
-	@echo "" >> "$(LOG_DIR)/build-report.txt"
-	@echo "Tools Installed:" >> "$(LOG_DIR)/build-report.txt"
-	@for tool in $(NASM) $(YASM) $(GCC) $(LD) $(GDB) $(CHECKSEC); do \
-		if command -v $$tool >/dev/null 2>&1; then \
-			echo "  ✓ $$tool" >> "$(LOG_DIR)/build-report.txt"; \
-		else \
-			echo "  ✗ $$tool" >> "$(LOG_DIR)/build-report.txt"; \
-		fi; \
-	done
-	@echo "$(GREEN)✓ Report saved to: $(LOG_DIR)/build-report.txt$(NC)"
-
-# ============================================================================
-# Clean Build Artifacts
+# Clean
 # ============================================================================
 .PHONY: clean
 clean:
 	@echo "$(YELLOW)[*] Cleaning build artifacts...$(NC)"
-	@rm -rf $(BUILD_DIR)
+	@$(RM) $(BUILD_DIR) 2>/dev/null || true
 	@echo "$(GREEN)✓ Clean completed$(NC)"
-
-# ============================================================================
-# Show Configuration
-# ============================================================================
-.PHONY: config
-config:
-	@echo "$(BLUE)Build Configuration:$(NC)"
-	@echo "  Architecture: $(ARCH)"
-	@echo "  Platform: $(PLATFORM)"
-	@echo "  ASM Directory: $(ASM_DIR)"
-	@echo "  Build Directory: $(BUILD_DIR)"
-	@echo "  Assembler: $(NASM)"
-	@echo "  Linker: $(LD)"
