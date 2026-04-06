@@ -76,8 +76,8 @@ jobs:
   deploy:
     needs: release
     runs-on: ubuntu-latest
+    environment: Mithrandir
     env:
-      AZURE_DEVOPS_ORG_URL: "https://dev.azure.com/yourorg"
       AZURE_DEVOPS_FEED: "EdgeAIApp"
     steps:
       - name: Download release artifacts
@@ -98,9 +98,15 @@ jobs:
           AZURE_DEVOPS_EXT_PAT: ${{ secrets.AZURE_DEVOPS_EXT_PAT }}
         run: |
           if [ -z "${AZURE_DEVOPS_EXT_PAT}" ]; then
-            echo "AZURE_DEVOPS_EXT_PAT não está definido. Adicione-o como GitHub Actions secret."
+            echo "AZURE_DEVOPS_EXT_PAT não está definido. Adicione-o como secret no environment Mithrandir."
             exit 1
           fi
+
+      - name: Configure Azure DevOps defaults
+        env:
+          AZURE_DEVOPS_EXT_PAT: ${{ secrets.AZURE_DEVOPS_EXT_PAT }}
+        run: |
+          az devops configure --defaults organization="${{ secrets.AZURE_DEVOPS_ORG_URL }}"
 
       - name: Deploy to Azure Artifacts
         env:
@@ -110,7 +116,6 @@ jobs:
             for isa in x86 arm riscv; do
               artifact_path="./releases/binary-release-${os}-${isa}/release-${os}-${isa}-${{ github.sha }}.tar.gz"
               az artifacts universal publish \
-                --organization "${AZURE_DEVOPS_ORG_URL}" \
                 --feed "${AZURE_DEVOPS_FEED}" \
                 --name "binary-release-${os}-${isa}" \
                 --version "1.0.${{ github.run_number }}" \
