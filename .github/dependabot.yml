@@ -11,3 +11,4 @@ updates:
       interval: "weekly"
 - name: GH Release
   uses: softprops/action-gh-release@v2.6.1
+(<unknown>): did not find expected key while parsing a block mapping at line 6 column 1
