@@ -9,45 +9,55 @@ if sys.platform == "win32":
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
 
 def convert_hex_to_asm(hex_dir, asm_dir):
-    print(f"[*] HEX source directory: {os.path.abspath(hex_dir)}")
-    print(f"[*] ASM output directory: {os.path.abspath(asm_dir)}")
+    # Resolver caminhos absolutos para evitar problemas com diretórios relativos no Windows
+    abs_hex_dir = os.path.abspath(hex_dir)
+    abs_asm_dir = os.path.abspath(asm_dir)
     
-    os.makedirs(asm_dir, exist_ok=True)
+    print(f"[*] HEX source directory (resolved): {abs_hex_dir}")
+    print(f"[*] ASM output directory (resolved): {abs_asm_dir}")
     
-    # Tentar encontrar arquivos .hex de forma recursiva e com extensões variadas
-    hex_files = glob.glob(os.path.join(hex_dir, "*.hex")) + glob.glob(os.path.join(hex_dir, "*.HEX"))
+    os.makedirs(abs_asm_dir, exist_ok=True)
+    
+    # Tentar encontrar arquivos .hex de forma resiliente
+    # No Windows, glob.glob pode ter problemas com diretórios ocultos se não for absoluto
+    patterns = [
+        os.path.join(abs_hex_dir, "*.hex"),
+        os.path.join(abs_hex_dir, "*.HEX"),
+        os.path.join(hex_dir, "*.hex"),
+        os.path.join(hex_dir, "*.HEX")
+    ]
+    
+    hex_files = []
+    for pattern in patterns:
+        hex_files.extend(glob.glob(pattern))
+    
+    # Remover duplicatas mantendo a ordem
+    hex_files = list(dict.fromkeys(hex_files))
     
     if not hex_files:
-        print(f"[!] No .hex files found in {hex_dir}")
-        # Listar o que existe no diretório para debug
-        if os.path.exists(hex_dir):
-            print(f"[*] Files in {hex_dir}: {os.listdir(hex_dir)}")
-        else:
-            print(f"[!] Directory {hex_dir} does not exist!")
+        print(f"[!] No .hex files found.")
+        # Debug: Listar o que existe no diretório pai se o alvo não existir
+        parent_dir = os.path.dirname(abs_hex_dir)
+        if os.path.exists(parent_dir):
+            print(f"[*] Parent directory contents: {os.listdir(parent_dir)}")
         return
 
     print(f"[*] Found {len(hex_files)} HEX files to process.")
 
     for hex_file in hex_files:
         filename = os.path.basename(hex_file)
-        # Gerar nome do arquivo ASM preservando a estrutura
         asm_filename = os.path.splitext(filename)[0] + ".asm"
-        asm_file = os.path.join(asm_dir, asm_filename)
+        asm_file = os.path.join(abs_asm_dir, asm_filename)
         
         try:
-            # Abrir arquivo hex com codificação UTF-8 explícita
             with open(hex_file, 'r', encoding='utf-8', errors='ignore') as f:
                 hex_content = f.read().strip().replace('\n', '').replace(' ', '')
             
-            # Tentar converter hex para bytes e depois decodificar
             try:
-                # Se o conteúdo for hex puro (0-9, A-F)
                 asm_content = bytes.fromhex(hex_content).decode('utf-8', errors='ignore')
             except ValueError:
-                # Se não for hex válido, talvez já seja o conteúdo final ou texto
                 asm_content = hex_content
                 
-            # Salvar como ASM em UTF-8
             with open(asm_file, 'w', encoding='utf-8') as f:
                 f.write(asm_content)
             

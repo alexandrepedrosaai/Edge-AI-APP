@@ -26,7 +26,6 @@ ifeq ($(OS),Windows_NT)
     NASM_FLAGS := -f win64
     LD_FLAGS := 
     EXE_EXT := .exe
-    # No Windows, usamos o shell padrão (cmd)
     SHELL := cmd.exe
 else
     PLATFORM := $(shell uname -s | tr '[:upper:]' '[:lower:]')
@@ -72,11 +71,14 @@ hex-to-asm: | $(BUILD_DIR) $(OBJ_DIR)
 .PHONY: assemble
 assemble: hex-to-asm $(LOG_DIR)
 	@echo Starting assembly phase...
-	@# Usar um comando shell simples para compilar todos os .asm encontrados no OBJ_DIR
-	@# Isso evita problemas com a expansão de variáveis do Make no Windows
-	@for %%f in ($(OBJ_DIR)/*.asm) do ( \
-		echo Assembling %%f... & \
-		$(NASM) $(NASM_FLAGS) -o $(OBJ_DIR)/%%~nf.o %%f 2>$(LOG_DIR)/%%~nf.log \
+	@# No Windows, verificamos se existem arquivos .asm antes do loop
+	@if exist $(OBJ_DIR)\*.asm ( \
+		for %%f in ($(OBJ_DIR)/*.asm) do ( \
+			echo Assembling %%f... & \
+			$(NASM) $(NASM_FLAGS) -o $(OBJ_DIR)/%%~nf.o %%f 2>$(LOG_DIR)/%%~nf.log \
+		) \
+	) else ( \
+		echo No .asm files found in $(OBJ_DIR) to assemble. \
 	)
 	@echo Assembly phase completed.
 
@@ -86,10 +88,13 @@ assemble: hex-to-asm $(LOG_DIR)
 .PHONY: link
 link: assemble $(BIN_DIR)
 	@echo Linking object files...
-	@# No Windows, o comando para coletar arquivos .o e linkar
-	@for /F %%f in ('dir /b $(OBJ_DIR)\*.o 2^>nul') do @set OBJS=!OBJS! $(OBJ_DIR)\%%f
-	-@$(LD) $(LD_FLAGS) -o $(BIN_DIR)/edge-ai-app$(EXE_EXT) $(OBJ_DIR)/*.o 2>"$(LOG_DIR)/linking.log"
-	@echo Linked to: $(BIN_DIR)/edge-ai-app$(EXE_EXT)
+	@# No Windows, linkamos apenas se existirem arquivos .o
+	@if exist $(OBJ_DIR)\*.o ( \
+		-@$(LD) $(LD_FLAGS) -o $(BIN_DIR)/edge-ai-app$(EXE_EXT) $(OBJ_DIR)/*.o 2>"$(LOG_DIR)/linking.log" & \
+		echo Linked to: $(BIN_DIR)/edge-ai-app$(EXE_EXT) \
+	) else ( \
+		echo No object files found in $(OBJ_DIR) to link. \
+	)
 
 # ============================================================================
 # Build
