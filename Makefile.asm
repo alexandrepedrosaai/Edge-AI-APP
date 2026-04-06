@@ -118,14 +118,16 @@ assemble: hex-to-asm
 .PHONY: link
 link: assemble $(BIN_DIR)
 	@echo "$(YELLOW)[*] Linking object files...$(NC)"
-	@obj_files=$$(find $(OBJ_DIR) -name "*.o" -type f); \
-	if [ -n "$$obj_files" ]; then \
-		if $(LD) $(LD_FLAGS) -o $(BIN_DIR)/edge-ai-app $$obj_files 2>"$(LOG_DIR)/linking.log"; then \
-			echo "$(GREEN)✓$(NC) Linked to: $(BIN_DIR)/edge-ai-app"; \
+	@obj_files=$$(ls $(OBJ_DIR)/*.o 2>/dev/null); \
+		if [ -n "$$obj_files" ]; then \
+			if $(LD) $(LD_FLAGS) -o $(BIN_DIR)/edge-ai-app $$obj_files 2>"$(LOG_DIR)/linking.log"; then \
+				echo "$(GREEN)✓$(NC) Linked to: $(BIN_DIR)/edge-ai-app"; \
+			else \
+				echo "$(YELLOW)⚠$(NC) Linking completed with warnings"; \
+			fi; \
 		else \
-			echo "$(YELLOW)⚠$(NC) Linking completed with warnings"; \
-		fi; \
-	fi
+			echo "$(YELLOW)⚠$(NC) No object files found to link"; \
+		fi
 
 # ============================================================================
 # Build (Assemble + Link)

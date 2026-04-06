@@ -26,15 +26,26 @@ jobs:
 
       - name: Install Dependencies (macOS)
         if: matrix.os == 'macos-latest'
-        run: brew install nasm
+        run: |
+          brew update
+          brew install nasm || brew upgrade nasm || true
 
       - name: Install Dependencies (Windows)
         if: matrix.os == 'windows-latest'
         run: choco install nasm --no-progress -y
         shell: pwsh
 
-      - name: Compile source
+      - name: Compile source (Unix)
+        if: matrix.os != 'windows-latest'
         run: |
+          make build
+          echo "Compilando código em ${{ matrix.os }}..."
+
+      - name: Compile source (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: bash
+        run: |
+          # Usar o bash no Windows para compatibilidade com o Makefile
           make build
           echo "Compilando código em ${{ matrix.os }}..."
 
