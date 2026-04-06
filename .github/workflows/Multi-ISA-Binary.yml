@@ -16,24 +16,39 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v4
 
+      - name: Install Make (Windows)
+        if: runner.os == 'Windows'
+        run: choco install make --no-progress -y
+        shell: powershell
+
+      - name: Make tools and simulators executable
+        if: runner.os != 'Windows'
+        run: chmod +x ./tools/bin-encoder ./simulators/${{ matrix.isa }}
+        shell: bash
+
       - name: Compile source
         run: |
           make build-${{ matrix.isa }}
           echo "Compilando código em ${{ matrix.os }} para ISA ${{ matrix.isa }}..."
+        shell: bash
 
       - name: Generate Binary Machine Code
         run: |
+          mkdir -p ./artifacts/${{ matrix.os }}/${{ matrix.isa }}
           ./tools/bin-encoder ./build/${{ matrix.isa }}/bin > ./artifacts/${{ matrix.os }}/${{ matrix.isa }}/machine_code.bin
           echo "Binary Machine Code gerado em ./artifacts/${{ matrix.os }}/${{ matrix.isa }}/machine_code.bin"
+        shell: bash
 
       - name: Run ISA simulation tests
         run: |
           ./simulators/${{ matrix.isa }} --load ./artifacts/${{ matrix.os }}/${{ matrix.isa }}/machine_code.bin
+        shell: bash
 
       - name: Package artifacts
         run: |
           tar -czf release-${{ matrix.os }}-${{ matrix.isa }}-${{ github.sha }}.tar.gz ./artifacts/${{ matrix.os }}/${{ matrix.isa }}
           echo "Pacote de release criado para ${{ matrix.os }} / ${{ matrix.isa }}."
+        shell: bash
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4

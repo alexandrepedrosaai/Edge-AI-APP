@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# bin-encoder: reads a compiled binary/text file and outputs its content
+# Usage: ./tools/bin-encoder <input-file>
+#
+# Stub implementation – replace with real encoding logic when available.
+
+set -e
+
+if [ -z "$1" ]; then
+  echo "Usage: $0 <input-file>" >&2
+  exit 1
+fi
+
+if [ ! -f "$1" ]; then
+  echo "Error: input file '$1' not found" >&2
+  exit 1
+fi
+
+cat "$1"
