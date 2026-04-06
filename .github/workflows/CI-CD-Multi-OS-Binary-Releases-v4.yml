@@ -1,0 +1,121 @@
+name: CI-CD Multi-OS Binary Releases v4
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  build-binary-matrix:
+    name: Build Binary — ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt-get update -qq && sudo apt-get install -y nasm yasm binutils
+
+      - name: Install Dependencies (macOS)
+        if: matrix.os == 'macos-latest'
+        run: brew install nasm
+
+      - name: Install Dependencies (Windows)
+        if: matrix.os == 'windows-latest'
+        run: choco install nasm --no-progress -y
+        shell: pwsh
+
+      - name: Compile source
+        run: |
+          make build
+          echo "Compilando código em ${{ matrix.os }}..."
+
+      - name: Package artifacts (Linux/macOS)
+        if: matrix.os != 'windows-latest'
+        run: |
+          mkdir -p release_dist
+          cp -r build/bin/* release_dist/ 2>/dev/null || true
+          tar -czf release_${{ matrix.os }}_${{ github.sha }}.tar.gz -C release_dist .
+          echo "Pacote de release criado para ${{ matrix.os }}."
+
+      - name: Package artifacts (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path release_dist | Out-Null
+          if (Test-Path "build\bin") {
+            Copy-Item -Path "build\bin\*" -Destination "release_dist\" -Recurse -Force
+          }
+          Compress-Archive -Path "release_dist\*" -DestinationPath "release_${{ matrix.os }}_${{ github.sha }}.zip"
+          echo "Pacote de release criado para ${{ matrix.os }}."
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: binary-release-${{ matrix.os }}
+          path: |
+            release_${{ matrix.os }}_${{ github.sha }}.tar.gz
+            release_${{ matrix.os }}_${{ github.sha }}.zip
+
+  release-and-deploy:
+    name: Automated Release and Deploy
+    needs: build-binary-matrix
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Download all platform artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./release-artifacts
+
+      - name: Flatten artifact files
+        run: |
+          find release-artifacts -type f \( -name "*.tar.gz" -o -name "*.zip" \) -exec mv {} ./ \;
+          ls -lh *.tar.gz *.zip 2>/dev/null
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: "Release v1.0.${{ github.run_number }}"
+          body: |
+            ## Automated Release v1.0.${{ github.run_number }}
+            
+            **Commit:** ${{ github.sha }}
+            **Date:** ${{ github.event.head_commit.timestamp }}
+            
+            ### Platform Binaries
+            - Linux: `release_ubuntu-latest_${{ github.sha }}.tar.gz`
+            - macOS: `release_macos-latest_${{ github.sha }}.tar.gz`
+            - Windows: `release_windows-latest_${{ github.sha }}.zip`
+            
+            ---
+            *Edge-AI-APP CI/CD Automated Pipeline*
+          draft: false
+          prerelease: false
+          files: |
+            release_ubuntu-latest_${{ github.sha }}.tar.gz
+            release_macos-latest_${{ github.sha }}.tar.gz
+            release_windows-latest_${{ github.sha }}.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Deploy to Azure Artifacts (Placeholder)
+        run: |
+          echo "Simulando deploy para Azure Artifacts..."
+          # az artifacts universal publish \
+          #   --organization \"https://dev.azure.com/yourorg\" \
+          #   --feed \"EdgeAIApp\" \
+          #   --package-name \"binary-release\" \
+          #   --package-version \"1.0.${{ github.run_number }}\" \
+          #   --path .
