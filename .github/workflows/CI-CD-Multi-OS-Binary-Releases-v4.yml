@@ -37,8 +37,22 @@ jobs:
 
       - name: Compile source
         run: |
+          # Criar diretórios de build de forma segura
           mkdir -p build/logs build/bin build/obj
+          
+          # Debug: Listar diretório de entrada HEX
+          echo "Listing HEX source directory (.ASM_HEX):"
+          ls -R .ASM_HEX 2>/dev/null || echo ".ASM_HEX not found"
+          
+          # Executar o build
           make build
+          
+          # Debug: Listar arquivos gerados
+          echo "Listing generated ASM files (build/obj):"
+          ls -R build/obj 2>/dev/null || echo "No files in build/obj"
+          echo "Listing generated binaries (build/bin):"
+          ls -R build/bin 2>/dev/null || echo "No files in build/bin"
+          
           echo "Build finalizado para ${{ matrix.os }}."
 
       - name: Package artifacts (Linux/macOS)

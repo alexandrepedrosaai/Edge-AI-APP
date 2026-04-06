@@ -9,17 +9,30 @@ if sys.platform == "win32":
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
 
 def convert_hex_to_asm(hex_dir, asm_dir):
-    print(f"[*] Converting HEX files from {hex_dir} to ASM in {asm_dir}...")
+    print(f"[*] HEX source directory: {os.path.abspath(hex_dir)}")
+    print(f"[*] ASM output directory: {os.path.abspath(asm_dir)}")
+    
     os.makedirs(asm_dir, exist_ok=True)
     
-    hex_files = glob.glob(os.path.join(hex_dir, "*.hex"))
+    # Tentar encontrar arquivos .hex de forma recursiva e com extensões variadas
+    hex_files = glob.glob(os.path.join(hex_dir, "*.hex")) + glob.glob(os.path.join(hex_dir, "*.HEX"))
+    
     if not hex_files:
         print(f"[!] No .hex files found in {hex_dir}")
+        # Listar o que existe no diretório para debug
+        if os.path.exists(hex_dir):
+            print(f"[*] Files in {hex_dir}: {os.listdir(hex_dir)}")
+        else:
+            print(f"[!] Directory {hex_dir} does not exist!")
         return
+
+    print(f"[*] Found {len(hex_files)} HEX files to process.")
 
     for hex_file in hex_files:
         filename = os.path.basename(hex_file)
-        asm_file = os.path.join(asm_dir, filename.replace(".hex", ".asm"))
+        # Gerar nome do arquivo ASM preservando a estrutura
+        asm_filename = os.path.splitext(filename)[0] + ".asm"
+        asm_file = os.path.join(asm_dir, asm_filename)
         
         try:
             # Abrir arquivo hex com codificação UTF-8 explícita
@@ -28,19 +41,18 @@ def convert_hex_to_asm(hex_dir, asm_dir):
             
             # Tentar converter hex para bytes e depois decodificar
             try:
-                # Se o conteúdo já for hex puro (0-9, A-F)
+                # Se o conteúdo for hex puro (0-9, A-F)
                 asm_content = bytes.fromhex(hex_content).decode('utf-8', errors='ignore')
             except ValueError:
-                # Se não for hex válido, talvez já seja o conteúdo final
+                # Se não for hex válido, talvez já seja o conteúdo final ou texto
                 asm_content = hex_content
                 
             # Salvar como ASM em UTF-8
             with open(asm_file, 'w', encoding='utf-8') as f:
                 f.write(asm_content)
             
-            print(f"[+] {filename} -> {os.path.basename(asm_file)}")
+            print(f"[+] {filename} -> {asm_filename}")
         except Exception as e:
-            # Usar repr(e) para evitar problemas de encode ao imprimir a exceção
             print(f"[!] Error processing {filename}: {repr(e)}")
 
 if __name__ == "__main__":

@@ -41,10 +41,6 @@ else
     LD_FLAGS := -e _start
 endif
 
-# Source and Object files
-ASM_SOURCES := $(wildcard $(OBJ_DIR)/*.asm)
-OBJECTS := $(ASM_SOURCES:$(OBJ_DIR)/%.asm=$(OBJ_DIR)/%.o)
-
 # ============================================================================
 # Default Target
 # ============================================================================
@@ -71,14 +67,17 @@ hex-to-asm: | $(BUILD_DIR) $(OBJ_DIR)
 	@$(PYTHON) scripts/hex_to_asm.py "$(ASM_DIR)" "$(OBJ_DIR)"
 
 # ============================================================================
-# Assemble ASM files (Pattern Rule)
+# Assemble ASM files
 # ============================================================================
-$(OBJ_DIR)/%.o: $(OBJ_DIR)/%.asm | $(LOG_DIR)
-	@echo Assembling $<...
-	-@$(NASM) $(NASM_FLAGS) -o $@ $< 2>"$(LOG_DIR)/$(notdir $*).log"
-
 .PHONY: assemble
-assemble: hex-to-asm $(OBJECTS)
+assemble: hex-to-asm $(LOG_DIR)
+	@echo Starting assembly phase...
+	@# Usar um comando shell simples para compilar todos os .asm encontrados no OBJ_DIR
+	@# Isso evita problemas com a expansão de variáveis do Make no Windows
+	@for %%f in ($(OBJ_DIR)/*.asm) do ( \
+		echo Assembling %%f... & \
+		$(NASM) $(NASM_FLAGS) -o $(OBJ_DIR)/%%~nf.o %%f 2>$(LOG_DIR)/%%~nf.log \
+	)
 	@echo Assembly phase completed.
 
 # ============================================================================
@@ -87,7 +86,9 @@ assemble: hex-to-asm $(OBJECTS)
 .PHONY: link
 link: assemble $(BIN_DIR)
 	@echo Linking object files...
-	-@$(LD) $(LD_FLAGS) -o $(BIN_DIR)/edge-ai-app$(EXE_EXT) $(OBJECTS) 2>"$(LOG_DIR)/linking.log"
+	@# No Windows, o comando para coletar arquivos .o e linkar
+	@for /F %%f in ('dir /b $(OBJ_DIR)\*.o 2^>nul') do @set OBJS=!OBJS! $(OBJ_DIR)\%%f
+	-@$(LD) $(LD_FLAGS) -o $(BIN_DIR)/edge-ai-app$(EXE_EXT) $(OBJ_DIR)/*.o 2>"$(LOG_DIR)/linking.log"
 	@echo Linked to: $(BIN_DIR)/edge-ai-app$(EXE_EXT)
 
 # ============================================================================
