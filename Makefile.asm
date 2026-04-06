@@ -3,7 +3,7 @@
 # Universal Makefile for Linux, macOS and Windows
 # ============================================================================
 
-.PHONY: all clean build build-arm build-x86 assemble link install-deps
+.PHONY: all clean build build-arm build-x86 build-riscv assemble link install-deps
 
 # Configuration
 ARCH ?= x86_64
@@ -53,6 +53,9 @@ build-arm: build
 
 build-x86: build
 	@echo Build x86 (via universal pipeline) completed.
+
+build-riscv: build
+	@echo Build RISC-V (via universal pipeline) completed.
 
 # ============================================================================
 # Install Dependencies
