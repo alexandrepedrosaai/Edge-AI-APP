@@ -35,19 +35,11 @@ jobs:
         run: choco install nasm --no-progress -y
         shell: pwsh
 
-      - name: Compile source (Unix)
-        if: matrix.os != 'windows-latest'
+      - name: Compile source
         run: |
+          mkdir -p build/logs build/bin build/obj
           make build
-          echo "Compilando código em ${{ matrix.os }}..."
-
-      - name: Compile source (Windows)
-        if: matrix.os == 'windows-latest'
-        shell: bash
-        run: |
-          # Usar o bash no Windows para compatibilidade com o Makefile
-          make build
-          echo "Compilando código em ${{ matrix.os }}..."
+          echo "Build finalizado para ${{ matrix.os }}."
 
       - name: Package artifacts (Linux/macOS)
         if: matrix.os != 'windows-latest'
