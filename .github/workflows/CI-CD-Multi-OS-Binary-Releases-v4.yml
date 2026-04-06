@@ -36,6 +36,7 @@ jobs:
         shell: pwsh
 
       - name: Compile source
+        shell: bash
         run: |
           # Criar diretórios de build de forma segura
           mkdir -p build/logs build/bin build/obj
