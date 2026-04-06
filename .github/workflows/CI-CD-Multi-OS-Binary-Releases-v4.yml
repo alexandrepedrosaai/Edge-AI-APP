@@ -80,8 +80,11 @@ jobs:
 
       - name: Flatten artifact files
         run: |
-          find release-artifacts -type f \( -name "*.tar.gz" -o -name "*.zip" \) -exec mv {} ./ \;
-          ls -lh *.tar.gz *.zip 2>/dev/null
+          # Mover todos os arquivos .tar.gz e .zip recursivamente para a raiz
+          find release-artifacts -type f \( -name "*.tar.gz" -o -name "*.zip" \) -exec mv -t ./ {} +
+          # Listar o que foi encontrado de forma segura (não falha se não houver arquivos)
+          ls -lh *.tar.gz 2>/dev/null || echo "Nenhum .tar.gz encontrado"
+          ls -lh *.zip 2>/dev/null || echo "Nenhum .zip encontrado"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
