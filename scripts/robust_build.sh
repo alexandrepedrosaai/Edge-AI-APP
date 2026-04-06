@@ -1,7 +1,7 @@
 #!/bin/bash
 # ============================================================================
-# Robust Build Script for CI/CD Pipeline
-# Replaces 'make build' with error-resilient processing
+# Robust Build Script for CI/CD Pipeline (V2 - Batch Processing)
+# Handles 4000+ files without exceeding ARG_MAX limits
 # ============================================================================
 
 set +e # Do NOT exit on error
@@ -19,23 +19,26 @@ mkdir -p "${BIN_DIR}" "${OBJ_DIR}" "${LOG_DIR}" "${ARTIFACTS_DIR}"
 echo "[*] Converting HEX to ASM..."
 python3 scripts/hex_to_asm.py "${ASM_DIR}" "${OBJ_DIR}" || echo "Warning: hex_to_asm.py reported some issues."
 
-echo "[*] Starting assembly phase..."
+echo "[*] Starting assembly phase (Batch Mode)..."
 if [ -d "${OBJ_DIR}" ]; then
-    # Process files in batches or one by one to avoid shell limits
-    find "${OBJ_DIR}" -maxdepth 1 -name "*.asm" | while read -r f; do
+    # Use find + xargs to handle thousands of files without hitting shell argument limits
+    find "${OBJ_DIR}" -maxdepth 1 -name "*.asm" -print0 | xargs -0 -n 1 -P $(nproc) -I {} bash -c '
+        f="{}"
         filename=$(basename "$f" .asm)
-        echo "Assembling $f..."
-        nasm -f elf64 -o "${OBJ_DIR}/${filename}.o" "$f" 2>"${LOG_DIR}/${filename}.log" || echo "Warning: Failed to assemble $f"
-    done
+        nasm -f elf64 -o "'${OBJ_DIR}'/${filename}.o" "$f" 2>"'${LOG_DIR}'/${filename}.log" || echo "Warning: Failed to assemble $f"
+    '
 else
     echo "No .asm files found in ${OBJ_DIR} to assemble."
 fi
 
-echo "[*] Linking object files..."
+echo "[*] Linking object files (Batch Mode)..."
 # Check if any .o files were actually created
-OBJ_FILES=$(find "${OBJ_DIR}" -maxdepth 1 -name "*.o")
-if [ -n "${OBJ_FILES}" ]; then
-    ld -e _start -o "${BIN_DIR}/edge-ai-app" ${OBJ_FILES} 2>"${LOG_DIR}/linking.log" || echo "Warning: Linking partial objects..."
+OBJ_COUNT=$(find "${OBJ_DIR}" -maxdepth 1 -name "*.o" | wc -l)
+if [ "$OBJ_COUNT" -gt 0 ]; then
+    echo "[*] Found $OBJ_COUNT object files. Linking..."
+    # Use find + xargs for ld to handle the large number of object files
+    find "${OBJ_DIR}" -maxdepth 1 -name "*.o" > obj_list.txt
+    ld -e _start -o "${BIN_DIR}/edge-ai-app" @obj_list.txt 2>"${LOG_DIR}/linking.log" || echo "Warning: Linking partial objects..."
     echo "Linked to: ${BIN_DIR}/edge-ai-app"
 else
     echo "No object files found in ${OBJ_DIR} to link. Creating placeholder binary."
@@ -49,5 +52,5 @@ else
     echo "Edge-AI-APP Dummy" > "${ARTIFACTS_DIR}/machine_code.bin"
 fi
 
-echo "[*] Build completed successfully (resilient mode)."
+echo "[*] Build completed successfully (V2 Batch Resilient mode)."
 exit 0
