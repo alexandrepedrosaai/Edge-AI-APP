@@ -92,6 +92,16 @@ jobs:
       - name: Add Azure DevOps extension
         run: az extension add --name azure-devops
 
+      - name: Validar se o PAT do Azure DevOps está presente
+        shell: bash
+        env:
+          AZURE_DEVOPS_EXT_PAT: ${{ secrets.AZURE_DEVOPS_EXT_PAT }}
+        run: |
+          if [ -z "${AZURE_DEVOPS_EXT_PAT}" ]; then
+            echo "AZURE_DEVOPS_EXT_PAT não está definido. Adicione-o como GitHub Actions secret."
+            exit 1
+          fi
+
       - name: Deploy to Azure Artifacts
         env:
           AZURE_DEVOPS_EXT_PAT: ${{ secrets.AZURE_DEVOPS_EXT_PAT }}
