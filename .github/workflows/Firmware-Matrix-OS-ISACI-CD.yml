@@ -14,6 +14,9 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
         isa: [x86, arm, riscv]
     runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -26,16 +29,27 @@ jobs:
             brew install nasm
           else
             choco install nasm -y
+          fi
 
       - name: Build Firmware Tables
         run: |
           mkdir -p build/${{ matrix.isa }}
-          for src in src/firmware/*.firmware; do
-            base=$(basename "$src" .firmware)
-            out="build/${{ matrix.isa }}/${base}-${{ matrix.isa }}.rom"
-            nasm -f bin "$src" -o "$out"
-            sha256sum "$out" > "$out.sha256"
-          done
+          # Check if directory exists and has files to avoid errors
+          if [ -d "src/firmware" ]; then
+            for src in src/firmware/*.firmware; do
+              if [ -f "$src" ]; then
+                base=$(basename "$src" .firmware)
+                out="build/${{ matrix.isa }}/${base}-${{ matrix.isa }}.rom"
+                nasm -f bin "$src" -o "$out"
+                # Use sha256sum or shasum depending on availability
+                if command -v sha256sum >/dev/null 2>&1; then
+                  sha256sum "$out" > "$out.sha256"
+                else
+                  shasum -a 256 "$out" > "$out.sha256"
+                fi
+              fi
+            done
+          fi
 
       - name: Upload Firmware Artifacts
         uses: actions/upload-artifact@v4
@@ -62,13 +76,19 @@ jobs:
       - name: Create Manifest JSON
         run: |
           echo "[" > manifest.json
-          for f in $(find ./artifacts -name '*.rom'); do
+          # Find all .rom files and generate manifest
+          find ./artifacts -name '*.rom' | while read f; do
             HASH=$(sha256sum "$f" | cut -d ' ' -f1)
             SIZE=$(stat -c%s "$f")
-            OSISA=$(basename $(dirname "$f"))
-            echo "  {\"file\":\"$(basename $f)\",\"osisa\":\"$OSISA\",\"size\":$SIZE,\"sha256\":\"$HASH\"}," >> manifest.json
+            # Extract OS/ISA from the path
+            # Path is usually ./artifacts/firmware-<os>-<isa>/<file>.rom
+            DIRNAME=$(basename $(dirname "$f"))
+            echo "  {\"file\":\"$(basename $f)\",\"osisa\":\"$DIRNAME\",\"size\":$SIZE,\"sha256\":\"$HASH\"}," >> manifest.json
           done
-          sed -i '$ s/,$//' manifest.json
+          # Remove trailing comma from the last entry if it exists
+          if [ -s manifest.json ]; then
+            sed -i '$ s/,$//' manifest.json
+          fi
           echo "]" >> manifest.json
 
       - name: Create Tag
