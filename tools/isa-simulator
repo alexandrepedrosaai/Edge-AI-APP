@@ -2,11 +2,16 @@
 # Placeholder ISA simulator validator – can be expanded with real simulation logic later.
 set -euo pipefail
 
+ARCH=""
 INPUT=""
 VALIDATE="false"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
+    --arch)
+      ARCH="$2"
+      shift 2
+      ;;
     --input)
       INPUT="$2"
       shift 2
@@ -28,5 +33,9 @@ if [[ -z "${INPUT}" || ! -f "${INPUT}" ]]; then
 fi
 
 if [[ "${VALIDATE}" == "true" ]]; then
-  echo "ISA validation passed for: ${INPUT}"
+  if [[ -n "${ARCH}" ]]; then
+    echo "ISA validation passed for arch '${ARCH}' using: ${INPUT}"
+  else
+    echo "ISA validation passed for: ${INPUT}"
+  fi
 fi
