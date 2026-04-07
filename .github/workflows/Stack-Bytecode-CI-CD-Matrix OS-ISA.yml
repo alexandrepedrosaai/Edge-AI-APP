@@ -63,7 +63,7 @@ jobs:
           fetch-depth: 0
 
       - name: Download artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v4.1.8
         with:
           path: ./artifacts
 
@@ -82,7 +82,9 @@ jobs:
       - name: Create Tag
         id: tag
         run: |
-          TAG="v$(date +'%Y.%m.%d')-run${{ github.run_number }}"
+          # Use date, time and run_number to ensure uniqueness
+          TAG="v$(date +'%Y.%m.%d-%H%M%S')-run${{ github.run_number }}"
+          echo "Creating tag: $TAG"
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git tag "$TAG"
