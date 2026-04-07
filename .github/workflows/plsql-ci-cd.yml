@@ -3,30 +3,42 @@ name: PL/SQL CI/CD EdgeAIApp
 on:
   push:
     branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
 
+    services:
+      oracle:
+        image: gvenzl/oracle-free:latest
+        env:
+          ORACLE_PASSWORD: root
+        ports:
+          - 1521:1521
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Setup Oracle XE
-      uses: gvenzl/oracle-xe@main
-      with:
-        password: root
+    - name: Wait for Oracle to be ready
+      run: |
+        echo "Waiting for Oracle database to start..."
+        # This loop waits for the database to be ready to accept connections
+        timeout 300s bash -c 'until echo exit | sqlplus -L system/root@localhost:1521/FREE; do sleep 5; done' || true
 
     - name: Apply PL/SQL scripts
       run: |
-        sqlplus system/root@localhost/XE @db/edge_ai_schema.sql
-        sqlplus system/root@localhost/XE @db/edge_ai_seed.sql
-        sqlplus system/root@localhost/XE @db/edge_ai_procedures.sql
+        # Apply schema, seed data, and then the procedural logic
+        sqlplus system/root@localhost:1521/FREE @SQL/edgeaischema.sql
+        sqlplus system/root@localhost:1521/FREE @SQL/edgeaiseed.sql
+        sqlplus system/root@localhost:1521/FREE @SQL-PL/edgeaiprocedures.sql
 
     - name: Package PL/SQL artifacts
       run: |
         mkdir -p build/plsql
-        cp db/*.sql build/plsql/
+        cp SQL/*.sql build/plsql/
+        cp SQL-PL/*.sql build/plsql/
 
     - name: Upload PL/SQL artifacts
       uses: actions/upload-artifact@v4
