@@ -24,13 +24,13 @@ jobs:
         pip install -r requirements.txt || true
 
     - name: Run Edge AI sensor demo
-      run: python edge_ai_sensor.py
+      run: python pY/edgeaisensor.py
 
     - name: Run Edge AI inference demo
-      run: python edge_ai_inference.py
+      run: python pY/edgeaiinference.py
 
     - name: Run Edge AI pipeline tests
-      run: python edge_ai_pipeline_test.py
+      run: python pY/edgeaipipeline_test.py
 
     - name: Create release with Python files
       uses: softprops/action-gh-release@v1
@@ -41,6 +41,6 @@ jobs:
           🎉 Automatic Python CI/CD Release
           Includes Edge AI sensor simulation, inference demo, and pipeline tests.
         files: |
-          edge_ai_sensor.py
-          edge_ai_inference.py
-          edge_ai_pipeline_test.py
+          pY/edgeaisensor.py
+          pY/edgeaiinference.py
+          pY/edgeaipipeline_test.py

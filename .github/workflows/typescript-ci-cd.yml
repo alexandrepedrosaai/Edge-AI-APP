@@ -18,17 +18,22 @@ jobs:
       with:
         node-version: '20'
 
+    - name: Install pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 10
+
     - name: Install dependencies
       run: |
-        npm install
+        pnpm install
 
     - name: Build TypeScript project
       run: |
-        npx tsc
+        pnpm run build
 
     - name: Run tests
       run: |
-        npm test || echo "No tests defined"
+        pnpm run check || echo "No tests defined"
 
     - name: Create release with build artifacts
       uses: softprops/action-gh-release@v1
