@@ -27,11 +27,14 @@ jobs:
               riscv) sudo apt-get update && sudo apt-get install -y gcc-riscv64-unknown-elf ;;
               mips)  sudo apt-get update && sudo apt-get install -y gcc-mips-linux-gnu ;;
               6502)
-                sudo apt-get update && sudo apt-get install -y wget unzip
-                wget http://sun.hasenbraten.de/vasm/bin/vasm6502_oldstyle_linux-x86_64.zip
-                unzip vasm6502_oldstyle_linux-x86_64.zip
-                sudo mv vasm6502_oldstyle /usr/local/bin/
-                sudo chmod +x /usr/local/bin/vasm6502_oldstyle ;;
+                sudo apt-get update && sudo apt-get install -y build-essential wget
+                wget http://sun.hasenbraten.de/vasm/daily/vasm.tar.gz
+                tar -xzvf vasm.tar.gz
+                cd vasm
+                make CPU=6502 SYNTAX=oldstyle
+                sudo cp vasm6502_oldstyle /usr/local/bin/
+                sudo chmod +x /usr/local/bin/vasm6502_oldstyle
+                cd .. ;;
               z80)   sudo apt-get update && sudo apt-get install -y z80asm ;;
             esac
           elif [ "${{ runner.os }}" = "macOS" ]; then
