@@ -27,17 +27,23 @@ jobs:
         run: choco install mingw -y
 
       - name: Compile Bit-Slice Microcode
+        shell: bash
         run: |
           set -euo pipefail
           mkdir -p build/bitslice/${{ matrix.isa }}
-          mapfile -t SRCS < <(find src -type f -name '*.c' | grep -E '/bitslice/' || true)
+
+          # Collect sources using NUL-delimited find (bash 3.2+ safe, space-safe)
+          SRCS=()
+          while IFS= read -r -d '' f; do
+            SRCS+=("$f")
+          done < <(find src -type f -name '*.c' -path '*/bitslice/*' -print0)
 
           if [ "${#SRCS[@]}" -eq 0 ]; then
             echo "No bit-slice sources found. Expected something like src/bitslice/*.c"
             exit 1
           fi
 
-          gcc -O2 -o build/bitslice/${{ matrix.isa }}/bitslice-${{ matrix.isa }}.bin "${SRCS[@]}"
+          gcc -O2 -o "build/bitslice/${{ matrix.isa }}/bitslice-${{ matrix.isa }}.bin" "${SRCS[@]}"
 
       - name: Validate Bit-Slice ISA Simulation
         run: |
