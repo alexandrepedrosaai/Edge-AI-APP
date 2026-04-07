@@ -34,12 +34,16 @@ jobs:
       - name: Build Stack-based Bytecode Firmware
         run: |
           mkdir -p build/${{ matrix.isa }}
-          for src in src/firmware/stack_*.firmware; do
+          src="src/firmware/stack_${{ matrix.isa }}.firmware"
+          if [ -f "$src" ]; then
             base=$(basename "$src" .firmware)
             out="build/${{ matrix.isa }}/${base}-${{ matrix.isa }}.rom"
+            echo "Assembling $src to $out..."
             nasm -f bin "$src" -o "$out"
             sha256sum "$out" > "$out.sha256"
-          done
+          else
+            echo "Warning: Source file $src not found, skipping."
+          fi
 
       - name: Upload Bytecode Artifacts
         uses: actions/upload-artifact@v4
