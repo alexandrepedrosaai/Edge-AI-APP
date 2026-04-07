@@ -44,20 +44,39 @@ jobs:
 
       - name: Build Firmware
         run: |
-          mkdir -p build/${{ matrix.isa }}
-          for src in src/firmware/${{ matrix.isa }}/*.firmware; do
-            base=$(basename "$src" .firmware)
-            out="build/${{ matrix.isa }}/${base}-${{ matrix.isa }}.rom"
-            case "${{ matrix.isa }}" in
-              arm)   arm-none-eabi-as "$src" -o "$out" ;;
-              x86)   nasm -f bin "$src" -o "$out" ;;
-              riscv) riscv64-unknown-elf-as "$src" -o "$out" ;;
-              mips)  mips-linux-gnu-as "$src" -o "$out" ;;
-              6502)  vasm6502_oldstyle -Fbin -o "$out" "$src" ;;
-              z80)   z80asm -o "$out" "$src" ;;
-            esac
-            sha256sum "$out" > "$out.sha256"
-          done
+          # Only proceed if toolchain is expected to be available for this OS/ISA
+          SHOULD_BUILD=false
+          if [ "${{ runner.os }}" = "Linux" ]; then
+            SHOULD_BUILD=true
+          elif [ "${{ runner.os }}" = "macOS" ]; then
+            if [[ "${{ matrix.isa }}" == "x86" || "${{ matrix.isa }}" == "arm" ]]; then SHOULD_BUILD=true; fi
+          elif [ "${{ runner.os }}" = "Windows" ]; then
+            if [[ "${{ matrix.isa }}" == "x86" ]]; then SHOULD_BUILD=true; fi
+          fi
+
+          if [ "$SHOULD_BUILD" = "true" ]; then
+            mkdir -p build/${{ matrix.isa }}
+            if ls src/firmware/${{ matrix.isa }}/*.firmware 1> /dev/null 2>&1; then
+              for src in src/firmware/${{ matrix.isa }}/*.firmware; do
+                base=$(basename "$src" .firmware)
+                out="build/${{ matrix.isa }}/${base}-${{ matrix.isa }}.rom"
+                echo "Assembling $src..."
+                case "${{ matrix.isa }}" in
+                  arm)   arm-none-eabi-as "$src" -o "$out" ;;
+                  x86)   nasm -f bin "$src" -o "$out" ;;
+                  riscv) riscv64-unknown-elf-as "$src" -o "$out" ;;
+                  mips)  mips-linux-gnu-as "$src" -o "$out" ;;
+                  6502)  vasm6502_oldstyle -Fbin -o "$out" "$src" ;;
+                  z80)   z80asm -o "$out" "$src" ;;
+                esac
+                sha256sum "$out" > "$out.sha256"
+              done
+            else
+              echo "No firmware files found for ${{ matrix.isa }}"
+            fi
+          else
+            echo "Skipping build for ${{ matrix.isa }} on ${{ runner.os }} (Toolchain not configured)"
+          fi
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
