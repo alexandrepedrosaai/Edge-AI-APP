@@ -1,0 +1,103 @@
+name: EdgeAIApp ELT Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Cache Python deps
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('etl/requirements.txt') }}
+
+      - name: Install deps
+        run: pip install -r etl/requirements.txt
+
+      - name: Run Extract
+        run: python etl/etl_extract.py
+
+      - name: Upload Extract artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: extract-output
+          path: data/extracted/
+
+  load:
+    runs-on: ubuntu-latest
+    needs: extract
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup MySQL
+        uses: ankane/setup-mysql@v1
+        with:
+          mysql-version: '8.0'
+
+      - name: Apply Load SQL
+        run: mysql -u root -proot edge_ai_app < etl/etl_load.sql
+
+      - name: Upload Load artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: load-output
+          path: logs/load/
+
+  transform:
+    runs-on: ubuntu-latest
+    needs: load
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup R
+        uses: r-lib/actions/setup-r@v2
+
+      - name: Cache R packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.R
+          key: ${{ runner.os }}-R-${{ hashFiles('etl/etl_transform.R') }}
+
+      - name: Run Transform
+        run: Rscript etl/etl_transform.R
+
+      - name: Upload Transform artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: transform-output
+          path: results/
+
+  release:
+    runs-on: ubuntu-latest
+    needs: [extract, load, transform]
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: build/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ github.run_number }}
+          name: "EdgeAIApp ELT Release ${{ github.run_number }}"
+          body: |
+            🚀 Automatic ELT Release
+            Includes Extract (Python), Load (SQL), and Transform (R) artifacts.
+        files: build/**/*
