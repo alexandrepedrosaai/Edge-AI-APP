@@ -1,0 +1,41 @@
+name: Shell CI/CD Edge AI
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Make shell scripts executable
+      run: chmod +x *.sh
+
+    - name: Run shell scripts
+      run: |
+        ./edgeaisensor.sh
+        ./edgeaiinference.sh
+        ./edgeaipipeline_test.sh
+
+    - name: Build binary artifacts
+      run: |
+        mkdir -p build
+        for f in *.sh; do
+          cp "$f" "build/${f%.sh}.bin"
+        done
+
+    - name: Create release with shell binaries
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ github.run_number }}
+        name: "Edge AI Shell Release ${{ github.run_number }}"
+        body: |
+          🎉 Automatic Shell CI/CD Release
+          Includes Edge AI sensor simulation, inference demo, and pipeline tests.
+        files: |
+          build/*.bin
