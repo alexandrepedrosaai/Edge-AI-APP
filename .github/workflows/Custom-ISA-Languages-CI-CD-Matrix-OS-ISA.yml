@@ -20,14 +20,27 @@ jobs:
 
       - name: Setup toolchain
         run: |
-          case "${{ matrix.isa }}" in
-            arm)   sudo apt-get install -y gcc-arm-none-eabi ;;
-            x86)   sudo apt-get install -y nasm ;;
-            riscv) sudo apt-get install -y gcc-riscv64-unknown-elf ;;
-            mips)  sudo apt-get install -y gcc-mips-linux-gnu ;;
-            6502)  sudo apt-get install -y vasm6502 ;;
-            z80)   sudo apt-get install -y z80asm ;;
-          esac
+          if [ "${{ runner.os }}" = "Linux" ]; then
+            case "${{ matrix.isa }}" in
+              arm)   sudo apt-get update && sudo apt-get install -y gcc-arm-none-eabi ;;
+              x86)   sudo apt-get update && sudo apt-get install -y nasm ;;
+              riscv) sudo apt-get update && sudo apt-get install -y gcc-riscv64-unknown-elf ;;
+              mips)  sudo apt-get update && sudo apt-get install -y gcc-mips-linux-gnu ;;
+              6502)  sudo apt-get update && sudo apt-get install -y vasm6502 || echo "vasm6502 not in apt" ;;
+              z80)   sudo apt-get update && sudo apt-get install -y z80asm ;;
+            esac
+          elif [ "${{ runner.os }}" = "macOS" ]; then
+            case "${{ matrix.isa }}" in
+              x86)   brew install nasm ;;
+              arm)   brew tap armmbed/formulae && brew install arm-none-eabi-gcc ;;
+              *)     echo "Toolchain for ${{ matrix.isa }} not configured for macOS" ;;
+            esac
+          elif [ "${{ runner.os }}" = "Windows" ]; then
+            case "${{ matrix.isa }}" in
+              x86)   choco install nasm -y ;;
+              *)     echo "Toolchain for ${{ matrix.isa }} not configured for Windows" ;;
+            esac
+          fi
 
       - name: Build Firmware
         run: |
