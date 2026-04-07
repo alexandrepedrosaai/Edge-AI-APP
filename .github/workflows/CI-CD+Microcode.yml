@@ -6,7 +6,7 @@ on:
     tags:
       - "v*"
   workflow_dispatch:
-jobs:
+  jobs:
   build-microcode:
     runs-on: ubuntu-latest
     steps:
