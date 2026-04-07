@@ -25,33 +25,26 @@ jobs:
       run: |
         echo "Waiting for Oracle database to start..."
         # This loop waits for the database to be ready to accept connections
-        timeout 300s bash -c 'until echo exit | sqlplus -L system/root@localhost:1521/FREE; do sleep 5; done' || true    - name: Install Oracle Instant Client
-     
-        run: |
+        # We use libaio1t64 for Ubuntu 24.04 (Noble) which is the current ubuntu-latest
         sudo apt-get update
-        sudo apt-get install -y libaio1 wget unzip
+        sudo apt-get install -y libaio1t64 wget unzip
         wget https://download.oracle.com/otn_software/linux/instantclient/instantclient-basiclite-linux.x64-21.9.0.0.0dbru.zip
         wget https://download.oracle.com/otn_software/linux/instantclient/instantclient-sqlplus-linux.x64-21.9.0.0.0dbru.zip
         unzip instantclient-basiclite-linux.x64-21.9.0.0.0dbru.zip
         unzip instantclient-sqlplus-linux.x64-21.9.0.0.0dbru.zip
         export LD_LIBRARY_PATH=$PWD/instantclient_21_9:$LD_LIBRARY_PATH
         export PATH=$PWD/instantclient_21_9:$PATH
-        - name: Apply PL/SQL scripts
-        run: |
+        timeout 300s bash -c 'until echo exit | sqlplus -L system/root@localhost:1521/FREE; do sleep 5; done' || true
+
+    - name: Apply PL/SQL scripts
+      run: |
+        export LD_LIBRARY_PATH=$PWD/instantclient_21_9:$LD_LIBRARY_PATH
+        export PATH=$PWD/instantclient_21_9:$PATH
         # Apply schema, seed data, and then the procedural logic
         sqlplus system/root@localhost:1521/FREE @SQL/edgeaischema.sql
         sqlplus system/root@localhost:1521/FREE @SQL/edgeaiseed.sql
         sqlplus system/root@localhost:1521/FREE @SQL-PL/edgeaiprocedures.sql
-        - name: Install Oracle Instant Client
-          run: |
-          sudo apt-get update
-          sudo apt-get install -y libaio-dev wget unzip
-          wget https://download.oracle.com/otn_software/linux/instantclient/instantclient-basiclite-linux.x64-21.9.0.0.0dbru.zip
-          wget https://download.oracle.com/otn_software/linux/instantclient/instantclient-sqlplus-linux.x64-21.9.0.0.0dbru.zip
-          unzip instantclient-basiclite-linux.x64-21.9.0.0.0dbru.zip
-          unzip instantclient-sqlplus-linux.x64-21.9.0.0.0dbru.zip
-          export LD_LIBRARY_PATH=$PWD/instantclient_21_9:$LD_LIBRARY_PATH
-          export PATH=$PWD/instantclient_21_9:$PATH
+
     - name: Package PL/SQL artifacts
       run: |
         mkdir -p build/plsql
