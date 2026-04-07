@@ -1,0 +1,21 @@
+; src/firmware/stack_x86.firmware
+; Bytecode stack-based robusto (x86 VM-like)
+
+; PUSH 1
+db 0x01, 0x01
+; PUSH 5
+db 0x01, 0x05
+; ADD
+db 0x10
+; PUSH 2
+db 0x01, 0x02
+; MUL
+db 0x20
+; PUSH 3
+db 0x01, 0x03
+; SUB
+db 0x11
+; PRINT (topo da pilha)
+db 0x30
+; HALT
+db 0xFF
