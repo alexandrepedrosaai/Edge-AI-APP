@@ -1,4 +1,4 @@
-LD B,0            ; contador
+    LD B,0            ; contador
     LD C,10           ; limite
 loop:
     INC B

@@ -1,4 +1,4 @@
-LDX #$00          ; contador
+    LDX #$00          ; contador
     LDY #$0A          ; limite
 loop:
     INX
