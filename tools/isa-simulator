@@ -9,6 +9,10 @@ VALIDATE="false"
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --arch)
+      if [[ $# -lt 2 || -z "$2" ]]; then
+        echo "Error: --arch requires a non-empty value" >&2
+        exit 2
+      fi
       ARCH="$2"
       shift 2
       ;;
