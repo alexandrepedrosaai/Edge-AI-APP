@@ -1,5 +1,4 @@
 name: CI-CD Microcode Automated Releases
-
 on:
   push:
     branches: ["main"]
