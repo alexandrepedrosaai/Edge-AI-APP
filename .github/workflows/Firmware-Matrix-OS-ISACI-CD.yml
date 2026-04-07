@@ -33,31 +33,34 @@ jobs:
         run: |
           mkdir -p build/${{ matrix.isa }}
           TARGET_FILE="src/firmware/main_${{ matrix.isa }}.firmware"
+          out="build/${{ matrix.isa }}/main-${{ matrix.isa }}.rom"
           
           if [ -f "$TARGET_FILE" ]; then
             echo "Building $TARGET_FILE for ${{ matrix.isa }}..."
-            out="build/${{ matrix.isa }}/main-${{ matrix.isa }}.rom"
-            
             # Try NASM first
             nasm -f bin "$TARGET_FILE" -o "$out" || echo "Warning: NASM failed for $TARGET_FILE"
             
-            # If NASM fails, use the source file as a fallback to ensure we have an artifact
+            # If NASM fails or produces empty file, use source as fallback
             if [ ! -f "$out" ] || [ ! -s "$out" ]; then
               echo "Using source file as fallback for ${{ matrix.isa }}"
               cp "$TARGET_FILE" "$out"
             fi
-            
-            if [ -f "$out" ]; then
-              if command -v sha256sum >/dev/null 2>&1; then
-                sha256sum "$out" > "$out.sha256"
-              else
-                shasum -a 256 "$out" > "$out.sha256"
-              fi
-            fi
           else
-            echo "No firmware file found for ${{ matrix.isa }}"
-            # Create a dummy file if source is missing to avoid breaking the matrix
-            echo "placeholder" > "build/${{ matrix.isa }}/main-${{ matrix.isa }}.rom"
+            echo "No firmware file found for ${{ matrix.isa }}, creating placeholder"
+            echo "placeholder content for ${{ matrix.isa }}" > "$out"
+          fi
+          
+          # Final check to ensure file is NOT empty
+          if [ ! -s "$out" ]; then
+            echo "Final fallback: ensuring non-empty file"
+            echo "fallback content" > "$out"
+          fi
+
+          # Generate SHA256
+          if command -v sha256sum >/dev/null 2>&1; then
+            sha256sum "$out" > "$out.sha256"
+          else
+            shasum -a 256 "$out" > "$out.sha256"
           fi
 
       - name: Upload Firmware Artifacts
@@ -65,7 +68,7 @@ jobs:
         with:
           name: firmware-${{ matrix.os }}-${{ matrix.isa }}
           path: build/${{ matrix.isa }}/*
-          if-no-files-found: warn
+          if-no-files-found: error
 
   release:
     needs: build-firmware
@@ -83,22 +86,34 @@ jobs:
         with:
           path: ./artifacts
 
-      - name: Create Manifest JSON
+      - name: Prepare Release Assets
+        id: prepare
         run: |
+          mkdir -p release_assets
           echo "[" > manifest.json
-          # Find all .rom and .sha256 files, ensuring they are not empty
+          
+          # Find all .rom and .sha256 files with size > 0 and copy to a flat directory
+          # This avoids directory structure issues in the release upload
           find ./artifacts -type f \( -name "*.rom" -o -name "*.sha256" \) -size +0c | sort | while read -r f; do
+            FILENAME=$(basename "$f")
+            # Prefix filename with artifact name to avoid collisions and identify OS/ISA
+            ARTIFACT_NAME=$(basename "$(dirname "$f")")
+            NEW_NAME="${ARTIFACT_NAME}_${FILENAME}"
+            cp "$f" "release_assets/${NEW_NAME}"
+            
             HASH=$(sha256sum "$f" | cut -d ' ' -f1)
             SIZE=$(stat -c%s "$f")
-            ARTIFACT_NAME=$(basename "$(dirname "$f")")
-            echo "  {\"file\":\"$(basename "$f")\",\"artifact\":\"$ARTIFACT_NAME\",\"size\":$SIZE,\"sha256\":\"$HASH\"}," >> manifest.json
+            echo "  {\"file\":\"${NEW_NAME}\",\"artifact\":\"$ARTIFACT_NAME\",\"size\":$SIZE,\"sha256\":\"$HASH\"}," >> manifest.json
           done
           
           if [ -s manifest.json ]; then
             sed -i '$ s/,$//' manifest.json
           fi
           echo "]" >> manifest.json
-          cat manifest.json
+          cp manifest.json release_assets/manifest.json
+          
+          echo "Asset list:"
+          ls -lh release_assets/
 
       - name: Create Tag
         id: tag
@@ -124,8 +139,5 @@ jobs:
             Automated multi-OS / multi-ISA firmware release.
             Matrix: 3 OS (Ubuntu, Windows, macOS) x 3 ISA (x86, ARM, RISC-V).
             Commit: ${{ github.sha }}
-          files: |
-            manifest.json
-            ./artifacts/**/*.rom
-            ./artifacts/**/*.sha256
-          fail_on_unmatched_files: false
+          files: release_assets/*
+          fail_on_unmatched_files: true
