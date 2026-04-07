@@ -32,11 +32,22 @@ jobs:
     - name: Run Edge AI pipeline tests
       run: ruby Gem/edgeaipipeline_test.rb
 
+    - name: Create Tag
+      id: tag
+      run: |
+        TAG="v$(date +'%Y.%m.%d-%H%M%S')-ruby-run${{ github.run_number }}"
+        echo "Creating tag: $TAG"
+        git config user.name "github-actions"
+        git config user.email "github-actions@github.com"
+        git tag "$TAG"
+        git push origin "$TAG"
+        echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
     - name: Create release with Ruby files
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: v$(date +'%Y.%m.%d-%H%M%S')-ruby-run${{ github.run_number }}
-        name: "Edge AI Ruby Release ${{ github.run_number }}"
+        tag_name: ${{ steps.tag.outputs.tag }}
+        name: "Edge AI Ruby Release ${{ steps.tag.outputs.tag }}"
         body: |
           🎉 Automatic Ruby CI/CD Release
           Includes Edge AI sensor simulation, inference demo, and pipeline tests.
