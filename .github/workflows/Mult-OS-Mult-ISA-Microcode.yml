@@ -46,7 +46,7 @@ jobs:
 
       - name: Validate ISA Simulation
         run: |
-          ./tools/isa-simulator --arch ${{ matrix.isa }} --input build/microcode/${{ matrix.isa }}/microcode-${{ matrix.isa }}.bin --validate
+          ./tools/isa-simulator --input build/microcode/${{ matrix.isa }}/microcode-${{ matrix.isa }}.bin --validate
 
       - name: Upload Microcode Artifact
         uses: actions/upload-artifact@v4
