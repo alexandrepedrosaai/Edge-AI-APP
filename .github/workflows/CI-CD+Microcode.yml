@@ -1,8 +1,12 @@
 name: CI-CD Microcode Automated Releases
-push:
+
+on:
+  push:
     branches: ["main"]
     tags:
       - "v*"
+  workflow_dispatch:
+
 jobs:
   build-microcode:
     runs-on: ubuntu-latest
@@ -36,35 +40,30 @@ jobs:
         with:
           name: microcode-binary
           path: build/microcode/microcode.bin
-    release:
-   needs: build-microcode
-  runs-on: ubuntu-latest
-  permissions:
-    contents: write
-  steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0   # required to create/push tags reliably
 
-    - name: Download Microcode Artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: microcode-binary
-        path: .
+  release:
+    needs: build-microcode
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download Microcode Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: microcode-binary
+          path: .
 
-    - name: Create Tag for Release
-      run: |
-        TAG="v$(date +'%Y.%m.%d')-run${{ github.run_number }}"
-        echo "TAG=$TAG" >> $GITHUB_ENV
-        echo "Creating tag $TAG"
-        git config user.name "github-actions"
-        git config user.email "github-actions@github.com"
-        git tag "$TAG"
-        git push origin "$TAG"
+      - name: Create Tag for Release
+        run: |
+          TAG="v$(date +'%Y.%m.%d')-run${{ github.run_number }}"
+          echo "Creating tag $TAG"
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git tag "$TAG"
+          git push origin "$TAG"
 
-    - name: Create GitHub Release
-      uses: softprops/action-gh-release@v2
-      with:
-        tag_name: ${{ env.TAG }}
-        files: microcode.bin
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          files: microcode.bin
