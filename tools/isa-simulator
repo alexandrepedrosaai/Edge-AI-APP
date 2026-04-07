@@ -22,8 +22,13 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-if [[ -z "${INPUT}" || ! -f "${INPUT}" ]]; then
-  echo "Error: input file not found: '${INPUT}'" >&2
+if [[ -z "${INPUT}" ]]; then
+  echo "Error: --input argument is required" >&2
+  exit 1
+fi
+
+if [[ ! -f "${INPUT}" ]]; then
+  echo "Error: input file does not exist: ${INPUT}" >&2
   exit 1
 fi
 
