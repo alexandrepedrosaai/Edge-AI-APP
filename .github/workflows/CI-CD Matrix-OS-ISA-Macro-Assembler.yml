@@ -117,11 +117,8 @@ jobs:
       - name: Create Tag for Release
         id: tag
         run: |
-          # Adiciona run_id e segundos para garantir que a tag      - name: Create Tag for Release
-        id: tag
-        run: |
-          # Formato de tag único com data, número da execução e ID do GitHub
-          TAG="v$(date +'%Y.%m.%d')-build-${{ github.run_number }}-${{ github.run_id }}"
+          # Adiciona run_id para garantir que a tag seja única em cada tentativa de deploy
+          TAG="v$(date +'%Y.%m.%d')-run${{ github.run_number }}-${{ github.run_id }}"
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git tag "$TAG"
@@ -132,7 +129,8 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.tag.outputs.tag }}
-          name: "Edge-AI-APP Matrix Assembler Release - ${{ steps.tag.outputs.tag }}"         body: |
+          name: "Macro Assembler Matrix Release ${{ steps.tag.outputs.tag }}"
+          body: |
             Automated multi-OS / multi-ISA macro assembler release.
             Includes SHA256 hashes and manifest.json for integrity verification.
             Commit: ${{ github.sha }}
