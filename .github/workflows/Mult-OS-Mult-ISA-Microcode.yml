@@ -28,13 +28,18 @@ jobs:
 
       - name: Setup build environment (Windows)
         if: runner.os == 'Windows'
-        run: choco install mingw -y
+        uses: msys2/setup-msys2@v2
+        with:
+          update: true
+          install: >-
+            mingw-w64-ucrt-x86_64-gcc
 
-      - name: Compile Microcode
+      - name: Compile Microcode (Linux/macOS)
+        if: runner.os != 'Windows'
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p build/microcode/${{ matrix.isa }}
+          mkdir -p "build/microcode/${{ matrix.isa }}"
           mapfile -t SRCS < <(find src -type f -name '*.c' | grep -E '/microcode/' || true)
 
           if [ "${#SRCS[@]}" -eq 0 ]; then
@@ -42,11 +47,34 @@ jobs:
             exit 1
           fi
 
-          gcc -O2 -o build/microcode/${{ matrix.isa }}/microcode-${{ matrix.isa }}.bin "${SRCS[@]}"
+          gcc -O2 -o "build/microcode/${{ matrix.isa }}/microcode-${{ matrix.isa }}.bin" "${SRCS[@]}"
 
-      - name: Validate ISA Simulation
+      - name: Compile Microcode (Windows)
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
         run: |
-          ./tools/isa-simulator --arch ${{ matrix.isa }} --input build/microcode/${{ matrix.isa }}/microcode-${{ matrix.isa }}.bin --validate
+          set -euo pipefail
+          mkdir -p "build/microcode/${{ matrix.isa }}"
+          mapfile -t SRCS < <(find src -type f -name '*.c' | grep -E '/microcode/' || true)
+
+          if [ "${#SRCS[@]}" -eq 0 ]; then
+            echo "No microcode C sources found. Expected something like src/microcode/*.c"
+            exit 1
+          fi
+
+          gcc -O2 -o "build/microcode/${{ matrix.isa }}/microcode-${{ matrix.isa }}.bin" "${SRCS[@]}"
+
+      - name: Validate ISA Simulation (Linux/macOS)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          ./tools/isa-simulator --input "build/microcode/${{ matrix.isa }}/microcode-${{ matrix.isa }}.bin" --validate
+
+      - name: Validate ISA Simulation (Windows)
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
+        run: |
+          ./tools/isa-simulator --input "build/microcode/${{ matrix.isa }}/microcode-${{ matrix.isa }}.bin" --validate
 
       - name: Upload Microcode Artifact
         uses: actions/upload-artifact@v4
