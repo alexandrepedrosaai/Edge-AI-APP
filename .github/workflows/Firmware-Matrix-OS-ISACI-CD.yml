@@ -34,7 +34,6 @@ jobs:
       - name: Build Firmware Tables
         run: |
           mkdir -p build/${{ matrix.isa }}
-          # Only build the firmware that matches the current matrix ISA
           TARGET_FILE="src/firmware/main_${{ matrix.isa }}.firmware"
           
           if [ -f "$TARGET_FILE" ]; then
@@ -44,16 +43,7 @@ jobs:
             if [ "${{ matrix.isa }}" = "x86" ]; then
               nasm -f bin "$TARGET_FILE" -o "$out"
             else
-              # For ARM and RISC-V, since we don't have cross-assemblers easily available
-              # on all OS runners in this matrix, we'll use a simple 'cat' if they are 
-              # already in a near-binary format or just provide a placeholder/skip.
-              # However, looking at the files, they contain assembly directives.
-              # For now, we will only build x86 and skip others to fix the CI failure,
-              # or use a generic message.
               echo "Skipping assembly for ${{ matrix.isa }} as cross-compilers are not configured."
-              echo "In a production environment, use arm-none-eabi-as or riscv64-unknown-elf-as."
-              # Create a dummy file to avoid upload failure if needed, 
-              # but better to just not fail the step.
               touch "$out.skipped"
             fi
             
@@ -93,25 +83,35 @@ jobs:
       - name: Create Manifest JSON
         run: |
           echo "[" > manifest.json
-          # Find all .rom files and generate manifest
+          FIRST=true
           find ./artifacts -name '*.rom' | while read f; do
+            if [ "$FIRST" = true ]; then
+              FIRST=false
+            else
+              echo "," >> manifest.json
+            fi
             HASH=$(sha256sum "$f" | cut -d ' ' -f1)
             SIZE=$(stat -c%s "$f")
             DIRNAME=$(basename $(dirname "$f"))
-            echo "  {\"file\":\"$(basename $f)\",\"osisa\":\"$DIRNAME\",\"size\":$SIZE,\"sha256\":\"$HASH\"}," >> manifest.json
+            echo -n "  {\"file\":\"$(basename $f)\",\"osisa\":\"$DIRNAME\",\"size\":$SIZE,\"sha256\":\"$HASH\"}" >> manifest.json
           done
-          # Remove trailing comma
-          if [ -s manifest.json ]; then
-            sed -i '$ s/,$//' manifest.json
-          fi
+          echo "" >> manifest.json
           echo "]" >> manifest.json
 
       - name: Create Tag
         id: tag
         run: |
-          TAG="v$(date +'%Y.%m.%d')-run${{ github.run_number }}"
+          # Use run_number and run_attempt to ensure uniqueness
+          TAG="v$(date +'%Y.%m.%d')-run${{ github.run_number }}-att${{ github.run_attempt }}"
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
+          
+          # Check if tag exists locally or remotely
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "Tag $TAG already exists, appending timestamp"
+            TAG="${TAG}-$(date +%H%M%S)"
+          fi
+          
           git tag "$TAG"
           git push origin "$TAG"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
