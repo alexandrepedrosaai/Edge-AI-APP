@@ -1,0 +1,91 @@
+name: CI-CD Matrix OS-ISA Custom ISA Languages
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  build-custom-isa:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        isa: [arm, x86, riscv, mips, 6502, z80]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup toolchain
+        run: |
+          case "${{ matrix.isa }}" in
+            arm)   sudo apt-get install -y gcc-arm-none-eabi ;;
+            x86)   sudo apt-get install -y nasm ;;
+            riscv) sudo apt-get install -y gcc-riscv64-unknown-elf ;;
+            mips)  sudo apt-get install -y gcc-mips-linux-gnu ;;
+            6502)  sudo apt-get install -y vasm6502 ;;
+            z80)   sudo apt-get install -y z80asm ;;
+          esac
+
+      - name: Build Firmware
+        run: |
+          mkdir -p build/${{ matrix.isa }}
+          for src in src/firmware/${{ matrix.isa }}/*.firmware; do
+            base=$(basename "$src" .firmware)
+            out="build/${{ matrix.isa }}/${base}-${{ matrix.isa }}.rom"
+            case "${{ matrix.isa }}" in
+              arm)   arm-none-eabi-as "$src" -o "$out" ;;
+              x86)   nasm -f bin "$src" -o "$out" ;;
+              riscv) riscv64-unknown-elf-as "$src" -o "$out" ;;
+              mips)  mips-linux-gnu-as "$src" -o "$out" ;;
+              6502)  vasm6502_oldstyle -Fbin -o "$out" "$src" ;;
+              z80)   z80asm -o "$out" "$src" ;;
+            esac
+            sha256sum "$out" > "$out.sha256"
+          done
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware-${{ matrix.os }}-${{ matrix.isa }}
+          path: build/${{ matrix.isa }}/*
+
+  release:
+    needs: build-custom-isa
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+
+      - name: Create Manifest JSON
+        run: |
+          echo "[" > manifest.json
+          for f in $(find ./artifacts -name '*.rom'); do
+            HASH=$(sha256sum "$f" | cut -d ' ' -f1)
+            SIZE=$(stat -c%s "$f")
+            OSISA=$(basename $(dirname "$f"))
+            echo "  {\"file\":\"$(basename $f)\",\"osisa\":\"$OSISA\",\"size\":$SIZE,\"sha256\":\"$HASH\"}," >> manifest.json
+          done
+          sed -i '$ s/,$//' manifest.json
+          echo "]" >> manifest.json
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "auto-${{ github.sha }}"
+          name: "Matrix OS-ISA Release ${{ github.sha }}"
+          body: |
+            Release automático gerado a cada commit no branch main.
+            Inclui builds para ARM, x86, RISC-V, MIPS, 6502 e Z80.
+            Artefatos acompanhados de SHA256 e manifesto.json.
+          files: |
+            ./artifacts/**/*
+            manifest.json
