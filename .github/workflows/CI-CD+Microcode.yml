@@ -17,8 +17,19 @@ jobs:
 
       - name: Compile Microcode
         run: |
+          set -euo pipefail
           mkdir -p build/microcode
-          gcc -o build/microcode/microcode.bin src/microcode/*.c
+
+          # Find C sources under src/ that look like microcode sources
+          mapfile -t SRCS < <(find src -type f -name '*.c' | grep -E '/microcode/' || true)
+
+          if [ "${#SRCS[@]}" -eq 0 ]; then
+            echo "No microcode C sources found. Expected something like src/microcode/*.c"
+            echo "Fix by adding the microcode sources or updating the workflow path."
+            exit 1
+          fi
+
+          gcc -O2 -o build/microcode/microcode.bin "${SRCS[@]}"
 
       - name: Validate ISA Simulation
         run: |
