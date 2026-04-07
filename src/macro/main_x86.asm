@@ -1,4 +1,5 @@
 ; src/macro/main_x86.asm
+bits 64
 %macro LOAD 2
     mov %1, %2
 %endmacro

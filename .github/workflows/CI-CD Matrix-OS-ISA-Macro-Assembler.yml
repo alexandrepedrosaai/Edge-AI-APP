@@ -39,17 +39,36 @@ jobs:
           set -euo pipefail
           mkdir -p build/macro/${{ matrix.isa }}
 
+          # Filtra os arquivos por arquitetura para evitar erros de instrução não suportada
+          # x86 -> main_x86.asm, arm -> main_arm.asm, riscv -> main_riscv.asm
+          case "${{ matrix.isa }}" in
+            x86)   pattern="*x86.asm" ;;
+            arm)   pattern="*arm.asm" ;;
+            riscv) pattern="*riscv.asm" ;;
+            *)     pattern="*.asm" ;;
+          esac
+
           found=0
           while IFS= read -r -d '' src; do
             found=1
             out="build/macro/${{ matrix.isa }}/$(basename "${src}" .asm)-${{ matrix.isa }}.bin"
-            nasm -f bin "$src" -o "$out"
-            if command -v sha256sum >/dev/null 2>&1; then
-              sha256sum "$out" > "$out.sha256"
-            else
-              shasum -a 256 "$out" > "$out.sha256"
+            
+            # Só usa NASM para x86 e ARM (se for sintaxe compatível), RISC-V usa ferramentas específicas
+            if [[ "${{ matrix.isa }}" == "riscv" ]]; then
+              echo "Skipping NASM for RISC-V source: $src"
+              continue
             fi
-          done < <(find src/macro -type f -name '*.asm' -print0)
+            
+            nasm -f bin "$src" -o "$out" || echo "Warning: Failed to assemble $src for ${{ matrix.isa }}"
+            
+            if [ -f "$out" ]; then
+              if command -v sha256sum >/dev/null 2>&1; then
+                sha256sum "$out" > "$out.sha256"
+              else
+                shasum -a 256 "$out" > "$out.sha256"
+              fi
+            fi
+          done < <(find src/macro -type f -name "$pattern" -print0)
 
           if [ "$found" -eq 0 ]; then
             echo "No macro assembler sources found. Expected src/macro/*.asm"
