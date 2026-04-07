@@ -121,3 +121,5 @@ jobs:
           files: |
             ./artifacts/**/*
             manifest.json
+          overwrite_files: true
+          fail_on_unmatched_files: true
