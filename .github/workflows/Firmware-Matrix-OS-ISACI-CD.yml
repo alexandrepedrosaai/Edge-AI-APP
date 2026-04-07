@@ -1,0 +1,95 @@
+name: CI-CD Matrix OS-ISA Firmware Releases
+
+on:
+  push:
+    branches: ["main"]
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+jobs:
+  build-firmware:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        isa: [x86, arm, riscv]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup toolchain
+        run: |
+          if [ "${{ runner.os }}" = "Linux" ]; then
+            sudo apt-get update && sudo apt-get install -y nasm
+          elif [ "${{ runner.os }}" = "macOS" ]; then
+            brew install nasm
+          else
+            choco install nasm -y
+
+      - name: Build Firmware Tables
+        run: |
+          mkdir -p build/${{ matrix.isa }}
+          for src in src/firmware/*.firmware; do
+            base=$(basename "$src" .firmware)
+            out="build/${{ matrix.isa }}/${base}-${{ matrix.isa }}.rom"
+            nasm -f bin "$src" -o "$out"
+            sha256sum "$out" > "$out.sha256"
+          done
+
+      - name: Upload Firmware Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware-${{ matrix.os }}-${{ matrix.isa }}
+          path: build/${{ matrix.isa }}/*
+
+  release:
+    needs: build-firmware
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+
+      - name: Create Manifest JSON
+        run: |
+          echo "[" > manifest.json
+          for f in $(find ./artifacts -name '*.rom'); do
+            HASH=$(sha256sum "$f" | cut -d ' ' -f1)
+            SIZE=$(stat -c%s "$f")
+            OSISA=$(basename $(dirname "$f"))
+            echo "  {\"file\":\"$(basename $f)\",\"osisa\":\"$OSISA\",\"size\":$SIZE,\"sha256\":\"$HASH\"}," >> manifest.json
+          done
+          sed -i '$ s/,$//' manifest.json
+          echo "]" >> manifest.json
+
+      - name: Create Tag
+        id: tag
+        run: |
+          TAG="v$(date +'%Y.%m.%d')-run${{ github.run_number }}"
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git tag "$TAG"
+          git push origin "$TAG"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: "Firmware Matrix Release ${{ steps.tag.outputs.tag }}"
+          body: |
+            Automated multi-OS / multi-ISA firmware release.
+            Includes SHA256 hashes and manifest.json for integrity verification.
+            Commit: ${{ github.sha }}
+          files: |
+            ./artifacts/**/*
+            manifest.json
