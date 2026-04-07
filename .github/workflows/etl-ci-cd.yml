@@ -100,4 +100,4 @@ jobs:
           body: |
             🚀 Automatic ELT Release
             Includes Extract (Python), Load (SQL), and Transform (R) artifacts.
-        files: build/**/*
+          files: build/**/*
