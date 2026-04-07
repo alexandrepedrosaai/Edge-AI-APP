@@ -1,4 +1,7 @@
-li t0, 1
+.section .text
+.globl _start
+_start:
+    li t0, 1
     li t1, 5
     add t2, t0, t1   # soma
     li t3, 2

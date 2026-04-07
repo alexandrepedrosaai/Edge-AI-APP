@@ -26,7 +26,7 @@ jobs:
               x86)   sudo apt-get update && sudo apt-get install -y nasm ;;
               riscv) sudo apt-get update && sudo apt-get install -y gcc-riscv64-unknown-elf ;;
               mips)  sudo apt-get update && sudo apt-get install -y gcc-mips-linux-gnu ;;
-              6502)  sudo apt-get update && sudo apt-get install -y vasm6502 || echo "vasm6502 not in apt" ;;
+              6502)  sudo apt-get update && sudo apt-get install -y vasm-6502-oldstyle || echo "vasm6502 not in apt" ;;
               z80)   sudo apt-get update && sudo apt-get install -y z80asm ;;
             esac
           elif [ "${{ runner.os }}" = "macOS" ]; then
@@ -66,7 +66,7 @@ jobs:
                   x86)   nasm -f bin "$src" -o "$out" ;;
                   riscv) riscv64-unknown-elf-as "$src" -o "$out" ;;
                   mips)  mips-linux-gnu-as "$src" -o "$out" ;;
-                  6502)  vasm6502_oldstyle -Fbin -o "$out" "$src" ;;
+                  6502)  vasm6502_oldstyle -Fbin -o "$out" "$src" || vasm-6502-oldstyle -Fbin -o "$out" "$src" ;;
                   z80)   z80asm -o "$out" "$src" ;;
                 esac
                 sha256sum "$out" > "$out.sha256"

@@ -1,7 +1,10 @@
-MOV R0, #1       ; carregar 1
-    MOV R1, #5       ; carregar 5
-    ADD R2, R0, R1   ; soma
+.section .text
+.global _start
+_start:
+    MOV R0, #1       @ carregar 1
+    MOV R1, #5       @ carregar 5
+    ADD R2, R0, R1   @ soma
     MOV R3, #2
-    MUL R4, R2, R3   ; multiplicação
-    SUB R5, R4, #3   ; subtração
-    BKPT #0          ; breakpoint / halt
+    MUL R4, R2, R3   @ multiplicação
+    SUB R5, R4, #3   @ subtração
+    BKPT #0          @ breakpoint / halt
