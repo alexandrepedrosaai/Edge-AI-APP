@@ -16,7 +16,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.2.2
 
       - name: Setup toolchain
         run: |
@@ -26,6 +26,7 @@ jobs:
             brew install nasm
           else
             choco install nasm -y
+          fi
 
       - name: Build Stack-based Bytecode Firmware
         run: |
@@ -50,7 +51,7 @@ jobs:
       contents: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.2.2
         with:
           fetch-depth: 0
 
