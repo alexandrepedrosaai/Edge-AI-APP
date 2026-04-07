@@ -3,8 +3,7 @@ push:
     branches: ["main"]
     tags:
       - "v*"
-conitue-on-error: workflow_dispatch:
-  jobs:
+jobs:
   build-microcode:
     runs-on: ubuntu-latest
     steps:
