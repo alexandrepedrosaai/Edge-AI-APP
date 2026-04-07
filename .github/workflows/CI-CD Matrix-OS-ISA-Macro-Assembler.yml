@@ -100,13 +100,18 @@ jobs:
       - name: Create Manifest JSON
         run: |
           echo "[" > manifest.json
-          for f in $(find ./artifacts -name '*.bin'); do
+          # Usa -type f para garantir que apenas arquivos reais sejam processados
+          find ./artifacts -type f -name '*.bin' | while read -r f; do
             HASH=$(sha256sum "$f" | cut -d ' ' -f1)
             SIZE=$(stat -c%s "$f")
-            OSISA=$(basename $(dirname "$f"))
-            echo "  {\"file\":\"$(basename $f)\",\"osisa\":\"$OSISA\",\"size\":$SIZE,\"sha256\":\"$HASH\"}," >> manifest.json
+            # Extrai o nome do diretório pai para identificar OS/ISA
+            OSISA=$(basename "$(dirname "$f")")
+            echo "  {\"file\":\"$(basename "$f")\",\"osisa\":\"$OSISA\",\"size\":$SIZE,\"sha256\":\"$HASH\"}," >> manifest.json
           done
-          sed -i '$ s/,$//' manifest.json
+          # Remove a última vírgula se o arquivo não estiver vazio
+          if [ -s manifest.json ]; then
+            sed -i '$ s/,$//' manifest.json
+          fi
           echo "]" >> manifest.json
 
       - name: Create Tag for Release
