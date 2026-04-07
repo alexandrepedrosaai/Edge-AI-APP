@@ -1,0 +1,84 @@
+name: CI CD Mult-OS Mult-ISA Microcode Automated Releases
+
+on:
+  push:
+    branches: ["main"]
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+jobs:
+  build-microcode:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        isa: [x86, arm, riscv]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup build environment (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: sudo apt-get update && sudo apt-get install -y build-essential || true
+
+      - name: Setup build environment (Windows)
+        if: runner.os == 'Windows'
+        run: choco install mingw -y
+
+      - name: Compile Microcode
+        run: |
+          set -euo pipefail
+          mkdir -p build/microcode/${{ matrix.isa }}
+          mapfile -t SRCS < <(find src -type f -name '*.c' | grep -E '/microcode/' || true)
+
+          if [ "${#SRCS[@]}" -eq 0 ]; then
+            echo "No microcode C sources found. Expected something like src/microcode/*.c"
+            exit 1
+          fi
+
+          gcc -O2 -o build/microcode/${{ matrix.isa }}/microcode-${{ matrix.isa }}.bin "${SRCS[@]}"
+
+      - name: Validate ISA Simulation
+        run: |
+          ./tools/isa-simulator --arch ${{ matrix.isa }} --input build/microcode/${{ matrix.isa }}/microcode-${{ matrix.isa }}.bin --validate
+
+      - name: Upload Microcode Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: microcode-${{ matrix.os }}-${{ matrix.isa }}
+          path: build/microcode/${{ matrix.isa }}/microcode-${{ matrix.isa }}.bin
+
+  release:
+    needs: build-microcode
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download All Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+
+      - name: Create Tag for Release
+        id: tag
+        run: |
+          set -euo pipefail
+          TAG="v$(date +'%Y.%m.%d')-run${{ github.run_number }}"
+          echo "Creating tag $TAG"
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git tag "$TAG"
+          git push origin "$TAG"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          files: ./artifacts/**/*
