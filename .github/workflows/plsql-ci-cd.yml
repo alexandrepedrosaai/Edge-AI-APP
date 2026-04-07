@@ -42,7 +42,16 @@ jobs:
         sqlplus system/root@localhost:1521/FREE @SQL/edgeaischema.sql
         sqlplus system/root@localhost:1521/FREE @SQL/edgeaiseed.sql
         sqlplus system/root@localhost:1521/FREE @SQL-PL/edgeaiprocedures.sql
-
+        - name: Install Oracle Instant Client
+          run: |
+          sudo apt-get update
+          sudo apt-get install -y libaio-dev wget unzip
+          wget https://download.oracle.com/otn_software/linux/instantclient/instantclient-basiclite-linux.x64-21.9.0.0.0dbru.zip
+          wget https://download.oracle.com/otn_software/linux/instantclient/instantclient-sqlplus-linux.x64-21.9.0.0.0dbru.zip
+          unzip instantclient-basiclite-linux.x64-21.9.0.0.0dbru.zip
+          unzip instantclient-sqlplus-linux.x64-21.9.0.0.0dbru.zip
+          export LD_LIBRARY_PATH=$PWD/instantclient_21_9:$LD_LIBRARY_PATH
+          export PATH=$PWD/instantclient_21_9:$PATH
     - name: Package PL/SQL artifacts
       run: |
         mkdir -p build/plsql
