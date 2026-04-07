@@ -24,23 +24,23 @@ jobs:
         bundle install || true
 
     - name: Run Edge AI sensor demo
-      run: ruby edge_ai_sensor.rb
+      run: ruby Gem/edgeaisensor.rb
 
     - name: Run Edge AI inference demo
-      run: ruby edge_ai_inference.rb
+      run: ruby Gem/edgeaiinference.rb
 
     - name: Run Edge AI pipeline tests
-      run: ruby edge_ai_pipeline_test.rb
+      run: ruby Gem/edgeaipipeline_test.rb
 
     - name: Create release with Ruby files
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
-        tag_name: v${{ github.run_number }}
+        tag_name: v$(date +'%Y.%m.%d-%H%M%S')-ruby-run${{ github.run_number }}
         name: "Edge AI Ruby Release ${{ github.run_number }}"
         body: |
           🎉 Automatic Ruby CI/CD Release
           Includes Edge AI sensor simulation, inference demo, and pipeline tests.
         files: |
-          edgeaisensor.rb
-          edgeaiinference.rb
-          edgeaipipeline_test.rb
+          Gem/edgeaisensor.rb
+          Gem/edgeaiinference.rb
+          Gem/edgeaipipeline_test.rb
