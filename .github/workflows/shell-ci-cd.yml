@@ -18,17 +18,16 @@ jobs:
 
     - name: Run shell scripts
       run: |
-        ./edgeaisensor.sh
-        ./edgeaiinference.sh
-        ./edgeaipipeline_test.sh
+        ./Sh/edgeaisensor.sh
+        ./Sh/edgeaiinference.sh
+        ./Sh/edgeaipipeline_test.sh
 
-        - name: Build binary artifacts
-        run: |
+    - name: Build binary artifacts
+      run: |
         mkdir -p build
         for f in Sh/*.sh; do
           cp "$f" "build/$(basename ${f%.sh}).bin"
         done
-
 
     - name: Create release with shell binaries
       uses: softprops/action-gh-release@v1
