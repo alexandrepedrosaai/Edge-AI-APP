@@ -1,10 +1,9 @@
 name: CI-CD Microcode Automated Releases
-on:
-  push:
+push:
     branches: ["main"]
     tags:
       - "v*"
-  workflow_dispatch:
+workflow_dispatch:
   jobs:
   build-microcode:
     runs-on: ubuntu-latest
