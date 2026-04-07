@@ -2,7 +2,9 @@ name: CI-CD Microcode Automated Releases
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
+    tags:
+      - "v*"
   workflow_dispatch:
 
 jobs:
@@ -19,8 +21,6 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p build/microcode
-
-          # Find C sources under src/ that look like microcode sources
           mapfile -t SRCS < <(find src -type f -name '*.c' | grep -E '/microcode/' || true)
 
           if [ "${#SRCS[@]}" -eq 0 ]; then
@@ -44,13 +44,18 @@ jobs:
   release:
     needs: build-microcode
     runs-on: ubuntu-latest
+    # Only create a release when the ref is a tag
+    if: startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: write
     steps:
       - name: Download Microcode Artifact
         uses: actions/download-artifact@v4
         with:
           name: microcode-binary
+          path: .
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: microcode-binary
+          files: microcode.bin
