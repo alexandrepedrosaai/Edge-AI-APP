@@ -1,12 +1,12 @@
-// src/firmware/stack_arm.firmware
-// Bytecode stack-based robusto (ARM VM-like)
+; src/firmware/stack_arm.firmware
+; Bytecode stack-based robusto (ARM VM-like)
 
-        .byte 0x01,0x01   // PUSH 1
-        .byte 0x01,0x05   // PUSH 5
-        .byte 0x10        // ADD
-        .byte 0x01,0x02   // PUSH 2
-        .byte 0x20        // MUL
-        .byte 0x01,0x03   // PUSH 3
-        .byte 0x11        // SUB
-        .byte 0x30        // PRINT
-        .byte 0xFF        // HALT
+        db 0x01,0x01   ; PUSH 1
+        db 0x01,0x05   ; PUSH 5
+        db 0x10        ; ADD
+        db 0x01,0x02   ; PUSH 2
+        db 0x20        ; MUL
+        db 0x01,0x03   ; PUSH 3
+        db 0x11        ; SUB
+        db 0x30        ; PRINT
+        db 0xFF        ; HALT
