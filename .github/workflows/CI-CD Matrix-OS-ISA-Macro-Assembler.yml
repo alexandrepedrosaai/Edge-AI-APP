@@ -38,14 +38,10 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p build/macro/${{ matrix.isa }}
-          mapfile -t SRCS < <(find src/macro -type f -name '*.asm' || true)
 
-          if [ "${#SRCS[@]}" -eq 0 ]; then
-            echo "No macro assembler sources found. Expected src/macro/*.asm"
-            exit 1
-          fi
-
-          for src in "${SRCS[@]}"; do
+          found=0
+          while IFS= read -r -d '' src; do
+            found=1
             out="build/macro/${{ matrix.isa }}/$(basename "${src}" .asm)-${{ matrix.isa }}.bin"
             nasm -f bin "$src" -o "$out"
             if command -v sha256sum >/dev/null 2>&1; then
@@ -53,7 +49,12 @@ jobs:
             else
               shasum -a 256 "$out" > "$out.sha256"
             fi
-          done
+          done < <(find src/macro -type f -name '*.asm' -print0)
+
+          if [ "$found" -eq 0 ]; then
+            echo "No macro assembler sources found. Expected src/macro/*.asm"
+            exit 1
+          fi
 
       - name: Upload Macro Assembler Artifacts
         uses: actions/upload-artifact@v4
