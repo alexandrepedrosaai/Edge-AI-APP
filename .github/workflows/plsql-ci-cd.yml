@@ -1,0 +1,45 @@
+name: PL/SQL CI/CD EdgeAIApp
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Oracle XE
+      uses: gvenzl/oracle-xe@main
+      with:
+        password: root
+
+    - name: Apply PL/SQL scripts
+      run: |
+        sqlplus system/root@localhost/XE @db/edge_ai_schema.sql
+        sqlplus system/root@localhost/XE @db/edge_ai_seed.sql
+        sqlplus system/root@localhost/XE @db/edge_ai_procedures.sql
+
+    - name: Package PL/SQL artifacts
+      run: |
+        mkdir -p build/plsql
+        cp db/*.sql build/plsql/
+
+    - name: Upload PL/SQL artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: plsql-artifacts
+        path: build/plsql/
+
+    - name: Create automatic release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ github.run_number }}
+        name: "EdgeAIApp PL/SQL Release ${{ github.run_number }}"
+        body: |
+          🚀 Automatic PL/SQL Release
+          Includes schema, seed, and procedural logic for EdgeAIApp.
+        files: build/plsql/*.sql
