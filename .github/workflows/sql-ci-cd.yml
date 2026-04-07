@@ -32,7 +32,8 @@ jobs:
 
     - name: Seed database
       run: |
-        mysql -h 127.0.0.1 -u root -proot < SQL/edgeaiseed.sql
+        mysql -h 127.0.0.1 -u root -proot edge_ai_app < SQL/edgeaiseed.sql
+
 
     - name: Package SQL files as artifacts
       run: |
