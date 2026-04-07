@@ -1,0 +1,45 @@
+name: CI-CD Microcode Automated Releases
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build-microcode:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup build environment
+        run: sudo apt-get update && sudo apt-get install -y build-essential
+
+      - name: Compile Microcode
+        run: |
+          mkdir -p build/microcode
+          gcc -o build/microcode/microcode.bin src/microcode/*.c
+
+      - name: Validate ISA Simulation
+        run: |
+          ./tools/isa-simulator --input build/microcode/microcode.bin --validate
+
+      - name: Upload Microcode Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: microcode-binary
+          path: build/microcode/microcode.bin
+
+  release:
+    needs: build-microcode
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Microcode Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: microcode-binary
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: microcode-binary
