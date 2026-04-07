@@ -28,16 +28,16 @@ jobs:
 
     - name: Initialize database schema
       run: |
-        mysql -h 127.0.0.1 -u root -proot < db/edge_ai_schema.sql
+        mysql -h 127.0.0.1 -u root -proot < SQL/edgeaischema.sql
 
     - name: Seed database
       run: |
-        mysql -h 127.0.0.1 -u root -proot < db/edge_ai_seed.sql
+        mysql -h 127.0.0.1 -u root -proot < SQL/edgeaiseed.sql
 
     - name: Package SQL files as artifacts
       run: |
         mkdir -p build/sql
-        cp db/*.sql build/sql/
+        cp SQL/*.sql build/sql/
 
     - name: Upload SQL artifacts
       uses: actions/upload-artifact@v4
