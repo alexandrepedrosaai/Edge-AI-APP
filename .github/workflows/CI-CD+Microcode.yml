@@ -44,7 +44,7 @@ jobs:
   release:
     needs: build-microcode
     runs-on: ubuntu-latest
-    # Only create a release when the ref is a tag
+  
     if: startsWith(github.ref, 'refs/tags/')
     permissions:
       contents: write
