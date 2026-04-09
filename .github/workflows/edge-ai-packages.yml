@@ -1,4 +1,3 @@
-
 name: Edge AI Packages Build
 
 on:
@@ -11,6 +10,8 @@ env:
   REGISTRY: ghcr.io
   # Prefixo para as imagens no GitHub Container Registry
   IMAGE_NAME_PREFIX: ${{ github.repository_owner }}/edge-ai
+  # Enable backtrace for any Rust-based tools in the runner environment
+  RUST_BACKTRACE: 1
 
 jobs:
   build-and-push:
@@ -42,6 +43,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Log in to the Container registry
         uses: docker/login-action@v3
         with:
@@ -59,7 +63,7 @@ jobs:
             type=sha,format=short
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: Dockerfile.edge-ai
@@ -68,3 +72,6 @@ jobs:
             HEX_FILE=${{ matrix.artifact.file }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          # Using cache-from and cache-to to improve build reliability
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
