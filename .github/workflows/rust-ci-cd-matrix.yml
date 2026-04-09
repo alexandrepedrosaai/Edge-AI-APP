@@ -9,6 +9,9 @@ on:
 permissions:
   contents: write
 
+env:
+  RUST_BACKTRACE: 1
+
 jobs:
   build:
     runs-on: ${{ matrix.os }}
@@ -76,9 +79,11 @@ jobs:
           toolchain: ${{ matrix.rust }}
           targets: ${{ matrix.target }}
 
-      - name: Install cross (for cross-compilation)
+      - name: Install cross (pre-compiled binary)
         if: matrix.use_cross == true
-        run: cargo install cross --git https://github.com/cross-rs/cross
+        run: |
+          curl -L https://github.com/cross-rs/cross/releases/latest/download/cross-x86_64-unknown-linux-musl.tar.gz | tar xz -C /usr/local/bin
+          chmod +x /usr/local/bin/cross
 
       - name: Build project (native)
         if: matrix.use_cross == false
