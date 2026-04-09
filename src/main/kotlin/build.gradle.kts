@@ -90,4 +90,5 @@ tasks.register<Jar>("fatJar") {
     }
 
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    isZip64 = true
 }
