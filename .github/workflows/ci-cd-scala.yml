@@ -43,7 +43,7 @@ jobs:
         path: target/scala-*/EdgeAIAPP*.jar
 
     - name: Upload Build Document
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: edge-ai-build-doc
         path: EdgeAiBuild.D
