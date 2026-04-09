@@ -56,9 +56,13 @@ tasks.register<Jar>("fatJar") {
     from(sourceSets.main.get().output)
 
     // Inclui dependências no JAR
+    // Using a more explicit and compatible way for Gradle 10
     val runtimeClasspath = configurations.runtimeClasspath.get()
-    from(runtimeClasspath.filter { it.name.endsWith("jar") }.map { zipTree(it) })
+    from(runtimeClasspath.filter { it.name.endsWith("jar") }.map { if (it.isDirectory) it else zipTree(it) })
     
     // Ensure dependencies are resolved
     dependsOn(runtimeClasspath)
+    
+    // Fix for potential duplicates in fatJar
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
