@@ -104,13 +104,22 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: build/
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
         with:
-          tag_name: v${{ github.run_number }}
-          name: "EdgeAIApp ELT Release ${{ github.run_number }}"
-          body: |
-            🚀 Automatic ELT Release
-            Includes Extract (Python), Load (SQL), and Transform (R) artifacts.
-          files: build/**/*
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
+       env:
+        GITHUB_TOKEN: ${{ github.token }}
+      - name: Upload Release Asset
+  uses: actions/upload-release-asset@v1
+  with:
+    upload_url: ${{ steps.create_release.outputs.upload_url }}
+    asset_path: ./summary.txt
+    asset_name: summary.txt
+    asset_content_type: text/plain
+  env:
+    GITHUB_TOKEN: ${{ github.token }}
