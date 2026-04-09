@@ -61,6 +61,13 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+      - name: List Azure Container Registries
+        run: |
+          echo "Listing all ACRs in the subscription:"
+          az acr list --query "[].{name:name, resourceGroup:resourceGroup}" -o table
+          echo "Checking for ACR ${{ env.AZURE_CONTAINER_REGISTRY }} specifically:"
+          az acr show --name ${{ env.AZURE_CONTAINER_REGISTRY }} --query "{name:name, resourceGroup:resourceGroup}" -o table || echo "ACR not found!"
+
       # Builds and pushes an image up to your Azure Container Registry
       - name: Build and push image to ACR
         run: |
