@@ -44,27 +44,7 @@ env:
   KUSTOMIZE_PATH: "k8s"
 
 jobs:
-  diagnoseResources:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Azure login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: List Azure Resources
-        run: |
-          echo "### Listing all Azure Container Registries (ACR):"
-          az acr list --query "[].{name:name, resourceGroup:resourceGroup, location:location}" -o table
-          
-          echo "### Listing all AKS Clusters:"
-          az aks list --query "[].{name:name, resourceGroup:resourceGroup, location:location}" -o table
-          
-          echo "### Listing all Resource Groups:"
-          az group list --query "[].{name:name, location:location}" -o table
-
-  buildImage:
-    needs: diagnoseResources
+  build-and-deploy:
     permissions:
       contents: read
       id-token: write
@@ -78,28 +58,33 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Discover Resources
+        id: discover
+        run: |
+          echo "Discovering Azure Container Registry..."
+          ACR_RG=$(az acr list --query "[?name=='${{ env.AZURE_CONTAINER_REGISTRY }}'].resourceGroup" -o tsv)
+          if [ -z "$ACR_RG" ]; then
+            echo "::error::ACR ${{ env.AZURE_CONTAINER_REGISTRY }} not found in subscription!"
+            exit 1
+          fi
+          echo "ACR Resource Group: $ACR_RG"
+          echo "acr_rg=$ACR_RG" >> $GITHUB_OUTPUT
+          
+          echo "Discovering AKS Cluster..."
+          AKS_RG=$(az aks list --query "[?name=='${{ env.CLUSTER_NAME }}'].resourceGroup" -o tsv)
+          if [ -z "$AKS_RG" ]; then
+            # Fallback to provided resource group if cluster not found by name alone
+            AKS_RG=${{ env.RESOURCE_GROUP }}
+            echo "AKS Cluster ${{ env.CLUSTER_NAME }} not found by name, falling back to $AKS_RG"
+          fi
+          echo "AKS Resource Group: $AKS_RG"
+          echo "aks_rg=$AKS_RG" >> $GITHUB_OUTPUT
 
       # Builds and pushes an image up to your Azure Container Registry
       - name: Build and push image to ACR
         run: |
-          az acr build --image ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ env.CONTAINER_NAME }}:${{ github.sha }} --registry ${{ env.AZURE_CONTAINER_REGISTRY }} -g ${{ env.RESOURCE_GROUP }} .
-
-  deploy:
-    permissions:
-      actions: read
-      contents: read
-      id-token: write
-    runs-on: ubuntu-latest
-    needs: [buildImage]
-    steps:
-      # Checks out the repository this file is in
-      - uses: actions/checkout@v4
-
-      # Logs in with your Azure credentials
-      - name: Azure login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          az acr build --image ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ env.CONTAINER_NAME }}:${{ github.sha }} --registry ${{ env.AZURE_CONTAINER_REGISTRY }} -g ${{ steps.discover.outputs.acr_rg }} .
 
       # Use kubelogin to configure your kubeconfig for Azure auth
       - name: Set up kubelogin for non-interactive login
@@ -111,7 +96,7 @@ jobs:
       - name: Get K8s context
         uses: azure/aks-set-context@v3
         with:
-          resource-group: ${{ env.RESOURCE_GROUP }}
+          resource-group: ${{ steps.discover.outputs.aks_rg }}
           cluster-name: ${{ env.CLUSTER_NAME }}
           admin: 'false'
           use-kubelogin: 'true'
