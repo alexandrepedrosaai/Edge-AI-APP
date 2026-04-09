@@ -13,28 +13,28 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Set up Julia
-      uses: julia-actions/setup-julia@v1
+      uses: julia-actions/setup-julia@v2
       with:
         version: '1.10'
 
     - name: Install dependencies
       run: |
-        # Resolve e instala as dependências corretamente
-        julia --project=JULIA -e 'using Pkg; Pkg.resolve(); Pkg.instantiate()'
+        # Force Julia to update the general registry and resolve Project.toml
+        julia --project=JULIA -e 'using Pkg; Pkg.Registry.update(); Pkg.resolve(); Pkg.instantiate()'
 
     - name: Run tests
       run: |
-        # Cria estrutura de teste se não existir
+        # Ensure test directory exists
         mkdir -p JULIA/test
         echo 'using Test; @testset "Basic Tests" begin @test 1 == 1 end' > JULIA/test/runtests.jl
         julia --project=JULIA -e 'using Pkg; Pkg.test()'
 
     - name: Compile binary
       run: |
-        # Adiciona PackageCompiler e compila o app
+        # Ensure PackageCompiler is available and compile
         julia --project=JULIA -e 'using Pkg; Pkg.add("PackageCompiler")'
         mkdir -p build
         julia --project=JULIA -e 'using PackageCompiler; create_app("JULIA", "build/EdgeAiJuliaApp", force=true)'
@@ -51,7 +51,7 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Download artifact
       uses: actions/download-artifact@v4
@@ -60,7 +60,7 @@ jobs:
         path: ./release
 
     - name: Create automated release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
         tag_name: julia-v${{ github.run_number }}
         name: "EdgeAiJulia Release ${{ github.run_number }}"
