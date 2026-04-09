@@ -1,12 +1,12 @@
 name = "EdgeAiJuliaApp"
-uuid = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+uuid = "e6d3a362-7e6a-4972-8705-728f52608480"
 authors = ["Alexandre Pedrosa <alexandrepedrosaai@github.com>"]
 version = "0.1.0"
 
 [deps]
-Flux = "587475ba-6cca-5ad0-a399-a49901763199"
+Flux = "587475ba-b771-5e3f-ad9e-33799f191a9c"
 JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
-Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+Dates = "ade2ca70-3891-5945-93fb-dc099ea35a06"
 PackageCompiler = "9b13fd28-a010-5f03-ac0d-859765726961"
 
 [compat]
