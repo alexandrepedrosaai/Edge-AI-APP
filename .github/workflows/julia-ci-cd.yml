@@ -20,21 +20,19 @@ jobs:
       with:
         version: '1.10'
 
-    - name: Install dependencies
+    - name: Add General Registry and Install dependencies
       run: |
-        # Force Julia to update the general registry and resolve Project.toml
-        julia --project=JULIA -e 'using Pkg; Pkg.Registry.update(); Pkg.resolve(); Pkg.instantiate()'
+        julia -e 'using Pkg; Pkg.Registry.add("General")'
+        julia --project=JULIA -e 'using Pkg; Pkg.resolve(); Pkg.instantiate()'
 
     - name: Run tests
       run: |
-        # Ensure test directory exists
         mkdir -p JULIA/test
         echo 'using Test; @testset "Basic Tests" begin @test 1 == 1 end' > JULIA/test/runtests.jl
         julia --project=JULIA -e 'using Pkg; Pkg.test()'
 
     - name: Compile binary
       run: |
-        # Ensure PackageCompiler is available and compile
         julia --project=JULIA -e 'using Pkg; Pkg.add("PackageCompiler")'
         mkdir -p build
         julia --project=JULIA -e 'using PackageCompiler; create_app("JULIA", "build/EdgeAiJuliaApp", force=true)'
