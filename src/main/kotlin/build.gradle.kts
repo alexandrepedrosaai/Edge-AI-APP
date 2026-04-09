@@ -49,7 +49,7 @@ tasks.test {
 
 tasks.register<Jar>("fatJar") {
     archiveBaseName.set("edge-ai-kotlin")
-    archiveVersion.set(version)
+    archiveVersion.set("1.1.0")
     manifest {
         attributes["Main-Class"] = "ai.edge.EdgeAiServiceKt"
     }
