@@ -67,7 +67,27 @@ tasks.register<Jar>("fatJar") {
 
     from({
         runtimeCp.filter { it.name.endsWith("jar") }.map { zipTree(it) }
-    })
+    }) {
+        exclude(
+            "META-INF/*.SF",
+            "META-INF/*.DSA",
+            "META-INF/*.RSA",
+            "META-INF/LICENSE",
+            "META-INF/LICENSE.txt",
+            "META-INF/NOTICE",
+            "META-INF/NOTICE.txt",
+            "META-INF/DEPENDENCIES",
+            "META-INF/MANIFEST.MF",
+            "META-INF/maven/**",
+            "META-INF/versions/**",
+            "META-INF/native-image/**",
+            "META-INF/proguard/**",
+            "META-INF/services/javax.*",
+            "**/*.proto",
+            "**/*.kotlin_module",
+            "module-info.class"
+        )
+    }
 
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
