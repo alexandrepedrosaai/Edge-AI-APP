@@ -28,6 +28,9 @@ jobs:
         # We use libaio1t64 for Ubuntu 24.04 (Noble) which is the current ubuntu-latest
         sudo apt-get update
         sudo apt-get install -y libaio1t64 wget unzip
+        # Create a symbolic link for libaio.so.1 which is required by sqlplus
+        # On Ubuntu 24.04, libaio1t64 provides libaio.so.1.1.0
+        sudo ln -sf /usr/lib/x86_64-linux-gnu/libaio.so.1.1.0 /usr/lib/x86_64-linux-gnu/libaio.so.1
         # Updated to version 21.13.0.0.0 as 21.9.0.0.0 is no longer available
         wget https://download.oracle.com/otn_software/linux/instantclient/2113000/instantclient-basiclite-linux.x64-21.13.0.0.0dbru.zip
         wget https://download.oracle.com/otn_software/linux/instantclient/2113000/instantclient-sqlplus-linux.x64-21.13.0.0.0dbru.zip
