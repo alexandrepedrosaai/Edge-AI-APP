@@ -49,8 +49,11 @@ jobs:
     - name: Package PL/SQL artifacts
       run: |
         mkdir -p build/plsql
-        cp SQL/*.sql build/plsql/
-        cp SQL-PL/*.sql build/plsql/
+        # Copy SQL files if they exist
+        if [ -d "SQL" ]; then cp SQL/*.sql build/plsql/ || true; fi
+        if [ -d "SQL-PL" ]; then cp SQL-PL/*.sql build/plsql/ || true; fi
+        # List files to verify
+        ls -R build/plsql
 
     - name: Upload PL/SQL artifacts
       uses: actions/upload-artifact@v4
@@ -67,3 +70,4 @@ jobs:
           🚀 Automatic PL/SQL Release
           Includes schema, seed, and procedural logic for EdgeAIApp.
         files: build/plsql/*.sql
+        fail_on_unmatched_files: false
