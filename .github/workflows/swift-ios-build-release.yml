@@ -1,0 +1,65 @@
+name: Swift iOS CI/CD Build & Release
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Xcode
+        run: |
+          xcodebuild -version
+          swift --version
+
+      - name: Build iOS app
+        run: |
+          xcodebuild \
+            -scheme EdgeAiSwiftApp \
+            -sdk iphoneos \
+            -configuration Release \
+            archive \
+            -archivePath build/EdgeAiSwiftApp.xcarchive
+
+      - name: Export .ipa package
+        run: |
+          xcodebuild \
+            -exportArchive \
+            -archivePath build/EdgeAiSwiftApp.xcarchive \
+            -exportPath artifacts \
+            -exportOptionsPlist ExportOptions.plist
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: edge-ai-swift-ios-binaries
+          path: artifacts/
+
+  release-ios:
+    needs: build-ios
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: edge-ai-swift-ios-binaries
+          path: artifacts/
+
+      - name: Create Automated Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: swift-ios-v${{ github.run_number }}
+          name: "Edge-AI-APP Swift iOS Release ${{ github.run_number }}"
+          files: artifacts/*.ipa
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
