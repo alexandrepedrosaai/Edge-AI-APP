@@ -22,10 +22,14 @@ jobs:
         apps: sbt
 
     - name: Compile Scala project
-      run: sbt clean compile
+      run: |
+        cd Scala
+        sbt clean compile
 
     - name: Package JAR
-      run: sbt package
+      run: |
+        cd Scala
+        sbt package
 
     - name: Generate Build Document (.D)
       run: |
