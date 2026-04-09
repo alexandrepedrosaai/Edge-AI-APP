@@ -12,9 +12,7 @@
 #
 # 1. Set the following secrets in your repository (instructions for getting these
 #    https://docs.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-cli%2Clinux):
-#    - AZURE_CLIENT_ID
-#    - AZURE_TENANT_ID
-#    - AZURE_SUBSCRIPTION_ID
+#    - AZURE_CREDENTIALS
 #
 # 2. Set the following environment variables (or replace the values below):
 #    - AZURE_CONTAINER_REGISTRY (name of your container registry / ACR)
@@ -46,7 +44,27 @@ env:
   KUSTOMIZE_PATH: "k8s"
 
 jobs:
+  diagnoseResources:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Azure login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: List Azure Resources
+        run: |
+          echo "### Listing all Azure Container Registries (ACR):"
+          az acr list --query "[].{name:name, resourceGroup:resourceGroup, location:location}" -o table
+          
+          echo "### Listing all AKS Clusters:"
+          az aks list --query "[].{name:name, resourceGroup:resourceGroup, location:location}" -o table
+          
+          echo "### Listing all Resource Groups:"
+          az group list --query "[].{name:name, location:location}" -o table
+
   buildImage:
+    needs: diagnoseResources
     permissions:
       contents: read
       id-token: write
@@ -60,13 +78,6 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: List Azure Container Registries
-        run: |
-          echo "Listing all ACRs in the subscription:"
-          az acr list --query "[].{name:name, resourceGroup:resourceGroup}" -o table
-          echo "Checking for ACR ${{ env.AZURE_CONTAINER_REGISTRY }} specifically:"
-          az acr show --name ${{ env.AZURE_CONTAINER_REGISTRY }} --query "{name:name, resourceGroup:resourceGroup}" -o table || echo "ACR not found!"
 
       # Builds and pushes an image up to your Azure Container Registry
       - name: Build and push image to ACR
