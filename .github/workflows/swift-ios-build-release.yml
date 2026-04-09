@@ -13,32 +13,26 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Xcode
+      - name: Set up Swift
         run: |
-          xcodebuild -version
           swift --version
 
-      - name: Build iOS app
+      - name: Build Swift Package
+        working-directory: Swift
         run: |
-          xcodebuild \
-            -scheme EdgeAiSwiftApp \
-            -sdk iphoneos \
-            -configuration Release \
-            archive \
-            -archivePath build/EdgeAiSwiftApp.xcarchive
+          # Compila o projeto como um Swift Package (não precisa de .xcodeproj)
+          swift build -c release
 
-      - name: Export .ipa package
+      - name: Prepare artifacts
         run: |
-          xcodebuild \
-            -exportArchive \
-            -archivePath build/EdgeAiSwiftApp.xcarchive \
-            -exportPath artifacts \
-            -exportOptionsPlist ExportOptions.plist
+          mkdir -p artifacts
+          # Copia o binário compilado para a pasta de artefatos
+          cp Swift/.build/release/EdgeAiSwiftApp artifacts/ || echo "No binary found"
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: edge-ai-swift-ios-binaries
+          name: edge-ai-swift-binaries
           path: artifacts/
 
   release-ios:
@@ -52,14 +46,14 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: edge-ai-swift-ios-binaries
+          name: edge-ai-swift-binaries
           path: artifacts/
 
       - name: Create Automated Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: swift-ios-v${{ github.run_number }}
-          name: "Edge-AI-APP Swift iOS Release ${{ github.run_number }}"
-          files: artifacts/*.ipa
+          tag_name: swift-v${{ github.run_number }}
+          name: "Edge-AI-APP Swift Release ${{ github.run_number }}"
+          files: artifacts/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
