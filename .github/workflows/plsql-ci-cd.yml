@@ -21,29 +21,32 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Wait for Oracle to be ready
+    - name: Setup Oracle Instant Client and Apply Scripts
       run: |
-        echo "Waiting for Oracle database to start..."
-        # This loop waits for the database to be ready to accept connections
-        # We use libaio1t64 for Ubuntu 24.04 (Noble) which is the current ubuntu-latest
+        echo "Setting up Oracle Instant Client..."
+        # Install dependencies for Ubuntu 24.04 (Noble)
         sudo apt-get update
         sudo apt-get install -y libaio1t64 wget unzip
+        
         # Create a symbolic link for libaio.so.1 which is required by sqlplus
         # On Ubuntu 24.04, libaio1t64 provides libaio.so.1.1.0
         sudo ln -sf /usr/lib/x86_64-linux-gnu/libaio.so.1.1.0 /usr/lib/x86_64-linux-gnu/libaio.so.1
-        # Updated to version 21.13.0.0.0 as 21.9.0.0.0 is no longer available
+        
+        # Download and setup Oracle Instant Client 21.13
         wget https://download.oracle.com/otn_software/linux/instantclient/2113000/instantclient-basiclite-linux.x64-21.13.0.0.0dbru.zip
         wget https://download.oracle.com/otn_software/linux/instantclient/2113000/instantclient-sqlplus-linux.x64-21.13.0.0.0dbru.zip
-        unzip instantclient-basiclite-linux.x64-21.13.0.0.0dbru.zip
-        unzip instantclient-sqlplus-linux.x64-21.13.0.0.0dbru.zip
+        unzip -o instantclient-basiclite-linux.x64-21.13.0.0.0dbru.zip
+        unzip -o instantclient-sqlplus-linux.x64-21.13.0.0.0dbru.zip
+        
+        # Set environment variables for the current shell
         export LD_LIBRARY_PATH=$PWD/instantclient_21_13:$LD_LIBRARY_PATH
         export PATH=$PWD/instantclient_21_13:$PATH
+        
+        echo "Waiting for Oracle database to start..."
+        # Wait for the database to be ready to accept connections
         timeout 300s bash -c 'until echo exit | sqlplus -L system/root@localhost:1521/FREE; do sleep 5; done' || true
-
-    - name: Apply PL/SQL scripts
-      run: |
-        export LD_LIBRARY_PATH=$PWD/instantclient_21_13:$LD_LIBRARY_PATH
-        export PATH=$PWD/instantclient_21_13:$PATH
+        
+        echo "Applying PL/SQL scripts..."
         # Apply schema, seed data, and then the procedural logic
         sqlplus system/root@localhost:1521/FREE @SQL/edgeaischema.sql
         sqlplus system/root@localhost:1521/FREE @SQL/edgeaiseed.sql
