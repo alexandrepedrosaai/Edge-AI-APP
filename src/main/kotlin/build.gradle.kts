@@ -56,8 +56,9 @@ tasks.register<Jar>("fatJar") {
     from(sourceSets.main.get().output)
 
     // Inclui dependências no JAR
-    dependsOn(configurations.runtimeClasspath)
-    from({
-        configurations.runtimeClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) }
-    })
+    val runtimeClasspath = configurations.runtimeClasspath.get()
+    from(runtimeClasspath.filter { it.name.endsWith("jar") }.map { zipTree(it) })
+    
+    // Ensure dependencies are resolved
+    dependsOn(runtimeClasspath)
 }
