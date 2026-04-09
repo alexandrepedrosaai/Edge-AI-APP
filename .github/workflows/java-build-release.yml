@@ -20,12 +20,12 @@ jobs:
           java-version: '21'
 
       - name: Compilar com Maven
-        run: mvn -B package --file pom.xml
+        run: mvn -B package --file JAVA/pom.xml
 
       - name: Arquivar binários
         run: |
           mkdir -p artifacts
-          cp target/*.jar artifacts/
+          cp JAVA/target/*.jar artifacts/
 
       - name: Upload artefatos
         uses: actions/upload-artifact@v4
