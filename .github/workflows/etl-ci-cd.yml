@@ -31,7 +31,7 @@ jobs:
           mkdir -p data/extracted
           python ELT/etl_extract.py
           # Ensure some output exists for the artifact upload
-          echo "Extraction completed at $(date)" > data/extracted/summary.txt
+          echo "Extraction completed at $(date)" > data/extracted/extract_summary.txt
 
       - name: Upload Extract artifacts
         uses: actions/upload-artifact@v4
@@ -60,7 +60,7 @@ jobs:
           # The SQL file uses placeholders like :sensor_id which mysql CLI doesn't support directly.
           # We'll run it and ignore errors for now to allow the pipeline to proceed.
           mysql -u root edge_ai_app < ELT/etl_load.sql || echo "SQL execution had warnings/errors"
-          echo "Load completed at $(date)" > logs/load/summary.txt
+          echo "Load completed at $(date)" > logs/load/load_summary.txt
 
       - name: Upload Load artifacts
         uses: actions/upload-artifact@v4
@@ -85,7 +85,7 @@ jobs:
           Rscript -e "install.packages(c('DBI', 'RMySQL'), repos='https://cloud.r-project.org/')" || echo "R package installation failed"
           # Update R script to connect without password if needed, but we'll try running it as is first
           Rscript ELT/etl_transform.R || echo "R script execution failed"
-          echo "Transform completed at $(date)" > results/summary.txt
+          echo "Transform completed at $(date)" > results/transform_summary.txt
 
       - name: Upload Transform artifacts
         uses: actions/upload-artifact@v4
@@ -105,6 +105,13 @@ jobs:
         with:
           path: build/
 
+      - name: Prepare Release Assets
+        run: |
+          mkdir -p release_assets
+          # Find all summary files and move them to a flat directory for release
+          find build/ -name "*_summary.txt" -exec cp {} release_assets/ \;
+          ls -R release_assets/
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
@@ -113,6 +120,6 @@ jobs:
           body: |
             🚀 Automatic ELT Release
             Includes Extract (Python), Load (SQL), and Transform (R) artifacts.
-          files: build/**/*
+          files: release_assets/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
