@@ -38,7 +38,8 @@ on:
     branches: ["main"]
   workflow_dispatch:
 
-env  AZURE_CONTAINER_REGISTRY: ${{ secrets.AZURE_ACR_NAME || 'edgeaiacr' }}
+env:
+  AZURE_CONTAINER_REGISTRY: ${{ secrets.AZURE_ACR_NAME || 'edgeaiacr' }}
   CONTAINER_NAME: "edge-ai-app"
   RESOURCE_GROUP: "edge-ai-rg"
   CLUSTER_NAME: "edge-ai-aks"
