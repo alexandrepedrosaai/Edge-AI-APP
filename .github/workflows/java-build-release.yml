@@ -1,0 +1,57 @@
+name: Java CI/CD Build & Release
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Configurar JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Compilar com Maven
+        run: mvn -B package --file pom.xml
+
+      - name: Arquivar binários
+        run: |
+          mkdir -p artifacts
+          cp target/*.jar artifacts/
+
+      - name: Upload artefatos
+        uses: actions/upload-artifact@v4
+        with:
+          name: edge-ai-java-binaries
+          path: artifacts/
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Download artefatos
+        uses: actions/download-artifact@v4
+        with:
+          name: edge-ai-java-binaries
+          path: artifacts/
+
+      - name: Criar Release Automatizado
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: java-v${{ github.run_number }}
+          name: "Edge-AI-APP Java Release ${{ github.run_number }}"
+          files: artifacts/*.jar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
