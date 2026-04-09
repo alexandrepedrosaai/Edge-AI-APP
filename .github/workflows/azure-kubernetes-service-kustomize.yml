@@ -41,8 +41,8 @@ on:
 env:
   AZURE_CONTAINER_REGISTRY: ${{ secrets.AZURE_ACR_NAME || 'edgeaiacr' }}
   CONTAINER_NAME: "edge-ai-app"
-  RESOURCE_GROUP: "edge-ai-rg"
-  CLUSTER_NAME: "edge-ai-aks"
+  RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP || 'edge-ai-rg' }}
+  CLUSTER_NAME: ${{ secrets.AZURE_AKS_CLUSTER_NAME || 'edge-ai-aks' }}
   KUSTOMIZE_PATH: "k8s"
 
 jobs:
