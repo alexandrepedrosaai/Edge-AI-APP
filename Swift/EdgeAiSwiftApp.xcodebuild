@@ -1,0 +1,4 @@
+xcodebuild -exportArchive \
+  -archivePath build/EdgeAiSwiftApp.xcarchive \
+  -exportPath artifacts \
+  -exportOptionsPlist ExportOptions.plist
