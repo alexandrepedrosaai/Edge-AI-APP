@@ -26,11 +26,19 @@ jobs:
         echo "Setting up Oracle Instant Client..."
         # Install dependencies for Ubuntu 24.04 (Noble)
         sudo apt-get update
-        sudo apt-get install -y libaio1t64 wget unzip
+        # Try to install libaio1t64 (Noble) or libaio1 (older)
+        sudo apt-get install -y libaio1t64 libaio1 wget unzip || sudo apt-get install -y libaio1t64 wget unzip
         
-        # Create a symbolic link for libaio.so.1 which is required by sqlplus
-        # On Ubuntu 24.04, libaio1t64 provides libaio.so.1.1.0
-        sudo ln -sf /usr/lib/x86_64-linux-gnu/libaio.so.1.1.0 /usr/lib/x86_64-linux-gnu/libaio.so.1
+        # Create robust symbolic links for libaio.so.1 which is required by sqlplus
+        # We check common locations for the library file
+        LIBAIO_PATH=$(find /usr/lib -name "libaio.so.1*" | head -n 1)
+        if [ -n "$LIBAIO_PATH" ]; then
+          echo "Found libaio at $LIBAIO_PATH, creating symlinks..."
+          sudo ln -sf "$LIBAIO_PATH" /usr/lib/libaio.so.1
+          sudo ln -sf "$LIBAIO_PATH" /usr/lib/x86_64-linux-gnu/libaio.so.1
+        else
+          echo "Warning: libaio library file not found!"
+        fi
         
         # Download and setup Oracle Instant Client 21.13
         wget https://download.oracle.com/otn_software/linux/instantclient/2113000/instantclient-basiclite-linux.x64-21.13.0.0.0dbru.zip
@@ -39,8 +47,12 @@ jobs:
         unzip -o instantclient-sqlplus-linux.x64-21.13.0.0.0dbru.zip
         
         # Set environment variables for the current shell
-        export LD_LIBRARY_PATH=$PWD/instantclient_21_13:$LD_LIBRARY_PATH
+        # Including /usr/lib and /usr/lib/x86_64-linux-gnu as suggested
+        export LD_LIBRARY_PATH=$PWD/instantclient_21_13:/usr/lib:/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
         export PATH=$PWD/instantclient_21_13:$PATH
+        
+        echo "Verifying libaio.so.1 accessibility..."
+        ldconfig -p | grep libaio || echo "libaio not found in ldconfig"
         
         echo "Waiting for Oracle database to start..."
         # Wait for the database to be ready to accept connections
