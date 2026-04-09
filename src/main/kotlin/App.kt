@@ -1,20 +1,22 @@
-import io.ktor.application.*
-import io.ktor.http.*
-import io.ktor.request.*
-import io.ktor.response.*
-import io.ktor.routing.*
+package ai.edge
+
+import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import io.ktor.features.ContentNegotiation
-import io.ktor.serialization.*
 
 // Modelo de dados
 @Serializable
 data class Message(val id: Int, val text: String)
 
-fun main() {
+fun startServer() {
     embeddedServer(Netty, port = 8080) {
         install(ContentNegotiation) {
             json(Json { prettyPrint = true })
