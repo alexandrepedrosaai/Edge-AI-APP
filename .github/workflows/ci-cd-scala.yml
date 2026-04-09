@@ -31,14 +31,23 @@ jobs:
         cd Scala
         sbt package
 
+    - name: Package JAR
+      run: |
+        cd Scala
+        sbt package
+
     - name: Generate Build Document (.D)
       run: |
         echo "# EdgeAiBuild.D" > EdgeAiBuild.D
-        echo "Automated Build Document" >> EdgeAiBuild.D
-        echo "Version: v${{ github.run_number }}" >> EdgeAiBuild.D
-        echo "Timestamp: $(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> EdgeAiBuild.D
-        echo "Integrity:" >> EdgeAiBuild.D
-        sha256sum target/scala-*/EdgeAIAPP*.jar >> EdgeAiBuild.D
+        # ... (other echo commands)
+        sha256sum Scala/target/scala-2.13/edgeaiapp_2.13-0.1.jar >> EdgeAiBuild.D
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: edge-ai-scala-jar
+        path: Scala/target/scala-2.13/edgeaiapp_2.13-0.1.jar
+
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
