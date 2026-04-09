@@ -39,10 +39,10 @@ on:
   workflow_dispatch:
 
 env:
-  AZURE_CONTAINER_REGISTRY: ${{ secrets.AZURE_ACR_NAME || 'your-azure-container-registry' }}
+  AZURE_CONTAINER_REGISTRY: ${{ secrets.AZURE_ACR_NAME || 'edgeairgacr' }}
   CONTAINER_NAME: "edge-ai-app"
-  RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP || 'edge-ai-rg' }}
-  CLUSTER_NAME: ${{ secrets.AZURE_AKS_CLUSTER_NAME || 'your-cluster-name' }}
+  RESOURCE_GROUP: "edge-ai-rg"
+  CLUSTER_NAME: "edge-ai-aks"
   KUSTOMIZE_PATH: "k8s"
 
 jobs:
