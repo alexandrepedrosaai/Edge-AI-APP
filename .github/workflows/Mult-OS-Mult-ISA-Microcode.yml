@@ -26,9 +26,12 @@ jobs:
         if: runner.os == 'macOS'
         run: brew install bash
 
-      - name: Setup build environment (Windows)
+      - name: Setup MSYS2 (MinGW)
         if: runner.os == 'Windows'
-        run: choco install mingw --pre -y
+        uses: msys2/setup-msys2@v2
+        with:
+          install: >-
+            mingw-w64-x86_64-toolchain
 
       - name: Compile Microcode
         shell: bash
