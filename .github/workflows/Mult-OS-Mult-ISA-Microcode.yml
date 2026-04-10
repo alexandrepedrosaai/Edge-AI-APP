@@ -28,7 +28,7 @@ jobs:
 
       - name: Setup build environment (Windows)
         if: runner.os == 'Windows'
-        run: choco install mingw -y
+        run: choco install mingw --pre -y
 
       - name: Compile Microcode
         shell: bash
