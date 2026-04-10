@@ -22,9 +22,12 @@ jobs:
         if: runner.os != 'Windows'
         run: sudo apt-get update && sudo apt-get install -y build-essential || true
 
-      - name: Setup build environment (Windows)
-        if: runner.os == 'Windows'
-        run: choco install mingw --pre -y
+      - name: Setup MSYS2 (MinGW)
+        if: runner.os == "Windows"
+        uses: msys2/setup-msys2@v2
+        with:
+          install: >-
+            mingw-w64-x86_64-toolchain
 
       - name: Compile Bit-Slice Microcode
         shell: bash
