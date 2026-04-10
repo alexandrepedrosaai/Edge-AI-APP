@@ -99,8 +99,23 @@ jobs:
           
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
+      - name: Clean Up Existing Release Assets
+        run: |
+          TAG="${{ steps.tag.outputs.tag }}"
+          echo "Checking assets for tag $TAG"
+          # Get list of assets and delete them if they exist
+          gh release view "$TAG" --json assets -q '.assets[].name' | while read asset; do
+            echo "Deleting existing asset: $asset"
+            gh release delete-asset "$TAG" "$asset" --yes || true
+          done
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.tag.outputs.tag }}
           files: ./artifacts/**/*
+          fail_on_unresolved_entities: false
+          prerelease: false
+          generate_release_notes: true
