@@ -33,14 +33,23 @@ jobs:
   
     - name: Compile binary
       run: |
-        julia --project=JULIA -e 'using Pkg; Pkg.add("PackageCompiler")'
         mkdir -p build
-        julia --project=JULIA -e 'using PackageCompiler; create_app("JULIA", "build/EdgeAiJuliaApp", force=true)'
+        julia --project=JULIA -e '
+          using PackageCompiler;
+          create_app("JULIA", "build/EdgeAiJuliaApp", force=true, incremental=false, filter_stdlibs=false)
+        '
     
     - name: Verify build output
       run: |
+        echo "Checking build directory..."
+        ls -R build/
         if [ ! -d "build/EdgeAiJuliaApp" ] || [ -z "$(ls -A build/EdgeAiJuliaApp)" ]; then
           echo "❌ Error: Build output directory is empty or does not exist!"
+          exit 1
+        fi
+        # Check if there are any files with size > 0
+        if [ $(find build/EdgeAiJuliaApp -type f -size +0c | wc -l) -eq 0 ]; then
+          echo "❌ Error: No non-empty files found in build directory!"
           exit 1
         fi
         echo "✅ Build output verified."
@@ -49,11 +58,12 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: edge-ai-julia-app
-        path: build/EdgeAiJuliaApp
+        path: build/EdgeAiJuliaApp/
 
   release:
     needs: build
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:
     - name: Checkout code
@@ -67,12 +77,16 @@ jobs:
 
     - name: Check release assets
       run: |
+        echo "Listing downloaded assets:"
+        ls -R ./release
         if [ -z "$(ls -A ./release)" ]; then
           echo "❌ Error: Release directory is empty!"
           exit 1
         fi
-        echo "✅ Release assets found:"
-        ls -R ./release
+        # Remove any empty files or directories that might cause issues with GitHub Release
+        find ./release -type f -size 0 -delete
+        find ./release -type d -empty -delete
+        echo "✅ Release assets verified."
 
     - name: Create automated release
       uses: softprops/action-gh-release@v2
