@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
   workflow_dispatch:
 
-  jobs:
+jobs:
   build:
     runs-on: ubuntu-latest
 
@@ -21,27 +21,27 @@ on:
         version: '1.10'
 
     - name: Add General Registry and Install dependencies
-  run: |
-    julia -e 'using Pkg; Pkg.Registry.add("General"); Pkg.add("PackageCompiler")'
-    julia --project=JULIA -e 'using Pkg; Pkg.resolve(); Pkg.instantiate()'
+      run: |
+        julia -e 'using Pkg; Pkg.Registry.add("General"); Pkg.add("PackageCompiler")'
+        julia --project=JULIA -e 'using Pkg; Pkg.resolve(); Pkg.instantiate()'
   
     - name: Run tests 
-  run: |
-      mkdir -p JULIA/test
-      echo 'using Test; @testset "Basic Tests" begin @test 1 == 1 end' > JULIA/test/runtests.jl
-      julia --project=JULIA -e 'using Pkg; Pkg.test()'
+      run: |
+        mkdir -p JULIA/test
+        echo 'using Test; @testset "Basic Tests" begin @test 1 == 1 end' > JULIA/test/runtests.jl
+        julia --project=JULIA -e 'using Pkg; Pkg.test()'
   
-      - name: Compile binary
-  run: |
-      julia --project=JULIA -e 'using Pkg; Pkg.add("PackageCompiler")'
-      mkdir -p build
-      julia --project=JULIA -e 'using PackageCompiler; create_app("JULIA", "build/EdgeAiJuliaApp", force=true)'
+    - name: Compile binary
+      run: |
+        julia --project=JULIA -e 'using Pkg; Pkg.add("PackageCompiler")'
+        mkdir -p build
+        julia --project=JULIA -e 'using PackageCompiler; create_app("JULIA", "build/EdgeAiJuliaApp", force=true)'
     
-      - name: Upload binary artifact
+    - name: Upload binary artifact
       uses: actions/upload-artifact@v4
       with:
-      name: edge-ai-julia-app
-   path: build/EdgeAiJuliaApp
+        name: edge-ai-julia-app
+        path: build/EdgeAiJuliaApp
 
   release:
     needs: build
