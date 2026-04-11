@@ -1,5 +1,6 @@
 import tensorflow as tf
 
+
 def evaluate_model(model_path: str):
     (_, _), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
     x_test = x_test / 255.0
