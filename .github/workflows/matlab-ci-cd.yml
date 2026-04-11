@@ -47,9 +47,10 @@ jobs:
         run: |
           mkdir -p dataset/classA
           mkdir -p dataset/classB
-          # Create placeholder images for training
-          curl -L -o dataset/classA/sample1.jpg https://via.placeholder.com/64.jpg
-          curl -L -o dataset/classB/sample2.jpg https://via.placeholder.com/64.jpg
+          # Install Pillow to generate sample images locally
+          pip install Pillow
+          # Create placeholder images for training to avoid external network dependency
+          python -c "from PIL import Image; Image.new('RGB', (64, 64), color='red').save('dataset/classA/sample1.jpg'); Image.new('RGB', (64, 64), color='blue').save('dataset/classB/sample2.jpg')"
 
       - name: Run Matlab tests
         uses: matlab-actions/run-tests@v2
