@@ -5,11 +5,14 @@ function buildIntegration
     load('dist/netCNN.mat','netCNN');
     load('dist/netLSTM.mat','netLSTM');
     
-    % Export CNN to ONNX
-    exportONNXNetwork(netCNN,'dist/cnn_model.onnx');
-    
-    % Export LSTM to ONNX
-    exportONNXNetwork(netLSTM,'dist/lstm_model.onnx');
+    % Export CNN and LSTM to ONNX (if support package is available)
+    try
+        exportONNXNetwork(netCNN,'dist/cnn_model.onnx');
+        exportONNXNetwork(netLSTM,'dist/lstm_model.onnx');
+    catch ME
+        warning('ONNX export failed. Ensure "Deep Learning Toolbox Converter for ONNX Model Format" is installed.');
+        fprintf('Error: %s\n', ME.message);
+    end
     
     % Quantization example (requires Deep Learning Toolbox Model Quantization)
     % qNet = dlquantizer(netCNN,'ExecutionEnvironment','CPU');
