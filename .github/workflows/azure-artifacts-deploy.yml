@@ -89,6 +89,7 @@ jobs:
         run: |
           mkdir -p deploy_dist
           find release-artifacts -type f \( -name "*.tar.gz" -o -name "*.zip" \) -exec cp -t ./deploy_dist {} +
+          echo "Contents of deploy_dist:"
           ls -lh ./deploy_dist
 
       - name: Install Azure CLI
@@ -105,7 +106,7 @@ jobs:
           AZURE_DEVOPS_CLI_NO_UNIVERSAL_TOOL_UPDATE: true # Prevent Universal Packages tooling update
         run: |
           if [ -z "${AZURE_DEVOPS_EXT_PAT}" ]; then
-            echo "Error: AZURE_DEVOPS_EXT_PAT is not set."
+            echo "Error: AZURE_DEVOPS_EXT_PAT is not set. Please configure it in your repository secrets."
             exit 1
           fi
 
@@ -117,7 +118,7 @@ jobs:
           echo "Publishing artifacts to Azure Artifacts..."
           for file in ./deploy_dist/*; do
             filename=$(basename "$file")
-            echo "Publishing $filename..."
+            echo "Attempting to publish $filename..."
             az artifacts universal publish \
               --organization "$ORG_URL" \
               --feed "$FEED_NAME" \
