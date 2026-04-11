@@ -2,8 +2,8 @@ function buildLSTM
     % BuildLSTM - LSTM network for time series prediction
     
     % Generate synthetic sequential data
-    XTrain = num2cell(rand(100,1),2);
-    YTrain = num2cell(sin(1:100)',2);
+    XTrain = rand(100,1);
+    YTrain = sin(1:100)';
     
     % Define LSTM layers
     layers = [
