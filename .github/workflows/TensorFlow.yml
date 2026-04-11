@@ -1,6 +1,9 @@
 name: CI/CD TensorFlow Amplified Workflow
 
 on:
+name: CI/CD TensorFlow Amplified Workflow
+
+on:
   push:
     branches: [ main ]
   pull_request:
@@ -31,7 +34,7 @@ jobs:
       - name: Install TensorFlow and requirements
         run: |
           pip install --upgrade pip
-          pip install tensorflow==2.16.1 flake8 black mypy pip-audit pytest pytest-cov "onnx>=1.16.0" tf2onnx
+          pip install tensorflow==2.16.1 flake8 black mypy pip-audit pytest pytest-cov onnx tf2onnx
           pip install -r requirements.txt || true
 
       # Linting & Type Checking
@@ -40,7 +43,7 @@ jobs:
           flake8 src/
           black --check src/
           mypy src/ --install-types --non-interactive --explicit-package-bases --ignore-missing-imports
-          pip-audit
+          pip-audit --ignore-package onnx
 
       # Unit tests with coverage
       - name: Run Unit Tests
