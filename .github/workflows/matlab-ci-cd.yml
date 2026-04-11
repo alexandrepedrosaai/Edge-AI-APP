@@ -14,9 +14,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Setup MATLAB environment
       - name: Setup MATLAB
         uses: matlab-actions/setup-matlab@v2
+        with:
+          release: R2024a
 
       - name: Set up MATLAB license
         run: |
@@ -29,7 +30,6 @@ jobs:
           source-folder: MATLAB/serc
           select-by-folder: true
 
-      # Build all 4 modules
       - name: Build Matlab artifacts
         run: |
           mkdir -p dist
@@ -69,15 +69,5 @@ jobs:
           tag_name: v${{ github.run_number }}
           name: "Automated Matlab Release v${{ github.run_number }}"
           body: |
-            Automated build and release of Edge-AI-APP Matlab Deep Learning modules:
-            - Fundamentals
-            - CNN (Computer Vision)
-            - LSTM (Time Series)
-            - Integration with Edge-AI-APP
+            Automated build and release of Edge-AI-APP Matlab Deep Learning modules.
           files: release/**
-
-      - name: Setup Go environment
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.21'
-          cache: true
