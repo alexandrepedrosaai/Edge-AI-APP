@@ -84,8 +84,13 @@ jobs:
           echo "name=${RELEASE_NAME}" >> "$GITHUB_OUTPUT"
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+          echo "Tag $TAG exists. Deleting..."
+          git tag -d "$TAG"
+          git push --delete origin "$TAG" || true
+          fi
           git tag "$TAG"
-          git push origin "$TAG"
+          git push origin "$TAG""
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
