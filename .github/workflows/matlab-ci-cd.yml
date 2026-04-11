@@ -43,6 +43,14 @@ jobs:
             echo "ERROR: License file is empty or missing!"
           fi
 
+      - name: Prepare sample dataset
+        run: |
+          mkdir -p dataset/classA
+          mkdir -p dataset/classB
+          # Create placeholder images for training
+          curl -L -o dataset/classA/sample1.jpg https://via.placeholder.com/64.jpg
+          curl -L -o dataset/classB/sample2.jpg https://via.placeholder.com/64.jpg
+
       - name: Run Matlab tests
         uses: matlab-actions/run-tests@v2
         with:
