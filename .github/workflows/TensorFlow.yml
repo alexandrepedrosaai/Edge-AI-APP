@@ -1,9 +1,6 @@
 name: CI/CD TensorFlow Amplified Workflow
 
 on:
-name: CI/CD TensorFlow Amplified Workflow
-
-on:
   push:
     branches: [ main ]
   pull_request:
