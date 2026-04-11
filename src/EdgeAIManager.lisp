@@ -23,12 +23,11 @@
   (setf (manager-is-configured m) t)
   m)
 
-(defun process-input (input)
+(defun edge-process-input (input)
   (format t "Processing input of length: ~d~%" (length input))
   (let ((output (coerce (reverse (coerce input 'list)) 'string)))
     (format t "Processing complete.~%")
     output))
-
 ;; -------------------------------
 ;; Usage Example
 ;; -------------------------------
