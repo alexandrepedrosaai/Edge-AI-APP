@@ -12,7 +12,7 @@ Generated: $(date)
 - sbom/frontend-sbom.json (402)
 - sbom/infra-sbom.json (403)
 - sbom/python-sbom.json (404)
-- sbom/root-sbom.json (2.1M)
+- sbom/root-sbom.json (2.2M)
 - sbom/server-sbom.json (404)
 
 ## Scan Status
