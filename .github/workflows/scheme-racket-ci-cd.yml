@@ -1,0 +1,64 @@
+name: CI/CD Scheme & Racket Build & Release
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Instalar Scheme (MIT Scheme) e Racket
+      - name: Setup Scheme & Racket
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mit-scheme racket
+
+      # Executar script Scheme
+      - name: Run Scheme script
+        run: |
+          mkdir -p dist
+          scheme --load src/EdgeAIManager.scm > dist/scheme_output.log
+
+      # Executar script Racket
+      - name: Run Racket script
+        run: |
+          racket src/EdgeAIManager.rkt > dist/racket_output.log
+
+      # Upload artifacts
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: edge-ai-scheme-racket
+          path: dist/*
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: edge-ai-scheme-racket
+          path: release
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.run_number }}
+          name: "Automated Scheme & Racket Release v${{ github.run_number }}"
+          body: |
+            Automated build and release of Edge-AI-APP Scheme & Racket modules:
+            - EdgeAIManager.scm executed with MIT Scheme
+            - EdgeAIManager.rkt executed with Racket
+            - Logs included in artifacts
+          files: release/**
