@@ -31,7 +31,8 @@ jobs:
       - name: Install TensorFlow and requirements
         run: |
           pip install --upgrade pip
-          pip install tensorflow==2.16.1 flake8 black mypy pip-audit pytest pytest-cov onnx tf2onnx ml_dtypes==0.3.1
+          pip install tensorflow==2.16.1 flake8 black mypy pip-audit pytest pytest-cov onnx tf2onnx
+          pip install --upgrade ml_dtypes numpy keras
           pip install -r requirements.txt || true
 
       # Linting & Type Checking
