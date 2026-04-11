@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Edge-AI-APP Dashboard</title>
+  <link rel="stylesheet" href="edge-ai-app.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="dashboard">
+    <!-- Left panel -->
+    <div>
+      <h2>Hyperparameter Controls</h2>
+      <div class="controls">
+        <button id="startBtn">Start Training</button>
+        <button id="pauseBtn">Pause</button>
+        <button id="resumeBtn">Resume</button>
+        <button id="resetBtn">Reset</button>
+        <input id="lrSlider" type="range" min="0" max="1" step="0.01" value="0.1">
+        <select id="optimizer">
+          <option>SGD</option>
+          <option>Adam</option>
+          <option>RMSProp</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Right panel -->
+    <div>
+      <h2>Training Progress</h2>
+      <div class="progress">
+        <div id="progressBar" class="progress-bar"></div>
+      </div>
+      <p>Elapsed Time: <span id="timer">00:00</span></p>
+
+      <h2>Accuracy vs Epochs</h2>
+      <canvas id="accuracyChart" width="400" height="200"></canvas>
+
+      <h2>Loss vs Epochs</h2>
+      <canvas id="lossChart" width="400" height="200"></canvas>
+
+      <h2>Confusion Matrix</h2>
+      <div class="confusion-matrix" id="confusionMatrix"></div>
+
+      <h2>Training Logs</h2>
+      <div class="logs" id="logs"></div>
+    </div>
+  </div>
+
+  <script>
+    const progressBar = document.getElementById('progressBar');
+    const logs = document.getElementById('logs');
+    const confusionMatrix = document.getElementById('confusionMatrix');
+    const startBtn = document.getElementById('startBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const resumeBtn = document.getElementById('resumeBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const timerDisplay = document.getElementById('timer');
+
+    let interval = null;
+    let timerInterval = null;
+    let epoch = 0;
+    let paused = false;
+    let elapsedSeconds = 0;
+
+    // Chart.js setup
+    const ctxAcc = document.getElementById('accuracyChart').getContext('2d');
+    const accuracyChart = new Chart(ctxAcc, {
+      type: 'line',
+      data: { labels: [], datasets: [{
+        label: 'Accuracy',
+        data: [],
+        borderColor: '#3fb950',
+        backgroundColor: '#3fb95033',
+        fill: true,
+        tension: 0.3
+      }]},
+      options: { scales: { y: { min: 0, max: 100 } } }
+    });
+
+    const ctxLoss = document.getElementById('lossChart').getContext('2d');
+    const lossChart = new Chart(ctxLoss, {
+      type: 'line',
+      data: { labels: [], datasets: [{
+        label: 'Loss',
+        data: [],
+        borderColor: '#f85149',
+        backgroundColor: '#f8514933',
+        fill: true,
+        tension: 0.3
+      }]},
+      options: { scales: { y: { min: 0, max: 100 } } }
+    });
+
+    function logMessage(type, msg) {
+      const div = document.createElement('div');
+      div.className = 'log-' + type;
+      div.textContent = `[${type.toUpperCase()}] ${msg}`;
+      logs.appendChild(div);
+      logs.scrollTop = logs.scrollHeight;
+    }
+
+    function formatTime(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+
+    function runEpoch() {
+      epoch++;
+      const progress = (epoch / 10) * 100;
+      progressBar.style.width = progress + '%';
+
+      accuracyChart.data.labels.push(`Epoch ${epoch}`);
+      accuracyChart.data.datasets[0].data.push(Math.min(100, epoch * 10 + Math.random() * 5));
+      accuracyChart.update();
+
+      lossChart.data.labels.push(`Epoch ${epoch}`);
+      lossChart.data.datasets[0].data.push(Math.max(0, 100 - epoch * 8 + Math.random() * 5));
+      lossChart.update();
+
+      logMessage('info', `Epoch ${epoch} completed`);
+
+      if (epoch === 5) logMessage('warning', 'Learning rate might be too high');
+      if (epoch === 8) logMessage('error', 'Gradient explosion detected');
+
+      const cell = document.createElement('div');
+      cell.className = 'confusion-cell ' + (epoch % 2 === 0 ? 'correct' : 'incorrect');
+      cell.textContent = Math.floor(Math.random() * 10);
+      confusionMatrix.appendChild(cell);
+
+      if (epoch >= 10) {
+        clearInterval(interval);
+        clearInterval(timerInterval);
+      }
+    }
+
+    function simulateTraining() {
+      resetDashboard();
+      epoch = 0;
+      elapsedSeconds = 0;
+      timerDisplay.textContent = formatTime(0);
+      clearInterval(interval);
+      clearInterval(timerInterval);
+      interval = setInterval(runEpoch, 1000);
+      timerInterval = setInterval(() => {
+        elapsedSeconds++;
+        timerDisplay.textContent = formatTime(elapsedSeconds);
+      }, 1000);
+    }
+
+    function resetDashboard() {
+      logs.innerHTML = '';
+      confusionMatrix.innerHTML = '';
+      progressBar.style.width = '0%';
+      accuracyChart.data.labels = [];
+      accuracyChart.data.datasets[0].data = [];
+      lossChart.data.labels = [];
+      lossChart.data.datasets[0].data = [];
+      accuracyChart.update();
+      lossChart.update();
+      clearInterval(interval);
+      clearInterval(timerInterval);
+      paused = false;
+      epoch = 0;
+      elapsedSeconds = 0;
+      timerDisplay.textContent = formatTime(0);
+      logMessage('info', 'Dashboard reset');
+    }
+
+    startBtn.addEventListener('click', simulateTraining);
+    pauseBtn.addEventListener('click', () => {
+      if (interval) {
+        clearInterval(interval);
+        clearInterval(timerInterval);
+        paused = true;
+        logMessage('info', 'Training paused');
+      }
+    });
+    resumeBtn.addEventListener('click', () => {
+      if (paused && epoch < 10) {
+        interval = setInterval(runEpoch, 1000);
+        timerInterval = setInterval(() => {
+          elapsedSeconds++;
+          timerDisplay.textContent = formatTime(elapsedSeconds);
+        }, 1000);
+        paused = false;
+        logMessage('info', 'Training resumed');
+      }
+    });
+    resetBtn.addEventListener('click', resetDashboard);
+  </script>
+</body>
+</html>
