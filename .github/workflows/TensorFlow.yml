@@ -60,9 +60,8 @@ jobs:
         run: |
           python src/evaluate.py dist/model.h5 > dist/eval_output.log
           ACCURACY=$(grep "Accuracy:" dist/eval_output.log | awk '{print $2}')
-          echo "Detected Accuracy: $ACCURACY"
-          if [ -z "$ACCURACY" ] || [ "$(echo "$ACCURACY < 0.90" | bc -l)" -eq 1 ]; then
-            echo "Model accuracy below threshold (90%) or not found. Failing build."
+          if (( $(echo "$ACCURACY < 0.90" | bc -l) )); then
+            echo "Model accuracy below threshold (90%). Failing build."
             exit 1
           fi
 
@@ -74,15 +73,13 @@ jobs:
       # Build Docker image
       - name: Build Docker image
         run: |
-          REPO_LOWER=${GITHUB_REPOSITORY,,}
-          docker build -t ghcr.io/${REPO_LOWER}/tensorflow:${{ github.run_number }} .
+          docker build -t ghcr.io/${{ github.repository }}/tensorflow:${{ github.run_number }} .
 
       # Push Docker image
       - name: Push Docker image
         run: |
-          REPO_LOWER=${GITHUB_REPOSITORY,,}
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-          docker push ghcr.io/${REPO_LOWER}/tensorflow:${{ github.run_number }}
+          docker push ghcr.io/${{ github.repository }}/tensorflow:${{ github.run_number }}
 
       # Upload artifacts
       - name: Upload artifacts
