@@ -19,7 +19,7 @@ jobs:
         uses: matlab-actions/setup-matlab@v2
         with:
          release: R2024a
-
+         license-file: ${{ secrets.MATLAB_LICENSE }}
       # Run tests
       - name: Run Matlab tests
         uses: matlab-actions/run-tests@v1
