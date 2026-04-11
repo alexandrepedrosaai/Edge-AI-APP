@@ -7,9 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#if __has_include(<UIKit/UIKit.h>)
-#import <UIKit/UIKit.h>
-#endif
+// UIKit import removed to support non-Apple platforms
 
 #pragma mark - Protocol Definition
 
