@@ -19,6 +19,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # Source directory
 set(SRC_DIR "${CMAKE_SOURCE_DIR}/src")
 file(GLOB_RECURSE SOURCES "${SRC_DIR}/*.cpp" "${SRC_DIR}/*.c")
+list(REMOVE_ITEM SOURCES "${SRC_DIR}/bitslice/main.c" "${SRC_DIR}/microcode/main.c")
 
 # Main executable
 add_executable(edge_ai_manager ${SOURCES})
