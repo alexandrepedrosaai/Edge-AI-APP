@@ -92,7 +92,7 @@
 #pragma mark - Usage Example
 
 int main(int argc, char * argv[]) {
-    @autoreleasepool {
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init]; {
         EdgeAIManager *manager = [[EdgeAIManager alloc] initWithModel:@" edge_ai_model.onnx "];
         [manager loadModel];
         [manager configureWithOptions:@{@"quantization":@"int8", @"device":@"CPU"}];
@@ -105,5 +105,6 @@ int main(int argc, char * argv[]) {
         
         [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:2.0]];
     }
+    [pool release];
     return 0;
 }
