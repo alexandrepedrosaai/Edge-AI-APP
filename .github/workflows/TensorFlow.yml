@@ -1,9 +1,6 @@
 name: CI/CD TensorFlow Amplified Workflow
 
 on:
-name: CI/CD TensorFlow Amplified Workflow
-
-on:
   push:
     branches: [ main ]
   pull_request:
@@ -115,4 +112,6 @@ jobs:
             - Exported to H5, ONNX, and TFLite formats
             - Docker image built and pushed to GHCR
             - Logs and artifacts included
+          files: release/**
+
           files: release/**
