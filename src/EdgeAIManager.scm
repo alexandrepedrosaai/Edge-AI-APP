@@ -3,30 +3,56 @@
 ;; Created by Alexandre on 11/04/2026
 ;; Example extensive Scheme file
 
-;; Compatibility for Guile and other SRFI-supporting Schemes
-;; We use a more portable way to load modules if they are available
-(cond-expand
-  (guile
-   (use-modules (srfi srfi-9)
-                (srfi srfi-13)))
-  (else
-   ;; For other Schemes, we assume SRFI-9 and SRFI-13 might be built-in or loaded differently
-   #f))
+;; ---------------------------------------------------------
+;; Portable Record Implementation (MIT Scheme compatible)
+;; ---------------------------------------------------------
+(define (make-manager model-name is-configured)
+  (list 'manager model-name is-configured))
 
-;; Definição de estrutura Manager
-(define-record-type manager
-  (make-manager model-name is-configured)
-  manager?
-  (model-name manager-model-name set-manager-model-name!)
-  (is-configured manager-is-configured set-manager-is-configured!))
+(define (manager? x)
+  (and (list? x)
+       (not (null? x))
+       (eq? (car x) 'manager)))
+
+(define (manager-model-name m)
+  (if (manager? m)
+      (cadr m)
+      (error "Not a manager record" m)))
+
+(define (manager-is-configured m)
+  (if (manager? m)
+      (caddr m)
+      (error "Not a manager record" m)))
+
+(define (set-manager-is-configured! m val)
+  (if (manager? m)
+      (set-car! (cddr m) val)
+      (error "Not a manager record" m)))
+
+;; ---------------------------------------------------------
+;; Helper Functions
+;; ---------------------------------------------------------
+
+;; Simple string trim for portability
+(define (portable-string-trim s)
+  (let* ((chars (string->list s))
+         (not-whitespace? (lambda (c) (not (char-whitespace? c)))))
+    (let loop ((lst chars))
+      (cond ((null? lst) "")
+            ((char-whitespace? (car lst)) (loop (cdr lst)))
+            (else
+             (let loop2 ((lst2 (reverse lst)))
+               (if (char-whitespace? (car lst2))
+                   (loop2 (cdr lst2))
+                   (list->string (reverse lst2)))))))))
+
+;; ---------------------------------------------------------
+;; Core Logic
+;; ---------------------------------------------------------
 
 ;; Criar Manager
 (define (create-manager name)
-  ;; Fallback for string-trim-both if not available
-  (let ((trimmed (if (defined? 'string-trim-both)
-                     (string-trim-both name)
-                     name)))
-    (make-manager trimmed #f)))
+  (make-manager (portable-string-trim name) #f))
 
 ;; Carregar modelo
 (define (load-model m)
