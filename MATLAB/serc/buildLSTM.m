@@ -3,7 +3,7 @@ function buildLSTM
     
     % Generate synthetic sequential data
     XTrain = {rand(100,1)};
-    YTrain = [sin(1:100)'];
+    YTrain = {sin(1:100)'};
     
     % Define LSTM layers
     layers = [
