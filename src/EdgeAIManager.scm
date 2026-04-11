@@ -3,11 +3,15 @@
 ;; Created by Alexandre on 11/04/2026
 ;; Example extensive Scheme file
 
-;; Compatibility for Guile
+;; Compatibility for Guile and other SRFI-supporting Schemes
+;; We use a more portable way to load modules if they are available
 (cond-expand
   (guile
    (use-modules (srfi srfi-9)
-                (srfi srfi-13))))
+                (srfi srfi-13)))
+  (else
+   ;; For other Schemes, we assume SRFI-9 and SRFI-13 might be built-in or loaded differently
+   #f))
 
 ;; Definição de estrutura Manager
 (define-record-type manager
@@ -18,12 +22,15 @@
 
 ;; Criar Manager
 (define (create-manager name)
-  (make-manager (string-trim-both name) #f))
+  ;; Fallback for string-trim-both if not available
+  (let ((trimmed (if (defined? 'string-trim-both)
+                     (string-trim-both name)
+                     name)))
+    (make-manager trimmed #f)))
 
 ;; Carregar modelo
 (define (load-model m)
   (display (string-append "Loading model: " (manager-model-name m) "\n"))
-  ;; (sleep 1) ;; Sleep is not standard in all Schemes, removing for portability or use guile specific
   (display (string-append "Model " (manager-model-name m) " loaded successfully.\n")))
 
 ;; Configurar opções
