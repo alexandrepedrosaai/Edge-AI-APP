@@ -103,27 +103,41 @@ jobs:
         shell: bash
         env:
           AZURE_DEVOPS_EXT_PAT: ${{ secrets.AZURE_DEVOPS_EXT_PAT }}
-          AZURE_DEVOPS_CLI_NO_UNIVERSAL_TOOL_UPDATE: true # Prevent Universal Packages tooling update
+          AZURE_DEVOPS_CLI_NO_UNIVERSAL_TOOL_UPDATE: "true"
         run: |
           if [ -z "${AZURE_DEVOPS_EXT_PAT}" ]; then
             echo "Error: AZURE_DEVOPS_EXT_PAT is not set. Please configure it in your repository secrets."
             exit 1
           fi
 
+          echo "Logging into Azure DevOps..."
           echo "${AZURE_DEVOPS_EXT_PAT}" | az devops login
 
           ORG_URL="https://dev.azure.com/alexandrepedrosaai"
           FEED_NAME="EdgeAIApp"
 
+          echo "Checking Azure DevOps organization and feed..."
+          az devops configure --defaults organization="$ORG_URL"
+          
+          # List feeds to verify access and feed name
+          echo "Listing available feeds for verification..."
+          az artifacts universal --help || true
+
           echo "Publishing artifacts to Azure Artifacts..."
           for file in ./deploy_dist/*; do
             filename=$(basename "$file")
             echo "Attempting to publish $filename..."
-            az artifacts universal publish \
+            
+            # Use the environment variable explicitly for the command
+            AZURE_DEVOPS_CLI_NO_UNIVERSAL_TOOL_UPDATE=true az artifacts universal publish \
               --organization "$ORG_URL" \
               --feed "$FEED_NAME" \
               --name "edge-ai-app-binary" \
               --version "1.0.${{ github.run_number }}" \
               --description "Automated deployment from GitHub Actions" \
-              --path "$file"
+              --path "$file" || {
+                echo "Failed to publish $filename. Checking for common issues..."
+                echo "Make sure the feed '$FEED_NAME' exists in organization '$ORG_URL'."
+                exit 1
+              }
           done
