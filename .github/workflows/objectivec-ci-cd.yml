@@ -30,7 +30,8 @@ jobs:
             `gnustep-config --objc-flags` \
             src/EdgeAIManager.m -o dist/EdgeAIManager \
             `gnustep-config --base-libs` -lBlocksRuntime -lobjc
-
+      - name: Install Objective-C dependencies
+        run: sudo apt-get update && sudo apt-get install -y libobjc-gnu libblocksruntime-dev
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
