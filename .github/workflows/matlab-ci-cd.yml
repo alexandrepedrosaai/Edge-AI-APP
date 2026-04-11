@@ -15,32 +15,30 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Setup MATLAB
-      uses: matlab-actions/setup-matlab@v2
-      with:
-      release: R2024a
-    products: |
-      Deep_Learning_Toolbox
-      Computer_Vision_Toolbox
-      Optimization_Toolbox
-      Statistics_and_Machine_Learning_Toolbox
-      MATLAB_Coder
-      Deep_Learning_HDL_Toolbox
 
+      - name: Setup MATLAB
+        uses: matlab-actions/setup-matlab@v2
+        with:
+          release: R2024a
+          products: |
+            Deep_Learning_Toolbox
+            Computer_Vision_Toolbox
+            Optimization_Toolbox
+            Statistics_and_Machine_Learning_Toolbox
+            MATLAB_Coder
+            Deep_Learning_HDL_Toolbox
 
       - name: Set up MATLAB license
         run: |
           mkdir -p /home/runner/.matlab/R2024a_licenses
           echo "${{ secrets.MATLAB_LICENSE_FILE }}" > /home/runner/.matlab/R2024a_licenses/license.lic
           chmod 644 /home/runner/.matlab/R2024a_licenses/license.lic
-          
+
       - name: Debug License File (Safe)
         run: |
           echo "Checking license file structure..."
           if [ -s /home/runner/.matlab/R2024a_licenses/license.lic ]; then
             echo "License file exists and is not empty."
-            echo "First line (masked): $(head -n 1 /home/runner/.matlab/R2024a_licenses/license.lic | cut -c1-10)..."
-            grep -E "SERVER|DAEMON|INCREMENT" /home/runner/.matlab/R2024a_licenses/license.lic | cut -d' ' -f1 | sort | uniq || echo "No standard license keywords found."
           else
             echo "ERROR: License file is empty or missing!"
           fi
@@ -49,9 +47,7 @@ jobs:
         run: |
           mkdir -p dataset/classA
           mkdir -p dataset/classB
-          # Install Pillow to generate sample images locally
           pip install Pillow
-          # Create placeholder images for training to avoid external network dependency
           python -c "from PIL import Image; Image.new('RGB', (64, 64), color='red').save('dataset/classA/sample1.jpg'); Image.new('RGB', (64, 64), color='blue').save('dataset/classB/sample2.jpg')"
 
       - name: Run Matlab tests
@@ -66,15 +62,21 @@ jobs:
           command: |
             mkdir -p dist;
             addpath('MATLAB/serc');
+            % Tenta instalar o conversor ONNX
+            try
+                matlab.addons.supportpackage.installSupportPackage('Deep Learning Toolbox Converter for ONNX Model Format');
+            catch
+                fprintf('Aviso: Suporte ONNX não pôde ser instalado.\n');
+            end
+            
+            % Executa os scripts de build na ordem correta
             buildFundamentals;
             buildCNN;
             buildLSTM;
             buildIntegration;
+            
+            % Salva o workspace final
             save('dist/edge_ai_models.mat');
-            exportONNXNetwork(netCNN,'dist/cnn_model.onnx');
-            exportONNXNetwork(netLSTM,'dist/lstm_model.onnx');
-            codegen netCNN -args {ones(64,64,3,'single')} -report;
-            codegen netLSTM -args {ones(100,1,'single')} -report;
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -101,5 +103,5 @@ jobs:
           tag_name: v${{ github.run_number }}
           name: "Automated Matlab Release v${{ github.run_number }}"
           body: |
-            Automated build and release of Edge-AI-APP Matlab Deep Learning modules.
+            Build e release automatizado dos módulos de Deep Learning para Edge-AI-APP.
           files: release/**
