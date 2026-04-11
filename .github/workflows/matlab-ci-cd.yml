@@ -1,0 +1,75 @@
+name: CI/CD Matlab Build & Release
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Setup Matlab environment
+      - name: Setup MATLAB
+        uses: matlab-actions/setup-matlab@v1
+        with:
+          release: R2024b   # adjust to your Matlab version
+
+      # Run tests
+      - name: Run Matlab tests
+        uses: matlab-actions/run-tests@v1
+        with:
+          source-folder: src
+          select-by-folder: true
+
+      # Build all 4 modules
+      - name: Build Matlab artifacts
+        run: |
+          mkdir -p dist
+          matlab -batch "addpath('src'); \
+                         buildFundamentals; \
+                         buildCNN; \
+                         buildLSTM; \
+                         buildIntegration; \
+                         save('dist/edge_ai_models.mat'); \
+                         exportONNXNetwork(netCNN,'dist/cnn_model.onnx'); \
+                         exportONNXNetwork(netLSTM,'dist/lstm_model.onnx'); \
+                         codegen netCNN -args {ones(64,64,3,'single')} -report; \
+                         codegen netLSTM -args {ones(100,1,'single')} -report"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: edge-ai-matlab
+          path: dist/*
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: edge-ai-matlab
+          path: release
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.run_number }}
+          name: "Automated Matlab Release v${{ github.run_number }}"
+          body: |
+            Automated build and release of Edge-AI-APP Matlab Deep Learning modules:
+            - Fundamentals
+            - CNN (Computer Vision)
+            - LSTM (Time Series)
+            - Integration with Edge-AI-APP
+          files: release/**
