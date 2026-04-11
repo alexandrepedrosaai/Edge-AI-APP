@@ -3,6 +3,12 @@
 ;; Created by Alexandre on 11/04/2026
 ;; Example extensive Scheme file
 
+;; Compatibility for Guile
+(cond-expand
+  (guile
+   (use-modules (srfi srfi-9)
+                (srfi srfi-13))))
+
 ;; Definição de estrutura Manager
 (define-record-type manager
   (make-manager model-name is-configured)
@@ -17,7 +23,7 @@
 ;; Carregar modelo
 (define (load-model m)
   (display (string-append "Loading model: " (manager-model-name m) "\n"))
-  (sleep 1)
+  ;; (sleep 1) ;; Sleep is not standard in all Schemes, removing for portability or use guile specific
   (display (string-append "Model " (manager-model-name m) " loaded successfully.\n")))
 
 ;; Configurar opções
