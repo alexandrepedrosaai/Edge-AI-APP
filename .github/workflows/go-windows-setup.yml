@@ -3,24 +3,18 @@ name: Go Windows Setup - Edge AI APP
 on:
   workflow_dispatch:
   push:
-    branches: [ "main", "develop" ]
-    paths:
-      - 'go.mod'
-      - 'go.sum'
-      - 'package.json'
-      - 'pnpm-lock.yaml'
-      - '.github/workflows/go-windows-setup.yml'
-      - 'cmd/**'
-      - 'internal/**'
-      - 'server/**'
-      - 'client/**'
-      - 'src/**'
+    branches:
+      - main
+      - develop
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
 
 jobs:
   windows-go-setup:
     runs-on: windows-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout código
@@ -98,6 +92,15 @@ jobs:
         run: |
           Get-FileHash .\edge-ai-app-go.exe -Algorithm SHA256 | Format-List
 
+      - name: Preparar artefatos para Release
+        shell: pwsh
+        run: |
+          mkdir release-artifacts
+          copy edge-ai-app-go.exe release-artifacts\
+          if (Test-Path dist) {
+            Compress-Archive -Path dist\* -DestinationPath release-artifacts\web-dist.zip
+          }
+
       - name: Upload binário Go
         uses: actions/upload-artifact@v4
         with:
@@ -110,3 +113,16 @@ jobs:
           name: edge-ai-app-web-dist-windows
           path: dist
           if-no-files-found: ignore
+
+      - name: Criar Release Automático
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: go-v${{ github.run_number }}
+          name: Release Go Windows v${{ github.run_number }}
+          draft: false
+          prerelease: false
+          files: |
+            release-artifacts/edge-ai-app-go.exe
+            release-artifacts/web-dist.zip
+          generate_release_notes: true
