@@ -23,5 +23,8 @@ function buildLSTM
     netLSTM = trainNetwork(XTrain,YTrain,layers,options);
     
     % Save model
+    if ~exist('dist', 'dir')
+        mkdir('dist');
+    end
     save('dist/netLSTM.mat','netLSTM');
 end

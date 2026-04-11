@@ -1,14 +1,35 @@
 function buildIntegration
     % BuildIntegration - Export and code generation for Edge-AI-APP
     
-    % Load previously trained networks
-    load('dist/netCNN.mat','netCNN');
-    load('dist/netLSTM.mat','netLSTM');
-    
-    % Export CNN and LSTM to ONNX (if support package is available)
+    % Attempt to install missing support packages
     try
-        exportONNXNetwork(netCNN,'dist/cnn_model.onnx');
-        exportONNXNetwork(netLSTM,'dist/lstm_model.onnx');
+        matlab.addons.installSupportPackage('Deep Learning Toolbox Converter for ONNX Model Format');
+        matlab.addons.installSupportPackage('MATLAB Coder');
+    catch
+        warning('Could not install support packages automatically.');
+    end
+
+    % Load previously trained networks
+    if exist('dist/netCNN.mat', 'file')
+        load('dist/netCNN.mat','netCNN');
+    else
+        warning('netCNN.mat not found. Skipping operations requiring netCNN.');
+    end
+    
+    if exist('dist/netLSTM.mat', 'file')
+        load('dist/netLSTM.mat','netLSTM');
+    else
+        warning('netLSTM.mat not found. Skipping operations requiring netLSTM.');
+    end
+    
+    % Export CNN and LSTM to ONNX (if support package is available and networks loaded)
+    try
+        if exist('netCNN', 'var')
+            exportONNXNetwork(netCNN,'dist/cnn_model.onnx');
+        end
+        if exist('netLSTM', 'var')
+            exportONNXNetwork(netLSTM,'dist/lstm_model.onnx');
+        end
     catch ME
         warning('ONNX export failed. Ensure "Deep Learning Toolbox Converter for ONNX Model Format" is installed.');
         fprintf('Error: %s\n', ME.message);
@@ -19,10 +40,14 @@ function buildIntegration
     % calibrate(qNet,augmentedImageDatastore([64 64],imageDatastore('dataset')));
     % save('dist/quantizedCNN.mat','qNet');
     
-    % Generate C code for deployment (if MATLAB Coder is available)
+    % Generate C code for deployment (if MATLAB Coder is available and networks loaded)
     try
-        codegen netCNN -args {ones(64,64,3,'single')} -report
-        codegen netLSTM -args {ones(100,1,'single')} -report
+        if exist('netCNN', 'var')
+            codegen netCNN -args {ones(64,64,3,'single')} -report
+        end
+        if exist('netLSTM', 'var')
+            codegen netLSTM -args {ones(100,1,'single')} -report
+        end
     catch ME
         warning('Code generation failed. Ensure "MATLAB Coder" is installed.');
         fprintf('Error: %s\n', ME.message);
