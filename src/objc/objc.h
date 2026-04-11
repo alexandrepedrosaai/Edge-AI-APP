@@ -6,7 +6,16 @@
 //  Header file for EdgeAIManager
 //
 
+#ifndef NS_ASSUME_NONNULL_BEGIN
+#define NS_ASSUME_NONNULL_BEGIN
+#define NS_ASSUME_NONNULL_END
+#endif
+
 #import <Foundation/Foundation.h>
+
+#ifndef BOOL
+#define BOOL signed char
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
