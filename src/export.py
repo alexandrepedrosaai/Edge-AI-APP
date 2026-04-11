@@ -7,11 +7,7 @@ def export_model(h5_path: str, onnx_path: str, tflite_path: str):
 
     # Export to ONNX
     spec = (tf.TensorSpec((None, 28, 28), tf.float32, name="input"),)
-    onnx_model, _ = tf2onnx.convert.from_keras(
-        model,
-        input_signature=spec,
-        opset=13
-    )
+    onnx_model, _ = tf2onnx.convert.from_keras(model, input_signature=spec, opset=13)
     with open(onnx_path, "wb") as f:
         f.write(onnx_model.SerializeToString())
     print(f"Model exported to {onnx_path}")
