@@ -9,17 +9,21 @@ function buildIntegration
         warning('Could not install support packages automatically.');
     end
 
-    % Load previously trained networks
-    if exist('dist/netCNN.mat', 'file')
-        load('dist/netCNN.mat','netCNN');
-    else
-        warning('netCNN.mat not found. Skipping operations requiring netCNN.');
+    % Use networks from workspace if available, otherwise load them
+    if ~exist('netCNN', 'var')
+        if exist('dist/netCNN.mat', 'file')
+            load('dist/netCNN.mat','netCNN');
+        else
+            warning('netCNN.mat not found and netCNN not in workspace.');
+        end
     end
     
-    if exist('dist/netLSTM.mat', 'file')
-        load('dist/netLSTM.mat','netLSTM');
-    else
-        warning('netLSTM.mat not found. Skipping operations requiring netLSTM.');
+    if ~exist('netLSTM', 'var')
+        if exist('dist/netLSTM.mat', 'file')
+            load('dist/netLSTM.mat','netLSTM');
+        else
+            warning('netLSTM.mat not found and netLSTM not in workspace.');
+        end
     end
     
     % Export CNN and LSTM to ONNX (if support package is available and networks loaded)
