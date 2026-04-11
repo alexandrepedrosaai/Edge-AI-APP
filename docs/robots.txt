@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /assets/
+
+Sitemap: https://alexandrepedrosaai.github.io/Edge-AI-APP/sitemap.xml
