@@ -23,15 +23,17 @@ jobs:
         run: |
           mkdir -p dist
           . /usr/share/GNUstep/Makefiles/GNUstep.sh
-          # Added -I/usr/include/BlocksRuntime to resolve #include <objc/blocks_runtime.h>
+          # Use gnustep-config to get the correct include paths for both GNUstep and Objective-C runtime
+          # Adding -I. to find local headers if any
           clang -fblocks \
+            $(gnustep-config --objc-flags) \
             -I/usr/include/GNUstep \
             -I/usr/include/BlocksRuntime \
-            `gnustep-config --objc-flags` \
+            -I. \
             src/EdgeAIManager.m -o dist/EdgeAIManager \
-            `gnustep-config --base-libs` -lBlocksRuntime -lobjc
-      - name: Install Objective-C dependencies
-        run: sudo apt-get update && sudo apt-get install -y libobjc-gnu libblocksruntime-dev
+            $(gnustep-config --base-libs) \
+            -lBlocksRuntime -lobjc
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -60,6 +62,6 @@ jobs:
             Automated build and release of Edge-AI-APP Objective-C module:
             - EdgeAIManager.m compiled into binary
             - Built on Linux (Ubuntu) using GNUstep
-            - Added -I/usr/include/BlocksRuntime to fix missing blocks_runtime.h
-            - Self-contained source for better compatibility
+            - Corrected include paths using gnustep-config
+            - Fixed missing objc/objc.h by ensuring correct runtime headers
           files: release/**
