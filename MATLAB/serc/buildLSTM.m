@@ -3,7 +3,7 @@ function buildLSTM
     
     % Generate synthetic sequential data
     XTrain = {rand(100,1)};
-    YTrain = {sin(1:100)'};
+    YTrain = sin(100); % Single numeric response for sequence-to-one regression
     
     % Define LSTM layers
     layers = [
