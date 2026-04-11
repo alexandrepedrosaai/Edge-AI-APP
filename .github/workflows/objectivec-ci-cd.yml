@@ -25,8 +25,8 @@ jobs:
           mkdir -p dist
           # Source GNUstep environment and compile
           . /usr/share/GNUstep/Makefiles/GNUstep.sh
-          # Add current src directory to include path, and enable Blocks support (ARC removed as unsupported on legacy runtime)
-          clang -fblocks -Isrc `gnustep-config --objc-flags` `gnustep-config --base-libs` src/EdgeAIManager.m -o dist/EdgeAIManager
+          # Add current src directory and GNUstep headers to include path, and enable Blocks support
+          clang -fblocks -Isrc -I/usr/include/GNUstep `gnustep-config --objc-flags` `gnustep-config --base-libs` src/EdgeAIManager.m -o dist/EdgeAIManager
 
       # Upload artifacts
       - name: Upload artifacts
@@ -58,6 +58,7 @@ jobs:
             - EdgeAIManager.m compiled into binary
             - Built on Linux (Ubuntu) using GNUstep
             - Added -fblocks to clang to support Objective-C blocks
+            - Added -I/usr/include/GNUstep to fix missing Foundation headers
             - Removed -fobjc-arc as it is unsupported on legacy GNUstep runtime
             - Added compatibility macros to src/objc.h for GNUstep
           files: release/**
