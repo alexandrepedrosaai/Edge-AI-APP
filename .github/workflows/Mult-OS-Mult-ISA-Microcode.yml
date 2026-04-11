@@ -91,6 +91,12 @@ jobs:
           fi
           git tag "$TAG"
           git push origin "$TAG""
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+          echo "Tag $TAG already exists. Skipping tag creation."
+          else
+          git tag "$TAG"
+          git push origin "$TAG"
+          fi
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
