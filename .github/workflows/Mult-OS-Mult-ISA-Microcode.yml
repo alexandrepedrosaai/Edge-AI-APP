@@ -78,7 +78,7 @@ jobs:
         run: |
           set -euo pipefail
           SHORT_SHA=$(git rev-parse --short HEAD)
-          TAG="v$(date +'%Y.%m.%d')-${SHORT_SHA}-run${{ github.run_number }}"
+          TAG="v$(date +'%Y.%m.%d')-${SHORT_SHA}-run${{ github.run_number }}-id${{ github.run_id }}"
           RELEASE_NAME="Microcode Release ${TAG}"
           echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
           echo "name=${RELEASE_NAME}" >> "$GITHUB_OUTPUT"
