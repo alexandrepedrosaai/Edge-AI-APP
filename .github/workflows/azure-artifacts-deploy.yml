@@ -102,20 +102,15 @@ jobs:
         shell: bash
         env:
           AZURE_DEVOPS_EXT_PAT: ${{ secrets.AZURE_DEVOPS_EXT_PAT }}
+          AZURE_DEVOPS_CLI_NO_UNIVERSAL_TOOL_UPDATE: true # Prevent Universal Packages tooling update
         run: |
           if [ -z "${AZURE_DEVOPS_EXT_PAT}" ]; then
             echo "Error: AZURE_DEVOPS_EXT_PAT is not set."
             exit 1
           fi
 
-          # The user mentioned "sem precisar de org", but 'az artifacts' requires an organization URL.
-          # We will use the PAT to authenticate.
           echo "${AZURE_DEVOPS_EXT_PAT}" | az devops login
 
-          # Since the user didn't provide a specific feed/org in the prompt but pointed to a GitHub deployment link,
-          # we assume the configuration is managed via the environment or they will fill these in.
-          # For now, we use placeholders that the user can easily replace or we can try to infer.
-          # Based on previous workflows found in the repo:
           ORG_URL="https://dev.azure.com/alexandrepedrosaai"
           FEED_NAME="EdgeAIApp"
 
