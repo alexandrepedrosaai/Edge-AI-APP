@@ -1,0 +1,45 @@
+.version 7.0
+.target sm_50
+.address_size 64
+
+// Kernel: C[i] = A[i] * B[i]
+.visible .entry vecMul(
+    .param .u64 param_A,
+    .param .u64 param_B,
+    .param .u64 param_C,
+    .param .u32 param_N
+)
+{
+    .reg .pred p;
+    .reg .s32 tid, N;
+    .reg .f32 a, b, c;
+    .reg .u64 A, B, C, offset;
+
+    // thread index
+    mov.u32 tid, %tid.x;
+
+    ld.param.u32 N, [param_N];
+    setp.ge.s32 p, tid, N;
+    @p bra DONE;
+
+    // base addresses
+    ld.param.u64 A, [param_A];
+    ld.param.u64 B, [param_B];
+    ld.param.u64 C, [param_C];
+
+    // offset = tid * 4 (float32)
+    mul.wide.s32 offset, tid, 4;
+
+    // load A[tid], B[tid]
+    ld.global.f32 a, [A+offset];
+    ld.global.f32 b, [B+offset];
+
+    // multiply
+    mul.f32 c, a, b;
+
+    // store result
+    st.global.f32 [C+offset], c;
+
+DONE:
+    ret;
+}
