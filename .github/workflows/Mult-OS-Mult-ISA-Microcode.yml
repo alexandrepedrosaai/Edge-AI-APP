@@ -3,8 +3,6 @@ name: CI CD Mult-OS Mult-ISA Microcode Automated Releases
 on:
   push:
     branches: ["main"]
-    tags:
-      - "v*"
   workflow_dispatch:
 
 jobs:
@@ -78,25 +76,11 @@ jobs:
         run: |
           set -euo pipefail
           SHORT_SHA=$(git rev-parse --short HEAD)
-          TAG="v$(date +'%Y.%m.%d')-${SHORT_SHA}-run${{ github.run_number }}-id${{ github.run_id }}"
+          TIMESTAMP=$(date +'%Y%m%d-%H%M%S')
+          TAG="v${TIMESTAMP}-${SHORT_SHA}"
           RELEASE_NAME="Microcode Release ${TAG}"
           echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
           echo "name=${RELEASE_NAME}" >> "$GITHUB_OUTPUT"
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          if git rev-parse "$TAG" >/dev/null 2>&1; then
-          echo "Tag $TAG exists. Deleting..."
-          git tag -d "$TAG"
-          git push --delete origin "$TAG" || true
-          fi
-          git tag "$TAG"
-          git push origin "$TAG"
-          if git rev-parse "$TAG" >/dev/null 2>&1; then
-          echo "Tag $TAG already exists. Skipping tag creation."
-          else
-          git tag "$TAG"
-          git push origin "$TAG"
-          fi
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -110,8 +94,11 @@ jobs:
             **Release Details:**
             - **Commit:** ${{ github.sha }}
             - **Run ID:** ${{ github.run_id }}
+            - **Timestamp:** $(date)
             
-            This release was automatically generated for each commit to ensure artifact isolation.
+            This release was automatically generated for commit ${{ github.sha }} to ensure artifact isolation.
           draft: false
           prerelease: false
           generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
