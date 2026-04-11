@@ -7,18 +7,18 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
-  jobs:
+jobs:
   build:
-   runs-on: ubuntu-latest
-   steps:
+    runs-on: ubuntu-latest
+    steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       # Setup Matlab environment
       - name: Set up MATLAB license
-       run: |
-        mkdir -p /home/runner/.matlab/R2024a_licenses
-        echo "${{ secrets.MATLAB_LICENSE_FILE }}" > /home/runner/.matlab/R2024a_licenses/license.lic
+        run: |
+          mkdir -p /home/runner/.matlab/R2024a_licenses
+          echo "${{ secrets.MATLAB_LICENSE_FILE }}" > /home/runner/.matlab/R2024a_licenses/license.lic
    
       - name: Run Matlab tests
         uses: matlab-actions/run-tests@v1
@@ -46,7 +46,8 @@ on:
         with:
           name: edge-ai-matlab
           path: dist/*
-   release:
+
+  release:
     needs: build
     runs-on: ubuntu-latest
     steps:
