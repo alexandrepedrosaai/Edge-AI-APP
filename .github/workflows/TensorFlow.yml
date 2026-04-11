@@ -39,7 +39,7 @@ jobs:
         run: |
           flake8 src/
           black --check src/
-          mypy src/
+          mypy src/ --install-types --non-interactive --explicit-package-bases
           pip-audit
 
       # Unit tests with coverage
@@ -98,6 +98,7 @@ jobs:
           name: tensorflow-models
           path: release
 
+      # Create GitHub Release
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
