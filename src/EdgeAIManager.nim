@@ -61,8 +61,8 @@ when isMainModule:
   manager.loadModel()
   manager.configure({"quantization": "int8", "device": "CPU"}.toTable)
 
-  let inputData = "HelloEdgeAI".toBytes
+  let inputData = cast[seq[byte]]("HelloEdgeAI")
   let fut = manager.processInput(inputData)
   waitFor fut
-  let result = fut.read.toString
+  let result = cast[string](fut.read)
   echo "Output result: ", result
