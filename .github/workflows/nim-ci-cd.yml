@@ -1,0 +1,58 @@
+name: CI/CD Nim Build & Release
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Install Nim compiler
+      - name: Setup Nim
+        run: |
+          curl https://nim-lang.org/choosenim/init.sh -sSf | sh -s -- -y
+          echo "$HOME/.nimble/bin" >> $GITHUB_PATH
+
+      # Compile Nim file into binary
+      - name: Build Nim binary
+        run: |
+          mkdir -p dist
+          nim c -d:release -o:dist/EdgeAIManager src/EdgeAIManager.nim
+
+      # Upload artifacts
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: edge-ai-nim
+          path: dist/*
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: edge-ai-nim
+          path: release
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.run_number }}
+          name: "Automated Nim Release v${{ github.run_number }}"
+          body: |
+            Automated build and release of Edge-AI-APP Nim module:
+            - EdgeAIManager.nim compiled into binary
+            - Includes release build with optimizations
+          files: release/**
