@@ -12,7 +12,11 @@ function buildIntegration
     % Use networks from workspace if available, otherwise load them
     if ~exist('netCNN', 'var')
         if exist('dist/netCNN.mat', 'file')
-            load('dist/netCNN.mat','netCNN');
+            try
+                load('dist/netCNN.mat','netCNN');
+            catch
+                warning('Failed to load dist/netCNN.mat.');
+            end
         else
             warning('netCNN.mat not found and netCNN not in workspace.');
         end
@@ -20,7 +24,11 @@ function buildIntegration
     
     if ~exist('netLSTM', 'var')
         if exist('dist/netLSTM.mat', 'file')
-            load('dist/netLSTM.mat','netLSTM');
+            try
+                load('dist/netLSTM.mat','netLSTM');
+            catch
+                warning('Failed to load dist/netLSTM.mat.');
+            end
         else
             warning('netLSTM.mat not found and netLSTM not in workspace.');
         end
