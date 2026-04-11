@@ -12,7 +12,7 @@ type EdgeAIManager(modelName : string) =
 
     member this.ModelName
         with get() = name
-        and set(value) = name <- value.Trim()
+        and set(value: string) = name <- value.Trim()
 
     member this.IsConfigured
         with get() = isConfigured
