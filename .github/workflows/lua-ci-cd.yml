@@ -1,0 +1,58 @@
+name: CI/CD Lua Build & Release
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Install Lua
+      - name: Setup Lua
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y lua5.4
+
+      # Run Lua script to validate output
+      - name: Execute Lua script
+        run: |
+          mkdir -p dist
+          lua src/EdgeAIManager.lua > dist/output.log
+
+      # Upload artifacts (script + logs)
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: edge-ai-lua
+          path: dist/*
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: edge-ai-lua
+          path: release
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.run_number }}
+          name: "Automated Lua Release v${{ github.run_number }}"
+          body: |
+            Automated build and release of Edge-AI-APP Lua module:
+            - EdgeAIManager.lua executed successfully
+            - Output logs included
+          files: release/**
