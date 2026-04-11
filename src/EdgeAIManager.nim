@@ -63,6 +63,5 @@ when isMainModule:
 
   let inputData = cast[seq[byte]]("HelloEdgeAI")
   let fut = manager.processInput(inputData)
-  waitFor fut
-  let result = cast[string](fut.read)
+  let result = cast[string](waitFor fut)
   echo "Output result: ", result
