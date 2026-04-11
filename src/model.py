@@ -1,5 +1,6 @@
 import tensorflow as tf
 
+
 def build_model():
     return tf.keras.models.Sequential([
         tf.keras.layers.Flatten(input_shape=(28, 28)),
