@@ -7,7 +7,7 @@ function buildLSTM
     
     % Define LSTM layers
     layers = [
-        sequenceInputLayer(1)
+        sequenceInputLayer(100)
         lstmLayer(100,'OutputMode','last')
         fullyConnectedLayer(1)
         regressionLayer];
