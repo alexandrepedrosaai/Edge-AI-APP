@@ -3,11 +3,12 @@
 //  Edge-AI-APP
 //
 //  Created by Alexandre on 11/04/2026.
-//  Example Objective-C file for GNUstep/Linux
+//  Self-contained Objective-C file for GNUstep/Linux
 //
 
 #import <Foundation/Foundation.h>
 
+// Compatibility macros for non-Apple platforms
 #ifndef NS_ASSUME_NONNULL_BEGIN
 #define NS_ASSUME_NONNULL_BEGIN
 #define NS_ASSUME_NONNULL_END
@@ -16,6 +17,8 @@
 #ifndef BOOL
 #define BOOL signed char
 #endif
+
+NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Protocol Definition
 
@@ -41,6 +44,10 @@
 #pragma mark - Main Class
 
 @interface EdgeAIManager : NSObject <EdgeAIProcessing>
+{
+    NSString *_modelName;
+    BOOL _isConfigured;
+}
 
 @property (nonatomic, retain) NSString *modelName;
 @property (nonatomic, assign) BOOL isConfigured;
@@ -79,7 +86,7 @@
 
 - (void)processInput:(NSData *)input completion:(void (^)(NSData *output))completion {
     NSLog(@"Processing input of length: %lu", (unsigned long)[input length]);
-    // Simulate inference by reversing bytes synchronously (GCD removed for compatibility)
+    // Simulate inference by reversing bytes synchronously
     NSMutableData *output = [NSMutableData dataWithData:input];
     NSUInteger length = [output length];
     uint8_t *bytes = (uint8_t *)[output mutableBytes];
@@ -121,3 +128,5 @@ int main(int argc, char * argv[]) {
     [pool release];
     return 0;
 }
+
+NS_ASSUME_NONNULL_END

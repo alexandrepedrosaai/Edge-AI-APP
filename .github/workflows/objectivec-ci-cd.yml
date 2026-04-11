@@ -23,9 +23,9 @@ jobs:
         run: |
           mkdir -p dist
           . /usr/share/GNUstep/Makefiles/GNUstep.sh
-          # Added -Isrc to allow the compiler to find the project's local headers at src/objc/
-          # This resolves #include <objc/blocks_runtime.h> by finding src/objc/blocks_runtime.h
-          clang -fblocks -Isrc -Isrc/objc -I/usr/include/GNUstep `gnustep-config --objc-flags` src/EdgeAIManager.m -o dist/EdgeAIManager `gnustep-config --base-libs` -lBlocksRuntime
+          # Simplified build command: rely on standard system headers
+          # Removed -Isrc and -Isrc/objc to prevent conflicts with project local headers
+          clang -fblocks -I/usr/include/GNUstep `gnustep-config --objc-flags` src/EdgeAIManager.m -o dist/EdgeAIManager `gnustep-config --base-libs` -lBlocksRuntime
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -55,7 +55,6 @@ jobs:
             Automated build and release of Edge-AI-APP Objective-C module:
             - EdgeAIManager.m compiled into binary
             - Built on Linux (Ubuntu) using GNUstep
-            - GCD dependencies removed for Linux compatibility
-            - NSAutoreleasePool used for legacy runtime support
-            - Added -Isrc to resolve #include <objc/blocks_runtime.h> using project's local header
+            - Removed local objc headers to resolve compilation conflicts
+            - Self-contained source for better compatibility
           files: release/**
