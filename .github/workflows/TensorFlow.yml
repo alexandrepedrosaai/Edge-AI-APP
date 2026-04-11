@@ -113,5 +113,3 @@ jobs:
             - Docker image built and pushed to GHCR
             - Logs and artifacts included
           files: release/**
-
-          files: release/**
