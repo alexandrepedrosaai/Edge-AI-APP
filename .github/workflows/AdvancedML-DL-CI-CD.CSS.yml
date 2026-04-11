@@ -17,13 +17,13 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Prepare build directory
-   run: |
-      mkdir -p dist
-      if [ ! -f CSS/edge-ai-app.css ]; then
-      echo "CSS/edge-ai-app.css not found!"
-      exit 1
-      fi
-      cp CSS/edge-ai-app.css dist/edge-ai-app.css
+        run: |
+          mkdir -p dist
+          if [ ! -f CSS/edge-ai-app.css ]; then
+            echo "CSS/edge-ai-app.css not found!"
+            exit 1
+          fi
+          cp CSS/edge-ai-app.css dist/edge-ai-app.css
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
