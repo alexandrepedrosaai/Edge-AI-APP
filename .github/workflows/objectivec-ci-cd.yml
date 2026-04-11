@@ -25,7 +25,7 @@ jobs:
           mkdir -p dist
           # Source GNUstep environment and compile
           . /usr/share/GNUstep/Makefiles/GNUstep.sh
-          clang `gnustep-config --objc-flags` `gnustep-config --base-libs` src/EdgeAIManager.m -o dist/EdgeAIManager
+          clang -I/usr/include/objc `gnustep-config --objc-flags` `gnustep-config --base-libs` src/EdgeAIManager.m -o dist/EdgeAIManager
 
       # Upload artifacts
       - name: Upload artifacts
@@ -57,5 +57,5 @@ jobs:
             - EdgeAIManager.m compiled into binary
             - Built on Linux (Ubuntu) using GNUstep
             - iOS/UIKit and macOS dependencies removed
-            - libobjc-11-dev added to fix missing objc/objc.h
+            - Added -I/usr/include/objc to clang to fix objc/objc.h not found
           files: release/**
