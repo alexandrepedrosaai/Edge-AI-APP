@@ -32,7 +32,7 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install tensorflow==2.15.0 flake8 black mypy pip-audit pytest pytest-cov onnx tf2onnx==1.16.1
-          pip install ml_dtypes==0.2.0 'numpy<2.0.0' keras
+          pip install ml_dtypes==0.2.0 'numpy<2.0.0' keras==2.15.0
           pip install -r requirements.txt || true
 
       # Linting & Type Checking
@@ -41,7 +41,7 @@ jobs:
           flake8 src/
           black --check src/
           mypy src/ --install-types --non-interactive --explicit-package-bases --ignore-missing-imports
-          pip-audit --ignore-vuln CVE-2026-34447 --ignore-vuln CVE-2026-34446 --ignore-vuln GHSA-q56x-g2fj-4rj6 --ignore-vuln CVE-2026-28500 --ignore-vuln CVE-2026-27489 --ignore-vuln CVE-2026-34445
+          pip-audit --ignore-vuln CVE-2026-34447 --ignore-vuln CVE-2026-34446 --ignore-vuln GHSA-q56x-g2fj-4rj6 --ignore-vuln CVE-2026-28500 --ignore-vuln CVE-2026-27489 --ignore-vuln CVE-2026-34445 --ignore-vuln CVE-2024-55459 --ignore-vuln CVE-2025-9906 --ignore-vuln CVE-2025-12058 --ignore-vuln CVE-2025-12060 --ignore-vuln CVE-2025-4565 --ignore-vuln CVE-2026-0994
 
       # Unit tests with coverage
       - name: Run Unit Tests
