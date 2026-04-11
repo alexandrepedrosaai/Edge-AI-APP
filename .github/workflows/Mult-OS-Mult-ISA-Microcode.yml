@@ -90,7 +90,7 @@ jobs:
           git push --delete origin "$TAG" || true
           fi
           git tag "$TAG"
-          git push origin "$TAG""
+          git push origin "$TAG"
           if git rev-parse "$TAG" >/dev/null 2>&1; then
           echo "Tag $TAG already exists. Skipping tag creation."
           else
