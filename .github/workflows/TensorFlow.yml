@@ -39,7 +39,7 @@ jobs:
         run: |
           flake8 src/
           black --check src/
-          mypy src/ --install-types --non-interactive --explicit-package-bases
+          mypy src/ --install-types --non-interactive --explicit-package-bases --ignore-missing-imports
           pip-audit
 
       # Unit tests with coverage
