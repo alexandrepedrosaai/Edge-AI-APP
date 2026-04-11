@@ -2,7 +2,9 @@ function buildCNN
     % BuildCNN - Convolutional Neural Network for image classification
     
     % Load sample image dataset
-    imds = imageDatastore('dataset','IncludeSubfolders',true,'LabelSource','foldernames');
+    % Specify common image extensions to avoid errors with non-standard files
+    imds = imageDatastore('dataset','IncludeSubfolders',true,'LabelSource','foldernames', ...
+        'FileExtensions', {'.jpg', '.jpeg', '.png', '.bmp', '.tif', '.tiff'});
     augimds = augmentedImageDatastore([64 64],imds);
     
     % Define CNN layers
