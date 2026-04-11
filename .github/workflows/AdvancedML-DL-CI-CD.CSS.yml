@@ -19,7 +19,8 @@ jobs:
       - name: Prepare build directory
         run: |
           mkdir -p dist
-          cp edge-ai-app.css dist/edge-ai-app.css
+          # O arquivo está no diretório CSS/
+          cp CSS/edge-ai-app.css dist/edge-ai-app.css
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
@@ -30,9 +31,13 @@ jobs:
   release:
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Download artifact
         uses: actions/download-artifact@v4
@@ -40,17 +45,44 @@ jobs:
           name: edge-ai-css
           path: release
 
+      - name: Generate Unique Tag and Release Name
+        id: meta
+        run: |
+          set -euo pipefail
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          TIMESTAMP=$(date +'%Y%m%d-%H%M%S')
+          TAG="css-v${TIMESTAMP}-${SHORT_SHA}"
+          RELEASE_NAME="CSS Release ${TAG}"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "name=${RELEASE_NAME}" >> "$GITHUB_OUTPUT"
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ github.run_number }}
-          name: "Automated CSS Release v${{ github.run_number }}"
-          body: "Automated release of Edge-AI-APP Advanced ML/DL CSS theme"
+          tag_name: ${{ steps.meta.outputs.tag }}
+          name: ${{ steps.meta.outputs.name }}
+          body: |
+            🚀 Automated CSS build and release.
+            
+            **Release Details:**
+            - **Commit:** ${{ github.sha }}
+            - **Run ID:** ${{ github.run_id }}
+            - **Timestamp:** $(date)
+            
+            This release was automatically generated for commit ${{ github.sha }} to ensure artifact isolation.
           files: release/edge-ai-app.css
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
