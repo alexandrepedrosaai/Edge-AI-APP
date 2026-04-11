@@ -115,27 +115,72 @@ jobs:
           # Debug: show manifest
           cat manifest.json
 
-      - name: Create Tag for Release
-        id: tag
-        run: |
-          TAG="v$(date +'%Y.%m.%d')-run${{ github.run_number }}-att${{ github.run_attempt }}"
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git tag "$TAG"
-          git push origin "$TAG"
-          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+      - name: Get or Create Release
+        id: create_release
+        uses: actions/github-script@v6
         with:
-          tag_name: ${{ steps.tag.outputs.tag }}
-          name: "Macro Assembler Matrix Release ${{ steps.tag.outputs.tag }}"
-          body: |
-            Automated multi-OS / multi-ISA macro assembler release.
-            Includes SHA256 hashes and manifest.json for integrity verification.
-            Commit: ${{ github.sha }}
-          files: |
-            manifest.json
-            ./artifacts/**/*.bin
-            ./artifacts/**/*.sha256
-          fail_on_unmatched_files: false
+          script: |
+            const { owner, repo } = context.repo;
+            const tag = 'latest-main-macro-assets';
+            let release;
+            try {
+              release = await github.rest.repos.getReleaseByTag({
+                owner,
+                repo,
+                tag,
+              });
+              console.log(`Found existing release for tag ${tag}: ${release.data.id}`);
+            } catch (error) {
+              console.log(`Release for tag ${tag} not found, creating a new one.`);
+              release = await github.rest.repos.createRelease({
+                owner,
+                repo,
+                tag_name: tag,
+                name: 'Latest Main Branch Macro Assets',
+                body: 'Automated release for latest main branch macro assets.',
+                draft: false,
+                prerelease: false,
+              });
+            }
+            core.setOutput('release_id', release.data.id);
+            core.setOutput('upload_url', release.data.upload_url);
+
+      - name: Delete existing assets (if any)
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const release_id = ${{ steps.create_release.outputs.release_id }};
+            const { data: assets } = await github.rest.repos.listReleaseAssets({
+              owner,
+              repo,
+              release_id,
+            });
+            for (const asset of assets) {
+              console.log(`Deleting asset: ${asset.name} (id: ${asset.id})`);
+              await github.rest.repos.deleteReleaseAsset({
+                owner,
+                repo,
+                asset_id: asset.id,
+              });
+            }
+
+      - name: Upload new assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./artifacts/**/*
+          asset_name: macro-artifacts.zip
+          asset_content_type: application/zip
+
+      - name: Upload Manifest JSON
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./manifest.json
+          asset_name: manifest.json
+          asset_content_type: application/json
