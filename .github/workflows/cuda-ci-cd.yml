@@ -11,7 +11,7 @@ jobs:
   build-cu:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install CUDA Toolkit
         run: sudo apt-get install -y nvidia-cuda-toolkit
@@ -24,7 +24,7 @@ jobs:
           done
 
       - name: Upload PTX artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: cuda-ptx-binaries
           path: build/*.ptx
@@ -34,7 +34,7 @@ jobs:
     needs: build-cu
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: cuda-ptx-binaries
           path: release/
