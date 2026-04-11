@@ -6,12 +6,15 @@
 //  Header file for EdgeAIManager
 //
 
+#ifndef EDGE_AI_MANAGER_H
+#define EDGE_AI_MANAGER_H
+
+#import <Foundation/Foundation.h>
+
 #ifndef NS_ASSUME_NONNULL_BEGIN
 #define NS_ASSUME_NONNULL_BEGIN
 #define NS_ASSUME_NONNULL_END
 #endif
-
-#import <Foundation/Foundation.h>
 
 #ifndef BOOL
 #define BOOL signed char
@@ -32,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface EdgeAIManager : NSObject <EdgeAIProcessing>
 
-@property (nonatomic, strong) NSString *modelName;
+@property (nonatomic, retain) NSString *modelName;
 @property (nonatomic, assign) BOOL isConfigured;
 
 /// Initialize with a model name
@@ -50,3 +53,5 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif /* EDGE_AI_MANAGER_H */

@@ -9,7 +9,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest   # Switched from macOS to Ubuntu
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -19,18 +19,13 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y gnustep gnustep-devel gobjc clang libgnustep-base-dev libobjc-11-dev libblocksruntime-dev
 
-      # Compile Objective-C file into binary using GNUstep on Linux
       - name: Build Objective-C binary
         run: |
           mkdir -p dist
-          # Source GNUstep environment and compile
           . /usr/share/GNUstep/Makefiles/GNUstep.sh
-          # Add current src directory and GNUstep headers to include path
-          # -fblocks: enable support for blocks
-          # -lBlocksRuntime: link with Blocks runtime (libdispatch removed as unsupported on this Ubuntu)
-          clang -fblocks -Isrc -I/usr/include/GNUstep `gnustep-config --objc-flags` src/EdgeAIManager.m -o dist/EdgeAIManager `gnustep-config --base-libs` -lBlocksRuntime
+          # Simplified build command: remove redundant includes and link with blocks runtime
+          clang -fblocks -Isrc/objc -I/usr/include/GNUstep `gnustep-config --objc-flags` src/EdgeAIManager.m -o dist/EdgeAIManager `gnustep-config --base-libs` -lBlocksRuntime
 
-      # Upload artifacts
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -59,6 +54,6 @@ jobs:
             Automated build and release of Edge-AI-APP Objective-C module:
             - EdgeAIManager.m compiled into binary
             - Built on Linux (Ubuntu) using GNUstep
-            - Added libblocksruntime-dev for Blocks support
-            - Removed libdispatch-dev and -ldispatch as they are unavailable in the Ubuntu repository
+            - GCD dependencies removed for Linux compatibility
+            - NSAutoreleasePool used for legacy runtime support
           files: release/**
