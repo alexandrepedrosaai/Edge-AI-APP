@@ -1,0 +1,112 @@
+name: Go Windows Setup - Edge AI APP
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main", "develop" ]
+    paths:
+      - 'go.mod'
+      - 'go.sum'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/go-windows-setup.yml'
+      - 'cmd/**'
+      - 'internal/**'
+      - 'server/**'
+      - 'client/**'
+      - 'src/**'
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  windows-go-setup:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Configurar Go a partir do go.mod
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Configurar Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Configurar pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.2
+
+      - name: Mostrar versões
+        shell: pwsh
+        run: |
+          go version
+          node -v
+          npm -v
+          pnpm -v
+
+      - name: Criar .env.local
+        shell: pwsh
+        run: |
+          @"
+          VITE_ANALYTICS_ENDPOINT=
+          VITE_ANALYTICS_WEBSITE_ID=
+          VITE_APP_TITLE=Edge AI App
+          VITE_APP_LOGO=/logo.svg
+          VITE_FRONTEND_FORGE_API_URL=http://localhost:3001
+          VITE_FRONTEND_FORGE_API_KEY=
+          "@ | Set-Content -Path .env.local -Encoding UTF8
+
+      - name: Instalar dependências Node
+        shell: pwsh
+        run: |
+          pnpm install --frozen-lockfile
+
+      - name: Organizar dependências Go
+        shell: pwsh
+        run: |
+          go mod tidy
+
+      - name: Rodar testes Go
+        shell: pwsh
+        run: |
+          go test ./cmd/... ./internal/... -v
+
+      - name: Build Go para Windows
+        shell: pwsh
+        run: |
+          go build -o edge-ai-app-go.exe ./cmd/app
+
+      - name: Build web app
+        shell: pwsh
+        env:
+          VITE_ANALYTICS_ENDPOINT: "https://analytics.example.com"
+          VITE_ANALYTICS_WEBSITE_ID: "default"
+          VITE_APP_TITLE: "Edge AI App"
+          VITE_APP_LOGO: "/logo.svg"
+        run: |
+          pnpm run build
+
+      - name: Gerar hash SHA256 do binário Go
+        shell: pwsh
+        run: |
+          Get-FileHash .\edge-ai-app-go.exe -Algorithm SHA256 | Format-List
+
+      - name: Upload binário Go
+        uses: actions/upload-artifact@v4
+        with:
+          name: edge-ai-app-go-windows
+          path: edge-ai-app-go.exe
+
+      - name: Upload build web
+        uses: actions/upload-artifact@v4
+        with:
+          name: edge-ai-app-web-dist-windows
+          path: dist
+          if-no-files-found: ignore
