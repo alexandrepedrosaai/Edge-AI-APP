@@ -18,7 +18,11 @@ jobs:
       - name: Build Objective-C binary
         run: |
           mkdir -p dist
-          clang -framework Foundation -framework UIKit src/EdgeAIManager.m -o dist/EdgeAIManager
+          if [ "$(uname)" = "Darwin" ]; then
+  clang -framework Foundation -framework UIKit src/EdgeAIManager.m -o dist/EdgeAIManager
+else
+  clang -framework Foundation src/EdgeAIManager.m -o dist/EdgeAIManager
+fi
 
       # Upload artifacts
       - name: Upload artifacts
