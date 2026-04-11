@@ -1,6 +1,11 @@
 import os
+import sys
 import pytest
 import tensorflow as tf
+
+# Ensure the src directory is in the Python path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from src.data_loader import load_mnist
 from src.model import build_model
 from src.train import train_model
