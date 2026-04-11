@@ -40,7 +40,7 @@ jobs:
           flake8 src/
           black --check src/
           mypy src/ --install-types --non-interactive --explicit-package-bases --ignore-missing-imports
-          pip-audit --ignore-package onnx
+          pip-audit --ignore-vuln CVE-2026-34447 --ignore-vuln CVE-2026-34446 --ignore-vuln GHSA-q56x-g2fj-4rj6 --ignore-vuln CVE-2026-28500 --ignore-vuln CVE-2026-27489 --ignore-vuln CVE-2026-34445
 
       # Unit tests with coverage
       - name: Run Unit Tests
