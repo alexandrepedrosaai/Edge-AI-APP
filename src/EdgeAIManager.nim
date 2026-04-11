@@ -3,7 +3,7 @@
 # Created by Alexandre on 11/04/2026
 # Example extensive Nim file
 
-import os, strutils, sequtils, times, asyncdispatch
+import os, strutils, sequtils, times, asyncdispatch, tables
 
 # -------------------------------
 # Protocol-like definition (using concepts)
