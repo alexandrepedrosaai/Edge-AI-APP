@@ -73,49 +73,34 @@ jobs:
         with:
           path: ./artifacts
 
-      - name: Create Tag for Release
-        id: tag
+      - name: Generate Unique Tag and Release Name
+        id: meta
         run: |
           set -euo pipefail
-          TAG="v$(date +'%Y.%m.%d')-run${{ github.run_number }}"
-          echo "Checking if tag $TAG exists"
-          
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          TAG="v$(date +'%Y.%m.%d')-${SHORT_SHA}-run${{ github.run_number }}"
+          RELEASE_NAME="Microcode Release ${TAG}"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "name=${RELEASE_NAME}" >> "$GITHUB_OUTPUT"
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          
-          if git rev-parse "$TAG" >/dev/null 2>&1; then
-            echo "Tag $TAG already exists locally."
-          else
-            echo "Creating tag $TAG"
-            git tag "$TAG"
-          fi
-          
-          if git ls-remote --tags origin | grep -q "refs/tags/$TAG"; then
-            echo "Tag $TAG already exists on remote."
-          else
-            echo "Pushing tag $TAG to remote"
-            git push origin "$TAG"
-          fi
-          
-          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
-
-      - name: Clean Up Existing Release Assets
-        run: |
-          TAG="${{ steps.tag.outputs.tag }}"
-          echo "Checking assets for tag $TAG"
-          # Get list of assets and delete them if they exist
-          gh release view "$TAG" --json assets -q '.assets[].name' | while read asset; do
-            echo "Deleting existing asset: $asset"
-            gh release delete-asset "$TAG" "$asset" --yes || true
-          done
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          git tag "$TAG"
+          git push origin "$TAG"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.tag.outputs.tag }}
+          tag_name: ${{ steps.meta.outputs.tag }}
+          name: ${{ steps.meta.outputs.name }}
           files: ./artifacts/**/*
-          fail_on_unresolved_entities: false
+          body: |
+            🚀 Automated multi-OS / multi-ISA microcode release.
+            
+            **Release Details:**
+            - **Commit:** ${{ github.sha }}
+            - **Run ID:** ${{ github.run_id }}
+            
+            This release was automatically generated for each commit to ensure artifact isolation.
+          draft: false
           prerelease: false
           generate_release_notes: true
