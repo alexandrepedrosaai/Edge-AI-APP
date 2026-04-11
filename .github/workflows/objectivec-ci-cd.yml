@@ -23,9 +23,13 @@ jobs:
         run: |
           mkdir -p dist
           . /usr/share/GNUstep/Makefiles/GNUstep.sh
-          # Applied Solution 2: Explicit include paths and necessary flags
-          # Note: -fobjc-arc is removed for Linux/GNUstep compatibility as it's unsupported on legacy runtime
-          clang -fblocks -I/usr/include/GNUstep `gnustep-config --objc-flags` src/EdgeAIManager.m -o dist/EdgeAIManager `gnustep-config --base-libs` -lBlocksRuntime -lobjc
+          # Added -I/usr/include/BlocksRuntime to resolve #include <objc/blocks_runtime.h>
+          clang -fblocks \
+            -I/usr/include/GNUstep \
+            -I/usr/include/BlocksRuntime \
+            `gnustep-config --objc-flags` \
+            src/EdgeAIManager.m -o dist/EdgeAIManager \
+            `gnustep-config --base-libs` -lBlocksRuntime -lobjc
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -55,6 +59,6 @@ jobs:
             Automated build and release of Edge-AI-APP Objective-C module:
             - EdgeAIManager.m compiled into binary
             - Built on Linux (Ubuntu) using GNUstep
-            - Applied Solution 2 for Objective-C and block runtime headers
+            - Added -I/usr/include/BlocksRuntime to fix missing blocks_runtime.h
             - Self-contained source for better compatibility
           files: release/**
