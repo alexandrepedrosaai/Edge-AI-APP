@@ -1,0 +1,58 @@
+name: CI/CD Lisp Build & Release
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Instalar SBCL
+      - name: Setup SBCL
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y sbcl
+
+      # Executar script Lisp
+      - name: Run Lisp script
+        run: |
+          mkdir -p dist
+          sbcl --script src/EdgeAIManager.lisp > dist/output.log
+
+      # Upload artifacts
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: edge-ai-lisp
+          path: dist/*
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: edge-ai-lisp
+          path: release
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.run_number }}
+          name: "Automated Lisp Release v${{ github.run_number }}"
+          body: |
+            Automated build and release of Edge-AI-APP Lisp module:
+            - EdgeAIManager.lisp executed with SBCL
+            - Logs included in artifacts
+          files: release/**
