@@ -10,6 +10,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      MLM_LICENSE_FILE: /home/runner/.matlab/R2024a_licenses/license.lic
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -23,6 +25,7 @@ jobs:
         run: |
           mkdir -p /home/runner/.matlab/R2024a_licenses
           echo "${{ secrets.MATLAB_LICENSE_FILE }}" > /home/runner/.matlab/R2024a_licenses/license.lic
+          chmod 644 /home/runner/.matlab/R2024a_licenses/license.lic
    
       - name: Run Matlab tests
         uses: matlab-actions/run-tests@v2
