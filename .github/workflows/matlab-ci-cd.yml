@@ -21,6 +21,15 @@ jobs:
         with:
           release: R2024a
 
+      - name: Install Toolboxes
+        uses: matlab-actions/install-toolboxes@v1
+        with:
+          toolboxes: |
+            Deep Learning Toolbox
+            Computer Vision Toolbox
+            Optimization Toolbox
+            Statistics and Machine Learning Toolbox
+
       - name: Set up MATLAB license
         run: |
           mkdir -p /home/runner/.matlab/R2024a_licenses
