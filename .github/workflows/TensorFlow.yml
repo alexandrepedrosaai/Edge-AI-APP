@@ -51,15 +51,12 @@ jobs:
       - name: Train TensorFlow model
         run: |
           mkdir -p dist
-          python scripts/train_model.py --epochs 5 --save_path dist/model.h5 > dist/train_output.log
-      - name: Train TensorFlow model
-        run: |
-         mkdir -p dist
-         python scripts/train_model.py --epochs 5 --save_path dist/model.h5 > dist/train_output.log
+          python src/train.py --epochs 5 --save_path dist/model.h5 > dist/train_output.log
+
       # Evaluate model with threshold
       - name: Evaluate TensorFlow model
         run: |
-          python scripts/evaluate_model.py dist/model.h5 > dist/eval_output.log
+          python src/evaluate.py dist/model.h5 > dist/eval_output.log
           ACCURACY=$(grep "Accuracy:" dist/eval_output.log | awk '{print $2}')
           if (( $(echo "$ACCURACY < 0.90" | bc -l) )); then
             echo "Model accuracy below threshold (90%). Failing build."
@@ -69,7 +66,7 @@ jobs:
       # Export model formats
       - name: Export model
         run: |
-          python scripts/export_model.py dist/model.h5 dist/model.onnx dist/model.tflite
+          python src/export.py dist/model.h5 dist/model.onnx dist/model.tflite
 
       # Build Docker image
       - name: Build Docker image
