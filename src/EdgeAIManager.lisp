@@ -34,5 +34,5 @@
 (let* ((manager (create-manager " edge_ai_model.onnx "))
        (configured (configure manager '(("quantization" . "int8")
                                         ("device" . "CPU"))))
-       (output (process-input "HelloEdgeAI")))
+       (output (edge-process-input "HelloEdgeAI")))
   (format t "Output result: ~a~%" output))
