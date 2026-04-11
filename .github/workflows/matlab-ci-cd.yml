@@ -26,7 +26,18 @@ jobs:
           mkdir -p /home/runner/.matlab/R2024a_licenses
           echo "${{ secrets.MATLAB_LICENSE_FILE }}" > /home/runner/.matlab/R2024a_licenses/license.lic
           chmod 644 /home/runner/.matlab/R2024a_licenses/license.lic
-   
+          
+      - name: Debug License File (Safe)
+        run: |
+          echo "Checking license file structure..."
+          if [ -s /home/runner/.matlab/R2024a_licenses/license.lic ]; then
+            echo "License file exists and is not empty."
+            echo "First line (masked): $(head -n 1 /home/runner/.matlab/R2024a_licenses/license.lic | cut -c1-10)..."
+            grep -E "SERVER|DAEMON|INCREMENT" /home/runner/.matlab/R2024a_licenses/license.lic | cut -d' ' -f1 | sort | uniq || echo "No standard license keywords found."
+          else
+            echo "ERROR: License file is empty or missing!"
+          fi
+
       - name: Run Matlab tests
         uses: matlab-actions/run-tests@v2
         with:
@@ -34,18 +45,20 @@ jobs:
           select-by-folder: true
 
       - name: Build Matlab artifacts
-        run: |
-          mkdir -p dist
-          matlab -batch "addpath('MATLAB/serc'); \
-                         buildFundamentals; \
-                         buildCNN; \
-                         buildLSTM; \
-                         buildIntegration; \
-                         save('dist/edge_ai_models.mat'); \
-                         exportONNXNetwork(netCNN,'dist/cnn_model.onnx'); \
-                         exportONNXNetwork(netLSTM,'dist/lstm_model.onnx'); \
-                         codegen netCNN -args {ones(64,64,3,'single')} -report; \
-                         codegen netLSTM -args {ones(100,1,'single')} -report"
+        uses: matlab-actions/run-command@v2
+        with:
+          command: |
+            mkdir -p dist;
+            addpath('MATLAB/serc');
+            buildFundamentals;
+            buildCNN;
+            buildLSTM;
+            buildIntegration;
+            save('dist/edge_ai_models.mat');
+            exportONNXNetwork(netCNN,'dist/cnn_model.onnx');
+            exportONNXNetwork(netLSTM,'dist/lstm_model.onnx');
+            codegen netCNN -args {ones(64,64,3,'single')} -report;
+            codegen netLSTM -args {ones(100,1,'single')} -report;
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
