@@ -1,4 +1,6 @@
 # Edge-AI-APP
+## Edge AI hub delivering low‑latency intelligence from chip to Azure cloud scalability. Supports functions, static/dynamic web, containers, AKS, and polyglot CI/CD in 50+ languages. Automates industrial workflows, producing binaries via advanced ML/DL, open intelligence (AI-ISA) deploys and LLMs, and mobile Edge applications.
+
 ## https://edge-ai-functions.azurewebsites.net/
 ## https://edge-ai-app.jollymoss-4b53b752.eastus.azurecontainerapps.io/
 Edge AI App builds on the source software OS‑ALGORITHMIC‑MESH, evolving Microsoft Edge into a living hub of intelligence. This repo unifies vision, roadmap, and timeline with Markdown + Mermaid diagrams, LaTeX slides, and Go/Rust/Python integrations.
