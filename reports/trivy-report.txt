@@ -169,8 +169,8 @@ Total: 9 (UNKNOWN: 0, LOW: 0, MEDIUM: 3, HIGH: 4, CRITICAL: 2)
 ┌────────────────┬────────────────┬──────────┬────────┬───────────────────┬─────────────────────┬──────────────────────────────────────────────────────────────┐
 │    Library     │ Vulnerability  │ Severity │ Status │ Installed Version │    Fixed Version    │                            Title                             │
 ├────────────────┼────────────────┼──────────┼────────┼───────────────────┼─────────────────────┼──────────────────────────────────────────────────────────────┤
-│ axios          │ CVE-2025-62718 │ CRITICAL │ fixed  │ 1.13.6            │ 1.15.0              │ Axios has a NO_PROXY Hostname Normalization Bypass Leads to  │
-│                │                │          │        │                   │                     │ SSRF                                                         │
+│ axios          │ CVE-2025-62718 │ CRITICAL │ fixed  │ 1.13.6            │ 1.15.0              │ Axios is a promise based HTTP client for the browser and     │
+│                │                │          │        │                   │                     │ Node.js....                                                  │
 │                │                │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2025-62718                   │
 │                ├────────────────┤          │        │                   │                     ├──────────────────────────────────────────────────────────────┤
 │                │ CVE-2026-40175 │          │        │                   │                     │ Axios is a promise based HTTP client for the browser and     │
@@ -213,8 +213,8 @@ Total: 9 (UNKNOWN: 0, LOW: 0, MEDIUM: 3, HIGH: 4, CRITICAL: 2)
 ┌────────────────┬────────────────┬──────────┬────────┬───────────────────┬─────────────────────┬──────────────────────────────────────────────────────────────┐
 │    Library     │ Vulnerability  │ Severity │ Status │ Installed Version │    Fixed Version    │                            Title                             │
 ├────────────────┼────────────────┼──────────┼────────┼───────────────────┼─────────────────────┼──────────────────────────────────────────────────────────────┤
-│ axios          │ CVE-2025-62718 │ CRITICAL │ fixed  │ 1.13.6            │ 1.15.0              │ Axios has a NO_PROXY Hostname Normalization Bypass Leads to  │
-│                │                │          │        │                   │                     │ SSRF                                                         │
+│ axios          │ CVE-2025-62718 │ CRITICAL │ fixed  │ 1.13.6            │ 1.15.0              │ Axios is a promise based HTTP client for the browser and     │
+│                │                │          │        │                   │                     │ Node.js....                                                  │
 │                │                │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2025-62718                   │
 │                ├────────────────┤          │        │                   │                     ├──────────────────────────────────────────────────────────────┤
 │                │ CVE-2026-40175 │          │        │                   │                     │ Axios is a promise based HTTP client for the browser and     │
