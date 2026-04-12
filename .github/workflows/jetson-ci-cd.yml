@@ -29,9 +29,11 @@ jobs:
 
       - name: Push Docker image to GitHub Container Registry
         run: |
+          # Convert repository name to lowercase
+          REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-          docker tag jetson-aiisa-pipeline ghcr.io/${{ github.repository }}/jetson-aiisa-pipeline:latest
-          docker push ghcr.io/${{ github.repository }}/jetson-aiisa-pipeline:latest
+          docker tag jetson-aiisa-pipeline ghcr.io/${REPO_LOWER}/jetson-aiisa-pipeline:latest
+          docker push ghcr.io/${REPO_LOWER}/jetson-aiisa-pipeline:latest
 
   release:
     runs-on: ubuntu-latest
