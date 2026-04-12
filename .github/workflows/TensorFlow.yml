@@ -103,6 +103,9 @@ jobs:
           name: tensorflow-models
           path: release
 
+      - name: Remove empty logs before release
+        run: find release -type f -name '*log' -size 0 -delete
+
       # Create GitHub Release
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
