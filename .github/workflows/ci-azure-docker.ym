@@ -1,0 +1,43 @@
+name: Build & Deploy to Azure
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout repository
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # Log in to Azure
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # Log in to Azure Container Registry
+      - name: ACR Login
+        run: |
+          az acr login --name ${{ secrets.AZURE_ACR_NAME }}
+
+      # Build Docker image
+      - name: Build Docker Image
+        run: |
+          docker build -t ${{ secrets.AZURE_ACR_NAME }}.azurecr.io/edge-ai-app:latest .
+
+      # Push Docker image to ACR
+      - name: Push Docker Image
+        run: |
+          docker push ${{ secrets.AZURE_ACR_NAME }}.azurecr.io/edge-ai-app:latest
+
+      # Deploy to Azure Web App for Containers
+      - name: Deploy to Azure WebApp
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: "edge-ai-app"
+          images: "${{ secrets.AZURE_ACR_NAME }}.azurecr.io/edge-ai-app:latest"

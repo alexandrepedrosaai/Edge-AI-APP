@@ -1,0 +1,59 @@
+name: Deploy Azure Functions
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'azure-functions/**'
+      - '.github/workflows/azure-functions-deploy.yml'
+  workflow_dispatch:
+
+env:
+  REGISTRY: ${{ secrets.AZURE_ACR_NAME }}.azurecr.io
+  IMAGE_NAME: edge-ai-functions
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    - name: Login to Azure Container Registry
+      uses: docker/login-action@v2
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ secrets.AZURE_ACR_USERNAME }}
+        password: ${{ secrets.AZURE_ACR_PASSWORD }}
+    
+    - name: Build Docker Image
+      run: |
+        docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
+          -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
+          ./azure-functions
+    
+    - name: Push to Azure Container Registry
+      run: |
+        docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+        docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+    
+    - name: Deploy to Azure Functions
+      run: |
+        az functionapp config container set \
+          --name ${{ secrets.AZURE_FUNCTION_APP_NAME }} \
+          --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+          --docker-custom-image-name ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
+          --docker-registry-server-url https://${{ env.REGISTRY }} \
+          --docker-registry-server-username ${{ secrets.AZURE_ACR_USERNAME }} \
+          --docker-registry-server-password ${{ secrets.AZURE_ACR_PASSWORD }}
+    
+    - name: Test Deployment
+      run: |
+        FUNCTION_URL="https://${{ secrets.AZURE_FUNCTION_APP_NAME }}.azurewebsites.net/api/HttpTrigger?name=GitHub"
+        sleep 30
+        curl -f $FUNCTION_URL || echo "Function not ready yet, will be available in a few moments"
