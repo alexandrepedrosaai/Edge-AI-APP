@@ -54,7 +54,7 @@ jobs:
           name: cuda-binaries-sm_80
           path: release/sm_80/
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: release/**/*.{pxt,cubin}
           tag_name: vPXT-${{ github.run_number }}
