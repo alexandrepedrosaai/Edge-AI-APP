@@ -1,0 +1,148 @@
+name: CI-CD Matrix OS-ISA Stack Bytecode Releases
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  build-stack-bytecode:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        isa: [x86, arm, riscv]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4.2.2
+
+      - name: Setup toolchain
+        run: |
+          if [ "${{ runner.os }}" = "Linux" ]; then
+            sudo apt-get update && sudo apt-get install -y nasm
+          elif [ "${{ runner.os }}" = "macOS" ]; then
+            brew install nasm
+          else
+            choco install nasm -y
+          fi
+
+      - name: Build Stack-based Bytecode Firmware
+        run: |
+          mkdir -p build/${{ matrix.isa }}
+          src="src/firmware/stack_${{ matrix.isa }}.firmware"
+          if [ -f "$src" ]; then
+            base=$(basename "$src" .firmware)
+            out="build/${{ matrix.isa }}/${base}-${{ matrix.isa }}.rom"
+            echo "Assembling $src to $out..."
+            nasm -f bin "$src" -o "$out"
+            sha256sum "$out" > "$out.sha256"
+          else
+            echo "Warning: Source file $src not found, skipping."
+          fi
+
+      - name: Upload Bytecode Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: stack-bytecode-${{ matrix.os }}-${{ matrix.isa }}
+          path: build/${{ matrix.isa }}/*
+
+  release:
+    needs: build-stack-bytecode
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4.2.2
+        with:
+          fetch-depth: 0
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4.1.8
+        with:
+          path: ./artifacts
+
+      - name: Create Manifest JSON
+        run: |
+          echo "[" > manifest.json
+          for f in $(find ./artifacts -name '*.rom'); do
+            HASH=$(sha256sum "$f" | cut -d ' ' -f1)
+            SIZE=$(stat -c%s "$f")
+            OSISA=$(basename $(dirname "$f"))
+            echo "  {\"file\":\"$(basename $f)\",\"osisa\":\"$OSISA\",\"size\":$SIZE,\"sha256\":\"$HASH\"}," >> manifest.json
+          done
+          sed -i '$ s/,$//' manifest.json
+          echo "]" >> manifest.json
+
+      - name: Get or Create Release
+        id: create_release
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const tag = 'latest-main-assets';
+            let release;
+            try {
+              release = await github.rest.repos.getReleaseByTag({
+                owner,
+                repo,
+                tag,
+              });
+              console.log(`Found existing release for tag ${tag}: ${release.data.id}`);
+            } catch (error) {
+              console.log(`Release for tag ${tag} not found, creating a new one.`);
+              release = await github.rest.repos.createRelease({
+                owner,
+                repo,
+                tag_name: tag,
+                name: 'Latest Main Branch Assets',
+                body: 'Automated release for latest main branch assets.',
+                draft: false,
+                prerelease: false,
+              });
+            }
+            core.setOutput('release_id', release.data.id);
+            core.setOutput('upload_url', release.data.upload_url);
+
+      - name: Delete existing assets (if any)
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const release_id = ${{ steps.create_release.outputs.release_id }};
+            const { data: assets } = await github.rest.repos.listReleaseAssets({
+              owner,
+              repo,
+              release_id,
+            });
+            for (const asset of assets) {
+              console.log(`Deleting asset: ${asset.name} (id: ${asset.id})`);
+              await github.rest.repos.deleteReleaseAsset({
+                owner,
+                repo,
+                asset_id: asset.id,
+              });
+            }
+
+      - name: Upload new assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./artifacts/**/*
+          asset_name: artifacts.zip
+          asset_content_type: application/zip
+
+      - name: Upload Manifest JSON
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./manifest.json
+          asset_name: manifest.json
+          asset_content_type: application/json

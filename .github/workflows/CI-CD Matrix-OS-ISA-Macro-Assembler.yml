@@ -1,0 +1,186 @@
+name: CI-CD Matrix-OS-ISA Macro Assembler Automated Releases
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  build-macro-asm:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        isa: [x86, arm, riscv]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Assembler Environment (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y nasm gcc
+
+      - name: Setup Assembler Environment (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install nasm
+
+      - name: Setup Assembler Environment (Windows)
+        if: runner.os == 'Windows'
+        run: choco install nasm -y
+
+      - name: Assemble Macro Code
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/macro/${{ matrix.isa }}
+
+          case "${{ matrix.isa }}" in
+            x86)   pattern="*x86.asm" ;;
+            arm)   pattern="*arm.asm" ;;
+            riscv) pattern="*riscv.asm" ;;
+            *)     pattern="*.asm" ;;
+          esac
+
+          found=0
+          while IFS= read -r -d '' src; do
+            found=1
+            out="build/macro/${{ matrix.isa }}/$(basename "${src}" .asm)-${{ matrix.isa }}.bin"
+            
+            if [[ "${{ matrix.isa }}" == "riscv" ]]; then
+              echo "Skipping NASM for RISC-V source: $src"
+              # Create a dummy file for RISC-V to avoid empty artifact error if needed, 
+              # but better to just skip and handle in release
+              continue
+            fi
+            
+            nasm -f bin "$src" -o "$out" || echo "Warning: Failed to assemble $src for ${{ matrix.isa }}"
+            
+            if [ -f "$out" ]; then
+              if command -v sha256sum >/dev/null 2>&1; then
+                sha256sum "$out" > "$out.sha256"
+              else
+                shasum -a 256 "$out" > "$out.sha256"
+              fi
+            fi
+          done < <(find src/macro -type f -name "$pattern" -print0)
+
+          if [ "$found" -eq 0 ]; then
+            echo "No macro assembler sources found for ${{ matrix.isa }}. Expected src/macro/$pattern"
+            exit 1
+          fi
+
+      - name: Upload Macro Assembler Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macro-${{ matrix.os }}-${{ matrix.isa }}
+          path: build/macro/${{ matrix.isa }}/*
+          if-no-files-found: warn
+
+  release:
+    needs: build-macro-asm
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download All Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+
+      - name: Create Manifest JSON
+        run: |
+          echo "[" > manifest.json
+          # Process only files that exist and have size > 0
+          find ./artifacts -type f \( -name "*.bin" -o -name "*.sha256" \) -size +0c | while read -r f; do
+            HASH=$(sha256sum "$f" | cut -d ' ' -f1)
+            SIZE=$(stat -c%s "$f")
+            OSISA=$(basename "$(dirname "$f")")
+            echo "  {\"file\":\"$(basename "$f")\",\"osisa\":\"$OSISA\",\"size\":$SIZE,\"sha256\":\"$HASH\"}," >> manifest.json
+          done
+          
+          # Remove trailing comma and close JSON
+          if [ -s manifest.json ]; then
+            sed -i '$ s/,$//' manifest.json
+          fi
+          echo "]" >> manifest.json
+          
+          # Debug: show manifest
+          cat manifest.json
+
+      - name: Get or Create Release
+        id: create_release
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const tag = 'latest-main-macro-assets';
+            let release;
+            try {
+              release = await github.rest.repos.getReleaseByTag({
+                owner,
+                repo,
+                tag,
+              });
+              console.log(`Found existing release for tag ${tag}: ${release.data.id}`);
+            } catch (error) {
+              console.log(`Release for tag ${tag} not found, creating a new one.`);
+              release = await github.rest.repos.createRelease({
+                owner,
+                repo,
+                tag_name: tag,
+                name: 'Latest Main Branch Macro Assets',
+                body: 'Automated release for latest main branch macro assets.',
+                draft: false,
+                prerelease: false,
+              });
+            }
+            core.setOutput('release_id', release.data.id);
+            core.setOutput('upload_url', release.data.upload_url);
+
+      - name: Delete existing assets (if any)
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const release_id = ${{ steps.create_release.outputs.release_id }};
+            const { data: assets } = await github.rest.repos.listReleaseAssets({
+              owner,
+              repo,
+              release_id,
+            });
+            for (const asset of assets) {
+              console.log(`Deleting asset: ${asset.name} (id: ${asset.id})`);
+              await github.rest.repos.deleteReleaseAsset({
+                owner,
+                repo,
+                asset_id: asset.id,
+              });
+            }
+
+      - name: Upload new assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./artifacts/**/*
+          asset_name: macro-artifacts.zip
+          asset_content_type: application/zip
+
+      - name: Upload Manifest JSON
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./manifest.json
+          asset_name: manifest.json
+          asset_content_type: application/json

@@ -1,0 +1,30 @@
+messages:
+  - role: user
+    content: |
+      The World has changed 
+      The be the same 
+model: microsoft/phi-4-multimodal-instruct
+testData:
+  - {}
+  - {}
+evaluators:
+  - name: Fluency
+    uses: github/fluency
+  - name: Border
+    llm:
+      model: Llama-4-Maverick-17B-128E-Instruct-FP8
+      modelId: >-
+        azureml://registries/azureml-meta/models/Llama-4-Maverick-17B-128E-Instruct-FP8/versions/1
+      prompt: 'A History forgotten '
+      choices:
+        - choice: MetaverseOS
+          score: 2
+        - choice: Gen-AI
+          score: 2
+      modelParameters:
+        presence_penalty: 1
+        frequency_penalty: 1
+        stop: Node
+      systemPrompt: 'Eve beforehand the and and the beginning '
+  - name: Relevance
+    uses: github/relevance
