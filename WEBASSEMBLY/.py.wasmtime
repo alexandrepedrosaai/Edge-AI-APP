@@ -1,0 +1,56 @@
+import wasmtime
+import struct
+
+# Engine e store
+engine = wasmtime.Engine()
+store = wasmtime.Store(engine)
+
+# Carrega o módulo
+module = wasmtime.Module.from_file(engine, "mega_math.wasm")
+instance = wasmtime.Instance(store, module, [])
+
+# Acessa memória linear
+memory = instance.exports(store)["memory"]
+
+# Função de multiplicação de matriz
+mat_mul = instance.exports(store)["mat_mul"]
+
+# Helper para escrever floats na memória WASM
+def write_matrix(ptr, mat, N):
+    for i in range(N):
+        for j in range(N):
+            offset = ptr + (i * N + j) * 4
+            val = mat[i][j]
+            memory.data_ptr(store)[offset:offset+4] = struct.pack("<f", val)
+
+def read_matrix(ptr, N):
+    mat = []
+    for i in range(N):
+        row = []
+        for j in range(N):
+            offset = ptr + (i * N + j) * 4
+            val = struct.unpack("<f", memory.data_ptr(store)[offset:offset+4])[0]
+            row.append(val)
+        mat.append(row)
+    return mat
+
+# Define matrizes
+A = [[1.0, 2.0], [3.0, 4.0]]
+B = [[5.0, 6.0], [7.0, 8.0]]
+N = 2
+
+# Ponteiros (endereços arbitrários na memória linear)
+ptr_A = 0
+ptr_B = N*N*4
+ptr_C = 2*N*N*4
+
+# Escreve A e B na memória
+write_matrix(ptr_A, A, N)
+write_matrix(ptr_B, B, N)
+
+# Chama mat_mul
+mat_mul(store, ptr_A, ptr_B, ptr_C, N)
+
+# Lê resultado
+C = read_matrix(ptr_C, N)
+print("Resultado da multiplicação:", C)
