@@ -37,13 +37,18 @@ jobs:
         TIMESTAMP=$(date +%Y%m%d%H%M%S)
         DYNAMIC_TAG="3d-dynamic-${TIMESTAMP}"
         
+        # Define the 3D WebAssembly transformation description
+        DESCRIPTION="Transform WebAssembly functions into 3D dynamic environments for Edge-AI-APP"
+        
         echo "Building and pushing image: ghcr.io/${REPO_LOWER}/edge-ai-3d:${DYNAMIC_TAG}"
         
         docker buildx build \
           --platform linux/amd64,linux/arm64 \
           -t ghcr.io/${REPO_LOWER}/edge-ai-3d:${DYNAMIC_TAG} \
           -t ghcr.io/${REPO_LOWER}/edge-ai-3d:latest \
+          --label "org.opencontainers.image.description=${DESCRIPTION}" \
+          --label "com.edge-ai-app.feature=3d-wasm-transformation" \
           --file Dockerfile \
           --push \
           .
-          
+
