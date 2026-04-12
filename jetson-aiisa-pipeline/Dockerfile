@@ -13,5 +13,5 @@ COPY src/cpp/ ./src/cpp/
 COPY scripts/build.sh ./scripts/
 COPY tests/ ./tests/
 
-RUN chmod +x ./scripts/build.sh && ./scripts/build.sh
+RUN chmod +x ./scripts/build.sh ./tests/run_tests.sh && ./scripts/build.sh
 CMD ["./pipeline_exec"]
