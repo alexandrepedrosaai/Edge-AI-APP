@@ -73,13 +73,15 @@ jobs:
       # Build Docker image
       - name: Build Docker image
         run: |
-          docker build -t ghcr.io/${{ github.repository }}/tensorflow:${{ github.run_number }} .
+          REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          docker build -t ghcr.io/${REPO_LOWER}/tensorflow:${{ github.run_number }} .
 
       # Push Docker image
       - name: Push Docker image
         run: |
+          REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-          docker push ghcr.io/${{ github.repository }}/tensorflow:${{ github.run_number }}
+          docker push ghcr.io/${REPO_LOWER}/tensorflow:${{ github.run_number }}
 
       # Upload artifacts
       - name: Upload artifacts
