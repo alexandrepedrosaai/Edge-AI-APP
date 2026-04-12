@@ -1,0 +1,61 @@
+name: CUDA Matrix Build & Release (PXT)
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - feature/*
+
+jobs:
+  build-matrix:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [sm_50, sm_70, sm_80]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install CUDA Toolkit (KXT)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y nvidia-cuda-toolkit
+
+      - name: Compile CUDA kernels
+        run: |
+          mkdir -p build/${{ matrix.arch }}
+          for file in $(find src -name "*.cu"); do
+            base=$(basename $file .cu)
+            nvcc -arch=${{ matrix.arch }} -ptx "$file" -o "build/${{ matrix.arch }}/${base}_${{ matrix.arch }}.pxt"
+            nvcc -arch=${{ matrix.arch }} -cubin "$file" -o "build/${{ matrix.arch }}/${base}_${{ matrix.arch }}.cubin"
+          done
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: cuda-binaries-${{ matrix.arch }}
+          path: build/${{ matrix.arch }}/*
+
+  release:
+    if: github.ref == 'refs/heads/main'
+    needs: build-matrix
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: cuda-binaries-sm_50
+          path: release/sm_50/
+      - uses: actions/download-artifact@v4
+        with:
+          name: cuda-binaries-sm_70
+          path: release/sm_70/
+      - uses: actions/download-artifact@v4
+        with:
+          name: cuda-binaries-sm_80
+          path: release/sm_80/
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release/**/*.{pxt,cubin}
+          tag_name: vPXT-${{ github.run_number }}
+          name: "CUDA Matrix Release ${{ github.run_number }}"
