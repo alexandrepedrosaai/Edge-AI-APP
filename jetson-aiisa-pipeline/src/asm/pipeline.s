@@ -10,12 +10,19 @@ WEIGHTS: .word 2, 2, 2, 2   // pesos para dot product
 RESULT:  .word 0
 
     .section .text
-    .global _start
+    .global pipeline
+    .type pipeline, %function
 
-_start:
+pipeline:
+    // Save frame pointer and link register
+    stp x29, x30, [sp, #-16]!
+    mov x29, sp
+
     // --- Conv2D (janela 2x2 no canto superior esquerdo) ---
-    LDR x0, =INPUT
-    LDR x1, =FILTER
+    adrp x0, INPUT
+    add x0, x0, :lo12:INPUT
+    adrp x1, FILTER
+    add x1, x1, :lo12:FILTER
 
     LDR w2, [x0]        // INPUT[0][0]
     LDR w3, [x0, #4]    // INPUT[0][1]
@@ -41,7 +48,8 @@ _start:
     CSEL w13, w10, w12, GT   // w13 = max(conv2d, 7)
 
     // --- Dot Product (com pesos) ---
-    LDR x2, =WEIGHTS
+    adrp x2, WEIGHTS
+    add x2, x2, :lo12:WEIGHTS
     LDR w14, [x2]       // peso 0
     MUL w15, w13, w14   // dot product simplificado
 
@@ -50,10 +58,10 @@ _start:
     CSEL w16, w15, wzr, GT   // w16 = max(0, w15)
 
     // --- Output ---
-    LDR x3, =RESULT
+    adrp x3, RESULT
+    add x3, x3, :lo12:RESULT
     STR w16, [x3]
 
-    // Encerrar
-    MOV x8, #93
-    MOV x0, #0
-    SVC #0
+    // Restore and return
+    ldp x29, x30, [sp], #16
+    ret
