@@ -1,4 +1,3 @@
-import argparse
 import tensorflow as tf
 import tf2onnx
 
@@ -23,12 +22,3 @@ def export_model(h5_path: str, onnx_path: str, tflite_path: str):
     with open(tflite_path, "wb") as f:
         f.write(tflite_model)
     print(f"Model exported to {tflite_path}")
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("h5_path", type=str)
-    parser.add_argument("onnx_path", type=str)
-    parser.add_argument("tflite_path", type=str)
-    args = parser.parse_args()
-    export_model(args.h5_path, args.onnx_path, args.tflite_path)
