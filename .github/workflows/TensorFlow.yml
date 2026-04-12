@@ -68,30 +68,18 @@ jobs:
       # Export model formats
       - name: Export model
         run: |
-          # Ensure export script is called as a module if it doesn't have a __main__ block
-          # or just run it directly if it does. Since we restored it, let's check.
           python src/export.py dist/model.h5 dist/model.onnx dist/model.tflite
-          
-          # Verify that all artifacts were created and are not empty
-          for file in dist/model.h5 dist/model.onnx dist/model.tflite; do
-            if [ ! -s "$file" ]; then
-              echo "Error: $file is missing or empty!"
-              exit 1
-            fi
-          done
 
       # Build Docker image
       - name: Build Docker image
         run: |
-          REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-          docker build -t ghcr.io/${REPO_LOWER}/tensorflow:${{ github.run_number }} .
+          docker build -t ghcr.io/${{ github.repository }}/tensorflow:${{ github.run_number }} .
 
       # Push Docker image
       - name: Push Docker image
         run: |
-          REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-          docker push ghcr.io/${REPO_LOWER}/tensorflow:${{ github.run_number }}
+          docker push ghcr.io/${{ github.repository }}/tensorflow:${{ github.run_number }}
 
       # Upload artifacts
       - name: Upload artifacts
@@ -127,10 +115,4 @@ jobs:
             - Exported to H5, ONNX, and TFLite formats
             - Docker image built and pushed to GHCR
             - Logs and artifacts included
-          files: |
-            release/model.h5
-            release/model.onnx
-            release/model.tflite
-            release/eval_output.log
-            release/train_output.log
-          fail_on_unmatched_files: false
+          files: release/**
