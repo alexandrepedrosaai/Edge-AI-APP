@@ -1,4 +1,4 @@
-FROM nvcr.io/nvidia/l4t-base:r35.3.1
+FROM nvcr.io/nvidia/l4t-base:r35.1.0
 
 RUN apt-get update && apt-get install -y \
     build-essential \
