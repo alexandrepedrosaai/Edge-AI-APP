@@ -9,30 +9,37 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Build Docker image
-        run: docker build -t jetson-aiisa-pipeline jetson-aiisa-pipeline/
+        run: |
+          docker buildx build --platform linux/arm64 -t jetson-aiisa-pipeline jetson-aiisa-pipeline/ --load
 
       - name: Run unit tests in container
-        run: docker run --rm jetson-aiisa-pipeline ./tests/run_tests.sh
+        run: |
+          docker run --rm --platform linux/arm64 jetson-aiisa-pipeline ./tests/run_tests.sh
 
       - name: Push Docker image to GitHub Container Registry
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           docker tag jetson-aiisa-pipeline ghcr.io/${{ github.repository }}/jetson-aiisa-pipeline:latest
           docker push ghcr.io/${{ github.repository }}/jetson-aiisa-pipeline:latest
-          FROM nvcr.io/nvidia/l4t-base:r35.3.1
 
   release:
     runs-on: ubuntu-latest
     needs: build
     steps:
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: v1.${{ github.run_number }}
           name: "Jetson AI-ISA Release v1.${{ github.run_number }}"
           body: "Automated release of Jetson AI-ISA pipeline with Docker image and binaries."
-
-
