@@ -31,7 +31,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: cpp-binaries
-          path: build/EdgeAIApp
+          path: build/edge_ai_manager
 
   release:
     runs-on: ubuntu-latest
