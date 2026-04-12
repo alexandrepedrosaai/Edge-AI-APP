@@ -68,7 +68,17 @@ jobs:
       # Export model formats
       - name: Export model
         run: |
+          # Ensure export script is called as a module if it doesn't have a __main__ block
+          # or just run it directly if it does. Since we restored it, let's check.
           python src/export.py dist/model.h5 dist/model.onnx dist/model.tflite
+          
+          # Verify that all artifacts were created and are not empty
+          for file in dist/model.h5 dist/model.onnx dist/model.tflite; do
+            if [ ! -s "$file" ]; then
+              echo "Error: $file is missing or empty!"
+              exit 1
+            fi
+          done
 
       # Build Docker image
       - name: Build Docker image
@@ -117,4 +127,10 @@ jobs:
             - Exported to H5, ONNX, and TFLite formats
             - Docker image built and pushed to GHCR
             - Logs and artifacts included
-          files: release/**
+          files: |
+            release/model.h5
+            release/model.onnx
+            release/model.tflite
+            release/eval_output.log
+            release/train_output.log
+          fail_on_unmatched_files: false
