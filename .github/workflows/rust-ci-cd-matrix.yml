@@ -1,0 +1,158 @@
+name: Rust CI/CD Matrix
+
+on:
+  push:
+    branches: [ "main" ]
+  release:
+    types: [created]
+
+permissions:
+  contents: write
+
+env:
+  RUST_BACKTRACE: 1
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Linux x86_64
+          - os: ubuntu-latest
+            rust: stable
+            target: x86_64-unknown-linux-gnu
+            use_cross: false
+          - os: ubuntu-latest
+            rust: nightly
+            target: x86_64-unknown-linux-gnu
+            use_cross: false
+          # Linux aarch64 (cross-compile)
+          - os: ubuntu-latest
+            rust: stable
+            target: aarch64-unknown-linux-gnu
+            use_cross: true
+          - os: ubuntu-latest
+            rust: nightly
+            target: aarch64-unknown-linux-gnu
+            use_cross: true
+          # Windows x86_64
+          - os: windows-latest
+            rust: stable
+            target: x86_64-pc-windows-msvc
+            use_cross: false
+          - os: windows-latest
+            rust: nightly
+            target: x86_64-pc-windows-msvc
+            use_cross: false
+          # macOS x86_64
+          - os: macos-latest
+            rust: stable
+            target: x86_64-apple-darwin
+            use_cross: false
+          - os: macos-latest
+            rust: nightly
+            target: x86_64-apple-darwin
+            use_cross: false
+          # macOS aarch64 (Apple Silicon)
+          - os: macos-latest
+            rust: stable
+            target: aarch64-apple-darwin
+            use_cross: false
+          - os: macos-latest
+            rust: nightly
+            target: aarch64-apple-darwin
+            use_cross: false
+
+    defaults:
+      run:
+        working-directory: AI-Writer-CherryGarden-Ressonance-Copilot-Meta-AI/rust-core
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.rust }}
+          targets: ${{ matrix.target }}
+
+      - name: Install cross (pre-compiled binary)
+        if: matrix.use_cross == true
+        run: |
+          curl -L https://github.com/cross-rs/cross/releases/latest/download/cross-x86_64-unknown-linux-musl.tar.gz | tar xz -C /usr/local/bin
+          chmod +x /usr/local/bin/cross
+
+      - name: Build project (native)
+        if: matrix.use_cross == false
+        run: cargo build --release --target ${{ matrix.target }}
+
+      - name: Build project (cross)
+        if: matrix.use_cross == true
+        run: cross build --release --target ${{ matrix.target }}
+
+      - name: Run tests (native only)
+        if: matrix.use_cross == false
+        run: cargo test --target ${{ matrix.target }}
+
+      - name: Rename binary for upload (Unix)
+        if: matrix.os != 'windows-latest'
+        run: |
+          mkdir -p /tmp/artifacts
+          cp target/${{ matrix.target }}/release/edge-ai-rust-core \
+             /tmp/artifacts/edge-ai-rust-core-${{ matrix.target }}-${{ matrix.rust }}
+
+      - name: Rename binary for upload (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path C:\artifacts
+          Copy-Item target\${{ matrix.target }}\release\edge-ai-rust-core.exe `
+            C:\artifacts\edge-ai-rust-core-${{ matrix.target }}-${{ matrix.rust }}.exe
+
+      - name: Upload artifact (Unix)
+        if: matrix.os != 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: edge-ai-rust-core-${{ matrix.target }}-${{ matrix.rust }}
+          path: /tmp/artifacts/edge-ai-rust-core-${{ matrix.target }}-${{ matrix.rust }}
+
+      - name: Upload artifact (Windows)
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: edge-ai-rust-core-${{ matrix.target }}-${{ matrix.rust }}
+          path: C:\artifacts\edge-ai-rust-core-${{ matrix.target }}-${{ matrix.rust }}.exe
+
+  release:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+
+      - name: List artifacts
+        run: find artifacts/ -type f | sort
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: rust-matrix-latest
+          name: "Rust Core Matrix — Latest Build"
+          body: |
+            Automated multi-platform release of the Edge AI Rust core binary.
+            Built from commit ${{ github.sha }} on branch `main`.
+
+            **Available binaries:**
+            - Linux x86_64 (stable & nightly)
+            - Linux aarch64 (stable & nightly, cross-compiled)
+            - Windows x86_64 (stable & nightly)
+            - macOS x86_64 (stable & nightly)
+            - macOS aarch64 / Apple Silicon (stable & nightly)
+          files: artifacts/**/*
+          prerelease: false

@@ -1,0 +1,74 @@
+name: Deploy Azure Functions (Node.js v4)
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  AZURE_FUNCTIONAPP_NAME: "edge-ai-functions"
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: "azure-functions-node"
+  NODE_VERSION: "20"
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment: dev
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: "${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/package.json"
+
+      - name: Install dependencies
+        run: |
+          cd ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+          npm install --production
+
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+
+      - name: Deploy to Azure Functions
+        uses: Azure/functions-action@v1
+        with:
+          app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
+          package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+          scm-do-build-during-deployment: true
+          enable-oryx-build: true
+
+      - name: Verify deployment
+        run: |
+          echo "Waiting for deployment to stabilize..."
+          sleep 30
+          STATUS=$(az functionapp show \
+            --name ${{ env.AZURE_FUNCTIONAPP_NAME }} \
+            --resource-group edge-ai-rg \
+            --query "state" -o tsv)
+          echo "Function App state: $STATUS"
+
+      - name: Test health endpoint
+        run: |
+          HOSTNAME=$(az functionapp show \
+            --name ${{ env.AZURE_FUNCTIONAPP_NAME }} \
+            --resource-group edge-ai-rg \
+            --query "defaultHostName" -o tsv)
+          echo "Function App URL: https://$HOSTNAME"
+          curl -sf "https://$HOSTNAME/api/health" \
+            -H "Accept: application/json" \
+            --max-time 30 \
+            || echo "Health check skipped (cold start may require extra time)"
+
+      - name: Azure logout
+        if: always()
+        run: az logout

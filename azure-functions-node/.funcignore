@@ -1,0 +1,9 @@
+*.md
+.git*
+.vscode
+local.settings.json
+test
+tests
+__tests__
+.env
+.env.*

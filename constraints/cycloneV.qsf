@@ -1,0 +1,31 @@
+# Intel Cyclone V Pin Constraints — Edge-AI-APP
+# Device: 5CSEMA5F31C6 (DE1-SoC board)
+
+set_global_assignment -name FAMILY "Cyclone V"
+set_global_assignment -name DEVICE 5CSEMA5F31C6
+set_global_assignment -name TOP_LEVEL_ENTITY top_entity
+set_global_assignment -name PROJECT_OUTPUT_DIRECTORY fpga_build
+
+# Clock — 50 MHz on-board oscillator (PIN_AF14)
+set_location_assignment PIN_AF14 -to clk
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to clk
+
+# Reset — KEY[0] (active low)
+set_location_assignment PIN_AA14 -to reset_n
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to reset_n
+
+# Buttons — KEY[1..2]
+set_location_assignment PIN_AA15 -to button[0]
+set_location_assignment PIN_W15  -to button[1]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to button[0]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to button[1]
+
+# LEDs — LEDR[0..1]
+set_location_assignment PIN_V16 -to led[0]
+set_location_assignment PIN_W16 -to led[1]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to led[0]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to led[1]
+
+# Timing constraints
+set_global_assignment -name TIMING_ANALYZER_MULTICORNER_ANALYSIS ON
+create_clock -period 20.000 -name clk [get_ports clk]

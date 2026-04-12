@@ -1,0 +1,220 @@
+# =============================================================================
+# Edge-AI-APP — Publish 5 Containers to GitHub Container Registry (GHCR)
+# Registry: ghcr.io/alexandrepedrosaai/
+# Author: Alexandre Pedrosa — EVP Multimodal AI Engineer (Meta / Microsoft Azure)
+# =============================================================================
+
+name: Publish Containers to GHCR
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'containers/**'
+      - 'build-assembly.sh'
+      - '.ASM_HEX/**'
+      - 'docker-compose.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  OWNER: alexandrepedrosaai
+
+jobs:
+
+  # ── 1. Silicon-Hardwere (asm_hex) ─────────────────────────────────────────
+  silicon-hardwere:
+    name: Build & Push Silicon-Hardwere
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.OWNER }}/silicon-hardwere
+          tags: |
+            type=sha,prefix=sha-
+            type=raw,value=latest
+            type=raw,value=asm_hex
+
+      - name: Build and push Silicon-Hardwere
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: containers/Silicon-Hardwere/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  # ── 2. MLP (hex_asm) ──────────────────────────────────────────────────────
+  mlp:
+    name: Build & Push MLP
+    runs-on: ubuntu-latest
+    needs: silicon-hardwere
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.OWNER }}/mlp
+          tags: |
+            type=sha,prefix=sha-
+            type=raw,value=latest
+            type=raw,value=hex_asm
+
+      - name: Build and push MLP
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: containers/MLP/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  # ── 3. Edge-CNN+MLP.AI (asm-hex + xAI) ───────────────────────────────────
+  edge-cnn-mlp-ai:
+    name: Build & Push Edge-CNN+MLP.AI
+    runs-on: ubuntu-latest
+    needs: mlp
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.OWNER }}/edge-cnn-mlp-ai
+          tags: |
+            type=sha,prefix=sha-
+            type=raw,value=latest
+            type=raw,value=asm-hex-xai
+
+      - name: Build and push Edge-CNN+MLP.AI
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: containers/Edge-CNN-MLP-AI/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  # ── 4. Edge-Chip-Hex (hex + Azure ACS + WhatsApp) ─────────────────────────
+  edge-chip-hex:
+    name: Build & Push Edge-Chip-Hex
+    runs-on: ubuntu-latest
+    needs: silicon-hardwere
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.OWNER }}/edge-chip-hex
+          tags: |
+            type=sha,prefix=sha-
+            type=raw,value=latest
+            type=raw,value=hex-azure-acs
+
+      - name: Build and push Edge-Chip-Hex
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: containers/Edge-Chip-Hex/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  # ── 5. Edge-Silicon-Chip (asm-syscalls + PQC) ─────────────────────────────
+  edge-silicon-chip:
+    name: Build & Push Edge-Silicon-Chip
+    runs-on: ubuntu-latest
+    needs: [ edge-cnn-mlp-ai, edge-chip-hex ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.OWNER }}/edge-silicon-chip
+          tags: |
+            type=sha,prefix=sha-
+            type=raw,value=latest
+            type=raw,value=asm-syscalls-pqc
+
+      - name: Build and push Edge-Silicon-Chip
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: containers/Edge-Silicon-Chip/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  # ── Summary ────────────────────────────────────────────────────────────────
+  summary:
+    name: Publish Summary
+    runs-on: ubuntu-latest
+    needs: [ silicon-hardwere, mlp, edge-cnn-mlp-ai, edge-chip-hex, edge-silicon-chip ]
+    if: always()
+    steps:
+      - name: Write summary
+        run: |
+          echo "# GHCR Publish Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Container | Image | Combination |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|---|" >> $GITHUB_STEP_SUMMARY
+          echo "| Silicon-Hardwere | \`ghcr.io/alexandrepedrosaai/silicon-hardwere:latest\` | asm_hex |" >> $GITHUB_STEP_SUMMARY
+          echo "| MLP | \`ghcr.io/alexandrepedrosaai/mlp:latest\` | hex_asm |" >> $GITHUB_STEP_SUMMARY
+          echo "| Edge-CNN+MLP.AI | \`ghcr.io/alexandrepedrosaai/edge-cnn-mlp-ai:latest\` | asm-hex+xAI |" >> $GITHUB_STEP_SUMMARY
+          echo "| Edge-Chip-Hex | \`ghcr.io/alexandrepedrosaai/edge-chip-hex:latest\` | hex+azure-acs |" >> $GITHUB_STEP_SUMMARY
+          echo "| Edge-Silicon-Chip | \`ghcr.io/alexandrepedrosaai/edge-silicon-chip:latest\` | asm-syscalls+pqc |" >> $GITHUB_STEP_SUMMARY

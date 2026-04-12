@@ -1,0 +1,59 @@
+name: Swift iOS CI/CD Build & Release
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Swift
+        run: |
+          swift --version
+
+      - name: Build Swift Package
+        working-directory: Swift
+        run: |
+          # Compila o projeto como um Swift Package (não precisa de .xcodeproj)
+          swift build -c release
+
+      - name: Prepare artifacts
+        run: |
+          mkdir -p artifacts
+          # Copia o binário compilado para a pasta de artefatos
+          cp Swift/.build/release/EdgeAiSwiftApp artifacts/ || echo "No binary found"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: edge-ai-swift-binaries
+          path: artifacts/
+
+  release-ios:
+    needs: build-ios
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: edge-ai-swift-binaries
+          path: artifacts/
+
+      - name: Create Automated Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: swift-v${{ github.run_number }}
+          name: "Edge-AI-APP Swift Release ${{ github.run_number }}"
+          files: artifacts/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

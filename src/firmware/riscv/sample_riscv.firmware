@@ -1,0 +1,12 @@
+.section .text
+.globl _start
+_start:
+    li t0, 1
+    li t1, 5
+    add t2, t0, t1   # soma
+    li t3, 2
+    mul t4, t2, t3   # multiplicação
+    addi t5, t4, -3  # subtração
+    mv a0, t5
+    li a7, 93        # exit syscall
+    ecall

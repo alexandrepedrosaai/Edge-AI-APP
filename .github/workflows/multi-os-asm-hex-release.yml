@@ -1,0 +1,271 @@
+name: Multi-OS ASM & HEX Release
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+
+  # ============================================================
+  # BUILD: Linux x64
+  # ============================================================
+  build-linux:
+    name: Build ASM/HEX — Linux x64
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install NASM & binutils
+        run: sudo apt-get update -qq && sudo apt-get install -y nasm yasm binutils
+
+      - name: Collect .asm and .HEX files
+        run: |
+          mkdir -p dist/linux
+          # Copy all .asm files
+          find . -maxdepth 2 -name "*.asm" ! -path "./.git/*" -exec cp {} dist/linux/ \;
+          # Copy all .hex / .HEX files from .ASM_HEX
+          find .ASM_HEX -name "*.hex" -exec cp {} dist/linux/ \; 2>/dev/null || true
+          # Assemble manifest.asm to ELF64 object (Linux only)
+          nasm -f elf64 manifest.asm -o dist/linux/manifest.o 2>/dev/null || true
+          nasm -f elf64 Symbolic.asm  -o dist/linux/Symbolic.o  2>/dev/null || true
+          ls -lh dist/linux/
+
+      - name: Generate Linux SBOM manifest
+        run: |
+          echo '{' > dist/linux/sbom-linux.json
+          echo '  "platform": "linux-x64",' >> dist/linux/sbom-linux.json
+          echo '  "run": ${{ github.run_number }},' >> dist/linux/sbom-linux.json
+          echo '  "commit": "${{ github.sha }}",' >> dist/linux/sbom-linux.json
+          echo '  "date": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'",' >> dist/linux/sbom-linux.json
+          echo '  "files": ['$(ls dist/linux/ | python3 -c "import sys; print(','.join(['\"'+l.strip()+'\"' for l in sys.stdin]))")']' >> dist/linux/sbom-linux.json
+          echo '}' >> dist/linux/sbom-linux.json
+
+      - name: Package Linux artifacts
+        run: tar czf multi-os-linux-${{ github.run_number }}.tar.gz -C dist/linux .
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: asm-hex-linux
+          path: multi-os-linux-${{ github.run_number }}.tar.gz
+
+  # ============================================================
+  # BUILD: macOS x64
+  # ============================================================
+  build-macos:
+    name: Build ASM/HEX — macOS x64
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install NASM
+        run: brew install nasm
+
+      - name: Collect .asm and .HEX files
+        run: |
+          mkdir -p dist/macos
+          find . -maxdepth 2 -name "*.asm" ! -path "./.git/*" -exec cp {} dist/macos/ \;
+          find .ASM_HEX -name "*.hex" -exec cp {} dist/macos/ \; 2>/dev/null || true
+          # Assemble to Mach-O object (macOS)
+          nasm -f macho64 manifest.asm -o dist/macos/manifest.o 2>/dev/null || true
+          nasm -f macho64 Symbolic.asm  -o dist/macos/Symbolic.o  2>/dev/null || true
+          ls -lh dist/macos/
+
+      - name: Generate macOS SBOM manifest
+        run: |
+          echo '{' > dist/macos/sbom-macos.json
+          echo '  "platform": "macos-x64",' >> dist/macos/sbom-macos.json
+          echo '  "run": ${{ github.run_number }},' >> dist/macos/sbom-macos.json
+          echo '  "commit": "${{ github.sha }}",' >> dist/macos/sbom-macos.json
+          echo '  "date": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'",' >> dist/macos/sbom-macos.json
+          echo '  "files": ['$(ls dist/macos/ | python3 -c "import sys; print(','.join(['\"'+l.strip()+'\"' for l in sys.stdin]))")']' >> dist/macos/sbom-macos.json
+          echo '}' >> dist/macos/sbom-macos.json
+
+      - name: Package macOS artifacts
+        run: tar czf multi-os-macos-${{ github.run_number }}.tar.gz -C dist/macos .
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: asm-hex-macos
+          path: multi-os-macos-${{ github.run_number }}.tar.gz
+
+  # ============================================================
+  # BUILD: Windows x64
+  # ============================================================
+  build-windows:
+    name: Build ASM/HEX — Windows x64
+    runs-on: windows-latest
+    steps:
+      - name: Enable long paths
+        run: git config --system core.longpaths true
+        shell: pwsh
+
+      - uses: actions/checkout@v4
+
+      - name: Install NASM via Chocolatey
+        run: choco install nasm --no-progress -y
+        shell: pwsh
+
+      - name: Collect .asm and .HEX files
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Continue'
+          New-Item -ItemType Directory -Force -Path dist\windows | Out-Null
+
+          Get-ChildItem -Recurse -Filter "*.asm" -File |
+            Where-Object {
+              $_.FullName -notmatch '\\.git\\' -and
+              $_.FullName -notmatch '\\dist\\windows\\'
+            } |
+            Copy-Item -Destination dist\windows\ -Force
+
+          if (Test-Path ".ASM_HEX") {
+            Get-ChildItem -Path ".ASM_HEX" -Filter "*.hex" -File |
+              Copy-Item -Destination dist\windows\ -Force
+          }
+
+          # Attempt NASM assembly (errors are non-fatal)
+          $nasm = "C:\Program Files\NASM\nasm.exe"
+          if (Test-Path $nasm) {
+            & $nasm -f win64 manifest.asm -o dist\windows\manifest.obj 2>&1 | Out-Null
+            & $nasm -f win64 Symbolic.asm  -o dist\windows\Symbolic.obj  2>&1 | Out-Null
+          }
+
+          Get-ChildItem dist\windows\ | Format-Table Name, Length
+          exit 0
+
+      - name: Generate Windows SBOM manifest
+        shell: pwsh
+        run: |
+          $files = (Get-ChildItem dist\windows\ | Select-Object -ExpandProperty Name | ForEach-Object { "`"$_`"" }) -join ","
+          $json = @"
+          {
+            "platform": "windows-x64",
+            "run": ${{ github.run_number }},
+            "commit": "${{ github.sha }}",
+            "date": "$(Get-Date -Format 'yyyy-MM-ddTHH:mm:ssZ' -AsUTC)",
+            "files": [$files]
+          }
+          "@
+          $json | Out-File -FilePath dist\windows\sbom-windows.json -Encoding utf8
+
+      - name: Package Windows artifacts
+        shell: pwsh
+        run: Compress-Archive -Path dist\windows\* -DestinationPath "multi-os-windows-${{ github.run_number }}.zip"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: asm-hex-windows
+          path: multi-os-windows-${{ github.run_number }}.zip
+
+  # ============================================================
+  # RELEASE: Collect all artifacts and publish GitHub Release
+  # ============================================================
+  release:
+    name: Publish GitHub Release
+    runs-on: ubuntu-latest
+    needs: [build-linux, build-macos, build-windows]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all platform artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./release-artifacts
+
+      - name: Flatten artifact files
+        run: |
+          find release-artifacts -type f | while read f; do
+            mv "$f" ./
+          done
+          ls -lh *.tar.gz *.zip 2>/dev/null
+
+      - name: Generate global SBOM
+        run: |
+          cat > sbom.json <<EOF
+          {
+            "name": "edge-ai-from-cloud-sky-to-silicon-metal-prisioner-at-the-exoteric-hex-chip",
+            "version": "multi-os-v${{ github.run_number }}",
+            "commit": "${{ github.sha }}",
+            "date": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "platforms": ["linux-x64", "macos-x64", "windows-x64"],
+            "artifacts": ["multi-os-linux-${{ github.run_number }}.tar.gz", "multi-os-macos-${{ github.run_number }}.tar.gz", "multi-os-windows-${{ github.run_number }}.zip"],
+            "asm_files": ["manifest.asm", "Symbolic.asm", "Pseudo-bytecode.asm", "vite.config.asm"],
+            "hex_source": ".ASM_HEX/"
+          }
+          EOF
+
+      - name: Generate attention manifest
+        run: |
+          cat > attention.json <<EOF
+          {
+            "type": "attention",
+            "build": ${{ github.run_number }},
+            "commit": "${{ github.sha }}",
+            "message": "Edge-AI-APP ASM/HEX Multi-OS Release — Assembly pipeline across Linux, macOS and Windows",
+            "author": "${{ github.actor }}",
+            "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          }
+          EOF
+
+      - name: Generate immutable manifest
+        run: |
+          cat > immutable.json <<EOF
+          {
+            "type": "immutable",
+            "tag": "multi-os-v${{ github.run_number }}",
+            "sha256_commit": "${{ github.sha }}",
+            "inscription": "Edge-AI-APP — from cloud sky to silicon metal — exoteric hex chip — eternal build ${{ github.run_number }}"
+          }
+          EOF
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: multi-os-v${{ github.run_number }}
+          name: "Multi-OS ASM/HEX Build ${{ github.run_number }}"
+          body: |
+            ## Multi-OS ASM & HEX Release — Build ${{ github.run_number }}
+
+            **Commit:** ${{ github.sha }}
+            **Date:** ${{ github.event.head_commit.timestamp }}
+
+            ### Platform Binaries & Artifacts
+
+            | Platform | Archive | Contents |
+            |----------|---------|----------|
+            | Linux x64 | `multi-os-linux-${{ github.run_number }}.tar.gz` | `.asm`, `.HEX`, `.o` ELF64 objects |
+            | macOS x64 | `multi-os-macos-${{ github.run_number }}.tar.gz` | `.asm`, `.HEX`, `.o` Mach-O objects |
+            | Windows x64 | `multi-os-windows-${{ github.run_number }}.zip` | `.asm`, `.HEX`, `.obj` Win64 COFF objects |
+
+            ### Assembly Sources Included
+            - `manifest.asm` — Edge-AI-APP manifest in x86-64 Assembly
+            - `Symbolic.asm` — Symbolic white paper in Assembly
+            - `Pseudo-bytecode.asm` — IA VM Bytecode Manifesto
+            - `vite.config.asm` — Vite configuration in Assembly notation
+            - All `.HEX` files from `.ASM_HEX/` pipeline
+
+            ### Manifests
+            - `sbom.json` — Software Bill of Materials
+            - `attention.json` — Attention manifest
+            - `immutable.json` — Immutable inscription
+
+            ---
+            *Edge-AI-APP — from cloud sky to silicon metal — exoteric hex chip*
+
+            **Full Changelog**: https://github.com/${{ github.repository }}/commits/main
+          draft: false
+          prerelease: false
+          files: |
+            multi-os-linux-${{ github.run_number }}.tar.gz
+            multi-os-macos-${{ github.run_number }}.tar.gz
+            multi-os-windows-${{ github.run_number }}.zip
+            sbom.json
+            attention.json
+            immutable.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

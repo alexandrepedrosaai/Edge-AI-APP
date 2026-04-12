@@ -1,0 +1,66 @@
+name: Kotlin CI/CD Build & Release
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Build with Gradle
+        working-directory: src/main/kotlin
+        run: gradle clean build fatJar --no-daemon
+
+      - name: Archive binaries
+        run: |
+          mkdir -p artifacts
+          cp src/main/kotlin/build/libs/*.jar artifacts/
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: edge-ai-kotlin-binaries
+          path: artifacts/
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: edge-ai-kotlin-binaries
+          path: artifacts/
+
+      - name: Create Automated Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: kotlin-v${{ github.run_number }}
+          name: "Edge-AI-APP Kotlin Release ${{ github.run_number }}"
+          files: artifacts/*.jar
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

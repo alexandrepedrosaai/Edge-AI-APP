@@ -1,0 +1,49 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- Output settings -->
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>EdgeAIApp</RootNamespace>
+    <AssemblyName>EdgeAIManager</AssemblyName>
+
+    <!-- Build settings -->
+    <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
+    <Platform>AnyCPU</Platform>
+    <LangVersion>preview</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- Metadata -->
+    <Authors>Alexandre</Authors>
+    <Company>Edge-AI-APP</Company>
+    <Product>EdgeAIManager</Product>
+    <Description>F# implementation of EdgeAIManager for CI/CD showcase</Description>
+    <Version>1.0.0</Version>
+    <PackageId>EdgeAIManager</PackageId>
+  </PropertyGroup>
+
+  <!-- Dependencies -->
+  <ItemGroup>
+    <Compile Include="EdgeAIManager.fs" />
+    <!-- Example: add libraries if needed -->
+    <!-- <PackageReference Include="Microsoft.ML" Version="3.0.0" /> -->
+    <!-- <PackageReference Include="TensorFlow.NET" Version="0.90.5" /> -->
+  </ItemGroup>
+
+  <!-- Test project integration -->
+  <ItemGroup Condition="'$(Configuration)'=='Debug'">
+    <PackageReference Include="xunit" Version="2.6.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.6.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+  </ItemGroup>
+
+  <!-- Publish settings -->
+  <PropertyGroup>
+    <PublishDir>dist\publish\</PublishDir>
+    <SelfContained>false</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
+  </PropertyGroup>
+
+</Project>

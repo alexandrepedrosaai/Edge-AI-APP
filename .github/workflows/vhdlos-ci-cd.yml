@@ -1,0 +1,100 @@
+name: VHDL Multi-OS CI/CD
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  simulate:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install GHDL (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y ghdl
+
+      - name: Install GHDL (macOS)
+        if: runner.os == 'macOS'
+        run: brew install ghdl
+
+      - name: Install GHDL (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          C:/msys64/usr/bin/pacman -S --noconfirm mingw-w64-x86_64-ghdl-llvm
+          echo "C:/msys64/mingw64/bin" >> $GITHUB_PATH
+
+      - name: Compile VHDL
+        run: |
+          ghdl -a --std=08 vhdl/counter.vhdl
+          ghdl -a --std=08 vhdl/counter_tb.vhdl
+
+      - name: Elaborate
+        run: ghdl -e --std=08 counter_tb
+
+      - name: Run Simulation
+        run: ghdl -r --std=08 counter_tb --vcd=counter_tb.vcd --stop-time=200ns
+
+      - name: Generate SHA256
+        run: sha256sum counter_tb.vcd > counter_tb.sha256
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: vhdl-sim-${{ matrix.os }}
+          path: |
+            counter_tb.vcd
+            counter_tb.sha256
+
+  release:
+    runs-on: ubuntu-latest
+    needs: simulate
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Flatten artifacts
+        run: |
+          mkdir -p release-files
+          find artifacts -type f | while read f; do
+            os=$(echo "$f" | sed 's|artifacts/vhdl-sim-||; s|/.*||')
+            base=$(basename "$f")
+            cp "$f" "release-files/${os}-${base}"
+          done
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: vhdl-multi-os-latest
+          name: "VHDL Multi-OS Simulation — Latest Build"
+          body: |
+            Automated multi-OS VHDL simulation build using GHDL.
+
+            **Commit:** ${{ github.sha }}
+
+            | Platform | VCD Waveform |
+            |----------|-------------|
+            | Linux    | `ubuntu-latest-counter_tb.vcd` |
+            | Windows  | `windows-latest-counter_tb.vcd` |
+            | macOS    | `macos-latest-counter_tb.vcd` |
+          files: release-files/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

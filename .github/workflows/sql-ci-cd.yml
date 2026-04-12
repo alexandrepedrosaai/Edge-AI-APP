@@ -1,0 +1,57 @@
+name: SQL CI/CD EdgeAIApp
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Initialize database schema
+      run: |
+        mysql -h 127.0.0.1 -u root -proot < SQL/edgeaischema.sql
+
+    - name: Seed database
+      run: |
+        mysql -h 127.0.0.1 -u root -proot edge_ai_app < SQL/edgeaiseed.sql
+
+
+    - name: Package SQL files as artifacts
+      run: |
+        mkdir -p build/sql
+        cp SQL/*.sql build/sql/
+
+    - name: Upload SQL artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: sql-artifacts
+        path: build/sql/
+
+    - name: Create automatic release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ github.run_number }}
+        name: "EdgeAIApp SQL Release ${{ github.run_number }}"
+        body: |
+          🎉 Automatic SQL Release
+          Includes schema and seed files for EdgeAIApp database.
+        files: build/sql/*.sql

@@ -1,0 +1,47 @@
+name: Rust CI/CD
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: AI-Writer-CherryGarden-Ressonance-Copilot-Meta-AI/rust-core
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build release binaries
+        run: cargo build --release
+
+      - name: Run tests
+        run: cargo test
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: edge-ai-rust-core
+          path: AI-Writer-CherryGarden-Ressonance-Copilot-Meta-AI/rust-core/target/release/edge-ai-rust-core
+
+      - name: Create or update GitHub Release
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: rust-latest
+          name: "Rust Core — Latest Build"
+          body: |
+            Automated release of the Edge AI Rust core binary.
+            Built from commit ${{ github.sha }} on branch `main`.
+          files: AI-Writer-CherryGarden-Ressonance-Copilot-Meta-AI/rust-core/target/release/edge-ai-rust-core
+          prerelease: false

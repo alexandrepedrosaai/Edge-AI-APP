@@ -1,0 +1,91 @@
+name: PL/SQL CI/CD EdgeAIApp
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    services:
+      oracle:
+        image: gvenzl/oracle-free:latest
+        env:
+          ORACLE_PASSWORD: root
+        ports:
+          - 1521:1521
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Oracle Instant Client and Apply Scripts
+      run: |
+        echo "Setting up Oracle Instant Client..."
+        # Install dependencies for Ubuntu 24.04 (Noble)
+        sudo apt-get update
+        # Try to install libaio1t64 (Noble) or libaio1 (older)
+        sudo apt-get install -y libaio1t64 libaio1 wget unzip || sudo apt-get install -y libaio1t64 wget unzip
+        
+        # Create robust symbolic links for libaio.so.1 which is required by sqlplus
+        # We check common locations for the library file
+        LIBAIO_PATH=$(find /usr/lib -name "libaio.so.1*" | head -n 1)
+        if [ -n "$LIBAIO_PATH" ]; then
+          echo "Found libaio at $LIBAIO_PATH, creating symlinks..."
+          sudo ln -sf "$LIBAIO_PATH" /usr/lib/libaio.so.1
+          sudo ln -sf "$LIBAIO_PATH" /usr/lib/x86_64-linux-gnu/libaio.so.1
+        else
+          echo "Warning: libaio library file not found!"
+        fi
+        
+        # Download and setup Oracle Instant Client 21.13
+        wget https://download.oracle.com/otn_software/linux/instantclient/2113000/instantclient-basiclite-linux.x64-21.13.0.0.0dbru.zip
+        wget https://download.oracle.com/otn_software/linux/instantclient/2113000/instantclient-sqlplus-linux.x64-21.13.0.0.0dbru.zip
+        unzip -o instantclient-basiclite-linux.x64-21.13.0.0.0dbru.zip
+        unzip -o instantclient-sqlplus-linux.x64-21.13.0.0.0dbru.zip
+        
+        # Set environment variables for the current shell
+        # Including /usr/lib and /usr/lib/x86_64-linux-gnu as suggested
+        export LD_LIBRARY_PATH=$PWD/instantclient_21_13:/usr/lib:/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
+        export PATH=$PWD/instantclient_21_13:$PATH
+        
+        echo "Verifying libaio.so.1 accessibility..."
+        ldconfig -p | grep libaio || echo "libaio not found in ldconfig"
+        
+        echo "Waiting for Oracle database to start..."
+        # Wait for the database to be ready to accept connections
+        timeout 300s bash -c 'until echo exit | sqlplus -L system/root@localhost:1521/FREE; do sleep 5; done' || true
+        
+        echo "Applying PL/SQL scripts..."
+        # Apply schema, seed data, and then the procedural logic
+        sqlplus system/root@localhost:1521/FREE @SQL/edgeaischema.sql
+        sqlplus system/root@localhost:1521/FREE @SQL/edgeaiseed.sql
+        sqlplus system/root@localhost:1521/FREE @SQL-PL/edgeaiprocedures.sql
+
+    - name: Package PL/SQL artifacts
+      run: |
+        mkdir -p build/plsql
+        # Copy SQL files if they exist
+        if [ -d "SQL" ]; then cp SQL/*.sql build/plsql/ || true; fi
+        if [ -d "SQL-PL" ]; then cp SQL-PL/*.sql build/plsql/ || true; fi
+        # List files to verify
+        ls -R build/plsql
+
+    - name: Upload PL/SQL artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: plsql-artifacts
+        path: build/plsql/
+
+    - name: Create automatic release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ github.run_number }}
+        name: "EdgeAIApp PL/SQL Release ${{ github.run_number }}"
+        body: |
+          🚀 Automatic PL/SQL Release
+          Includes schema, seed, and procedural logic for EdgeAIApp.
+        files: build/plsql/*.sql
+        fail_on_unmatched_files: false

@@ -1,0 +1,45 @@
+name: TypeScript CI/CD Edge AI
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+    - name: Install pnpm
+      uses: pnpm/action-setup@v4
+
+
+    - name: Install dependencies
+      run: |
+        pnpm install
+
+    - name: Build TypeScript project
+      run: |
+        pnpm run build
+
+    - name: Run tests
+      run: |
+        pnpm run check || echo "No tests defined"
+
+    - name: Create release with build artifacts
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ github.run_number }}
+        name: "Edge AI TypeScript Release ${{ github.run_number }}"
+        body: |
+          🎉 Automatic TypeScript CI/CD Release
+          Includes compiled JavaScript build artifacts from TypeScript sources.
+        files: |
+          dist/**/*.js

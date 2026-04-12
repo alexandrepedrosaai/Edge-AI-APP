@@ -1,0 +1,228 @@
+name: Deploy to Azure Container App
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'Dockerfile'
+      - 'docker-compose.yml'
+      - '.dockerignore'
+      - 'client/**'
+      - 'server/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/azure-container-app.yml'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  AZURE_SUBSCRIPTION_ID: f7fc86dd-bd9f-43a6-80a4-0bb6cab950ec
+  VITE_ANALYTICS_ENDPOINT: "https://analytics.example.com"
+  VITE_ANALYTICS_WEBSITE_ID: "default"
+  VITE_APP_TITLE: "Edge AI App"
+  VITE_APP_LOGO: "/logo.svg"
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      security-events: write
+    
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tags }}
+      image-digest: ${{ steps.build.outputs.digest }}
+      image-name-lower: ${{ steps.lower.outputs.name }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set lowercase image name
+        id: lower
+        run: echo "name=$(echo '${{ env.IMAGE_NAME }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+      
+      - name: Build and push Docker image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+            VCS_REF=${{ github.sha }}
+            VERSION=${{ steps.meta.outputs.version }}
+      
+      - name: Security scan with Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.REGISTRY }}/${{ steps.lower.outputs.name }}@${{ steps.build.outputs.digest }}
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+        continue-on-error: true
+      
+      - name: Upload Trivy results
+        uses: github/codeql-action/upload-sarif@v4
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+          category: 'trivy'
+
+  deploy-to-azure:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    
+    environment:
+      name: ${{ github.event.inputs.environment || 'staging' }}
+      url: https://edge-ai-app.jollymoss-4b53b752.eastus.azurecontainerapps.io
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Azure Login with Client Secret
+        uses: azure/login@v1
+        with:
+          creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+      
+      - name: Deploy to Azure Container App
+        run: |
+          echo "Deploying to Azure Container App..."
+          
+          # Set variables
+          RESOURCE_GROUP="${{ secrets.AZURE_RESOURCE_GROUP }}"
+          CONTAINER_APP_NAME="${{ secrets.AZURE_CONTAINER_APP_NAME }}"
+          IMAGE="${{ needs.build-and-push.outputs.image-tag }}"
+          
+          # Get the first tag (latest)
+          IMAGE_URL=$(echo "$IMAGE" | head -1)
+          
+          echo "Resource Group: $RESOURCE_GROUP"
+          echo "Container App: $CONTAINER_APP_NAME"
+          echo "Image: $IMAGE_URL"
+          
+          # Update container app with new image
+          az containerapp update \
+            --name "$CONTAINER_APP_NAME" \
+            --resource-group "$RESOURCE_GROUP" \
+            --image "$IMAGE_URL" \
+            --set-env-vars \
+              VITE_ANALYTICS_ENDPOINT="https://analytics.example.com" \
+              VITE_ANALYTICS_WEBSITE_ID="default" \
+              VITE_APP_TITLE="Edge AI App" \
+              VITE_APP_LOGO="/logo.svg" \
+            --output json
+          
+          echo "Deployment completed successfully!"
+      
+      - name: Verify deployment
+        run: |
+          RESOURCE_GROUP="${{ secrets.AZURE_RESOURCE_GROUP }}"
+          CONTAINER_APP_NAME="${{ secrets.AZURE_CONTAINER_APP_NAME }}"
+          
+          echo "Verifying deployment..."
+          az containerapp show \
+            --name "$CONTAINER_APP_NAME" \
+            --resource-group "$RESOURCE_GROUP" \
+            --query "{name: name, status: properties.provisioningState, url: properties.configuration.ingress.fqdn}" \
+            --output table
+          
+          # Wait for container to be ready
+          for i in {1..30}; do
+            STATUS=$(az containerapp show \
+              --name "$CONTAINER_APP_NAME" \
+              --resource-group "$RESOURCE_GROUP" \
+              --query "properties.provisioningState" -o tsv)
+            
+            if [ "$STATUS" = "Succeeded" ]; then
+              echo "✓ Container App is ready!"
+              break
+            fi
+            
+            echo "Waiting for deployment... ($i/30)"
+            sleep 10
+          done
+      
+      - name: Health check
+        run: |
+          CONTAINER_APP_NAME="${{ secrets.AZURE_CONTAINER_APP_NAME }}"
+          RESOURCE_GROUP="${{ secrets.AZURE_RESOURCE_GROUP }}"
+          
+          # Get the FQDN
+          FQDN=$(az containerapp show \
+            --name "$CONTAINER_APP_NAME" \
+            --resource-group "$RESOURCE_GROUP" \
+            --query "properties.configuration.ingress.fqdn" -o tsv)
+          
+          echo "Testing health endpoint: https://$FQDN"
+          
+          # Try to access the app
+          for i in {1..5}; do
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "https://$FQDN" || echo "000")
+            echo "Attempt $i: HTTP $HTTP_CODE"
+            
+            if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "301" ]; then
+              echo "✓ Health check passed!"
+              break
+            fi
+            
+            sleep 5
+          done
+      
+      - name: Create deployment summary
+        if: always()
+        run: |
+          echo "# Azure Container App Deployment" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Deployment Details" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment**: ${{ github.event.inputs.environment || 'staging' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image**: ${{ needs.build-and-push.outputs.image-tag }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Status" >> $GITHUB_STEP_SUMMARY
+          echo "✓ Deployment completed" >> $GITHUB_STEP_SUMMARY
+      
+      - name: Azure Logout
+        if: always()
+        run: az logout

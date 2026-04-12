@@ -1,0 +1,17 @@
+{
+  "name": "edge-ai-infra",
+  "version": "1.0.0",
+  "description": "Infra tools for Edge AI APP",
+  "scripts": {
+    "test": "vitest",
+    "format": "prettier --write .",
+    "build": "esbuild src/index.ts --bundle --outfile=dist/index.js"
+  },
+  "devDependencies": {
+    "vitest": "^1.2.0",
+    "prettier": "^3.2.5",
+    "pnpm": "^9.0.0",
+    "esbuild": "^0.20.0",
+    "typescript": "^5.3.3"
+  }
+}

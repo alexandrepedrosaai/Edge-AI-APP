@@ -1,0 +1,55 @@
+name: Generate SBOMs
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sbom:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Syft
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
+
+      - name: Create sbom directory
+        run: mkdir -p sbom
+
+      - name: Generate SBOM for frontend (client/)
+        run: syft dir:client -o cyclonedx-json > sbom/frontend-sbom.json
+
+      - name: Generate SBOM for backend (server/)
+        run: syft dir:server -o cyclonedx-json > sbom/backend-sbom.json
+
+      - name: Generate SBOM for infra (infra/)
+        run: syft dir:infra -o cyclonedx-json > sbom/infra-sbom.json
+
+      - name: Generate SBOM for python (python/)
+        run: syft dir:python -o cyclonedx-json > sbom/python-sbom.json
+
+      - name: Generate SBOM for azure-functions
+        run: syft dir:azure-functions -o cyclonedx-json > sbom/azure-functions-sbom.json
+
+      - name: Generate SBOM for root
+        run: syft dir:. -o cyclonedx-json > sbom/root-sbom.json
+
+      - name: Commit and push updated SBOMs
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add sbom/*.json
+          if git diff --cached --quiet; then
+            echo "No SBOM changes to commit"
+          else
+            git commit -m "chore: Update SBOM and security scan reports [skip ci]"
+            git push
+          fi

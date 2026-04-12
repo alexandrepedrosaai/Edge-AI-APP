@@ -1,0 +1,33 @@
+Workflow Trigger Summary (API)
+Generated: Wed Mar 18 07:20:28 EDT 2026
+
+Repository: alexandrepedrosaai/Edge-AI-APP
+Branch: main
+
+Workflows Triggered:
+     1	build-and-test.yml
+     2	test-multi-node.yml
+     3	docker-build.yml
+     4	docker-image.yml
+     5	assembly-build.yml
+     6	install-dependencies.yml
+     7	sbom-security.yaml
+     8	azure-container-app.yml
+     9	azure-function-app.yml
+
+Status: All workflows have been triggered successfully!
+
+Monitor at: https://github.com/alexandrepedrosaai/Edge-AI-APP/actions
+
+API Endpoints:
+- Runs: https://api.github.com/repos/alexandrepedrosaai/Edge-AI-APP/actions/runs
+- Build & Test: https://api.github.com/repos/alexandrepedrosaai/Edge-AI-APP/actions/workflows/build-and-test.yml/runs
+- Docker Build: https://api.github.com/repos/alexandrepedrosaai/Edge-AI-APP/actions/workflows/docker-build.yml/runs
+- Azure Container App: https://api.github.com/repos/alexandrepedrosaai/Edge-AI-APP/actions/workflows/azure-container-app.yml/runs
+- Azure Function App: https://api.github.com/repos/alexandrepedrosaai/Edge-AI-APP/actions/workflows/azure-function-app.yml/runs
+
+Commands:
+- Get all runs: curl -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/repos/alexandrepedrosaai/Edge-AI-APP/actions/runs
+- Get workflow: curl -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/repos/alexandrepedrosaai/Edge-AI-APP/actions/workflows/build-and-test.yml/runs
+- Get run logs: curl -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/repos/alexandrepedrosaai/Edge-AI-APP/actions/runs/<run-id>/logs
+

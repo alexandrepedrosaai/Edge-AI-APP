@@ -1,0 +1,66 @@
+name: CI/CD CMake Build & Release
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Configure CMake
+      - name: Configure project
+        run: |
+          mkdir -p build
+          cd build
+          cmake ..
+
+      # Build project
+      - name: Build project
+        run: |
+          cd build
+          cmake --build . --config Release
+
+      # Run tests
+      - name: Run tests
+        run: |
+          cd build
+          ctest --output-on-failure
+
+      # Collect artifacts
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: edge-ai-cmake
+          path: build/*
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: edge-ai-cmake
+          path: release
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.run_number }}
+          name: "Automated CMake Release v${{ github.run_number }}"
+          body: |
+            Automated build and release of Edge-AI-APP CMake project:
+            - Built with CMake and GCC/Clang
+            - Tests executed successfully
+            - Binary and build artifacts included
+          files: release/**

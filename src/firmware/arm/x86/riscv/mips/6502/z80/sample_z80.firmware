@@ -1,0 +1,10 @@
+LD B,0            ; contador
+    LD C,10           ; limite
+loop:
+    INC B
+    CP B,C
+    JR NZ,loop
+
+    LD A,42           ; resultado
+    LD (0x2000),A     ; escreve em memória
+    HALT

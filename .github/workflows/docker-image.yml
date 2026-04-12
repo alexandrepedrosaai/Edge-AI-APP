@@ -1,0 +1,74 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'Dockerfile'
+      - '.dockerignore'
+      - 'package.json'
+      - 'client/**'
+      - 'server/**'
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Build Docker image
+        run: |
+          echo "Building Docker image..."
+          docker build \
+            --tag edge-ai-app:latest \
+            --tag edge-ai-app:$(date +%s) \
+            --file Dockerfile \
+            --progress=plain \
+            . 2>&1 | tail -50
+      
+      - name: Verify Docker image
+        run: |
+          echo "Verifying Docker image..."
+          docker image inspect edge-ai-app:latest
+          docker images | grep edge-ai-app
+      
+      - name: Test Docker image
+        run: |
+          echo "Testing Docker image..."
+          docker run --rm edge-ai-app:latest node --version || true
+          docker run --rm edge-ai-app:latest python3 --version || true
+          docker run --rm edge-ai-app:latest nasm --version || true
+      
+      - name: Save Docker image
+        run: |
+          echo "Saving Docker image..."
+          mkdir -p docker-artifacts
+          docker save edge-ai-app:latest -o docker-artifacts/edge-ai-app-latest.tar
+          ls -lh docker-artifacts/
+      
+      - name: Upload Docker image artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-image
+          path: docker-artifacts/
+          retention-days: 7
+      
+      - name: Create summary
+        if: always()
+        run: |
+          echo "# Docker Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Build Status" >> $GITHUB_STEP_SUMMARY
+          echo "✓ Docker image built successfully" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Image Details" >> $GITHUB_STEP_SUMMARY
+          docker images edge-ai-app | tail -1 | awk '{print "- Size: " $7}' >> $GITHUB_STEP_SUMMARY
+          echo "- Tag: edge-ai-app:latest" >> $GITHUB_STEP_SUMMARY

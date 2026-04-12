@@ -1,0 +1,63 @@
+name: CI/CD OCaml Build & Release
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Instalar OCaml e ferramentas
+      - name: Setup OCaml
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ocaml ocaml-findlib
+
+      # Compilar arquivo OCaml
+      - name: Build OCaml binary
+        run: |
+          mkdir -p dist
+          ocamlc -o dist/EdgeAIManager unix.cma src/EdgeAIManager.ml
+
+      # Executar binário para validar saída
+      - name: Execute OCaml binary
+        run: |
+          ./dist/EdgeAIManager > dist/output.log
+
+      # Upload artifacts
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: edge-ai-ocaml
+          path: dist/*
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: edge-ai-ocaml
+          path: release
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.run_number }}
+          name: "Automated OCaml Release v${{ github.run_number }}"
+          body: |
+            Automated build and release of Edge-AI-APP OCaml module:
+            - EdgeAIManager.ml compiled with ocamlc
+            - Executed successfully, logs included
+          files: release/**

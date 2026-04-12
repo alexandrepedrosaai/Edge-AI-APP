@@ -1,0 +1,104 @@
+name: CI CD Mult-OS Mult-ISA Microcode Automated Releases
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  build-microcode:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        isa: [x86, arm, riscv]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup build environment (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y build-essential
+
+      - name: Setup build environment (macOS)
+        if: runner.os == 'macOS'
+        run: brew install bash
+
+      - name: Setup MSYS2 (MinGW)
+        if: runner.os == 'Windows'
+        uses: msys2/setup-msys2@v2
+        with:
+          install: >-
+            mingw-w64-x86_64-toolchain
+
+      - name: Compile Microcode
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/microcode/${{ matrix.isa }}
+          mapfile -t SRCS < <(find src -type f -name '*.c' | grep -E '/microcode/' || true)
+
+          if [ "${#SRCS[@]}" -eq 0 ]; then
+            echo "No microcode C sources found. Expected something like src/microcode/*.c"
+            exit 1
+          fi
+
+          gcc -O2 -o build/microcode/${{ matrix.isa }}/microcode-${{ matrix.isa }}.bin "${SRCS[@]}"
+
+      - name: Validate ISA Simulation
+        run: |
+          ./tools/isa-simulator --input build/microcode/${{ matrix.isa }}/microcode-${{ matrix.isa }}.bin --validate
+
+      - name: Upload Microcode Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: microcode-${{ matrix.os }}-${{ matrix.isa }}
+          path: build/microcode/${{ matrix.isa }}/microcode-${{ matrix.isa }}.bin
+
+  release:
+    needs: build-microcode
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download All Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+
+      - name: Generate Unique Tag and Release Name
+        id: meta
+        run: |
+          set -euo pipefail
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          TIMESTAMP=$(date +'%Y%m%d-%H%M%S')
+          TAG="v${TIMESTAMP}-${SHORT_SHA}"
+          RELEASE_NAME="Microcode Release ${TAG}"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "name=${RELEASE_NAME}" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.meta.outputs.tag }}
+          name: ${{ steps.meta.outputs.name }}
+          files: ./artifacts/**/*
+          body: |
+            🚀 Automated multi-OS / multi-ISA microcode release.
+            
+            **Release Details:**
+            - **Commit:** ${{ github.sha }}
+            - **Run ID:** ${{ github.run_id }}
+            - **Timestamp:** $(date)
+            
+            This release was automatically generated for commit ${{ github.sha }} to ensure artifact isolation.
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

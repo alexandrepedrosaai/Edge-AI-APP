@@ -1,0 +1,47 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: edge-deploy
+  labels:
+    app.kubernetes.io/name: edge-deploy
+    app.kubernetes.io/component: deploy
+    app.kubernetes.io/part-of: edge-ai-app
+    app.kubernetes.io/managed-by: kustomize
+spec:
+  backoffLimit: 2
+  activeDeadlineSeconds: 600
+  ttlSecondsAfterFinished: 86400
+  template:
+    metadata:
+      labels:
+        app: edge-deploy
+        app.kubernetes.io/name: edge-deploy
+        app.kubernetes.io/component: deploy
+        app.kubernetes.io/part-of: edge-ai-app
+    spec:
+      restartPolicy: OnFailure
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+        - name: deploy
+          # TODO: replace :latest with an immutable digest tag (e.g. sha256:...) for production stability
+          image: alexandrepedrosaai/edge-deploy:latest
+          imagePullPolicy: Always
+          command: ["pnpm", "release"]
+          securityContext:
+            allowPrivilegeEscalation: false
+            # readOnlyRootFilesystem is not set here because pnpm release may write dist/release artifacts;
+            # enable once confirmed safe for this image
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"

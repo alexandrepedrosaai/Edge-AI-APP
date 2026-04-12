@@ -1,0 +1,57 @@
+name: Ruby CI/CD Edge AI
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.2'
+
+    - name: Install dependencies
+      run: |
+        gem install bundler
+        bundle install || true
+
+    - name: Run Edge AI sensor demo
+      run: ruby Gem/edgeaisensor.rb
+
+    - name: Run Edge AI inference demo
+      run: ruby Gem/edgeaiinference.rb
+
+    - name: Run Edge AI pipeline tests
+      run: ruby Gem/edgeaipipeline_test.rb
+
+    - name: Create Tag
+      id: tag
+      run: |
+        TAG="v$(date +'%Y.%m.%d-%H%M%S')-ruby-run${{ github.run_number }}"
+        echo "Creating tag: $TAG"
+        git config user.name "github-actions"
+        git config user.email "github-actions@github.com"
+        git tag "$TAG"
+        git push origin "$TAG"
+        echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+    - name: Create release with Ruby files
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ steps.tag.outputs.tag }}
+        name: "Edge AI Ruby Release ${{ steps.tag.outputs.tag }}"
+        body: |
+          🎉 Automatic Ruby CI/CD Release
+          Includes Edge AI sensor simulation, inference demo, and pipeline tests.
+        files: |
+          Gem/edgeaisensor.rb
+          Gem/edgeaiinference.rb
+          Gem/edgeaipipeline_test.rb

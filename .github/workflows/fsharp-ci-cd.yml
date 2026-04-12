@@ -1,0 +1,63 @@
+name: CI/CD F# Build & Release
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Setup .NET SDK
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      # Build F# project
+      - name: Build F# project
+        run: |
+          mkdir -p dist
+          dotnet build src/EdgeAIManager.fsproj -c Release -o dist
+
+      # Run binary to validate output
+      - name: Execute F# binary
+        run: |
+          ./dist/EdgeAIManager > dist/output.log
+
+      # Upload artifacts
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: edge-ai-fsharp
+          path: dist/*
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: edge-ai-fsharp
+          path: release
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.run_number }}
+          name: "Automated F# Release v${{ github.run_number }}"
+          body: |
+            Automated build and release of Edge-AI-APP F# module:
+            - EdgeAIManager.fs compiled with dotnet
+            - Executed successfully, logs included
+          files: release/**

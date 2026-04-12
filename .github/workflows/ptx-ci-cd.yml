@@ -1,0 +1,46 @@
+name: PTX Build & Release
+
+on:
+  push:   # dispara em todo commit
+    branches:
+      - main
+      - develop
+      - feature/*
+
+jobs:
+  build-ptx:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install CUDA Toolkit
+        run: sudo apt-get install -y nvidia-cuda-toolkit
+
+      - name: Compile PTX kernels
+        run: |
+          mkdir -p build
+          for file in src/*.cu; do
+            nvcc -ptx "$file" -o "build/$(basename $file .cu).ptx"
+          done
+
+      - name: Upload PTX artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ptx-binaries
+          path: build/*.ptx
+
+  release:
+    if: github.ref == 'refs/heads/main'   # só cria release em commits na main
+    needs: build-ptx
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: ptx-binaries
+          path: release/
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: release/*.ptx
+          tag_name: vPTX-${{ github.run_number }}
+          name: "PTX Release ${{ github.run_number }}"

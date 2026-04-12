@@ -1,0 +1,144 @@
+name: CI-CD Matrix OS-ISA Custom ISA Languages
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  build-custom-isa:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        isa: [arm, x86, riscv, mips, 6502, z80]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup toolchain
+        run: |
+          if [ "${{ runner.os }}" = "Linux" ]; then
+            case "${{ matrix.isa }}" in
+              arm)   sudo apt-get update && sudo apt-get install -y gcc-arm-none-eabi ;;
+              x86)   sudo apt-get update && sudo apt-get install -y nasm ;;
+              riscv) sudo apt-get update && sudo apt-get install -y gcc-riscv64-unknown-elf ;;
+              mips)  sudo apt-get update && sudo apt-get install -y gcc-mips-linux-gnu ;;
+              6502)
+                sudo apt-get update && sudo apt-get install -y build-essential wget
+                wget http://sun.hasenbraten.de/vasm/daily/vasm.tar.gz
+                tar -xzvf vasm.tar.gz
+                cd vasm
+                make CPU=6502 SYNTAX=oldstyle
+                sudo cp vasm6502_oldstyle /usr/local/bin/
+                sudo chmod +x /usr/local/bin/vasm6502_oldstyle
+                cd .. ;;
+              z80)   sudo apt-get update && sudo apt-get install -y z80asm ;;
+            esac
+          elif [ "${{ runner.os }}" = "macOS" ]; then
+            case "${{ matrix.isa }}" in
+              x86)   brew install nasm ;;
+              arm)   brew tap armmbed/formulae && brew install arm-none-eabi-gcc ;;
+              *)     echo "Toolchain for ${{ matrix.isa }} not configured for macOS" ;;
+            esac
+          elif [ "${{ runner.os }}" = "Windows" ]; then
+            case "${{ matrix.isa }}" in
+              x86)   choco install nasm -y ;;
+              *)     echo "Toolchain for ${{ matrix.isa }} not configured for Windows" ;;
+            esac
+          fi
+
+      - name: Build Firmware
+        run: |
+          # Only proceed if toolchain is expected to be available for this OS/ISA
+          SHOULD_BUILD=false
+          if [ "${{ runner.os }}" = "Linux" ]; then
+            SHOULD_BUILD=true
+          elif [ "${{ runner.os }}" = "macOS" ]; then
+            if [[ "${{ matrix.isa }}" == "x86" || "${{ matrix.isa }}" == "arm" ]]; then SHOULD_BUILD=true; fi
+          elif [ "${{ runner.os }}" = "Windows" ]; then
+            if [[ "${{ matrix.isa }}" == "x86" ]]; then SHOULD_BUILD=true; fi
+          fi
+
+          if [ "$SHOULD_BUILD" = "true" ]; then
+            mkdir -p build/${{ matrix.isa }}
+            if ls src/firmware/${{ matrix.isa }}/*.firmware 1> /dev/null 2>&1; then
+              for src in src/firmware/${{ matrix.isa }}/*.firmware; do
+                base=$(basename "$src" .firmware)
+                out="build/${{ matrix.isa }}/${base}-${{ matrix.isa }}.rom"
+                echo "Assembling $src..."
+                case "${{ matrix.isa }}" in
+                  arm)   arm-none-eabi-as "$src" -o "$out" ;;
+                  x86)   nasm -f bin "$src" -o "$out" ;;
+                  riscv) riscv64-unknown-elf-as "$src" -o "$out" ;;
+                  mips)  mips-linux-gnu-as "$src" -o "$out" ;;
+                  6502)  vasm6502_oldstyle -Fbin -o "$out" "$src" ;;
+                  z80)   z80asm -o "$out" "$src" ;;
+                esac
+                sha256sum "$out" > "$out.sha256"
+              done
+            else
+              echo "No firmware files found for ${{ matrix.isa }}"
+            fi
+          else
+            echo "Skipping build for ${{ matrix.isa }} on ${{ runner.os }} (Toolchain not configured)"
+          fi
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware-${{ matrix.os }}-${{ matrix.isa }}
+          path: build/${{ matrix.isa }}/*
+
+  release:
+    needs: build-custom-isa
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+
+      - name: Create Manifest JSON
+        run: |
+          echo "[" > manifest.json
+          for f in $(find ./artifacts -name '*.rom'); do
+            HASH=$(sha256sum "$f" | cut -d ' ' -f1)
+            SIZE=$(stat -c%s "$f")
+            OSISA=$(basename $(dirname "$f"))
+            echo "  {\"file\":\"$(basename $f)\",\"osisa\":\"$OSISA\",\"size\":$SIZE,\"sha256\":\"$HASH\"}," >> manifest.json
+          done
+          sed -i '$ s/,$//' manifest.json
+          echo "]" >> manifest.json
+
+      - name: Create Tag
+        id: tag
+        run: |
+          TAG="v$(date +'%Y.%m.%d-%H%M%S')-run${{ github.run_number }}"
+          echo "Creating tag: $TAG"
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git tag "$TAG"
+          git push origin "$TAG"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: "Matrix OS-ISA Release ${{ steps.tag.outputs.tag }}"
+          body: |
+            Release automático gerado a cada commit no branch main.
+            Inclui builds para ARM, x86, RISC-V, MIPS, 6502 e Z80.
+            Artefatos acompanhados de SHA256 e manifesto.json.
+          files: |
+            ./artifacts/**/*
+            manifest.json

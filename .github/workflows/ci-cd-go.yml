@@ -1,0 +1,71 @@
+name: Go CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build Go Binary
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Configurar Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Instalar dependências
+        run: go mod tidy
+
+      - name: Rodar testes
+        run: go test ./cmd/... ./internal/... -v
+
+      - name: Compilar binário
+        run: go build -o app ./cmd/app
+
+      - name: Upload artefato
+        uses: actions/upload-artifact@v4
+        with:
+          name: go-binary
+          path: app
+
+  release:
+    name: Criar Release Automática
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Download binário
+        uses: actions/download-artifact@v4
+        with:
+          name: go-binary
+
+      - name: Criar Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: go-latest
+          name: "Go Edge AI App — Latest Build"
+          body: |
+            Automated Go binary build.
+
+            **Commit:** ${{ github.sha }}
+
+            ## Binary
+            | File | Description |
+            |------|-------------|
+            | `app` | Edge AI App binary (Linux x86_64) |
+          files: app
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

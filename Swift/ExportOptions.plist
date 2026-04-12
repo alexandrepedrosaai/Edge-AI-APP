@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+   "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- Method can be app-store, ad-hoc, enterprise, or development -->
+    <key>method</key>
+    <string>development</string>
+
+    <!-- Team ID from your Apple Developer account -->
+    <key>teamID</key>
+    <string>YOUR_TEAM_ID</string>
+
+    <!-- Whether to include bitcode -->
+    <key>compileBitcode</key>
+    <false/>
+
+    <!-- Sign with automatic provisioning profile -->
+    <key>signingStyle</key>
+    <string>automatic</string>
+
+    <!-- Specify provisioning profiles if needed -->
+    <key>provisioningProfiles</key>
+    <dict>
+        <key>ai.edge.EdgeAiSwiftApp</key>
+        <string>EdgeAiSwiftAppProvisioningProfile</string>
+    </dict>
+
+    <!-- Strip Swift symbols to reduce size -->
+    <key>stripSwiftSymbols</key>
+    <true/>
+
+    <!-- Destination for the IPA -->
+    <key>destination</key>
+    <string>export</string>
+</dict>
+</plist>

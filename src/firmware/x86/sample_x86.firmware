@@ -1,0 +1,13 @@
+section .text
+global _start
+
+_start:
+    mov eax, 1
+    mov ebx, 5
+    add eax, ebx     ; soma
+    mov ecx, 2
+    imul eax, ecx    ; multiplicação
+    sub eax, 3       ; subtração
+    mov edx, eax     ; resultado
+    mov eax, 1
+    int 0x80         ; syscall exit

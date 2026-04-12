@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Edge-AI-APP Releases - Download the latest binaries, web builds, and releases.">
+  <title>Releases & Downloads - Edge-AI-APP</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75' fill='%2300d9ff'>⚡</text></svg>">
+</head>
+<body>
+  <!-- Header & Navigation -->
+  <header>
+    <div class="container">
+      <div class="header-content">
+        <a href="index.html" class="logo">⚡ Edge-AI-APP</a>
+        <nav>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="setup.html">Setup Guide</a></li>
+            <li><a href="releases.html">Releases</a></li>
+            <li><a href="structure.html">Repository</a></li>
+            <li><a href="https://github.com/alexandrepedrosaai/Edge-AI-APP" target="_blank">GitHub</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <section>
+    <div class="container">
+      <h1>Releases & Downloads</h1>
+      <p class="hero-subtitle">Download the latest releases, binaries, and web builds for Edge-AI-APP</p>
+    </div>
+  </section>
+
+  <!-- Download Instructions -->
+  <section>
+    <div class="container">
+      <h2 class="section-title">Download Instructions</h2>
+      <div class="grid grid-2">
+        <div class="card">
+          <h3>Windows Binaries</h3>
+          <p>Pre-compiled Go binaries optimized for Windows (x86-64):</p>
+          <ul class="feature-list">
+            <li>Direct executable (.exe) files</li>
+            <li>No additional runtime required</li>
+            <li>Ready to run immediately</li>
+            <li>SHA256 checksums provided</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Web Builds</h3>
+          <p>Pre-built web application packages:</p>
+          <ul class="feature-list">
+            <li>React frontend with Vite</li>
+            <li>Express backend integration</li>
+            <li>Production-optimized</li>
+            <li>Ready for deployment</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Releases List -->
+  <section>
+    <div class="container">
+      <h2 class="section-title">Latest Releases</h2>
+      <div id="releases-container">
+        <div style="text-align: center; padding: var(--spacing-xl);">
+          <div class="spinner" style="display: inline-block;"></div>
+          <p style="margin-top: var(--spacing-md);">Loading releases...</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Release Information -->
+  <section>
+    <div class="container">
+      <h2 class="section-title">Release Information</h2>
+      <div class="grid grid-2">
+        <div class="card">
+          <h3>Version Numbering</h3>
+          <p>Edge-AI-APP follows semantic versioning:</p>
+          <ul class="feature-list">
+            <li><strong>Major:</strong> Breaking changes</li>
+            <li><strong>Minor:</strong> New features (backward compatible)</li>
+            <li><strong>Patch:</strong> Bug fixes and improvements</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Release Types</h3>
+          <ul class="feature-list">
+            <li><strong>Stable:</strong> Production-ready releases</li>
+            <li><strong>Pre-release:</strong> Beta/RC versions for testing</li>
+            <li><strong>Draft:</strong> Work-in-progress releases</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Verification Section -->
+  <section>
+    <div class="container">
+      <h2 class="section-title">Verify Downloads</h2>
+      <p>Each release includes SHA256 checksums for verification. To verify a downloaded file on Windows:</p>
+      <div class="card mb-lg">
+        <h3>Using PowerShell</h3>
+        <div class="command-snippet">
+          <button class="copy-btn">Copy</button>
+          <code>Get-FileHash .\edge-ai-app.exe -Algorithm SHA256</code>
+        </div>
+        <p>Compare the output with the SHA256 checksum provided in the release notes.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Archive Releases -->
+  <section>
+    <div class="container">
+      <h2 class="section-title">Archive</h2>
+      <p>Looking for older versions? Visit the <a href="https://github.com/alexandrepedrosaai/Edge-AI-APP/releases" target="_blank">GitHub Releases page</a> to access all historical releases and versions.</p>
+    </div>
+  </section>
+
+  <!-- Support Section -->
+  <section>
+    <div class="container">
+      <h2 class="section-title">Support & Issues</h2>
+      <div class="grid grid-2">
+        <div class="card">
+          <h3>Report Issues</h3>
+          <p>Found a bug or issue with a release? Please report it on GitHub:</p>
+          <a href="https://github.com/alexandrepedrosaai/Edge-AI-APP/issues" target="_blank" class="btn btn-secondary" style="margin-top: var(--spacing-md); width: 100%;">Report Issue</a>
+        </div>
+        <div class="card">
+          <h3>Discussions</h3>
+          <p>Have questions or suggestions? Join the community discussions:</p>
+          <a href="https://github.com/alexandrepedrosaai/Edge-AI-APP/discussions" target="_blank" class="btn btn-secondary" style="margin-top: var(--spacing-md); width: 100%;">Join Discussion</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h4>About</h4>
+          <p>Edge-AI-APP is a comprehensive edge AI inference and processing platform designed for modern, resource-constrained environments.</p>
+        </div>
+        <div class="footer-section">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="setup.html">Setup Guide</a></li>
+            <li><a href="structure.html">Repository</a></li>
+            <li><a href="https://github.com/alexandrepedrosaai/Edge-AI-APP" target="_blank">GitHub</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>Resources</h4>
+          <ul>
+            <li><a href="https://github.com/alexandrepedrosaai/Edge-AI-APP/wiki" target="_blank">Wiki</a></li>
+            <li><a href="https://github.com/alexandrepedrosaai/Edge-AI-APP/issues" target="_blank">Issues</a></li>
+            <li><a href="https://github.com/alexandrepedrosaai/Edge-AI-APP/discussions" target="_blank">Discussions</a></li>
+            <li><a href="https://github.com/alexandrepedrosaai/Edge-AI-APP/blob/main/LICENSE" target="_blank">License</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 Edge-AI-APP. All rights reserved. | <a href="https://github.com/alexandrepedrosaai" target="_blank">Alexandre Pedrosa</a></p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

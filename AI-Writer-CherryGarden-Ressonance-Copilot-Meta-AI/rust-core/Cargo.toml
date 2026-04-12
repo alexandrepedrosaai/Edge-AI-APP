@@ -1,0 +1,9 @@
+[package]
+name = "edge-ai-rust-core"
+version = "0.1.0"
+edition = "2021"
+description = "Edge AI App Rust core — AI bridge, orchestrator, and performance modules"
+
+[[bin]]
+name = "edge-ai-rust-core"
+path = "src/main.rs"

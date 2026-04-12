@@ -1,0 +1,46 @@
+name: Python CI/CD Edge AI
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt || true
+
+    - name: Run Edge AI sensor demo
+      run: python pY/edgeaisensor.py
+
+    - name: Run Edge AI inference demo
+      run: python pY/edgeaiinference.py
+
+    - name: Run Edge AI pipeline tests
+      run: python pY/edgeaipipeline_test.py
+
+    - name: Create release with Python files
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ github.run_number }}
+        name: "Edge AI Python Release ${{ github.run_number }}"
+        body: |
+          🎉 Automatic Python CI/CD Release
+          Includes Edge AI sensor simulation, inference demo, and pipeline tests.
+        files: |
+          pY/edgeaisensor.py
+          pY/edgeaiinference.py
+          pY/edgeaipipeline_test.py

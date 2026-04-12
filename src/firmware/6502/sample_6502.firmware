@@ -1,0 +1,10 @@
+    LDX #$00          ; contador
+    LDY #$0A          ; limite
+loop:
+    INX
+    CPX #$0A
+    BNE loop
+
+    LDA #$2A          ; resultado
+    STA $0200
+    BRK

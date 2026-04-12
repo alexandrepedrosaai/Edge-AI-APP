@@ -1,0 +1,206 @@
+/* Edge-AI-APP Advanced ML/DL Theme */
+
+/* Global reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Dark scientific background */
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: #0d1117;
+  color: #e6edf3;
+  line-height: 1.6;
+}
+
+/* Dashboard grid */
+.dashboard {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 20px;
+  padding: 30px;
+}
+
+/* Tensor/Matrix visualization */
+.matrix {
+  display: inline-block;
+  padding: 10px;
+  border: 1px solid #30363d;
+  background: #161b22;
+  font-family: monospace;
+}
+.matrix .positive {
+  color: #3fb950;
+}
+.matrix .negative {
+  color: #f85149;
+}
+
+/* Neural network layers */
+.layer {
+  border: 2px solid #58a6ff;
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 8px;
+  background: #1f6feb20;
+}
+.layer-title {
+  font-weight: bold;
+  color: #58a6ff;
+}
+
+/* Training progress bar */
+.progress {
+  width: 100%;
+  background: #30363d;
+  border-radius: 5px;
+  overflow: hidden;
+}
+.progress-bar {
+  height: 20px;
+  background: linear-gradient(90deg, #3fb950, #58a6ff);
+  width: 0%;
+  transition: width 0.5s ease-in-out;
+}
+
+/* Animated loss curve */
+.loss-curve {
+  stroke: #f85149;
+  stroke-width: 2;
+  fill: none;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0% { stroke-opacity: 0.5; }
+  50% { stroke-opacity: 1; }
+  100% { stroke-opacity: 0.5; }
+}
+
+/* Chart container */
+.chart {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+/* Loss vs Accuracy lines */
+.loss-line {
+  stroke: #f85149;
+  stroke-width: 2;
+  fill: none;
+}
+.accuracy-line {
+  stroke: #3fb950;
+  stroke-width: 2;
+  fill: none;
+}
+
+/* Confusion matrix */
+.confusion-matrix {
+  display: grid;
+  grid-template-columns: repeat(5, 50px);
+  gap: 5px;
+}
+.confusion-cell {
+  text-align: center;
+  padding: 10px;
+  border: 1px solid #30363d;
+  background: #0d1117;
+  color: #e6edf3;
+}
+.confusion-cell.correct {
+  background: #3fb95033;
+  color: #3fb950;
+}
+.confusion-cell.incorrect {
+  background: #f8514933;
+  color: #f85149;
+}
+
+/* Training logs */
+.logs {
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 5px;
+  padding: 15px;
+  font-family: monospace;
+  overflow-y: auto;
+  max-height: 300px;
+}
+.log-info {
+  color: #58a6ff;
+}
+.log-warning {
+  color: #f0b429;
+}
+.log-error {
+  color: #f85149;
+}
+
+/* Hyperparameter controls */
+.controls {
+  display: flex;
+  gap: 20px;
+  margin: 20px 0;
+}
+
+/* Buttons */
+button {
+  background: #58a6ff;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  color: #0d1117;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+button:hover {
+  background: #1f6feb;
+  color: #ffffff;
+}
+
+/* Sliders */
+input[type=range] {
+  -webkit-appearance: none;
+  width: 200px;
+  height: 6px;
+  background: #30363d;
+  border-radius: 5px;
+  outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #3fb950;
+  cursor: pointer;
+}
+input[type=range]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #3fb950;
+  cursor: pointer;
+}
+
+/* Dropdowns */
+select {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 5px;
+  padding: 8px 12px;
+  color: #e6edf3;
+  font-weight: bold;
+  cursor: pointer;
+}
+select option {
+  background: #0d1117;
+  color: #e6edf3;
+}

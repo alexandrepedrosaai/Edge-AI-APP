@@ -1,0 +1,64 @@
+name: Verilog CI/CD
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  simulate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Icarus Verilog
+        run: sudo apt-get update && sudo apt-get install -y iverilog
+
+      - name: Compile Verilog
+        run: iverilog -o counter_tb verilog/counter_tb.v verilog/counter.v
+
+      - name: Run Simulation
+        run: vvp counter_tb
+
+      - name: Generate SHA256
+        run: sha256sum counter_tb > counter_tb.sha256
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: verilog-sim
+          path: |
+            counter_tb
+            counter_tb.sha256
+
+  release:
+    runs-on: ubuntu-latest
+    needs: simulate
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download simulation artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: verilog-sim
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: verilog-latest
+          name: "Verilog Simulation — Latest Build"
+          body: |
+            Automated Verilog simulation build using Icarus Verilog.
+
+            **Commit:** ${{ github.sha }}
+          files: |
+            counter_tb
+            counter_tb.sha256
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: edge-ai-docs
+    env: node
+    buildCommand: pnpm install --frozen-lockfile && pnpm run build
+    startCommand: pnpm start
+    envVars:
+      - key: NODE_ENV
+        value: production

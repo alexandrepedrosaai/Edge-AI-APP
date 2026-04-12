@@ -1,0 +1,76 @@
+name: CI/CD C# Build
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Restore
+      run: dotnet restore C#/EdgeAIApp.csproj
+
+    - name: Build
+      run: dotnet build C#/EdgeAIApp.csproj --configuration Release
+
+    - name: Test
+      run: |
+        # Se houver testes, execute-os aqui. 
+        # Como não encontramos arquivos de teste específicos, vamos apenas validar o build por enquanto.
+        echo "No specific tests found, skipping dotnet test."
+
+    - name: Publish
+      run: dotnet publish C#/EdgeAIApp.csproj -c Release -o out
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: EdgeAIApp-CS-Binaries
+        path: out/
+
+    - name: Generate Unique Tag and Release Name
+      id: meta
+      run: |
+        set -euo pipefail
+        SHORT_SHA=$(git rev-parse --short HEAD)
+        TIMESTAMP=$(date +'%Y%m%d-%H%M%S')
+        TAG="cs-v${TIMESTAMP}-${SHORT_SHA}"
+        RELEASE_NAME="C# Microcode Release ${TAG}"
+        echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+        echo "name=${RELEASE_NAME}" >> "$GITHUB_OUTPUT"
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ steps.meta.outputs.tag }}
+        name: ${{ steps.meta.outputs.name }}
+        files: out/**/*
+        body: |
+          🚀 Automated C# build and release.
+          
+          **Release Details:**
+          - **Commit:** ${{ github.sha }}
+          - **Run ID:** ${{ github.run_id }}
+          - **Timestamp:** $(date)
+          
+          This release was automatically generated for commit ${{ github.sha }} to ensure artifact isolation.
+        draft: false
+        prerelease: false
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

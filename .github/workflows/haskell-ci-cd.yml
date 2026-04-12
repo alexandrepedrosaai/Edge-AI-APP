@@ -1,0 +1,63 @@
+name: CI/CD Haskell Build & Release
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Instalar GHC e Cabal
+      - name: Setup Haskell
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ghc cabal-install
+
+      # Compilar arquivo Haskell
+      - name: Build Haskell binary
+        run: |
+          mkdir -p dist
+          ghc -o dist/EdgeAIManager src/EdgeAIManager.hs
+
+      # Executar binário para validar saída
+      - name: Execute Haskell binary
+        run: |
+          ./dist/EdgeAIManager > dist/output.log
+
+      # Upload artifacts
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: edge-ai-haskell
+          path: dist/*
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: edge-ai-haskell
+          path: release
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.run_number }}
+          name: "Automated Haskell Release v${{ github.run_number }}"
+          body: |
+            Automated build and release of Edge-AI-APP Haskell module:
+            - EdgeAIManager.hs compiled with GHC
+            - Executed successfully, logs included
+          files: release/**

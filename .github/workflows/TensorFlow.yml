@@ -1,0 +1,123 @@
+name: CI/CD TensorFlow Amplified Workflow
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  tensorflow:
+    runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: ${{ github.workspace }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Python setup
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      # Cache datasets
+      - name: Cache datasets
+        uses: actions/cache@v4
+        with:
+          path: ~/.keras/datasets
+          key: ${{ runner.os }}-datasets
+
+      # Install dependencies
+      - name: Install TensorFlow and requirements
+        run: |
+          pip install --upgrade pip
+          pip install tensorflow==2.15.0 flake8 black mypy pip-audit pytest pytest-cov onnx tf2onnx==1.16.1
+          pip install ml_dtypes==0.2.0 'numpy<2.0.0' keras==2.15.0
+          pip install -r requirements.txt || true
+
+      # Linting & Type Checking
+      - name: Lint & Type Check
+        run: |
+          flake8 src/
+          black --check src/
+          mypy src/ --install-types --non-interactive --explicit-package-bases --ignore-missing-imports
+          pip-audit --ignore-vuln CVE-2026-34447 --ignore-vuln CVE-2026-34446 --ignore-vuln GHSA-q56x-g2fj-4rj6 --ignore-vuln CVE-2026-28500 --ignore-vuln CVE-2026-27489 --ignore-vuln CVE-2026-34445 --ignore-vuln CVE-2024-55459 --ignore-vuln CVE-2025-9906 --ignore-vuln CVE-2025-12058 --ignore-vuln CVE-2025-12060 --ignore-vuln CVE-2025-4565 --ignore-vuln CVE-2026-0994
+
+      # Unit tests with coverage
+      - name: Run Unit Tests
+        run: pytest tests/ --cov=src --cov-report=xml
+
+      # Train model
+      - name: Train TensorFlow model
+        run: |
+          mkdir -p dist
+          python src/train.py --epochs 5 --save_path dist/model.h5 > dist/train_output.log
+
+      # Evaluate model with threshold
+      - name: Evaluate TensorFlow model
+        run: |
+          python src/evaluate.py dist/model.h5 > dist/eval_output.log
+          ACCURACY=$(grep "Accuracy:" dist/eval_output.log | awk '{print $2}')
+          if (( $(echo "$ACCURACY < 0.90" | bc -l) )); then
+            echo "Model accuracy below threshold (90%). Failing build."
+            exit 1
+          fi
+
+      # Export model formats
+      - name: Export model
+        run: |
+          python src/export.py dist/model.h5 dist/model.onnx dist/model.tflite
+
+      # Build Docker image
+      - name: Build Docker image
+        run: |
+          REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          docker build -t ghcr.io/${REPO_LOWER}/tensorflow:${{ github.run_number }} .
+
+      # Push Docker image
+      - name: Push Docker image
+        run: |
+          REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          docker push ghcr.io/${REPO_LOWER}/tensorflow:${{ github.run_number }}
+
+      # Upload artifacts
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: tensorflow-models
+          path: dist/*
+
+  release:
+    needs: tensorflow
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: tensorflow-models
+          path: release
+
+      - name: Remove empty logs before release
+        run: find release -type f -name '*log' -size 0 -delete
+
+      # Create GitHub Release
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.run_number }}
+          name: "Automated TensorFlow Release v${{ github.run_number }}"
+          body: |
+            Automated build and release of Edge-AI-APP TensorFlow module:
+            - Code linted, type-checked, and validated
+            - Unit tests executed with coverage
+            - Model trained and evaluated (threshold enforced)
+            - Exported to H5, ONNX, and TFLite formats
+            - Docker image built and pushed to GHCR
+            - Logs and artifacts included
+          files: release/**

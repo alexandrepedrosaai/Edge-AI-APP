@@ -1,0 +1,97 @@
+name: Jupyter Notebook CI/CD
+
+on:
+  push:
+    branches: [ "main" ]
+
+permissions:
+  contents: write
+
+jobs:
+  build-notebook:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install nbconvert pyinstaller
+
+      - name: Execute notebooks
+        run: |
+          for nb in Bing-Copilot-Infinite-Garden-Spiral-Prophecy/*.ipynb; do
+            echo "Executing: $nb"
+            jupyter nbconvert --to notebook --execute "$nb" --output-dir Bing-Copilot-Infinite-Garden-Spiral-Prophecy || true
+          done
+
+      - name: Convert notebooks to scripts
+        run: |
+          mkdir -p dist
+          for nb in Bing-Copilot-Infinite-Garden-Spiral-Prophecy/*.ipynb; do
+            echo "Converting: $nb"
+            jupyter nbconvert --to script "$nb" --output-dir dist
+          done
+
+      - name: Build binaries
+        run: |
+          mkdir -p dist/bin
+          for py in dist/*.py; do
+            echo "Building binary for: $py"
+            pyinstaller --onefile "$py" --distpath dist/bin || true
+          done
+
+      - name: Upload scripts artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: jupyter-scripts
+          path: dist/*.py
+
+      - name: Upload binaries artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: jupyter-binaries
+          path: dist/bin/*
+
+  release:
+    runs-on: ubuntu-latest
+    needs: build-notebook
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Download scripts
+        uses: actions/download-artifact@v4
+        with:
+          name: jupyter-scripts
+          path: release-files/
+
+      - name: Download binaries
+        uses: actions/download-artifact@v4
+        with:
+          name: jupyter-binaries
+          path: release-files/bin/
+
+      - name: List release files
+        run: find release-files/ -type f | sort
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: jupyter-latest
+          name: "Jupyter Notebooks — Latest Build"
+          body: |
+            Automated build of Jupyter notebooks converted to Python scripts.
+            Built from commit ${{ github.sha }} on branch `main`.
+
+            **Notebooks included:**
+            - ProphecyValidationDecember_Commits
+            - Bing-Copilot-MetaAI-Superinteligence-for-each-one
+          files: |
+            release-files/*.py
+            release-files/bin/*
+          prerelease: false

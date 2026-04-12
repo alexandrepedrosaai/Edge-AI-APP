@@ -1,0 +1,33 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.4",
+  "version": 1,
+  "metadata": {
+    "component": {
+      "type": "application",
+      "name": "edge-deploy",
+      "version": "1.0.0",
+      "purl": "pkg:docker/edge-deploy@sha256:YOUR_DIGEST"
+    }
+  },
+  "components": [
+    {
+      "type": "library",
+      "name": "kubectl",
+      "version": "1.29.0",
+      "purl": "pkg:generic/kubectl@1.29.0"
+    },
+    {
+      "type": "library",
+      "name": "kustomize",
+      "version": "5.0.0",
+      "purl": "pkg:generic/kustomize@5.0.0"
+    },
+    {
+      "type": "library",
+      "name": "bash",
+      "version": "5.2",
+      "purl": "pkg:generic/bash@5.2"
+    }
+  ]
+}

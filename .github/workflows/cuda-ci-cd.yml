@@ -1,0 +1,46 @@
+name: CUDA .cu Build & Release
+
+on:
+  push:   # dispara em todo commit
+    branches:
+      - main
+      - develop
+      - feature/*
+
+jobs:
+  build-cu:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install CUDA Toolkit
+        run: sudo apt-get install -y nvidia-cuda-toolkit
+
+      - name: Compile CUDA kernels to PTX
+        run: |
+          mkdir -p build
+          for file in $(find src -name "*.cu"); do
+            nvcc -ptx "$file" -o "build/$(basename $file .cu).ptx"
+          done
+
+      - name: Upload PTX artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: cuda-ptx-binaries
+          path: build/*.ptx
+
+  release:
+    if: github.ref == 'refs/heads/main'   # só cria release em commits na main
+    needs: build-cu
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: cuda-ptx-binaries
+          path: release/
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: release/*.ptx
+          tag_name: vCU-${{ github.run_number }}
+          name: "CUDA Release ${{ github.run_number }}"
