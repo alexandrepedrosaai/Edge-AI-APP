@@ -1,0 +1,20 @@
+name: CI/CD PetriNet ASM
+jobs:
+              build:
+         runs-on: ubuntu-latest
+      steps:
+    - uses: actions/checkout@v3
+    - run: sudo apt-get update && sudo apt-get install -y nasm
+    - run: |
+        nasm -f elf src/asm/petrinet.asm -o petrinet.o
+        ld -m elf_i386 -s -o petrinet petrinet.o
+    - uses: actions/upload-artifact@v4
+      with:
+        name: petrinet-artifact
+        path: petrinet
+    - uses: softprops/action-gh-release@v1
+      with:
+        tagname: v${{ github.runnumber }}
+        files: petrinet
+      env:
+        GITHUBTOKEN: ${{ secrets.GITHUBTOKEN }}
