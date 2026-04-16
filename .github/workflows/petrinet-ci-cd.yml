@@ -8,7 +8,7 @@ jobs:
     - uses: actions/checkout@v3
     - run: sudo apt-get update && sudo apt-get install -y nasm
     - run: |
-        nasm -f elf src/asm/petrinet.asm -o petrinet.o
+        nasm -f elf src/ASM/petrinet.asm -o petrinet.o
         ld -m elf_i386 -s -o petrinet petrinet.o
     - uses: actions/upload-artifact@v4
       with:
