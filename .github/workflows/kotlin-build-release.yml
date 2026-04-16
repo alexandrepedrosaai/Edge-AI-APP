@@ -32,12 +32,12 @@ jobs:
       - name: Archive binaries
         run: |
           mkdir -p artifacts
-          cp src/main/kotlin/build/libs/*.jar artifacts/
+          cp src/main/kotlin/build/libs/edge-ai-kotlin-all-1.1.0.jar artifacts/edge-ai-kotlin-1.1.0.jar
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: edge-ai-kotlin-binaries
+          name: edge-ai-kotlin-1.1.0-binaries
           path: artifacts/
 
   release:
@@ -51,7 +51,7 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: edge-ai-kotlin-binaries
+          name: edge-ai-kotlin-1.1.0-binaries
           path: artifacts/
 
       - name: Create Automated Release
@@ -59,7 +59,7 @@ jobs:
         with:
           tag_name: kotlin-v${{ github.run_number }}
           name: "Edge-AI-APP Kotlin Release ${{ github.run_number }}"
-          files: artifacts/*.jar
+          files: artifacts/edge-ai-kotlin-1.1.0.jar
           draft: false
           prerelease: false
         env:
