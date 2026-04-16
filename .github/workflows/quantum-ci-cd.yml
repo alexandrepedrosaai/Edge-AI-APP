@@ -1,0 +1,22 @@
+name: CI/CD Quantum ASM
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - run: sudo apt-get update && sudo apt-get install -y nasm
+    - run: |
+        nasm -f elf src/asm/quantum.asm -o quantum.o
+        ld -m elf_i386 -s -o quantum quantum.o
+    - uses: actions/upload-artifact@v4
+      with:
+        name: quantum-artifact
+        path: quantum
+    - uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ github.run_number }}
+        files: quantum
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
