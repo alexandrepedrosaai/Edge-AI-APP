@@ -1,0 +1,24 @@
+name: CI/CD GNN ASM
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install NASM
+      run: sudo apt-get update && sudo apt-get install -y nasm
+    - name: Build ASM Artifact
+      run: |
+        nasm -f elf src/asm/gnn.asm -o gnn.o
+        ld -m elf_i386 -s -o gnn gnn.o
+    - uses: actions/upload-artifact@v4
+      with:
+        name: gnn-artifact
+        path: gnn
+    - uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ github.run_number }}
+        files: gnn
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
