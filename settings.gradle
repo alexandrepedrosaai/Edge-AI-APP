@@ -1,2 +1,2 @@
-rootProject.name = 'Edge-AI-APP'
+rootProject.name = 'edge-ai-app'
 include 'src:main:kotlin'
