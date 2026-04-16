@@ -14,9 +14,9 @@ Report Summary
 ├────────────────────────────────────────┼───────────────────┼─────────────────┼─────────┤
 │ go.mod                                 │       gomod       │        0        │    -    │
 ├────────────────────────────────────────┼───────────────────┼─────────────────┼─────────┤
-│ package-lock.json                      │        npm        │        9        │    -    │
+│ package-lock.json                      │        npm        │       11        │    -    │
 ├────────────────────────────────────────┼───────────────────┼─────────────────┼─────────┤
-│ pnpm-lock.yaml                         │       pnpm        │        9        │    -    │
+│ pnpm-lock.yaml                         │       pnpm        │       11        │    -    │
 ├────────────────────────────────────────┼───────────────────┼─────────────────┼─────────┤
 │ python-core/requirements.txt           │        pip        │        6        │    -    │
 └────────────────────────────────────────┴───────────────────┴─────────────────┴─────────┘
@@ -164,91 +164,107 @@ Total: 21 (UNKNOWN: 0, LOW: 0, MEDIUM: 11, HIGH: 8, CRITICAL: 2)
 
 package-lock.json (npm)
 =======================
-Total: 9 (UNKNOWN: 0, LOW: 0, MEDIUM: 3, HIGH: 4, CRITICAL: 2)
+Total: 11 (UNKNOWN: 0, LOW: 0, MEDIUM: 5, HIGH: 4, CRITICAL: 2)
 
-┌────────────────┬────────────────┬──────────┬────────┬───────────────────┬─────────────────────┬──────────────────────────────────────────────────────────────┐
-│    Library     │ Vulnerability  │ Severity │ Status │ Installed Version │    Fixed Version    │                            Title                             │
-├────────────────┼────────────────┼──────────┼────────┼───────────────────┼─────────────────────┼──────────────────────────────────────────────────────────────┤
-│ axios          │ CVE-2025-62718 │ CRITICAL │ fixed  │ 1.13.6            │ 1.15.0              │ Axios is a promise based HTTP client for the browser and     │
-│                │                │          │        │                   │                     │ Node.js....                                                  │
-│                │                │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2025-62718                   │
-│                ├────────────────┤          │        │                   │                     ├──────────────────────────────────────────────────────────────┤
-│                │ CVE-2026-40175 │          │        │                   │                     │ Axios is a promise based HTTP client for the browser and     │
-│                │                │          │        │                   │                     │ Node.js....                                                  │
-│                │                │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-40175                   │
-├────────────────┼────────────────┼──────────┤        ├───────────────────┼─────────────────────┼──────────────────────────────────────────────────────────────┤
-│ lodash         │ CVE-2026-4800  │ HIGH     │        │ 4.17.23           │ 4.18.0              │ lodash: lodash: Arbitrary code execution via untrusted input │
-│                │                │          │        │                   │                     │ in template imports                                          │
-│                │                │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-4800                    │
-│                ├────────────────┼──────────┤        │                   │                     ├──────────────────────────────────────────────────────────────┤
-│                │ CVE-2026-2950  │ MEDIUM   │        │                   │                     │ Impact: Lodash versions 4.17.23 and earlier are vulnerable   │
-│                │                │          │        │                   │                     │ to prototy ......                                            │
-│                │                │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-2950                    │
-├────────────────┼────────────────┼──────────┤        │                   │                     ├──────────────────────────────────────────────────────────────┤
-│ lodash-es      │ CVE-2026-4800  │ HIGH     │        │                   │                     │ lodash: lodash: Arbitrary code execution via untrusted input │
-│                │                │          │        │                   │                     │ in template imports                                          │
-│                │                │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-4800                    │
-│                ├────────────────┼──────────┤        │                   │                     ├──────────────────────────────────────────────────────────────┤
-│                │ CVE-2026-2950  │ MEDIUM   │        │                   │                     │ Impact: Lodash versions 4.17.23 and earlier are vulnerable   │
-│                │                │          │        │                   │                     │ to prototy ......                                            │
-│                │                │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-2950                    │
-├────────────────┼────────────────┼──────────┤        ├───────────────────┼─────────────────────┼──────────────────────────────────────────────────────────────┤
-│ path-to-regexp │ CVE-2026-4867  │ HIGH     │        │ 0.1.12            │ 0.1.13              │ path-to-regexp: path-to-regexp: Denial of Service via        │
-│                │                │          │        │                   │                     │ catastrophic backtracking from malformed URL parameters...   │
-│                │                │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-4867                    │
-├────────────────┼────────────────┤          │        ├───────────────────┼─────────────────────┼──────────────────────────────────────────────────────────────┤
-│ picomatch      │ CVE-2026-33671 │          │        │ 4.0.3             │ 4.0.4, 3.0.2, 2.3.2 │ picomatch: Picomatch: Regular Expression Denial of Service   │
-│                │                │          │        │                   │                     │ via crafted extglob patterns                                 │
-│                │                │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-33671                   │
-│                ├────────────────┼──────────┤        │                   │                     ├──────────────────────────────────────────────────────────────┤
-│                │ CVE-2026-33672 │ MEDIUM   │        │                   │                     │ picomatch: Picomatch: Data integrity compromised via method  │
-│                │                │          │        │                   │                     │ injection with crafted POSIX bracket...                      │
-│                │                │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-33672                   │
-└────────────────┴────────────────┴──────────┴────────┴───────────────────┴─────────────────────┴──────────────────────────────────────────────────────────────┘
+┌──────────────────┬─────────────────────┬──────────┬────────┬───────────────────┬─────────────────────┬──────────────────────────────────────────────────────────────┐
+│     Library      │    Vulnerability    │ Severity │ Status │ Installed Version │    Fixed Version    │                            Title                             │
+├──────────────────┼─────────────────────┼──────────┼────────┼───────────────────┼─────────────────────┼──────────────────────────────────────────────────────────────┤
+│ axios            │ CVE-2025-62718      │ CRITICAL │ fixed  │ 1.13.6            │ 1.15.0, 0.31.0      │ axios: Axios: Server-Side Request Forgery and proxy bypass   │
+│                  │                     │          │        │                   │                     │ due to improper hostname...                                  │
+│                  │                     │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2025-62718                   │
+│                  ├─────────────────────┤          │        │                   │                     ├──────────────────────────────────────────────────────────────┤
+│                  │ CVE-2026-40175      │          │        │                   │                     │ axios: Axios: Remote Code Execution via Prototype Pollution  │
+│                  │                     │          │        │                   │                     │ escalation                                                   │
+│                  │                     │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-40175                   │
+├──────────────────┼─────────────────────┼──────────┤        ├───────────────────┼─────────────────────┼──────────────────────────────────────────────────────────────┤
+│ dompurify        │ GHSA-39q2-94rc-95cp │ MEDIUM   │        │ 3.3.3             │ 3.4.0               │ DOMPurify's ADD_TAGS function form bypasses FORBID_TAGS due  │
+│                  │                     │          │        │                   │                     │ to short-circuit evaluation                                  │
+│                  │                     │          │        │                   │                     │ https://github.com/advisories/GHSA-39q2-94rc-95cp            │
+├──────────────────┼─────────────────────┤          │        ├───────────────────┼─────────────────────┼──────────────────────────────────────────────────────────────┤
+│ follow-redirects │ GHSA-r4q5-vmmm-2653 │          │        │ 1.15.11           │ 1.16.0              │ follow-redirects leaks Custom Authentication Headers to      │
+│                  │                     │          │        │                   │                     │ Cross-Domain Redirect Targets                                │
+│                  │                     │          │        │                   │                     │ https://github.com/advisories/GHSA-r4q5-vmmm-2653            │
+├──────────────────┼─────────────────────┼──────────┤        ├───────────────────┼─────────────────────┼──────────────────────────────────────────────────────────────┤
+│ lodash           │ CVE-2026-4800       │ HIGH     │        │ 4.17.23           │ 4.18.0              │ lodash: lodash: Arbitrary code execution via untrusted input │
+│                  │                     │          │        │                   │                     │ in template imports                                          │
+│                  │                     │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-4800                    │
+│                  ├─────────────────────┼──────────┤        │                   │                     ├──────────────────────────────────────────────────────────────┤
+│                  │ CVE-2026-2950       │ MEDIUM   │        │                   │                     │ lodash: Lodash: Prototype pollution allows deletion of       │
+│                  │                     │          │        │                   │                     │ built-in prototype properties via array...                   │
+│                  │                     │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-2950                    │
+├──────────────────┼─────────────────────┼──────────┤        │                   │                     ├──────────────────────────────────────────────────────────────┤
+│ lodash-es        │ CVE-2026-4800       │ HIGH     │        │                   │                     │ lodash: lodash: Arbitrary code execution via untrusted input │
+│                  │                     │          │        │                   │                     │ in template imports                                          │
+│                  │                     │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-4800                    │
+│                  ├─────────────────────┼──────────┤        │                   │                     ├──────────────────────────────────────────────────────────────┤
+│                  │ CVE-2026-2950       │ MEDIUM   │        │                   │                     │ lodash: Lodash: Prototype pollution allows deletion of       │
+│                  │                     │          │        │                   │                     │ built-in prototype properties via array...                   │
+│                  │                     │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-2950                    │
+├──────────────────┼─────────────────────┼──────────┤        ├───────────────────┼─────────────────────┼──────────────────────────────────────────────────────────────┤
+│ path-to-regexp   │ CVE-2026-4867       │ HIGH     │        │ 0.1.12            │ 0.1.13              │ path-to-regexp: path-to-regexp: Denial of Service via        │
+│                  │                     │          │        │                   │                     │ catastrophic backtracking from malformed URL parameters...   │
+│                  │                     │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-4867                    │
+├──────────────────┼─────────────────────┤          │        ├───────────────────┼─────────────────────┼──────────────────────────────────────────────────────────────┤
+│ picomatch        │ CVE-2026-33671      │          │        │ 4.0.3             │ 4.0.4, 3.0.2, 2.3.2 │ picomatch: Picomatch: Regular Expression Denial of Service   │
+│                  │                     │          │        │                   │                     │ via crafted extglob patterns                                 │
+│                  │                     │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-33671                   │
+│                  ├─────────────────────┼──────────┤        │                   │                     ├──────────────────────────────────────────────────────────────┤
+│                  │ CVE-2026-33672      │ MEDIUM   │        │                   │                     │ picomatch: Picomatch: Data integrity compromised via method  │
+│                  │                     │          │        │                   │                     │ injection with crafted POSIX bracket...                      │
+│                  │                     │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-33672                   │
+└──────────────────┴─────────────────────┴──────────┴────────┴───────────────────┴─────────────────────┴──────────────────────────────────────────────────────────────┘
 
 pnpm-lock.yaml (pnpm)
 =====================
-Total: 9 (UNKNOWN: 0, LOW: 0, MEDIUM: 3, HIGH: 4, CRITICAL: 2)
+Total: 11 (UNKNOWN: 0, LOW: 0, MEDIUM: 5, HIGH: 4, CRITICAL: 2)
 
-┌────────────────┬────────────────┬──────────┬────────┬───────────────────┬─────────────────────┬──────────────────────────────────────────────────────────────┐
-│    Library     │ Vulnerability  │ Severity │ Status │ Installed Version │    Fixed Version    │                            Title                             │
-├────────────────┼────────────────┼──────────┼────────┼───────────────────┼─────────────────────┼──────────────────────────────────────────────────────────────┤
-│ axios          │ CVE-2025-62718 │ CRITICAL │ fixed  │ 1.13.6            │ 1.15.0              │ Axios is a promise based HTTP client for the browser and     │
-│                │                │          │        │                   │                     │ Node.js....                                                  │
-│                │                │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2025-62718                   │
-│                ├────────────────┤          │        │                   │                     ├──────────────────────────────────────────────────────────────┤
-│                │ CVE-2026-40175 │          │        │                   │                     │ Axios is a promise based HTTP client for the browser and     │
-│                │                │          │        │                   │                     │ Node.js....                                                  │
-│                │                │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-40175                   │
-├────────────────┼────────────────┼──────────┤        ├───────────────────┼─────────────────────┼──────────────────────────────────────────────────────────────┤
-│ lodash         │ CVE-2026-4800  │ HIGH     │        │ 4.17.23           │ 4.18.0              │ lodash: lodash: Arbitrary code execution via untrusted input │
-│                │                │          │        │                   │                     │ in template imports                                          │
-│                │                │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-4800                    │
-│                ├────────────────┼──────────┤        │                   │                     ├──────────────────────────────────────────────────────────────┤
-│                │ CVE-2026-2950  │ MEDIUM   │        │                   │                     │ Impact: Lodash versions 4.17.23 and earlier are vulnerable   │
-│                │                │          │        │                   │                     │ to prototy ......                                            │
-│                │                │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-2950                    │
-├────────────────┼────────────────┼──────────┤        │                   │                     ├──────────────────────────────────────────────────────────────┤
-│ lodash-es      │ CVE-2026-4800  │ HIGH     │        │                   │                     │ lodash: lodash: Arbitrary code execution via untrusted input │
-│                │                │          │        │                   │                     │ in template imports                                          │
-│                │                │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-4800                    │
-│                ├────────────────┼──────────┤        │                   │                     ├──────────────────────────────────────────────────────────────┤
-│                │ CVE-2026-2950  │ MEDIUM   │        │                   │                     │ Impact: Lodash versions 4.17.23 and earlier are vulnerable   │
-│                │                │          │        │                   │                     │ to prototy ......                                            │
-│                │                │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-2950                    │
-├────────────────┼────────────────┼──────────┤        ├───────────────────┼─────────────────────┼──────────────────────────────────────────────────────────────┤
-│ path-to-regexp │ CVE-2026-4867  │ HIGH     │        │ 0.1.12            │ 0.1.13              │ path-to-regexp: path-to-regexp: Denial of Service via        │
-│                │                │          │        │                   │                     │ catastrophic backtracking from malformed URL parameters...   │
-│                │                │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-4867                    │
-├────────────────┼────────────────┤          │        ├───────────────────┼─────────────────────┼──────────────────────────────────────────────────────────────┤
-│ picomatch      │ CVE-2026-33671 │          │        │ 4.0.3             │ 4.0.4, 3.0.2, 2.3.2 │ picomatch: Picomatch: Regular Expression Denial of Service   │
-│                │                │          │        │                   │                     │ via crafted extglob patterns                                 │
-│                │                │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-33671                   │
-│                ├────────────────┼──────────┤        │                   │                     ├──────────────────────────────────────────────────────────────┤
-│                │ CVE-2026-33672 │ MEDIUM   │        │                   │                     │ picomatch: Picomatch: Data integrity compromised via method  │
-│                │                │          │        │                   │                     │ injection with crafted POSIX bracket...                      │
-│                │                │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-33672                   │
-└────────────────┴────────────────┴──────────┴────────┴───────────────────┴─────────────────────┴──────────────────────────────────────────────────────────────┘
+┌──────────────────┬─────────────────────┬──────────┬────────┬───────────────────┬─────────────────────┬──────────────────────────────────────────────────────────────┐
+│     Library      │    Vulnerability    │ Severity │ Status │ Installed Version │    Fixed Version    │                            Title                             │
+├──────────────────┼─────────────────────┼──────────┼────────┼───────────────────┼─────────────────────┼──────────────────────────────────────────────────────────────┤
+│ axios            │ CVE-2025-62718      │ CRITICAL │ fixed  │ 1.13.6            │ 1.15.0, 0.31.0      │ axios: Axios: Server-Side Request Forgery and proxy bypass   │
+│                  │                     │          │        │                   │                     │ due to improper hostname...                                  │
+│                  │                     │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2025-62718                   │
+│                  ├─────────────────────┤          │        │                   │                     ├──────────────────────────────────────────────────────────────┤
+│                  │ CVE-2026-40175      │          │        │                   │                     │ axios: Axios: Remote Code Execution via Prototype Pollution  │
+│                  │                     │          │        │                   │                     │ escalation                                                   │
+│                  │                     │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-40175                   │
+├──────────────────┼─────────────────────┼──────────┤        ├───────────────────┼─────────────────────┼──────────────────────────────────────────────────────────────┤
+│ dompurify        │ GHSA-39q2-94rc-95cp │ MEDIUM   │        │ 3.3.3             │ 3.4.0               │ DOMPurify's ADD_TAGS function form bypasses FORBID_TAGS due  │
+│                  │                     │          │        │                   │                     │ to short-circuit evaluation                                  │
+│                  │                     │          │        │                   │                     │ https://github.com/advisories/GHSA-39q2-94rc-95cp            │
+├──────────────────┼─────────────────────┤          │        ├───────────────────┼─────────────────────┼──────────────────────────────────────────────────────────────┤
+│ follow-redirects │ GHSA-r4q5-vmmm-2653 │          │        │ 1.15.11           │ 1.16.0              │ follow-redirects leaks Custom Authentication Headers to      │
+│                  │                     │          │        │                   │                     │ Cross-Domain Redirect Targets                                │
+│                  │                     │          │        │                   │                     │ https://github.com/advisories/GHSA-r4q5-vmmm-2653            │
+├──────────────────┼─────────────────────┼──────────┤        ├───────────────────┼─────────────────────┼──────────────────────────────────────────────────────────────┤
+│ lodash           │ CVE-2026-4800       │ HIGH     │        │ 4.17.23           │ 4.18.0              │ lodash: lodash: Arbitrary code execution via untrusted input │
+│                  │                     │          │        │                   │                     │ in template imports                                          │
+│                  │                     │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-4800                    │
+│                  ├─────────────────────┼──────────┤        │                   │                     ├──────────────────────────────────────────────────────────────┤
+│                  │ CVE-2026-2950       │ MEDIUM   │        │                   │                     │ lodash: Lodash: Prototype pollution allows deletion of       │
+│                  │                     │          │        │                   │                     │ built-in prototype properties via array...                   │
+│                  │                     │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-2950                    │
+├──────────────────┼─────────────────────┼──────────┤        │                   │                     ├──────────────────────────────────────────────────────────────┤
+│ lodash-es        │ CVE-2026-4800       │ HIGH     │        │                   │                     │ lodash: lodash: Arbitrary code execution via untrusted input │
+│                  │                     │          │        │                   │                     │ in template imports                                          │
+│                  │                     │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-4800                    │
+│                  ├─────────────────────┼──────────┤        │                   │                     ├──────────────────────────────────────────────────────────────┤
+│                  │ CVE-2026-2950       │ MEDIUM   │        │                   │                     │ lodash: Lodash: Prototype pollution allows deletion of       │
+│                  │                     │          │        │                   │                     │ built-in prototype properties via array...                   │
+│                  │                     │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-2950                    │
+├──────────────────┼─────────────────────┼──────────┤        ├───────────────────┼─────────────────────┼──────────────────────────────────────────────────────────────┤
+│ path-to-regexp   │ CVE-2026-4867       │ HIGH     │        │ 0.1.12            │ 0.1.13              │ path-to-regexp: path-to-regexp: Denial of Service via        │
+│                  │                     │          │        │                   │                     │ catastrophic backtracking from malformed URL parameters...   │
+│                  │                     │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-4867                    │
+├──────────────────┼─────────────────────┤          │        ├───────────────────┼─────────────────────┼──────────────────────────────────────────────────────────────┤
+│ picomatch        │ CVE-2026-33671      │          │        │ 4.0.3             │ 4.0.4, 3.0.2, 2.3.2 │ picomatch: Picomatch: Regular Expression Denial of Service   │
+│                  │                     │          │        │                   │                     │ via crafted extglob patterns                                 │
+│                  │                     │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-33671                   │
+│                  ├─────────────────────┼──────────┤        │                   │                     ├──────────────────────────────────────────────────────────────┤
+│                  │ CVE-2026-33672      │ MEDIUM   │        │                   │                     │ picomatch: Picomatch: Data integrity compromised via method  │
+│                  │                     │          │        │                   │                     │ injection with crafted POSIX bracket...                      │
+│                  │                     │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-33672                   │
+└──────────────────┴─────────────────────┴──────────┴────────┴───────────────────┴─────────────────────┴──────────────────────────────────────────────────────────────┘
 
 python-core/requirements.txt (pip)
 ==================================
