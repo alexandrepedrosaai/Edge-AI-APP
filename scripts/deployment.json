@@ -1,0 +1,45 @@
+{
+  "modulesContent": {
+    "$edgeAgent": {
+      "properties.desired": {
+        "modules": {
+          "Edge-AI-APP": {
+            "settings": {
+              "image": "dockerhub.io/edge-ai/Edge-AI-APP:1.0.0",
+              "createOptions": "{}"
+            },
+            "type": "docker",
+            "version": "1.0"
+          }
+        },
+        "runtime": {
+          "settings": {
+            "minDockerVersion": "v1.25"
+          }
+        },
+        "systemModules": {
+          "edgeAgent": {
+            "settings": {
+              "image": "mcr.microsoft.com/azureiotedge-agent:1.2"
+            }
+          },
+          "edgeHub": {
+            "settings": {
+              "image": "mcr.microsoft.com/azureiotedge-hub:1.2"
+            }
+          }
+        }
+      }
+    },
+    "$edgeHub": {
+      "properties.desired": {
+        "routes": {
+          "EdgeAIToCloud": "FROM /messages/modules/Edge-AI-APP/outputs/* INTO $upstream"
+        },
+        "storeAndForwardConfiguration": {
+          "timeToLiveSecs": 7200
+        }
+      }
+    }
+  }
+}
