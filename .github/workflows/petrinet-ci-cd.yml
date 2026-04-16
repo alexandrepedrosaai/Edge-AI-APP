@@ -1,8 +1,10 @@
 name: CI/CD PetriNet ASM
+on: [push, pull_request, workflow_dispatch]
+
 jobs:
-              build:
-         runs-on: ubuntu-latest
-      steps:
+  build:
+    runs-on: ubuntu-latest
+    steps:
     - uses: actions/checkout@v3
     - run: sudo apt-get update && sudo apt-get install -y nasm
     - run: |
@@ -14,7 +16,7 @@ jobs:
         path: petrinet
     - uses: softprops/action-gh-release@v1
       with:
-        tagname: v${{ github.runnumber }}
+        tag_name: v${{ github.run_number }}
         files: petrinet
       env:
-        GITHUBTOKEN: ${{ secrets.GITHUBTOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
