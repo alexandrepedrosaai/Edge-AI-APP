@@ -10,7 +10,7 @@ jobs:
       run: sudo apt-get update && sudo apt-get install -y nasm
     - name: Build ASM Artifact
       run: |
-        nasm -f elf src/asm/gnn.asm -o gnn.o
+        nasm -f elf src/ASM/gnn.asm -o gnn.o
         ld -m elf_i386 -s -o gnn gnn.o
     - uses: actions/upload-artifact@v4
       with:
