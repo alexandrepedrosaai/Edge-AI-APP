@@ -33,7 +33,7 @@ jobs:
       run: perl ci_cd.pl
 
     - name: Upload Binary Artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ env.APP_NAME }}-${{ env.VERSION }}
         path: artifacts/${{ env.APP_NAME }}-${{ env.VERSION }}.jar
