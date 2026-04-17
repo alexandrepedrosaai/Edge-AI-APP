@@ -1,4 +1,4 @@
-name: CI/CD go.windows Build and Release
+name: CI/CD Build and Release
 
 on:
   push:
@@ -17,18 +17,21 @@ jobs:
         with:
           go-version: '1.22'
 
-      - name: Setup Node.js and pnpm
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'pnpm'
-      - run: npm install -g pnpm
-      - run: pnpm install
 
-      - name: Build Frontend and TypeScript Backend
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build Frontend and TS Backend
         run: pnpm build
 
-      - name: Build Go Application for Windows
+      - name: Build Go App (Windows)
         run: |
           go mod tidy
           go build -o bin/edge-ai-app.exe ./cmd/app
@@ -52,7 +55,7 @@ jobs:
         with:
           go-version: '1.22'
 
-      - name: Build Go Application for Linux
+      - name: Build Go App (Linux)
         run: |
           go mod tidy
           go build -o bin/edge-ai-app ./cmd/app
@@ -72,7 +75,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Get current date and time for tag
+      - name: Get tag name
         id: date
         run: echo "TAG_NAME=v$(date +'%Y.%m.%d.%H%M%S')" >> $GITHUB_OUTPUT
 
@@ -87,7 +90,7 @@ jobs:
         with:
           name: edge-ai-app-linux
           path: artifacts/linux
-u
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
@@ -96,8 +99,6 @@ u
           body: Automated release from main branch push.
           files: |
             artifacts/windows/edge-ai-app.exe
-            artifacts/windows/dist/**
             artifacts/linux/edge-ai-app
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
