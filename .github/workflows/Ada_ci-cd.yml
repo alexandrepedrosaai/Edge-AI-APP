@@ -1,0 +1,28 @@
+name: CI/CD Ada Pipeline
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install GNAT (Ada compiler)
+      run: sudo apt-get update && sudo apt-get install -y gnat
+
+    - name: Build Ada Artifact
+      run: gnatmake src/ada/hello.ada -o hello_ada
+
+    - name: Upload Ada Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ada-artifact
+        path: hello_ada
+
+    - name: Create Automated Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ github.run_number }}
+        files: hello_ada
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
