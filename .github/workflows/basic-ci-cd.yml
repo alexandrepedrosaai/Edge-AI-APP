@@ -1,0 +1,28 @@
+name: CI/CD BASIC Pipeline
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install FreeBASIC
+      run: sudo apt-get update && sudo apt-get install -y freebasic
+
+    - name: Build BASIC Artifact
+      run: fbc src/basic/hello.bas -ohello_basic
+
+    - name: Upload BASIC Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: basic-artifact
+        path: hello_basic
+
+    - name: Create Automated Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ github.run_number }}
+        files: hello_basic
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
