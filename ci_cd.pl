@@ -14,7 +14,7 @@ system("./gradlew test") == 0 or die "Tests failed!\n";
 
 print "==> Packaging binary...\n";
 system("mkdir -p artifacts") == 0 or die "Failed to create artifacts dir!\n";
-system("cp src/main/kotlin/build/libs/$app_name-all.jar artifacts/$app_name-$version.jar") == 0 or die "Failed to copy JAR!\n";
+system("cp build/libs/$app_name-all.jar artifacts/$app_name-$version.jar") == 0 or die "Failed to copy JAR!\n";
 
 print "==> Building Docker image...\n";
 system("docker build -t $registry/$app_name:$version .") == 0 or die "Docker build failed!\n";

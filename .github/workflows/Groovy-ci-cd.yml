@@ -34,7 +34,7 @@ jobs:
     - name: Package Binary
       run: |
         mkdir -p artifacts
-        cp src/main/kotlin/build/libs/${APP_NAME}-all.jar artifacts/${APP_NAME}-${VERSION}.jar
+        cp build/libs/${APP_NAME}-all.jar artifacts/${APP_NAME}-${VERSION}.jar
 
     - name: Docker Build
       run: docker build -t edge-ai-app:${VERSION} .

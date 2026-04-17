@@ -32,7 +32,7 @@ jobs:
       - name: Archive binaries
         run: |
           mkdir -p artifacts
-          cp src/main/kotlin/build/libs/*.jar artifacts/
+          cp build/libs/*.jar artifacts/
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
