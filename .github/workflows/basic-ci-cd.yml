@@ -10,7 +10,7 @@ jobs:
     - name: Install FreeBASIC
       run: |
         sudo apt-get update
-        sudo apt-get install -y wget unzip libncurses5 libtinfo5
+        sudo apt-get install -y wget unzip libncurses6 libtinfo6 || true
         wget https://downloads.sourceforge.net/project/fbc/FreeBASIC-1.10.0-linux-x86_64.tar.gz
         tar -xzf FreeBASIC-1.10.0-linux-x86_64.tar.gz
         cd FreeBASIC-1.10.0-linux-x86_64
