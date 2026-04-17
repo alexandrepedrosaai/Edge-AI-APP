@@ -15,7 +15,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install torch onnx onnxruntime pytest
+        pip install torch onnx onnxruntime pytest onnxscript
 
     - name: Export LLM to ONNX
       run: python onnx-llm-matrix/src/export_to_onnx.py
