@@ -1,0 +1,28 @@
+name: CI/CD Fortran Pipeline
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install Fortran Compiler
+      run: sudo apt-get update && sudo apt-get install -y gfortran
+
+    - name: Build Fortran Artifact
+      run: gfortran src/fortran/hello.f90 -o hello_fortran
+
+    - name: Upload Fortran Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: fortran-artifact
+        path: hello_fortran
+
+    - name: Create Automated Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ github.run_number }}
+        files: hello_fortran
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
