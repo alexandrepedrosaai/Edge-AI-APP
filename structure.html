@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Edge-AI-APP Repository Structure - Explore the multi-language codebase and architecture.">
+  <title>Repository Structure - Edge-AI-APP</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75' fill='%2300d9ff'>⚡</text></svg>">
+</head>
+<body>
+  <!-- Header & Navigation -->
+  <header>
+    <div class="container">
+      <div class="header-content">
+        <a href="index.html" class="logo">⚡ Edge-AI-APP</a>
+        <nav>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="setup.html">Setup Guide</a></li>
+            <li><a href="releases.html">Releases</a></li>
+            <li><a href="structure.html">Repository</a></li>
+            <li><a href="https://github.com/alexandrepedrosaai/Edge-AI-APP" target="_blank">GitHub</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <section>
+    <div class="container">
+      <h1>Repository Structure</h1>
+      <p class="hero-subtitle">Explore the multi-language codebase and understand the project architecture</p>
+    </div>
+  </section>
+
+  <!-- Overview -->
+  <section>
+    <div class="container">
+      <h2 class="section-title">Project Overview</h2>
+      <div class="card">
+        <p>Edge-AI-APP is a comprehensive, multi-language project that combines Go, TypeScript, Python, Verilog, VHDL, Rust, and other languages to create a complete edge AI inference and processing platform. The repository is organized into logical modules, each serving a specific purpose in the overall architecture.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Directory Structure -->
+  <section>
+    <div class="container">
+      <h2 class="section-title">Directory Structure</h2>
+      
+      <div class="card mb-lg">
+        <h3>📦 Root Level</h3>
+        <pre><code>Edge-AI-APP/
+├── cmd/                    # Command-line applications
+├── internal/               # Internal Go packages
+├── server/                 # Express.js backend
+├── client/                 # React frontend
+├── drizzle/                # Database schema & migrations
+├── docker/                 # Docker configurations
+├── containers/             # Container definitions
+├── k8s/                    # Kubernetes manifests
+├── src/                    # Source code (multi-language)
+├── python/                 # Python modules
+├── rust-core/              # Rust core libraries
+├── verilog/                # Verilog HDL designs
+├── vhdl/                   # VHDL designs
+├── tests/                  # Test files
+├── scripts/                # Build and utility scripts
+├── .github/                # GitHub configuration
+├── docs/                   # Documentation (this site)
+├── go.mod                  # Go module definition
+├── package.json            # Node.js dependencies
+└── README.md               # Project README</code></pre>
+      </div>
+
+      <div class="grid grid-2">
+        <div class="card">
+          <h3>🔧 cmd/ - Command-line Applications</h3>
+          <p>Contains executable entry points for the Go application:</p>
+          <ul class="feature-list">
+            <li><code>cmd/app/main.go</code> - Main application entry point</li>
+            <li>Command-line interface definitions</li>
+            <li>Application initialization logic</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>📚 internal/ - Go Packages</h3>
+          <p>Internal Go packages used by the application:</p>
+          <ul class="feature-list">
+            <li><code>internal/inference/</code> - AI inference engine</li>
+            <li><code>internal/pipeline/</code> - Data processing pipeline</li>
+            <li>Utility and helper packages</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>🖥️ server/ - Express.js Backend</h3>
+          <p>Node.js/Express backend server:</p>
+          <ul class="feature-list">
+            <li><code>server/index.ts</code> - Server entry point</li>
+            <li>API route definitions</li>
+            <li>Middleware configuration</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>⚛️ client/ - React Frontend</h3>
+          <p>React application with Vite:</p>
+          <ul class="feature-list">
+            <li><code>client/src/</code> - React components and pages</li>
+            <li><code>client/public/</code> - Static assets</li>
+            <li>Vite configuration</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>🗄️ drizzle/ - Database</h3>
+          <p>Database schema and migrations:</p>
+          <ul class="feature-list">
+            <li><code>drizzle/schema.ts</code> - Table definitions</li>
+            <li>Migration files</li>
+            <li>Database configuration</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>🐳 docker/ - Containerization</h3>
+          <p>Docker configurations for different components:</p>
+          <ul class="feature-list">
+            <li>Multi-platform Docker images</li>
+            <li>Docker Compose configurations</li>
+            <li>Container optimization</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>☸️ k8s/ - Kubernetes</h3>
+          <p>Kubernetes manifests for orchestration:</p>
+          <ul class="feature-list">
+            <li>Deployment configurations</li>
+            <li>Service definitions</li>
+            <li>Ingress rules</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>🐍 python/ - Python Modules</h3>
+          <p>Python-based utilities and tools:</p>
+          <ul class="feature-list">
+            <li>Data processing scripts</li>
+            <li>ML utilities</li>
+            <li>Analysis tools</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>🦀 rust-core/ - Rust Libraries</h3>
+          <p>High-performance Rust implementations:</p>
+          <ul class="feature-list">
+            <li>Performance-critical code</li>
+            <li>System-level operations</li>
+            <li>FFI bindings</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>⚡ verilog/ - Verilog HDL</h3>
+          <p>FPGA designs in Verilog:</p>
+          <ul class="feature-list">
+            <li>Hardware accelerators</li>
+            <li>Digital logic designs</li>
+            <li>Testbenches</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>🔌 vhdl/ - VHDL Designs</h3>
+          <p>FPGA designs in VHDL:</p>
+          <ul class="feature-list">
+            <li>Alternative hardware implementations</li>
+            <li>Complex state machines</li>
+            <li>Simulation models</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>🧪 tests/ - Test Suite</h3>
+          <p>Comprehensive test coverage:</p>
+          <ul class="feature-list">
+            <li>Unit tests</li>
+            <li>Integration tests</li>
+            <li>Hardware simulations</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Technology Stack by Module -->
+  <section>
+    <div class="container">
+      <h2 class="section-title">Technology Stack by Module</h2>
+      
+      <div class="grid grid-3">
+        <div class="card">
+          <h4>Backend</h4>
+          <ul class="feature-list">
+            <li>Go 1.22+</li>
+            <li>Express.js 4</li>
+            <li>tRPC 11</li>
+            <li>TypeScript</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h4>Frontend</h4>
+          <ul class="feature-list">
+            <li>React 19</li>
+            <li>Vite 7</li>
+            <li>Tailwind CSS 4</li>
+            <li>TypeScript</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h4>Database</h4>
+          <ul class="feature-list">
+            <li>MySQL/TiDB</li>
+            <li>Drizzle ORM</li>
+            <li>SQL Migrations</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h4>Hardware</h4>
+          <ul class="feature-list">
+            <li>Verilog</li>
+            <li>VHDL</li>
+            <li>FPGA Tools</li>
+            <li>Simulation</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h4>Infrastructure</h4>
+          <ul class="feature-list">
+            <li>Docker</li>
+            <li>Kubernetes</li>
+            <li>GitHub Actions</li>
+            <li>CI/CD</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h4>Performance</h4>
+          <ul class="feature-list">
+            <li>Rust</li>
+            <li>Go Concurrency</li>
+            <li>Optimization</li>
+            <li>Profiling</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Build & Deployment -->
+  <section>
+    <div class="container">
+      <h2 class="section-title">Build & Deployment</h2>
+      
+      <div class="grid grid-2">
+        <div class="card">
+          <h3>Local Development</h3>
+          <p>Development setup for local machine:</p>
+          <ul class="feature-list">
+            <li>Go development environment</li>
+            <li>Node.js with pnpm</li>
+            <li>Local database</li>
+            <li>Hot reload (HMR)</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Production Build</h3>
+          <p>Optimized production builds:</p>
+          <ul class="feature-list">
+            <li>Minified frontend assets</li>
+            <li>Compiled Go binaries</li>
+            <li>Docker images</li>
+            <li>Performance optimizations</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Docker Deployment</h3>
+          <p>Containerized deployment:</p>
+          <ul class="feature-list">
+            <li>Multi-stage builds</li>
+            <li>Optimized images</li>
+            <li>Docker Compose</li>
+            <li>Registry support</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Kubernetes Orchestration</h3>
+          <p>Cloud-native deployment:</p>
+          <ul class="feature-list">
+            <li>Deployment manifests</li>
+            <li>Service configuration</li>
+            <li>Ingress rules</li>
+            <li>Auto-scaling</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CI/CD Pipeline -->
+  <section>
+    <div class="container">
+      <h2 class="section-title">CI/CD Pipeline</h2>
+      <p>Automated testing and deployment workflows:</p>
+      
+      <div class="grid grid-2">
+        <div class="card">
+          <h3>GitHub Actions Workflows</h3>
+          <ul class="feature-list">
+            <li>Automated testing on push</li>
+            <li>Multi-platform builds</li>
+            <li>Release automation</li>
+            <li>Deployment triggers</li>
+            <li>Security scanning</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Quality Checks</h3>
+          <ul class="feature-list">
+            <li>Linting and formatting</li>
+            <li>Type checking</li>
+            <li>Unit tests</li>
+            <li>Integration tests</li>
+            <li>Code coverage</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contributing -->
+  <section>
+    <div class="container">
+      <h2 class="section-title">Contributing to the Project</h2>
+      <div class="card">
+        <p>To contribute to Edge-AI-APP:</p>
+        <ol style="margin-left: var(--spacing-lg);">
+          <li>Fork the repository on GitHub</li>
+          <li>Create a feature branch for your changes</li>
+          <li>Make your modifications following the project's coding standards</li>
+          <li>Write tests for new functionality</li>
+          <li>Submit a pull request with a clear description</li>
+          <li>Participate in code review</li>
+        </ol>
+        <p style="margin-top: var(--spacing-lg);">For more details, see the <a href="https://github.com/alexandrepedrosaai/Edge-AI-APP/blob/main/CONTRIBUTING.md" target="_blank">CONTRIBUTING.md</a> file.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h4>About</h4>
+          <p>Edge-AI-APP is a comprehensive edge AI inference and processing platform designed for modern, resource-constrained environments.</p>
+        </div>
+        <div class="footer-section">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="setup.html">Setup Guide</a></li>
+            <li><a href="releases.html">Releases</a></li>
+            <li><a href="https://github.com/alexandrepedrosaai/Edge-AI-APP" target="_blank">GitHub</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>Resources</h4>
+          <ul>
+            <li><a href="https://github.com/alexandrepedrosaai/Edge-AI-APP/wiki" target="_blank">Wiki</a></li>
+            <li><a href="https://github.com/alexandrepedrosaai/Edge-AI-APP/issues" target="_blank">Issues</a></li>
+            <li><a href="https://github.com/alexandrepedrosaai/Edge-AI-APP/discussions" target="_blank">Discussions</a></li>
+            <li><a href="https://github.com/alexandrepedrosaai/Edge-AI-APP/blob/main/LICENSE" target="_blank">License</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 Edge-AI-APP. All rights reserved. | <a href="https://github.com/alexandrepedrosaai" target="_blank">Alexandre Pedrosa</a></p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>
