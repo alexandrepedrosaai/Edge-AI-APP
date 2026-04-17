@@ -92,3 +92,7 @@ tasks.register<Jar>("fatJar") {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     isZip64 = true
 }
+
+tasks.build {
+    dependsOn(tasks.named("fatJar"))
+}
