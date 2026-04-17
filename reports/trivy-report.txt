@@ -6,7 +6,7 @@ Report Summary
 ├────────────────────────────────────────┼───────────────────┼─────────────────┼─────────┤
 │ JAVA/pom.xml                           │        pom        │        8        │    -    │
 ├────────────────────────────────────────┼───────────────────┼─────────────────┼─────────┤
-│ JULIA/Manifest.toml                    │       julia       │       21        │    -    │
+│ JULIA/Manifest.toml                    │       julia       │        0        │    -    │
 ├────────────────────────────────────────┼───────────────────┼─────────────────┼─────────┤
 │ azure-functions-node/package-lock.json │        npm        │        0        │    -    │
 ├────────────────────────────────────────┼───────────────────┼─────────────────┼─────────┤
@@ -29,7 +29,7 @@ For OSS Maintainers: VEX Notice
 --------------------------------
 If you're an OSS maintainer and Trivy has detected vulnerabilities in your project that you believe are not actually exploitable, consider issuing a VEX (Vulnerability Exploitability eXchange) statement.
 VEX allows you to communicate the actual status of vulnerabilities in your project, improving security transparency and reducing false positives for your users.
-Learn more and start using VEX: https://trivy.dev/docs/v0.69/guide/supply-chain/vex/repo#publishing-vex-documents
+Learn more and start using VEX: https://trivy.dev/docs/v0.68/guide/supply-chain/vex/repo#publishing-vex-documents
 
 To disable this notice, set the TRIVY_DISABLE_VEX_NOTICE environment variable.
 
@@ -73,94 +73,6 @@ Total: 8 (UNKNOWN: 0, LOW: 0, MEDIUM: 5, HIGH: 2, CRITICAL: 1)
 │                                            │                     │          │        │                   │                │ Uncontrolled Recursion vulnerability in Apache Commons Lang  │
 │                                            │                     │          │        │                   │                │ https://avd.aquasec.com/nvd/cve-2025-48924                   │
 └────────────────────────────────────────────┴─────────────────────┴──────────┴────────┴───────────────────┴────────────────┴──────────────────────────────────────────────────────────────┘
-
-JULIA/Manifest.toml (julia)
-===========================
-Total: 21 (UNKNOWN: 0, LOW: 0, MEDIUM: 11, HIGH: 8, CRITICAL: 2)
-
-┌─────────────┬────────────────┬──────────┬──────────┬───────────────────┬───────────────┬──────────────────────────────────────────────────────────────┐
-│   Library   │ Vulnerability  │ Severity │  Status  │ Installed Version │ Fixed Version │                            Title                             │
-├─────────────┼────────────────┼──────────┼──────────┼───────────────────┼───────────────┼──────────────────────────────────────────────────────────────┤
-│ LibCURL_jll │ CVE-2024-7264  │ MEDIUM   │ fixed    │ 8.4.0+0           │ 8.9.1+0       │ curl: libcurl: ASN.1 date parser overread                    │
-│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2024-7264                    │
-├─────────────┼────────────────┼──────────┤          ├───────────────────┼───────────────┼──────────────────────────────────────────────────────────────┤
-│ LibGit2_jll │ CVE-2024-24577 │ CRITICAL │          │ 1.6.4+0           │ 1.7.2+0       │ libgit2: arbitrary code execution due to heap corruption in  │
-│             │                │          │          │                   │               │ git_index_add                                                │
-│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2024-24577                   │
-│             ├────────────────┼──────────┤          │                   │               ├──────────────────────────────────────────────────────────────┤
-│             │ CVE-2024-24575 │ HIGH     │          │                   │               │ libgit2: potential infiniate loop condition in               │
-│             │                │          │          │                   │               │ git_revparse_single                                          │
-│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2024-24575                   │
-├─────────────┼────────────────┼──────────┤          ├───────────────────┼───────────────┼──────────────────────────────────────────────────────────────┤
-│ LibSSH2_jll │ CVE-2023-48795 │ MEDIUM   │          │ 1.11.0+1          │ 1.11.3+0      │ ssh: Prefix truncation attack on Binary Packet Protocol      │
-│             │                │          │          │                   │               │ (BPP)                                                        │
-│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2023-48795                   │
-├─────────────┼────────────────┼──────────┤          ├───────────────────┼───────────────┼──────────────────────────────────────────────────────────────┤
-│ MbedTLS_jll │ CVE-2025-47917 │ CRITICAL │          │ 2.28.2+1          │ 2.28.1010+0   │ Mbed TLS before 3.6.4 allows a use-after-free in certain     │
-│             │                │          │          │                   │               │ situations of ......                                         │
-│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2025-47917                   │
-│             ├────────────────┼──────────┤          │                   ├───────────────┼──────────────────────────────────────────────────────────────┤
-│             │ CVE-2023-43615 │ HIGH     │          │                   │ 2.28.6+0      │ Mbed TLS 2.x before 2.28.5 and 3.x before 3.5.0 has a        │
-│             │                │          │          │                   │               │ Buffer...                                                    │
-│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2023-43615                   │
-│             ├────────────────┤          │          │                   ├───────────────┼──────────────────────────────────────────────────────────────┤
-│             │ CVE-2024-23775 │          │          │                   │ 2.28.10+0     │ Integer Overflow vulnerability in Mbed TLS 2.x before 2.28.7 │
-│             │                │          │          │                   │               │ and 3.x b...                                                 │
-│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2024-23775                   │
-│             ├────────────────┤          │          │                   ├───────────────┼──────────────────────────────────────────────────────────────┤
-│             │ CVE-2025-48965 │          │          │                   │ 2.28.1010+0   │ Mbed TLS before 3.6.4 has a NULL pointer dereference because │
-│             │                │          │          │                   │               │ mbedtls_a ......                                             │
-│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2025-48965                   │
-│             ├────────────────┤          │          │                   │               ├──────────────────────────────────────────────────────────────┤
-│             │ CVE-2025-52496 │          │          │                   │               │ Mbed TLS before 3.6.4 has a race condition in AESNI          │
-│             │                │          │          │                   │               │ detection if...                                              │
-│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2025-52496                   │
-│             ├────────────────┼──────────┤          │                   ├───────────────┼──────────────────────────────────────────────────────────────┤
-│             │ CVE-2024-23170 │ MEDIUM   │          │                   │ 2.28.10+0     │ An issue was discovered in Mbed TLS 2.x before 2.28.7 and    │
-│             │                │          │          │                   │               │ 3.x...                                                       │
-│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2024-23170                   │
-│             ├────────────────┤          │          │                   │               ├──────────────────────────────────────────────────────────────┤
-│             │ CVE-2024-28960 │          │          │                   │               │ mbedtls: Insecure handling of shared memory in PSA Crypto    │
-│             │                │          │          │                   │               │ APIs                                                         │
-│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2024-28960                   │
-│             ├────────────────┤          │          │                   │               ├──────────────────────────────────────────────────────────────┤
-│             │ CVE-2024-45157 │          │          │                   │               │ An issue was discovered in Mbed TLS before 2.28.9 and 3.x    │
-│             │                │          │          │                   │               │ before...                                                    │
-│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2024-45157                   │
-│             ├────────────────┤          │          │                   │               ├──────────────────────────────────────────────────────────────┤
-│             │ CVE-2025-27809 │          │          │                   │               │ Mbed TLS before 2.28.10 and 3.x before 3.6.3, on the client  │
-│             │                │          │          │                   │               │ side,...                                                     │
-│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2025-27809                   │
-│             ├────────────────┤          │          │                   │               ├──────────────────────────────────────────────────────────────┤
-│             │ CVE-2025-27810 │          │          │                   │               │ Mbed TLS before 2.28.10 and 3.x before 3.6.3, in some cases  │
-│             │                │          │          │                   │               │ of...                                                        │
-│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2025-27810                   │
-│             ├────────────────┤          │          │                   ├───────────────┼──────────────────────────────────────────────────────────────┤
-│             │ CVE-2025-52497 │          │          │                   │ 2.28.1010+0   │ Mbed TLS before 3.6.4 has a PEM parsing one-byte heap-based  │
-│             │                │          │          │                   │               │ buffer und...                                                │
-│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2025-52497                   │
-│             ├────────────────┤          ├──────────┤                   ├───────────────┼──────────────────────────────────────────────────────────────┤
-│             │ CVE-2025-54764 │          │ affected │                   │               │ Mbed TLS before 3.6.5 allows a local timing attack against   │
-│             │                │          │          │                   │               │ certain RSA...                                               │
-│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2025-54764                   │
-│             ├────────────────┤          │          │                   ├───────────────┼──────────────────────────────────────────────────────────────┤
-│             │ CVE-2025-59438 │          │          │                   │               │ Mbed TLS through 3.6.4 has an Observable Timing Discrepancy. │
-│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2025-59438                   │
-├─────────────┼────────────────┼──────────┼──────────┼───────────────────┼───────────────┼──────────────────────────────────────────────────────────────┤
-│ nghttp2_jll │ CVE-2023-35945 │ HIGH     │ fixed    │ 1.52.0+1          │ 1.58.0+0      │ envoy: HTTP/2 memory leak in nghttp2 codec                   │
-│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2023-35945                   │
-│             ├────────────────┤          │          │                   │               ├──────────────────────────────────────────────────────────────┤
-│             │ CVE-2023-44487 │          │          │                   │               │ HTTP/2: Multiple HTTP/2 enabled web servers are vulnerable   │
-│             │                │          │          │                   │               │ to a DDoS attack...                                          │
-│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2023-44487                   │
-│             ├────────────────┤          │          │                   ├───────────────┼──────────────────────────────────────────────────────────────┤
-│             │ CVE-2026-27135 │          │          │                   │ 1.68.1+0      │ nghttp2: nghttp2: Denial of Service via malformed HTTP/2     │
-│             │                │          │          │                   │               │ frames after session termination...                          │
-│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2026-27135                   │
-│             ├────────────────┼──────────┤          │                   ├───────────────┼──────────────────────────────────────────────────────────────┤
-│             │ CVE-2024-28182 │ MEDIUM   │          │                   │ 1.61.0+0      │ nghttp2: CONTINUATION frames DoS                             │
-│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2024-28182                   │
-└─────────────┴────────────────┴──────────┴──────────┴───────────────────┴───────────────┴──────────────────────────────────────────────────────────────┘
 
 package-lock.json (npm)
 =======================
