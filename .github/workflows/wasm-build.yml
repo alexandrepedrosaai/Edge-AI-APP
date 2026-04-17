@@ -27,10 +27,6 @@ jobs:
           wat2wasm "$file" -o "../docs/${file%.wat}.wasm"
         done
 
-    - name: Copy index.html
-      run: |
-        cp index.html docs/index.html
-
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
       with:
