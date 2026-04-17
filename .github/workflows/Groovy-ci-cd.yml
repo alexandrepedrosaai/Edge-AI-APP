@@ -31,11 +31,6 @@ jobs:
     - name: Run Unit Tests
       run: ./gradlew test
 
-    - name: Package Binary
-      run: |
-        mkdir -p artifacts
-        cp build/libs/${APP_NAME}-all.jar artifacts/${APP_NAME}-${VERSION}.jar
-
     - name: Docker Build
       run: docker build -t edge-ai-app:${VERSION} .
 
