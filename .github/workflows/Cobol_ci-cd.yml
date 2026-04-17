@@ -11,7 +11,7 @@ jobs:
       run: sudo apt-get update && sudo apt-get install -y gnucobol
 
     - name: Build COBOL Artifact
-      run: cobc -x src/cobol/hello.cbl -o hello_cobol
+      run: cobc -x -free src/cobol/hello.cbl -o hello_cobol
 
     - name: Upload COBOL Artifact
       uses: actions/upload-artifact@v4
