@@ -1,0 +1,103 @@
+name: CI/CD go.windows Build and Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Setup Node.js and pnpm
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+      - run: npm install -g pnpm
+      - run: pnpm install
+
+      - name: Build Frontend and TypeScript Backend
+        run: pnpm build
+
+      - name: Build Go Application for Windows
+        run: |
+          go mod tidy
+          go build -o bin/edge-ai-app.exe ./cmd/app
+
+      - name: Upload Windows Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: edge-ai-app-windows
+          path: |
+            bin/edge-ai-app.exe
+            dist/
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Build Go Application for Linux
+        run: |
+          go mod tidy
+          go build -o bin/edge-ai-app ./cmd/app
+
+      - name: Upload Linux Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: edge-ai-app-linux
+          path: bin/edge-ai-app
+
+  create-release:
+    needs: [build-windows, build-linux]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get current date and time for tag
+        id: date
+        run: echo "TAG_NAME=v$(date +'%Y.%m.%d.%H%M%S')" >> $GITHUB_OUTPUT
+
+      - name: Download Windows Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: edge-ai-app-windows
+          path: artifacts/windows
+
+      - name: Download Linux Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: edge-ai-app-linux
+          path: artifacts/linux
+u
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.date.outputs.TAG_NAME }}
+          name: Release ${{ steps.date.outputs.TAG_NAME }}
+          body: Automated release from main branch push.
+          files: |
+            artifacts/windows/edge-ai-app.exe
+            artifacts/windows/dist/**
+            artifacts/linux/edge-ai-app
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
