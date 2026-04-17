@@ -1,0 +1,28 @@
+name: CI/CD Delphi Pipeline
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install Free Pascal (Delphi compatible)
+      run: sudo apt-get update && sudo apt-get install -y fp-compiler
+
+    - name: Build Delphi Artifact
+      run: fpc src/delphi/hello.dpr -ohello_delphi
+
+    - name: Upload Delphi Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: delphi-artifact
+        path: hello_delphi
+
+    - name: Create Automated Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ github.run_number }}
+        files: hello_delphi
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
