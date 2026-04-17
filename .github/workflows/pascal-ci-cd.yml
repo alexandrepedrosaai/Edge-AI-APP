@@ -1,0 +1,28 @@
+name: CI/CD Pascal Pipeline
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install Free Pascal
+      run: sudo apt-get update && sudo apt-get install -y fp-compiler
+
+    - name: Build Pascal Artifact
+      run: fpc src/pascal/hello.pas -ohello_pascal
+
+    - name: Upload Pascal Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: pascal-artifact
+        path: hello_pascal
+
+    - name: Create Automated Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ github.run_number }}
+        files: hello_pascal
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
