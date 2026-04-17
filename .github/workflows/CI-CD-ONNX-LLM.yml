@@ -1,0 +1,38 @@
+name: CI/CD ONNX LLM Pipeline
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  build-onnx:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        pip install torch onnx onnxruntime pytest
+
+    - name: Export LLM to ONNX
+      run: python onnx-llm-matrix/src/export_to_onnx.py
+
+    - name: Run ONNX Inference Test
+      run: pytest onnx-llm-matrix/tests/test_inference.py
+
+    - name: Upload ONNX Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: llm-onnx-artifact
+        path: onnx-llm-matrix/models/llm_model.onnx
+
+    - name: Create Automated Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ github.run_number }}
+        files: onnx-llm-matrix/models/llm_model.onnx
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
