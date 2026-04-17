@@ -14,7 +14,7 @@ jobs:
       run: gfortran src/fortran/hello.f90 -o hello_fortran
 
     - name: Upload Fortran Artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: fortran-artifact
         path: hello_fortran
