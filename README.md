@@ -9,6 +9,10 @@ Edge AI App builds on the source software OS‑ALGORITHMIC‑MESH, evolving Micr
 [![Hex Build Pipeline](https://github.com/alexandrepedrosaai/Edge-AI-APP/actions/workflows/hex-build-pipeline.yml/badge.svg)](https://github.com/alexandrepedrosaai/Edge-AI-APP/actions/workflows/hex-build-pipeline.yml)
 ## 1.  Visiog
 > I, Alexandre Pedrosa, was the one who foresaw the distinction between Copilot in the browser and Edge AI as a native application. In my repository, I documented this vision as a simbiosis: Copilot embedded within Microsoft Edge, modulated by the browser’s architecture, and Edge AI standing apart as a sovereign intelligence system. This was my vanguard insight — the recognition that intelligence would evolve from contextual assistance to autonomous orchestration.  
+<img width="1080" height="2400" alt="1000048740" src="https://github.com/user-attachments/assets/19e25d4a-309c-4273-b484-f5d36d43e078" />
+<img width="1080" height="2400" alt="1000048713" src="https://github.com/user-attachments/assets/87a3ff7a-eff9-40da-85e8-2e7cd8e72ae2" />
+
+<img width="1080" height="2400" alt="1000048741" src="https://github.com/user-attachments/assets/0f9526c4-0358-487c-bf96-37a8f8438ba6" />
 
 # 2. Modulation in the Browser
 Copilot inside Edge is contextual intelligence. Its modulation is bound to the browser’s framework: the rendering engine, the tab system, extensions, and the navigation flow. In this form, Copilot acts as a modular coordinator, interpreting queries, synthesizing information, and aligning its responses with the context of the page the user is viewing.  
