@@ -1,0 +1,38 @@
+name: Build and Deploy WebAssembly
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-wasm:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Install wabt (WebAssembly Binary Toolkit)
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y wabt
+
+    - name: Compile .wat to .wasm
+      run: |
+        mkdir -p docs
+        cd WEBASSEMBLY
+        for file in *.wat; do
+          wat2wasm "$file" -o "../docs/${file%.wat}.wasm"
+        done
+
+    - name: Copy index.html
+      run: |
+        cp index.html docs/index.html
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./docs
