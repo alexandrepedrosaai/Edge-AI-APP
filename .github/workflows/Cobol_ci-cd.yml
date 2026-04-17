@@ -1,0 +1,28 @@
+name: CI/CD COBOL Pipeline
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install COBOL Compiler
+      run: sudo apt-get update && sudo apt-get install -y open-cobol
+
+    - name: Build COBOL Artifact
+      run: cobc -x src/cobol/hello.cbl -o hello_cobol
+
+    - name: Upload COBOL Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: cobol-artifact
+        path: hello_cobol
+
+    - name: Create Automated Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ github.run_number }}
+        files: hello_cobol
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
