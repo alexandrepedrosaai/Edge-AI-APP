@@ -1,0 +1,7 @@
+defmodule EdgeAI.BlockchainDAGsTest do
+  use ExUnit.Case
+
+  test "valida transações" do
+    assert EdgeAI.BlockchainDAGs.validate([:tx1, :tx2]) == {:ok, "Validated 2 transactions"}
+  end
+end
