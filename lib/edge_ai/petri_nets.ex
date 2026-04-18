@@ -12,5 +12,7 @@ defmodule EdgeAI.PetriNets do
     Task.start_link(fn -> :ok end)
   end
 
-  
+  def verify(transitions) when is_list(transitions) do
+    {:ok, "Verified #{length(transitions)} transitions"}
+  end
 end

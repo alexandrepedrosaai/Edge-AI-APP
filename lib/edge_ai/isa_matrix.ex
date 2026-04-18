@@ -1,5 +1,7 @@
 defmodule EdgeAI.ISAMatrix do
-  @moduledoc ""
+  @moduledoc """
+  Instruções ISA para matrizes.
+  """
 
   def child_spec(_args) do
     %{
@@ -12,5 +14,7 @@ defmodule EdgeAI.ISAMatrix do
     Task.start_link(fn -> :ok end)
   end
 
-  
+  def execute(:add, a, b), do: a + b
+  def execute(:mul, a, b), do: a * b
+  def execute(:nop, _a, _b), do: :ok
 end

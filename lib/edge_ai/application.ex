@@ -5,6 +5,7 @@ defmodule EdgeAI.Application do
   é supervisionado como processo OTP, garantindo concorrência e resiliência.
   """
 
+  @derive {Inspect, only: []}
   use Application
 
   def start(_type, _args) do

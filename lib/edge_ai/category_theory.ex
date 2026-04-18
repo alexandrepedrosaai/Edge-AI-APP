@@ -12,5 +12,7 @@ defmodule EdgeAI.CategoryTheory do
     Task.start_link(fn -> :ok end)
   end
 
-  
+  def compose(f, g, x) do
+    g.(f.(x))
+  end
 end

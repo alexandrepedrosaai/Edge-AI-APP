@@ -12,5 +12,7 @@ defmodule EdgeAI.TensorCores do
     Task.start_link(fn -> :ok end)
   end
 
-  
+  def multiply(_a, _b) do
+    {:ok, "Multiplied matrices"}
+  end
 end

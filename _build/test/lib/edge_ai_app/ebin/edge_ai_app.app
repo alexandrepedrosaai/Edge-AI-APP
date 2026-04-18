@@ -1,0 +1,12 @@
+{application,edge_ai_app,
+             [{applications,[kernel,stdlib,elixir,logger]},
+              {description,"edge_ai_app"},
+              {modules,['Elixir.EdgeAI.Application',
+                        'Elixir.EdgeAI.BlockchainDAGs',
+                        'Elixir.EdgeAI.CategoryTheory','Elixir.EdgeAI.GNN',
+                        'Elixir.EdgeAI.ISAMatrix','Elixir.EdgeAI.PetriNets',
+                        'Elixir.EdgeAI.QuantumCircuits',
+                        'Elixir.EdgeAI.TensorCores']},
+              {registered,[]},
+              {vsn,"0.1.0"},
+              {mod,{'Elixir.EdgeAI.Application',[]}}]}.
