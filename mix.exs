@@ -8,7 +8,8 @@ defmodule EdgeAI.MixProject do
       elixir: "~> 1.15",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      releases: releases()
+      releases: releases(),
+      config_path: "config/configure.exs"
     ]
   end
 
