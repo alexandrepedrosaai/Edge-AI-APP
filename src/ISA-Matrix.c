@@ -41,6 +41,7 @@ void print_isa_table(void) {
     }
 }
 
+/*
 int main(int argc, char *argv[]) {
     printf("ISA-Matrix Binary v1.0.0\n");
     printf("========================\n\n");
@@ -48,3 +49,4 @@ int main(int argc, char *argv[]) {
     printf("\nISA-Matrix binary executed successfully.\n");
     return 0;
 }
+*/
