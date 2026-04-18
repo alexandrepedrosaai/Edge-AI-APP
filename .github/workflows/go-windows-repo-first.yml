@@ -1,0 +1,149 @@
+name: Go Windows Repo-First Setup
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main", "develop" ]
+    paths:
+      - 'go.mod'
+      - 'go.sum'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - '.env.local'
+      - 'cmd/**'
+      - 'internal/**'
+      - 'server/**'
+      - 'client/**'
+      - 'src/**'
+      - '.github/workflows/go-windows-repo-first.yml'
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  SITE_NAME: edge-ai-app.go.windows
+  REPO_URL: https://github.com/alexandrepedrosaai/Edge-AI-APP
+  GO_MODULE: github.com/alexandrepedrosaai/edge-ai-app
+  VITE_ANALYTICS_ENDPOINT: https://analytics.example.com
+  VITE_ANALYTICS_WEBSITE_ID: default
+  VITE_APP_LOGO: /logo.svg
+  VITE_FRONTEND_FORGE_API_URL: http://localhost:3001
+  VITE_FRONTEND_FORGE_API_KEY: ""
+
+jobs:
+  build-windows:
+    name: Build on Windows
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Configurar Go pelo go.mod
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Configurar Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Configurar pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.2
+
+      - name: Mostrar versões do ambiente
+        shell: pwsh
+        run: |
+          Write-Host "SITE_NAME=$env:SITE_NAME"
+          Write-Host "REPO_URL=$env:REPO_URL"
+          Write-Host "GO_MODULE=$env:GO_MODULE"
+          go version
+          node -v
+          npm -v
+          pnpm -v
+
+      - name: Criar .env.local para CI
+        shell: pwsh
+        run: |
+          @"
+          VITE_ANALYTICS_ENDPOINT=$env:VITE_ANALYTICS_ENDPOINT
+          VITE_ANALYTICS_WEBSITE_ID=$env:VITE_ANALYTICS_WEBSITE_ID
+          VITE_APP_TITLE=$env:SITE_NAME
+          VITE_APP_LOGO=$env:VITE_APP_LOGO
+          VITE_FRONTEND_FORGE_API_URL=$env:VITE_FRONTEND_FORGE_API_URL
+          VITE_FRONTEND_FORGE_API_KEY=$env:VITE_FRONTEND_FORGE_API_KEY
+          VITE_APP_REPO_URL=$env:REPO_URL
+          VITE_APP_GO_MODULE=$env:GO_MODULE
+          EDGE_AI_APP_SITE_NAME=$env:SITE_NAME
+          EDGE_AI_APP_REPO_URL=$env:REPO_URL
+          EDGE_AI_APP_GO_MODULE=$env:GO_MODULE
+          "@ | Set-Content -Path .env.local -Encoding UTF8
+
+      - name: Instalar dependências Node
+        shell: pwsh
+        run: |
+          pnpm install --frozen-lockfile
+
+      - name: Organizar dependências Go
+        shell: pwsh
+        run: |
+          go mod tidy
+
+      - name: Rodar testes Go
+        shell: pwsh
+        run: |
+          go test ./cmd/... ./internal/... -v
+
+      - name: Compilar binário Go
+        shell: pwsh
+        run: |
+          go build -o edge-ai-app-go.exe ./cmd/app
+
+      - name: Gerar hash do binário Go
+        shell: pwsh
+        run: |
+          Get-FileHash .\edge-ai-app-go.exe -Algorithm SHA256 | Tee-Object -FilePath edge-ai-app-go.sha256.txt
+
+      - name: Build web
+        shell: pwsh
+        env:
+          VITE_APP_TITLE: edge-ai-app.go.windows
+        run: |
+          pnpm run build
+
+      - name: Upload binário Go
+        uses: actions/upload-artifact@v4
+        with:
+          name: edge-ai-app-go-windows
+          path: |
+            edge-ai-app-go.exe
+            edge-ai-app-go.sha256.txt
+
+      - name: Upload build web
+        uses: actions/upload-artifact@v4
+        with:
+          name: edge-ai-app-web-dist-windows
+          path: dist
+          if-no-files-found: ignore
+
+      - name: Resumo do job
+        shell: pwsh
+        run: |
+          Add-Content $env:GITHUB_STEP_SUMMARY "# Edge-AI-APP Windows Repo-First Build"
+          Add-Content $env:GITHUB_STEP_SUMMARY ""
+          Add-Content $env:GITHUB_STEP_SUMMARY "- Site: $env:SITE_NAME"
+          Add-Content $env:GITHUB_STEP_SUMMARY "- Repositório: $env:REPO_URL"
+          Add-Content $env:GITHUB_STEP_SUMMARY "- Módulo Go: $env:GO_MODULE"
+          Add-Content $env:GITHUB_STEP_SUMMARY "- Go: $(go version)"
+          Add-Content $env:GITHUB_STEP_SUMMARY "- Node: $(node -v)"
+          Add-Content $env:GITHUB_STEP_SUMMARY "- pnpm: $(pnpm -v)"
+          if (Test-Path ".\edge-ai-app-go.exe") {
+            Add-Content $env:GITHUB_STEP_SUMMARY "- Binário Go gerado com sucesso"
+          }
+          if (Test-Path ".\dist") {
+            Add-Content $env:GITHUB_STEP_SUMMARY "- Build web gerado em dist/"
+          }
+          
