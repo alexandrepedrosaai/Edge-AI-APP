@@ -1,7 +1,16 @@
 defmodule EdgeAI.BlockchainDAGs do
   @moduledoc "Validação de transações em DAGs Blockchain"
 
-  def validate(transactions) do
-    {:ok, "Validated #{length(transactions)} transactions"}
+  def child_spec(_args) do
+    %{
+      id: __MODULE__,
+      start: {__MODULE__, :start_link, [[]]}
+    }
   end
+
+  def start_link(_opts) do
+    Task.start_link(fn -> :ok end)
+  end
+
+  
 end

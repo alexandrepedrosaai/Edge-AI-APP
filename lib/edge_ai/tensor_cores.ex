@@ -1,8 +1,16 @@
 defmodule EdgeAI.TensorCores do
   @moduledoc "Operações paralelas em matrizes (Tensor Cores)"
 
-  def multiply(matrix_a, matrix_b) do
-    # Exemplo simplificado
-    {:ok, "Multiplied matrices of size #{length(matrix_a)}x#{length(matrix_b)}"}
+  def child_spec(_args) do
+    %{
+      id: __MODULE__,
+      start: {__MODULE__, :start_link, [[]]}
+    }
   end
+
+  def start_link(_opts) do
+    Task.start_link(fn -> :ok end)
+  end
+
+  
 end
