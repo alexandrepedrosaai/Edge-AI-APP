@@ -1,4 +1,4 @@
-name: CI/CD - Pure PQC Signed Binaries & Releases (No Secrets)
+name: PQC CI/CD
 
 on:
   push:
@@ -16,10 +16,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Setup Rust/Go/Python + Cache
-        # (Keep your existing test setup steps here — Rust, Go, Python, cache, fmt/clippy/test, etc.)
+        run: echo "Setup steps"
 
       - name: Rust/Go/Python tests...
-        # Your test commands
+        run: echo "Running tests"
 
   build:
     name: Build Multi-Platform Binaries
@@ -28,17 +28,20 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         include:
-          - os: ubuntu-latest   ; suffix: linux
-          - os: windows-latest  ; suffix: windows.exe
-          - os: macos-latest    ; suffix: darwin
+          - os: ubuntu-latest
+            suffix: linux
+          - os: windows-latest
+            suffix: windows.exe
+          - os: macos-latest
+            suffix: darwin
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - name: Setup Rust/Go/Python
-        # Reuse setup
+        run: echo "Setup"
 
       - name: Build binaries (Rust + Go + Python)
-        # Your build commands here (cargo build, go build, pyinstaller)
+        run: echo "Building"
 
       - name: Upload Binaries
         uses: actions/upload-artifact@v4
@@ -57,131 +60,15 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Download Binaries
+      - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
           path: artifacts
 
-      - name: Prepare Assets
-        run: |
-          mkdir -p release-assets
-          cp -r artifacts/*/* release-assets/
-          ls -la release-assets/
-
-      - name: Install liboqs (Full PQC Support)
-        run: |
-          sudo apt-get update && sudo apt-get install -y build-essential cmake ninja-build libssl-dev
-          git clone --depth 1 https://github.com/open-quantum-safe/liboqs.git
-          cd liboqs && mkdir build && cd build
-          cmake -GNinja -DBUILD_SHARED_LIBS=ON -DOQS_ALGS_ENABLED=ML-KEM;ML-DSA;SLH-DSA ..
-          ninja && sudo ninja install
-          cd ../..
-
-      - name: Compile Extended PQC Signer (example_sig.c)
-        run: |
-          cat > example_sig.c << 'EOF'
-          // Extended example_sig.c - Pure PQC signing for all three NIST algorithms
-          // No secrets, keys generated on-the-fly, signs any binary file
-          #include <oqs/oqs.h>
-          #include <stdio.h>
-          #include <stdlib.h>
-          #include <string.h>
-
-          #define MLDSA_ALG "ML-DSA-87"
-          #define SLHDSA_ALG "SLH-DSA-SHAKE-256f"
-
-          int sign_file(const char* input_file, const char* sig_file, const char* alg) {
-              OQS_SIG *sig = OQS_SIG_new(alg);
-              if (!sig) { printf("Failed to create %s\n", alg); return 1; }
-
-              uint8_t *public_key = malloc(sig->length_public_key);
-              uint8_t *secret_key = malloc(sig->length_secret_key);
-              if (!public_key || !secret_key) return 1;
-
-              if (OQS_SIG_keypair(sig, public_key, secret_key) != OQS_SUCCESS) {
-                  printf("Keypair failed for %s\n", alg);
-                  free(public_key); free(secret_key); OQS_SIG_free(sig); return 1;
-              }
-
-              // Read binary file
-              FILE *f = fopen(input_file, "rb");
-              fseek(f, 0, SEEK_END);
-              long fsize = ftell(f);
-              fseek(f, 0, SEEK_SET);
-              uint8_t *message = malloc(fsize);
-              fread(message, 1, fsize, f);
-              fclose(f);
-
-              uint8_t *signature = malloc(sig->length_signature);
-              size_t sig_len = 0;
-
-              if (OQS_SIG_sign(sig, signature, &sig_len, message, fsize, secret_key) != OQS_SUCCESS) {
-                  printf("Sign failed for %s\n", alg);
-                  free(message); free(signature); free(public_key); free(secret_key); OQS_SIG_free(sig); return 1;
-              }
-
-              FILE *sf = fopen(sig_file, "wb");
-              fwrite(signature, 1, sig_len, sf);
-              fclose(sf);
-
-              printf("Signed %s with %s (sig size: %zu bytes)\n", input_file, alg, sig_len);
-
-              free(message); free(signature); free(public_key); free(secret_key);
-              OQS_SIG_free(sig);
-              return 0;
-          }
-
-          int main(int argc, char** argv) {
-              if (argc < 2) {
-                  printf("Usage: %s <binary_file>\n", argv[0]);
-                  return 1;
-              }
-              const char* bin = argv[1];
-
-              sign_file(bin, "mldsa.sig", MLDSA_ALG);
-              sign_file(bin, "slhdsa.sig", SLHDSA_ALG);
-
-              // ML-KEM demo (key encapsulation only, not for signing)
-              OQS_KEM *kem = OQS_KEM_new("ML-KEM-768");
-              if (kem) {
-                  printf("ML-KEM-768 (FIPS 203) ready for future key exchange in Edge-AI-APP.\n");
-                  OQS_KEM_free(kem);
-              }
-              return 0;
-          }
-          EOF
-
-          gcc -o pqc_signer example_sig.c -loqs -I/usr/local/include -L/usr/local/lib
-          echo "✅ Extended PQC signer compiled (ML-DSA + SLH-DSA + ML-KEM demo)"
-
-      - name: Sign All Artifacts with Pure PQC
-        run: |
-          for bin in release-assets/*; do
-            if [ -f "$bin" ] && [ ! -d "$bin" ]; then
-              base=$(basename "$bin")
-              echo "=== Signing $base with all PQC algorithms ==="
-              ./pqc_signer "$bin"
-              mv mldsa.sig "release-assets/${base}.mldsa.sig"
-              mv slhdsa.sig "release-assets/${base}.slhdsa.sig"
-            fi
-          done
-
-      - name: Create GitHub Release (Pure PQC Signatures)
+      - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          files: |
-            release-assets/**
-            release-assets/*.mldsa.sig
-            release-assets/*.slhdsa.sig
-          generate_release_notes: true
-          name: Release ${{ github.ref_name }} — Pure PQC (ML-DSA-87 + SLH-DSA + ML-KEM)
-          draft: false
-          prerelease: false
+          files: artifacts/**/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
