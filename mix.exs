@@ -25,7 +25,8 @@ defmodule EdgeAI.MixProject do
       {:axon, "~> 0.6"},        # Deep learning em Elixir
       {:exqlite, "~> 0.13"},    # Banco leve para DAGs/Blockchain
       {:quantum, "~> 3.5"},     # Scheduler para simulações concorrentes
-      {:flow, "~> 1.2"}         # Paralelismo de dados
+      {:flow, "~> 1.2"},        # Paralelismo de dados
+      {:libcluster, "~> 3.3"}   # Clustering distribuído
     ]
   end
 
