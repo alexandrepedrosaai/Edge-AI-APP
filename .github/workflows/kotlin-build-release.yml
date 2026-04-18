@@ -27,12 +27,12 @@ jobs:
 
       - name: Build with Gradle
         working-directory: src/main/kotlin
-        run: gradle clean build fatJar --no-daemon
+        run: ../../gradlew clean build fatJar --no-daemon
 
       - name: Archive binaries
         run: |
           mkdir -p artifacts
-          cp src/main/kotlin/build/libs/*.jar artifacts/
+          cp src/main/kotlin/build/libs/edge-ai-kotlin-1.1.0-all.jar artifacts/
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4

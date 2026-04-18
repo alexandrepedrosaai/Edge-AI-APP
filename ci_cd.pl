@@ -16,7 +16,7 @@ system("./gradlew :src:main:kotlin:test") == 0 or die "Tests failed!\n";
 print "==> Packaging binary...\n";
 system("mkdir -p artifacts") == 0 or die "Failed to create artifacts dir!\n";
 # The JAR is produced in the subproject's build directory
-my $source_jar = "src/main/kotlin/build/libs/$app_name-all.jar";
+my $source_jar = "src/main/kotlin/build/libs/edge-ai-kotlin-1.1.0-all.jar";
 my $target_jar = "artifacts/$app_name-$version.jar";
 
 if (-e $source_jar) {
