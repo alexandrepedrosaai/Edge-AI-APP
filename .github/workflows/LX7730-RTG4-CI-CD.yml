@@ -34,7 +34,9 @@ jobs:
             choco install nasm -y
           elif [ "${{ matrix.os }}" == "macos-latest" ]; then
             brew install cmake ghdl verilator nasm python3 lcov
-            pip3 install pytest pytest-cov coverage
+            # Correção para PEP 668 no macOS
+            pip3 install pytest pytest-cov coverage --break-system-packages || true
+            pip3 install -r requirements.txt --break-system-packages || true
           fi
 
       # Build artifacts per language + ISA
@@ -44,13 +46,12 @@ jobs:
           mkdir -p build/${{ matrix.os }}/${{ matrix.language }}/${{ matrix.arch }}
           cd build/${{ matrix.os }}/${{ matrix.language }}/${{ matrix.arch }}
           if [ "${{ matrix.language }}" == "c" ]; then
-            cmake ../../.. || true
+            cmake ../../../.. || true
             make -j$(nproc) || true
           elif [ "${{ matrix.language }}" == "vhdl" ]; then
             ghdl -a ../../../src/*.vhdl || true
             ghdl -e LX7730_interface_top || true
           elif [ "${{ matrix.language }}" == "verilog" ]; then
-            # Ajustado para usar o verilator.cpp se necessário ou caminhos corretos
             verilator --cc ../../../src/*.v --exe ../../../verilog/verilator.cpp || true
             if [ -f obj_dir/Vtop_entity.mk ]; then
               make -C obj_dir -j$(nproc) || true
@@ -60,7 +61,6 @@ jobs:
           elif [ "${{ matrix.language }}" == "asm" ]; then
             nasm -f elf64 ../../../src/*.asm -o lx7730_asm.o || true
             ld -o lx7730_asm lx7730_asm.o || true
-            # Microcode & opcode binaries
             nasm -f bin ../../../src/microcode.asm -o microcode.bin || true
             nasm -f bin ../../../src/opcodes.asm -o opcodes.bin || true
           fi
