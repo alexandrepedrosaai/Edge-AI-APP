@@ -90,7 +90,7 @@ jobs:
 
       # 9. Upload artifacts
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: edge-ai-app-artifacts
           path: |
