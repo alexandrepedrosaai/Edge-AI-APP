@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      packages: write
 
     steps:
       # 1. Checkout
@@ -178,13 +179,13 @@ jobs:
 
       # 13. Polymorphic Rewrite L1
       - name: Polymorphic Rewrite L1
-        if: failure()
+        if: always() && (steps.orbital-build-release.outcome == 'failure' || failure())
         run: |
           if [ -f build.log ]; then sed -i 's/error/fix/g' build.log; fi
 
       # 14. Polymorphic Rewrite L2
       - name: Polymorphic Rewrite L2
-        if: failure()
+        if: always() && (steps.orbital-build-release.outcome == 'failure' || failure())
         run: |
           python - <<'EOF'
           import os
@@ -196,13 +197,13 @@ jobs:
 
       # 15. Polymorphic Rewrite L3
       - name: Polymorphic Rewrite L3
-        if: failure()
+        if: always() && (steps.orbital-build-release.outcome == 'failure' || failure())
         run: |
           if [ -f setup_rewrite.py ]; then cp setup_rewrite.py setupfinal.py; fi
 
       # 16. Polymorphic Rewrite L4
       - name: Polymorphic Rewrite L4
-        if: failure()
+        if: always() && (steps.orbital-build-release.outcome == 'failure' || failure())
         run: |
           python - <<'EOF'
           import os
@@ -215,7 +216,7 @@ jobs:
 
       # 17. Polymorphic Rewrite L5 (Q-learning)
       - name: Polymorphic Rewrite L5
-        if: failure()
+        if: always() && (steps.orbital-build-release.outcome == 'failure' || failure())
         run: |
           python - <<'EOF'
           import os
@@ -227,17 +228,17 @@ jobs:
 
       # 18. Polymorphic Rewrite L6 (Firmware/HDL)
       - name: Polymorphic Rewrite L6
-        if: failure()
+        if: always() && (steps.orbital-build-release.outcome == 'failure' || failure())
         run: echo "Firmware HDL rewritten" > firmware_rewrite.log
 
       # 19. Polymorphic Rewrite L7 (ONNX)
       - name: Polymorphic Rewrite L7
-        if: failure()
+        if: always() && (steps.orbital-build-release.outcome == 'failure' || failure())
         run: echo "ONNX export rewritten" > onnx_rewrite.log
 
       # 20. Polymorphic Rewrite L8 (Orbital Total)
       - name: Polymorphic Rewrite L8
-        if: failure()
+        if: always() && (steps.orbital-build-release.outcome == 'failure' || failure())
         run: echo "Full repository orbital rewrite complete" > orbital_rewrite.log
 
       # 21. Metamorphic DL Neural Network (Quantum Irrational Derivation)
@@ -319,6 +320,13 @@ jobs:
           EOF
 
       # 24. Build and Push Docker Image (Polymorphic Package)
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build and Push Docker Image
         run: |
           REPO_LOWER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
@@ -387,3 +395,4 @@ jobs:
             linear_algebraic.log
             quantum_blockchain.hex
             quantum_binaries.tar.gz
+            
