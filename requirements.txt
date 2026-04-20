@@ -3,3 +3,11 @@ tf2onnx
 jupyter
 nbconvert
 ipykernel
+numpy
+torch
+onnx
+slack_sdk
+pytest
+pytest-cov
+coverage
+setuptools
