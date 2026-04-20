@@ -46,7 +46,6 @@ jobs:
             ghdl -a ../../src/vhdl/*.vhd || true
             ghdl -e top_module || true
           elif [ "${{ matrix.language }}" == "verilog" ]; then
-            # Ajustado para usar o verilator.cpp e caminhos corretos
             verilator --cc ../../src/verilog/top_entity.v --exe ../../verilog/verilator.cpp --top-module top_entity || true
             if [ -f obj_dir/Vtop_entity.mk ]; then
               make -C obj_dir -f Vtop_entity.mk Vtop_entity || true
@@ -64,29 +63,57 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     needs: build
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Build Docker image with Microchip name and version tags
-      - name: Build Docker Image
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push Docker Image
         run: |
+          # Definindo o nome da imagem como solicitado: microchip/polarfire-sfp
+          # No GHCR, o formato é ghcr.io/usuario/imagem
+          IMAGE_NAME="ghcr.io/${{ github.repository_owner }}/microchip/polarfire-sfp"
           VERSION="v${{ github.run_number }}"
-          docker build -t microchip/polarfire-sfp:latest -t microchip/polarfire-sfp:${VERSION} .
+          
+          docker build -t ${IMAGE_NAME}:latest -t ${IMAGE_NAME}:${VERSION} .
+          docker push ${IMAGE_NAME}:latest
+          docker push ${IMAGE_NAME}:${VERSION}
 
   release:
     needs: [build, docker]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    permissions:
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create and Push Tag
+        run: |
+          TAG_NAME="v1.0.${{ github.run_number }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag $TAG_NAME
+          git push origin $TAG_NAME
+          echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ github.run_number }}
-          name: "PolarFire FPGA SFP+ Module Release"
+          tag_name: ${{ env.TAG_NAME }}
+          name: "PolarFire FPGA SFP+ Module Release ${{ env.TAG_NAME }}"
           body: |
             ## PolarFire FPGA SFP+ Module (AN4364)
             This release contains binaries, simulation files, and Docker images packaged under the Microchip name:
@@ -96,9 +123,9 @@ jobs:
             - Optical compliance data (10GBASE-SR)
             - ROSA/TOSA drivers
             - PCB layout (Nelco 4000-13SI)
-            - **Docker Images:**
-              - microchip/polarfire-sfp:latest
-              - microchip/polarfire-sfp:v${{ github.run_number}}
+            - **Docker Images (GitHub Packages):**
+              - ghcr.io/${{ github.repository_owner }}/microchip/polarfire-sfp:latest
+              - ghcr.io/${{ github.repository_owner }}/microchip/polarfire-sfp:${{ env.TAG_NAME }}
 
             **Multi-platform support:**
             - Linux (Ubuntu)
@@ -110,8 +137,5 @@ jobs:
             - VHDL
             - Verilog
             - Python
-
-      - name: Upload Release Assets
-        uses: softprops/action-gh-release@v2
-        with:
           files: build/**/*
+          
