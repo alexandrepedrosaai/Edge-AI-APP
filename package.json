@@ -7,6 +7,8 @@
   "scripts": {
     "dev": "vite --host",
     "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
+    "build:wasm": "mkdir -p dist && cd WEBASSEMBLY && for file in *.wat; do wat2wasm \"$file\" -o \"../dist/${file%.wat}.wasm\"; done",
+    "export:isa": "mkdir -p reports && python3 scripts/hex_to_asm.py . reports",
     "start": "NODE_ENV=production node dist/index.js",
     "preview": "vite preview --host",
     "check": "tsc --noEmit",
