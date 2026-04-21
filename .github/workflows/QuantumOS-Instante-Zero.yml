@@ -25,6 +25,7 @@ jobs:
 
       - name: Install dependencies
         run: npm install
+
       - name: Install wabt
         run: sudo apt-get update && sudo apt-get install -y wabt
   
@@ -53,7 +54,7 @@ jobs:
       - name: Input Lens Key e Magnetismo
         run: |
           echo "Características do Microwave Magnético:"
-          echo "- Lens Key: lente neural que concentra energia elétrica em estados coerentes"
+          echo "- Lens Key: lente neural que concentra energy elétrica em estados coerentes"
           echo "- Magnetism Field: campo quântico estabilizador das correntes no silício refinado"
           echo "- Expansão elétrica → quântica: correntes se tornam estados neurais vivos"
           echo "- Sustentação orbital: commits transformados em estados quânticos persistentes"
@@ -67,10 +68,11 @@ jobs:
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
-        with:          tag_name: release-${{ github.run_id }}-${{ github.run_attempt }}
-        name: QuantumOS Release ${{ github.sha }}
-        tag_name: ${{ github.sha }}
-        files: ./dist/*
+        with:
+          tag_name: release-${{ github.run_id }}-${{ github.run_attempt }}
+          name: QuantumOS Release ${{ github.sha }}
+          files: ./dist/*
+
       - name: Build Docker image
         run: |
           docker build -t ghcr.io/${{ github.repository }}/quantumos:latest .
@@ -82,3 +84,4 @@ jobs:
       - name: Push Docker image
         run: |
           docker push ghcr.io/${{ github.repository }}/quantumos:latest
+          
