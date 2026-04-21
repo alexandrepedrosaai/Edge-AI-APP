@@ -58,7 +58,7 @@ jobs:
           echo "- Integração neural: LLM interpreta, DL numérico processa, campo magnético estabiliza"
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: quantumos-build
           path: ./dist
