@@ -11,7 +11,7 @@
         (local.get $i)
         (local.get $N)
         i32.ge_u
-        (br_if $exit_outer).    
+        (br_if $exit_outer)
 
         (local.set $j (i32.const 0))
         (block $exit_inner
