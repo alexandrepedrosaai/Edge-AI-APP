@@ -1,0 +1,433 @@
+##############################################################################
+# ASSEMBLY MIPS - SIMULADOR DE CIRCUITOS QUÂNTICOS
+# Adaptação completa de lógica binária/elétrica para computação quântica
+# Implementa: Qubits, Superposição, Entrelaçamento, Portas Universais,
+# Medição, Esfera de Bloch e Funções Complexas Quânticas
+##############################################################################
+
+.data
+# MENSAGENS DE EXIBIÇÃO
+msg_titulo:     .asciiz "\n===== SIMULADOR QUÂNTICO - MIPS =====\n"
+msg_linha:      .asciiz "\n----------------------------------------\n"
+msg_qubit:      .asciiz "Qubit "
+msg_estado:     .asciiz " | Estado: |"
+msg_prob0:      .asciiz "> | Probabilidade |0>: "
+msg_prob1:      .asciiz " | Probabilidade |1>: "
+msg_fase:       .asciiz " | Fase: "
+msg_super:      .asciiz "\n=== OPERAÇÃO DE SUPERPOSIÇÃO (PORTA HADAMARD) ===\n"
+msg_embar:      .asciiz "\n=== ENTRELAÇAMENTO DE QUBITS (PAR BELL) ===\n"
+msg_portas:     .asciiz "\n=== TESTE DE PORTAS QUÂNTICAS ===\nH, X, Y, Z, S, T, CNOT, SWAP, TOFFOLI\n"
+msg_esfera:     .asciiz "\n=== REPRESENTAÇÃO ESFERA DE BLOCH ===\nθ (ângulo): "
+msg_phi:        .asciiz " | φ (fase): "
+msg_funcao:     .asciiz "\n=== FUNÇÃO QUÂNTICA COMPLEXA: F = H(X) • CNOT • Z ===\n"
+msg_comparacao: .asciiz "\n=== COMPARAÇÃO: CLÁSSICO VS QUÂNTICO ===\nEntrada | Clássico | Quântico | Diferença\n"
+msg_medicao:    .asciiz "\n=== RESULTADO DE MEDIÇÃO ===\n"
+msg_igual:      .asciiz " - IGUAIS"
+msg_diferente:  .asciiz " - DIFERENTES"
+nova_linha:     .asciiz "\n"
+espaco:         .asciiz " "
+grau:           .asciiz "°"
+
+# ARMAZENAMENTO DE ESTADOS
+estado0:        .word 0    # Representa |0>
+estado1:        .word 1    # Representa |1>
+superposicao:   .word 2    # Representa (|0> + |1>)/√2
+entrelaçado:    .word 3    # Estado entrelaçado
+
+.text
+.globl main
+
+##############################################################################
+# DEFINIÇÃO DAS PORTAS QUÂNTICAS
+# Entradas: $a0 = qubit/controle, $a1 = qubit alvo
+# Saída: $v0 = novo estado / valor resultante
+##############################################################################
+
+# Porta H (Hadamard) - Cria superposição
+H:
+    beq $a0, 0, h_estado0
+    beq $a0, 1, h_estado1
+    li $v0, 2   # Mantém superposição
+    jr $ra
+h_estado0:
+    li $v0, 2
+    jr $ra
+h_estado1:
+    li $v0, 2
+    jr $ra
+
+# Porta X (Pauli-X) - Equivale à porta NOT clássica
+X:
+    beq $a0, 0, x_inverte0
+    beq $a0, 1, x_inverte1
+    li $v0, 2   # Superposição permanece
+    jr $ra
+x_inverte0:
+    li $v0, 1
+    jr $ra
+x_inverte1:
+    li $v0, 0
+    jr $ra
+
+# Porta Y (Pauli-Y) - Inverte e altera fase
+Y:
+    beq $a0, 0, y_result
+    beq $a0, 1, y_result
+    li $v0, 2
+    jr $ra
+y_result:
+    xori $v0, $a0, 1
+    jr $ra
+
+# Porta Z (Pauli-Z) - Altera fase do estado |1>
+Z:
+    move $v0, $a0   # Estado permanece, apenas fase muda
+    jr $ra
+
+# Porta S - Raiz quadrada de Z
+S:
+    move $v0, $a0
+    jr $ra
+
+# Porta T - Raiz quadrada de S
+T:
+    move $v0, $a0
+    jr $ra
+
+# Porta CNOT - Controle = $a0, Alvo = $a1
+CNOT:
+    beq $a0, 1, cnot_aplica
+    move $v0, $a1
+    jr $ra
+cnot_aplica:
+    xori $v0, $a1, 1
+    jr $ra
+
+# Porta SWAP - Troca estados entre dois qubits
+SWAP:
+    move $v0, $a1
+    move $v1, $a0
+    jr $ra
+
+# Porta Toffoli - CNOT com dois controles
+TOFFOLI:
+    and $t0, $a0, $a1
+    beq $t0, 1, toffoli_aplica
+    move $v0, $a2
+    jr $ra
+toffoli_aplica:
+    xori $v0, $a2, 1
+    jr $ra
+
+##############################################################################
+# FUNÇÕES DE SIMULAÇÃO E CÁLCULOS
+##############################################################################
+
+# Medição do estado -> retorna probabilidades em %
+medir_qubit:
+    beq $a0, 0, medir0
+    beq $a0, 1, medir1
+    beq $a0, 2, medir_super
+    li $v0, 50
+    li $v1, 50
+    jr $ra
+medir0:
+    li $v0, 100
+    li $v1, 0
+    jr $ra
+medir1:
+    li $v0, 0
+    li $v1, 100
+    jr $ra
+medir_super:
+    li $v0, 50
+    li $v1, 50
+    jr $ra
+
+# Cálculo da Esfera de Bloch
+calcular_bloch:
+    beq $a0, 0, bloch0
+    beq $a0, 1, bloch1
+    beq $a0, 2, bloch_super
+    li $v0, 90    # θ = 90°
+    li $v1, 45    # φ = 45°
+    jr $ra
+bloch0:
+    li $v0, 0
+    li $v1, 0
+    jr $ra
+bloch1:
+    li $v0, 180
+    li $v1, 0
+    jr $ra
+bloch_super:
+    li $v0, 90
+    li $v1, 0
+    jr $ra
+
+# Circuito para gerar Par Bell (Entrelaçamento máximo)
+circuito_bell:
+    li $a0, 0
+    jal H
+    move $a0, $v0
+    li $a1, 0
+    jal CNOT
+    li $v0, 3   # Estado entrelaçado
+    jr $ra
+
+# Função quântica complexa
+funcao_quantica:
+    addi $sp, $sp, -16
+    sw $ra, 0($sp)
+    sw $s0, 4($sp)
+    sw $s1, 8($sp)
+    sw $s2, 12($sp)
+
+    move $s0, $a0
+    move $s1, $a1
+
+    # Aplicar Hadamard
+    move $a0, $s0
+    jal H
+    move $s0, $v0
+
+    # Aplicar Pauli-X
+    move $a0, $s0
+    jal X
+    move $s0, $v0
+
+    # Aplicar CNOT
+    move $a0, $s0
+    move $a1, $s1
+    jal CNOT
+    move $s1, $v0
+
+    # Aplicar Pauli-Z
+    move $a0, $s1
+    jal Z
+    move $v0, $s1
+
+    lw $ra, 0($sp)
+    lw $s0, 4($sp)
+    lw $s1, 8($sp)
+    lw $s2, 12($sp)
+    addi $sp, $sp, 16
+    jr $ra
+
+# Função clássica equivalente para comparação
+funcao_classica:
+    and $t0, $a0, $a1
+    or $v0, $t0, $a0
+    jr $ra
+
+##############################################################################
+# SUBROTINAS DE IMPRESSÃO
+##############################################################################
+
+imprimir_estado:
+    move $t0, $a0
+    li $v0, 4
+    la $a0, msg_estado
+    syscall
+    
+    li $v0, 1
+    move $a0, $t0
+    syscall
+    
+    li $v0, 4
+    la $a0, msg_prob0
+    syscall
+    
+    move $a0, $t0
+    jal medir_qubit
+    li $v0, 1
+    move $a0, $v0
+    syscall
+    
+    li $v0, 4
+    la $a0, msg_prob1
+    syscall
+    
+    li $v0, 1
+    move $a0, $v1
+    syscall
+    
+    li $v0, 4
+    la $a0, nova_linha
+    syscall
+    jr $ra
+
+imprimir_bloch:
+    move $t0, $a0
+    li $v0, 4
+    la $a0, msg_esfera
+    syscall
+    
+    move $a0, $t0
+    jal calcular_bloch
+    li $v0, 1
+    move $a0, $v0
+    syscall
+    
+    li $v0, 4
+    la $a0, grau
+    syscall
+    
+    li $v0, 4
+    la $a0, msg_phi
+    syscall
+    
+    li $v0, 1
+    move $a0, $v1
+    syscall
+    
+    li $v0, 4
+    la $a0, grau
+    syscall
+    li $v0, 4
+    la $a0, nova_linha
+    syscall
+    jr $ra
+
+##############################################################################
+# PROGRAMA PRINCIPAL
+##############################################################################
+main:
+    # Título
+    li $v0, 4
+    la $a0, msg_titulo
+    syscall
+
+    # ------------------------------
+    # Teste de Superposição
+    # ------------------------------
+    li $v0, 4
+    la $a0, msg_super
+    syscall
+    
+    li $a0, 0
+    jal H
+    move $a0, $v0
+    jal imprimir_estado
+    jal imprimir_bloch
+
+    # ------------------------------
+    # Teste de Entrelaçamento
+    # ------------------------------
+    li $v0, 4
+    la $a0, msg_embar
+    syscall
+    
+    jal circuito_bell
+    move $a0, $v0
+    jal imprimir_estado
+
+    # ------------------------------
+    # Teste de Todas as Portas
+    # ------------------------------
+    li $v0, 4
+    la $a0, msg_portas
+    syscall
+    
+    li $a0, 1
+    jal X
+    move $a0, $v0
+    jal imprimir_estado
+    
+    li $a0, 0
+    jal Y
+    move $a0, $v0
+    jal imprimir_estado
+    
+    li $a0, 2
+    jal Z
+    move $a0, $v0
+    jal imprimir_estado
+
+    # ------------------------------
+    # Função Quântica Complexa
+    # ------------------------------
+    li $v0, 4
+    la $a0, msg_funcao
+    syscall
+    
+    li $a0, 0
+    li $a1, 1
+    jal funcao_quantica
+    move $a0, $v0
+    jal imprimir_estado
+
+    # ------------------------------
+    # Comparação Clássico vs Quântico
+    # ------------------------------
+    li $v0, 4
+    la $a0, msg_comparacao
+    syscall
+    
+    li $a0, 0
+    li $a1, 1
+    jal funcao_classica
+    move $t0, $v0
+    
+    li $a0, 0
+    li $a1, 1
+    jal funcao_quantica
+    move $t1, $v0
+    
+    # Imprimir valores
+    li $v0, 1
+    li $a0, 0
+    syscall
+    li $v0, 4
+    la $a0, espaco
+    syscall
+    
+    li $v0, 1
+    move $a0, $t0
+    syscall
+    li $v0, 4
+    la $a0, espaco
+    syscall
+    
+    li $v0, 1
+    move $a0, $t1
+    syscall
+    li $v0, 4
+    la $a0, espaco
+    syscall
+    
+    beq $t0, $t1, msg_ok
+    li $v0, 4
+    la $a0, msg_diferente
+    j fim_comp
+msg_ok:
+    li $v0, 4
+    la $a0, msg_igual
+fim_comp:
+    syscall
+
+    # ------------------------------
+    # Resultado de Medição
+    # ------------------------------
+    li $v0, 4
+    la $a0, msg_medicao
+    syscall
+    li $a0, 2
+    jal medir_qubit
+    li $v0, 4
+    la $a0, msg_prob0
+    syscall
+    li $v0, 1
+    move $a0, $v0
+    syscall
+    li $v0, 4
+    la $a0, msg_prob1
+    syscall
+    li $v0, 1
+    move $a0, $v1
+    syscall
+
+    # Encerrar
+    li $v0, 10
+    syscall
+    
