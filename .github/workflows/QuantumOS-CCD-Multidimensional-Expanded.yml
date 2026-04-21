@@ -1,34 +1,4 @@
-name: QuantumOS CI/CD Multidimensional Ultra-Expanded
-
-on:
-  push:
-    branches: [ "main" ]
-
-# Permissões necessárias para publicar no GitHub Container Registry
-permissions:
-  contents: write
-  packages: write
-
-jobs:
-  # 1. Física & Firmware
-  fisico_firmware:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Função Física Avançada
-        run: |
-          echo "F(x,y,z,φ) = sqrt(x^2+y^2+z^2)*sin(φ) + 1/(1+x^2)" > fisico_output.txt
-          echo "T_μν = ∂_μ Φ ∂_ν Φ - 1/2 g_μν (∂ Φ)^2 - V(Φ)" >> fisico_output.txt
-          echo "E = mc^2 / sqrt(1 - v^2/c^2) + Σ_{n=1}^∞ (ℏω_n / 2)" >> fisico_output.txt
-          echo "∇²Ψ - (1/c²)∂²Ψ/∂t² = μ₀J + ε₀μ₀∂E/∂t" >> fisico_output.txt
-          echo "Matrix_Phys[4x4] = [[cosθ, -sinθ, 0, x], [sinθ, cosθ, 0, y], [0, 0, 1, z], [0, 0, 0, 1]]" >> fisico_output.txt
-          echo "ASM68: LOAD R1,x; MUL R1,R1; ADD R1,y^2+z^2; SQRT R1; SIN φ; ADD R1,1/(1+x^2); STORE F" >> fisico_output.txt
-      - name: Upload
-        uses: actions/upload-artifact@v3
-        with:
-          name: outputs
-          path: fisico_output.txt
-name: QuantumOS CI/CD Multidimensional Ultra-Expanded
+name: QuantumOS-Ultra-Expanded
 
 on:
   push:
@@ -43,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Funcao Fisica Avancada
+      - name: Fisica
         run: |
           echo "F(x,y,z,phi) = sqrt(x^2+y^2+z^2)*sin(phi) + 1/(1+x^2)" > fisico_output.txt
           echo "T_munu = d_mu Phi d_nu Phi - 1/2 g_munu (d Phi)^2 - V(Phi)" >> fisico_output.txt
@@ -61,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Funcao Ondulatoria Complexa
+      - name: Ondulatoria
         run: |
           echo "D(x,y,z,phi) = x/sqrt(x^2+y^2+z^2) - cos(x/(y+z)) + sin(phi*z)" > onda_output.txt
           echo "Psi(r,t) = A * exp(i(k.r - wt)) * int_{-inf}^{inf} G(k) dk" >> onda_output.txt
@@ -79,7 +49,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Funcao QuantumOS + Schrodinger
+      - name: Quantum
         run: |
           echo "Q(K) = int 1/sqrt(1-v^2/c^2) dK + log(1+K)" > kernel_output.txt
           echo "ihbar d/dt |Psi> = H |Psi>; H = -hbar^2/2m del^2 + V(r,t)" >> kernel_output.txt
@@ -97,7 +67,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Funcao Irracional Expandida
+      - name: Irracional
         run: |
           echo "R(x) = pi*sqrt(2)*sin(x^phi) + e^(i*x)" > retro_output.txt
           echo "zeta(s) = Sigma_{n=1}^inf n^{-s} = Pi_{p} (1 - p^{-s})^{-1}" >> retro_output.txt
@@ -115,7 +85,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Funcao Numerario Complexo
+      - name: Numerario
         run: |
           echo "N(x,y) = sqrt(x) + sqrt(y)*i + atan(x/y)" > num_output.txt
           echo "z = r(cos theta + i sin theta) = r e^{itheta}" >> num_output.txt
@@ -133,7 +103,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Funcoes Matriz FO/QK
+      - name: Matrizes
         run: |
           echo "M_FO = F(x,y,z,phi) + D(x,y,z,phi) + (F*D)/(1+z)" > matriz_output.txt
           echo "M_QK = Q(K)*h + sqrt(Q(K)^2 + h^2)" >> matriz_output.txt
@@ -151,7 +121,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Funcao HEX + Criptografia
+      - name: Blockchain
         run: |
           echo "B(H) = HEX(h) AND Binario(h) + Sigma(h^n/n!)" > hex_output.txt
           echo "Hash = SHA256(Block_n-1 + Transactions + Nonce)" >> hex_output.txt
@@ -159,13 +129,13 @@ jobs:
           echo "Merkle_Root = Hash(Hash(L1) + Hash(L2))" >> hex_output.txt
           echo "Difficulty = Target / Current_Hash" >> hex_output.txt
           echo "ASM68: HEX h->R11; BIN h->R12; AND R11,R12; SERIES h^n/n!->R13; ADD R11,R13; STORE B" >> hex_output.txt
-      - name: Log in to GHCR
+      - name: Login
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and Push Docker
+      - name: Docker
         run: |
           DOCKERFILE_PATH=$(find . -name Dockerfile | head -n 1)
           IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/quantum-os:latest
@@ -182,12 +152,12 @@ jobs:
     needs: [fisico_firmware, ondulatoria_hdl, quantum_kernel_opcode, retro_riscv, num_asm, matrizes_high_level, blockchain_docker]
     steps:
       - uses: actions/checkout@v3
-      - name: Download All
+      - name: Download
         uses: actions/download-artifact@v3
         with:
           name: outputs
           path: release_assets
-      - name: Funcao Eternidade
+      - name: Eternidade
         run: |
           echo "E(t) = lim_{n->inf} Q(K)^n + int_0^inf e^(-t)*Q(K) dt" > release_assets/eterno_output.txt
           echo "S = int_M R dV (Einstein-Hilbert Action)" >> release_assets/eterno_output.txt
@@ -195,156 +165,12 @@ jobs:
           echo "Entropy: S = k_B ln Omega; dS >= 0" >> release_assets/eterno_output.txt
           echo "Infinite_Series = Sigma_{n=0}^inf (1/n!) = e" >> release_assets/eterno_output.txt
           echo "ASM68: LIMIT Q^n,n->inf->R14; INTEGRATE e^-t*Q(K),0->inf->R15; ADD R14,R15; STORE E" >> release_assets/eterno_output.txt
-      - name: Create Release
+      - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v5.0.${{ github.run_number }}
-          name: QuantumOS Ultra Release ${{ github.run_number }}
+          tag_name: v6.0.${{ github.run_number }}
+          name: QuantumOS Release ${{ github.run_number }}
           files: release_assets/*
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  # 2. Ondulatória & HDL
-  ondulatoria_hdl:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Função Ondulatória Complexa
-        run: |
-          echo "D(x,y,z,φ) = x/sqrt(x^2+y^2+z^2) - cos(x/(y+z)) + sin(φ*z)" > onda_output.txt
-          echo "Ψ(r,t) = A * exp(i(k·r - ωt)) * ∫_{-∞}^{∞} G(k) dk" >> onda_output.txt
-          echo "I(θ) = I₀ * [sin(β)/β]^2 * [sin(Nα)/sin(α)]^2" >> onda_output.txt
-          echo "v_phase = ω/k; v_group = ∂ω/∂k; n = c/v_phase" >> onda_output.txt
-          echo "Wave_Matrix[HEX] = [0x3F800000, 0x40000000, 0x40400000, 0x40800000, 0x40A00000]" >> onda_output.txt
-          echo "ASM68: LOAD R2,x; DIV R2,SQRT(x^2+y^2+z^2); COS x/(y+z); SUB R2,COS; SIN φ*z; ADD R2,SIN; STORE D" >> onda_output.txt
-      - name: Upload
-          echo "Hash = SHA256(Block_n-1 + Transactions + Nonce)" >> hex_output.txt
-          echo "ECDSA: y^2 = x^3 + ax + b (mod p)" >> hex_output.txt
-          echo "Merkle_Root = Hash(Hash(L1) + Hash(L2))" >> hex_output.txt
-          echo "Difficulty = Target / Current_Hash" >> hex_output.txt
-          echo "ASM68: HEX h→R11; BIN h→R12; AND R11,R12; SERIES h^n/n!→R13; ADD R11,R13; STORE B" >> hex_output.txt
-      
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and Push Docker Image
-        run: |
-          DOCKERFILE_PATH=$(find . -name Dockerfile | head -n 1)
-          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/quantum-os:latest
-          docker build -t $IMAGE_NAME -f "$DOCKERFILE_PATH" .
-          docker push $IMAGE_NAME
-
-      - name: Upload
-        uses: actions/upload-artifact@v3
-        with:
-          name: outputs
-          path: hex_output.txt
-
-  # 8. Eternidade & Release Final
-  eternidade_release:
-    runs-on: ubuntu-latest
-    needs: [fisico_firmware, ondulatoria_hdl, quantum_kernel_opcode, retro_riscv, num_asm, matrizes_high_level, blockchain_docker]
-    steps:
-      - uses: actions/checkout@v3
-      - name: Download All
-        uses: actions/download-artifact@v3
-        with:
-          name: outputs
-          path: release_assets
-      - name: Função Eternidade
-        run: |
-          echo "E(t) = lim_{n→∞} Q(K)^n + ∫0^∞ e^(-t)*Q(K) dt" > release_assets/eterno_output.txt
-          echo "S = ∫_M R dV (Einstein-Hilbert Action)" >> release_assets/eterno_output.txt
-          echo "Ω_total = Ω_m + Ω_Λ + Ω_k = 1" >> release_assets/eterno_output.txt
-          echo "Entropy: S = k_B ln Ω; dS ≥ 0" >> release_assets/eterno_output.txt
-          echo "Infinite_Series = Σ_{n=0}^∞ (1/n!) = e" >> release_assets/eterno_output.txt
-          echo "ASM68: LIMIT Q^n,n→∞→R14; INTEGRATE e^-t*Q(K),0→∞→R15; ADD R14,R15; STORE E" >> release_assets/eterno_output.txt
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: v4.0.${{ github.run_number }}
-          name: QuantumOS Ultra Release ${{ github.run_number }}
-          files: release_assets/*
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-   # 6. Matrizes FO/QK & High Level (Álgebra Linear)
-         matrizes_high_level:
-         runs-on: ubuntu-latest
-         steps:
-      - uses: actions/checkout@v3
-      - name: Funções Matriz FO/QK + Álgebra Linear
-        run: |
-          echo "M_FO = F(x,y,z,φ) + D(x,y,z,φ) + (F*D)/(1+z)" > matriz_output.txt
-          echo "M_QK = Q(K)*h + sqrt(Q(K)^2 + h^2)" >> matriz_output.txt
-          echo "det(A - λI) = 0; A v = λ v (Eigenvalues/vectors)" >> matriz_output.txt
-          echo "SVD: A = U Σ V*; QR: A = Q R" >> matriz_output.txt
-          echo "Trace(M) = Σ λ_i; ||M||_F = sqrt(Σ |a_ij|^2)" >> matriz_output.txt
-          echo "High_Level_Matrix[5x5] = Identity(5) * π + Random_Noise" >> matriz_output.txt
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: matrizes-highlevel
-          path: matriz_output.txt
-
-     # 7. Blockchain HEX & Docker (Criptografia e Hash)
-        blockchain_docker:
-        runs-on: ubuntu-latest
-        steps:
-      - uses: actions/checkout@v4
-      - name: Função HEX + Criptografia + Docker
-        run: |
-          echo "B(H) = HEX(h) ∧ Binário(h) + Σ(h^n/n!)" > hex_output.txt
-          echo "Hash = SHA256(Block_n-1 + Transactions + Nonce)" >> hex_output.txt
-          echo "ECDSA: y^2 = x^3 + ax + b (mod p)" >> hex_output.txt
-          echo "Merkle_Root = Hash(Hash(L1) + Hash(L2))" >> hex_output.txt
-          echo "Difficulty = Target / Current_Hash" >> hex_output.txt
-          echo "ASM68: HEX h→R11; BIN h→R12; AND R11,R12; SERIES h^n/n!→R13; ADD R11,R13; STORE B" >> hex_output.txt
-          DOCKERFILE_PATH=$(find . -name Dockerfile | head -n 1)
-          docker build -t quantum-os-image:quantum-multidimensions -f "$DOCKERFILE_PATH" .
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: blockchain-hex
-          path: hex_output.txt
-
-  # 8. Eternidade & Release (Limites e Infinito)
-  eternidade_release:
-    runs-on: ubuntu-latest
-    needs: [fisico_firmware, ondulatoria_hdl, quantum_kernel_opcode, retro_riscv, num_asm, matrizes_high_level, blockchain_docker]
-    steps:
-      - uses: actions/checkout@v3
-      - name: Download All Artifacts
-        uses: actions/download-artifact@v4
-      - name: Função Eternidade + Limites + Release
-        run: |
-          echo "E(t) = lim_{n→∞} Q(K)^n + ∫0^∞ e^(-t)*Q(K) dt" > eterno_output.txt
-          echo "S = ∫_M R dV (Einstein-Hilbert Action)" >> eterno_output.txt
-          echo "Ω_total = Ω_m + Ω_Λ + Ω_k = 1" >> eterno_output.txt
-          echo "Entropy: S = k_B ln Ω; dS ≥ 0" >> eterno_output.txt
-          echo "Infinite_Series = Σ_{n=0}^∞ (1/n!) = e" >> eterno_output.txt
-          echo "ASM68: LIMIT Q^n,n→∞→R14; INTEGRATE e^-t*Q(K),0→∞→R15; ADD R14,R15; STORE E" >> eterno_output.txt
-      - name: Create Quantum Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: v2.0.${{ github.run_number }}
-          name: QuantumOS Ultra Release ${{ github.run_number }}
-          files: |
-            eterno_output.txt
-            **/*_output.txt
-            **/*.c
-            **/*.inc
-            **/*.smc
-            **/*.vhd
-            **/*.v
-            **/*.s
-            **/*.asm
-            **/*.cpp
-            **/*.adb
-            **/Dockerfile
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
