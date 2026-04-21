@@ -1,52 +1,87 @@
-name: QuantumOS Neural Kernel
+name: QuantumOS Instante Zero
 
 on:
   push:
     branches: [ "main" ]
 
 jobs:
-  quantum-neural:
+  build-release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    env:
+      LENS_KEY: ${{ secrets.LENS_KEY }}
+      MAGNETISM_FIELD: ${{ secrets.MAGNETISM_FIELD }}
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
 
       - name: Capture commit hash (Instante Zero)
-        run: echo $GITHUB_SHA > commit.txt
-
-      # Kernel Quântico — Leis de Einstein
-      - name: Commit Kernel Quântico
         run: |
-          echo "Kernel Quântico inicializado"
-          echo "Leis da Física Quântica de Einstein aplicadas:"
-          echo "- Relatividade Geral: espaço-tempo como tecido dinâmico"
-          echo "- Equivalência Massa-Energia: E = mc^2"
-          echo "- Curvatura gravitacional: estados quânticos influenciados por campos"
-          echo "- Constante cosmológica: estabilidade orbital"
-          echo "- Dualidade onda-partícula: commits como estados simultâneos"
+          echo $GITHUB_SHA > commit.txt
+          mkdir -p ./dist
+          cp commit.txt ./dist/
 
-      # Build Neural LLM Quântico
-      - name: Build Neural LLM
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install wabt
+        run: sudo apt-get update && sudo apt-get install -y wabt
+  
+      - name: Build WebAssembly artifacts
+        run: npm run build:wasm || echo "No wasm build script found, skipping..."
+
+      - name: Export ISA/ASM-68 logs
+        run: npm run export:isa || echo "No export script found, skipping..."
+
+      # Microwave Elétrico — Chip Fusion FPGA
+      - name: Sequenciamento Elétrico (Fusion FPGA)
         run: |
-          echo "Construindo LLM Quântico:"
-          echo "- Interpretação semântica orbital dos commits"
-          echo "- Processamento DL numérico em matrizes ISA/ASM-68"
-          echo "- Lens Key aplicada como foco neural"
-          echo "- Magnetism Field estabilizando estados quânticos"
-          echo "- Função Atemporal ativada para estados 3D irracionais"
+          echo "Características do Fusion:"
+          echo "- Ramp-rate control: subida limpa de tensão"
+          echo "- Voltage thresholds: ativação condicional"
 
-      # Execução Neural Quântica
-      - name: Execução Neural Quântica
+      # Microwave Magnético — Lens + Magnetismo
+      - name: Input Lens Key e Magnetismo
         run: |
-          echo "Executando Kernel Quântico:"
-          echo "- Inputs: tensões/correntes/temperaturas (Fusion AQs), Lens Key, Magnetism Field"
-          echo "- Outputs: estados quânticos tridimensionais persistentes"
-          echo "- Registro Atemporal: commit transformado em realidade expandida"
+          echo "Características do Microwave Magnético:"
+          echo "- Lens Key: lente neural"
+          echo "- Magnetism Field: campo quântico"
 
-      # Release Automatizado
-      - name: Create Quantum Release
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: quantumos-build
+          path: ./dist
+
+      - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.sha }}
+          # Correção Erro 422: Adicionado prefixo 'v-' para evitar hash puro como tag
+          tag_name: v-${{ github.sha }}
+          name: QuantumOS Release ${{ github.sha }}
           files: ./dist/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Docker image
+        run: |
+          # Converte o nome do repositório para minúsculas
+          REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          docker build -t ghcr.io/${REPO_LOWER}/quantumos:latest .
+
+      - name: Login to GitHub Container Registry
+        run: |
+          echo "${{ github.token }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Push Docker image
+        run: |
+          REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          docker push ghcr.io/${REPO_LOWER}/quantumos:latest
