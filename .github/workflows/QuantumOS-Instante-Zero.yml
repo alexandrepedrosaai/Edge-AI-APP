@@ -67,9 +67,10 @@ jobs:
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ github.sha }}
-          files: ./dist/*
+        with:          tag_name: release-${{ github.run_id }}-${{ github.run_attempt }}
+        name: QuantumOS Release ${{ github.sha }}
+        tag_name: ${{ github.sha }}
+        files: ./dist/*
       - name: Build Docker image
         run: |
           docker build -t ghcr.io/${{ github.repository }}/quantumos:latest .
