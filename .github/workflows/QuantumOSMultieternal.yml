@@ -1,170 +1,192 @@
-name: QuantumOS CI/CD Multieternal ASM68 Extended
+name: QuantumOS CI/CD Multi-eternal ASM68
 
 on:
   push:
     branches: [ "main" ]
 
 jobs:
-
+  # 1. Física
   fisico:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Física - 5 Files
+      - name: Install Dependencies
+        run: pip install numpy scipy
+      - name: Cache Física
+        uses: actions/cache@v3
+        with:
+          path: fisico_cache
+          key: fisico-${{ github.sha }}
+      - name: Função Física + ASM68
         run: |
-          echo "F(x,y,z,φ) = sqrt(x^2+y^2+z^2)*sin(φ) + 1/(1+x^2)" > fisico_formula.txt
-          echo "ASM68: LOAD R1,x; MUL R1,R1; ADD R1,y^2+z^2; SQRT R1; SIN φ; ADD R1,1/(1+x^2); STORE F" > fisico_asm68.txt
-          echo "PL/SQL: DECLARE F NUMBER; BEGIN F := SQRT(...); END;" > fisico.plsql
-          echo "Resultado F ≈ 2.9" > fisico.bin
-          echo "Log: P_F ≈ 0.34" > fisico.log
-      - name: Simulação 3D Física
-        run: |
-          python - <<'EOF'
-          import numpy as np, matplotlib.pyplot as plt
-          x,y = np.meshgrid(np.linspace(-5,5,100), np.linspace(-5,5,100))
-          z = np.sqrt(x**2+y**2) * np.sin(np.pi/6)
-          plt.contourf(x,y,z,20,cmap='viridis')
-          plt.title("Curvas de nível - Física")
-          plt.savefig("fisico_3D.png")
-          EOF
+          mkdir -p fisico_cache
+          echo "F(x,y,z,φ) = sqrt(x^2+y^2+z^2)*sin(φ) + 1/(1+x^2)" > fisico_cache/output.txt
+          echo "ASM68: LOAD R1,x; MUL R1,R1; ADD R1,y^2+z^2; SQRT R1; SIN φ; ADD R1,1/(1+x^2); STORE F" >> fisico_cache/output.txt
 
+  # 2. Ondulatória
   ondulatoria:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Ondulatória - 5 Files
+      - name: Install Dependencies
+        run: pip install numpy scipy
+      - name: Cache Ondulatória
+        uses: actions/cache@v3
+        with:
+          path: onda_cache
+          key: onda-${{ github.sha }}
+      - name: Função Ondulatória + ASM68
         run: |
-          echo "D(x,y,z,φ) = x/sqrt(x^2+y^2+z^2) - cos(x/(y+z)) + sin(φ*z)" > onda_formula.txt
-          echo "ASM68: LOAD R2,x; DIV R2,SQRT(...); COS(...); SUB; SIN φ*z; ADD; STORE D" > onda_asm68.txt
-          echo "PQL: SELECT ... FROM Matriz;" > onda.pql
-          echo "Resultado D ≈ 0.326" > onda.bin
-          echo "Log: P_D ≈ 3.06" > onda.log
-      - name: Simulação 3D Ondulatória
-        run: |
-          python - <<'EOF'
-          import numpy as np, matplotlib.pyplot as plt
-          x,y = np.meshgrid(np.linspace(-5,5,100), np.linspace(-5,5,100))
-          z = np.sin(x) + np.cos(y)
-          plt.contourf(x,y,z,20,cmap='plasma')
-          plt.title("Curvas de nível - Ondulatória")
-          plt.savefig("onda_3D.png")
-          EOF
+          mkdir -p onda_cache
+          echo "D(x,y,z,φ) = x/sqrt(x^2+y^2+z^2) - cos(x/(y+z)) + sin(φ*z)" > onda_cache/output.txt
+          echo "ASM68: LOAD R2,x; DIV R2,SQRT(x^2+y^2+z^2); COS x/(y+z); SUB R2,COS; SIN φ*z; ADD R2,SIN; STORE D" >> onda_cache/output.txt
 
+  # 3. QuantumOS Kernel
   quantum_kernel:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Kernel - 5 Files
+      - name: Install Dependencies
+        run: pip install numpy scipy
+      - name: Cache Kernel
+        uses: actions/cache@v3
+        with:
+          path: kernel_cache
+          key: kernel-${{ github.sha }}
+      - name: Função QuantumOS + ASM68
         run: |
-          echo "Q(K) = ∫ 1/sqrt(1-v^2/c^2) dK + log(1+K)" > kernel_formula.txt
-          echo "ASM68: LOAD R3,K; INTEGRATE R3,1/SQRT(1-v^2/c^2); LOG(1+K); ADD R3,LOG; STORE Q" > kernel_asm68.txt
-          echo "SL: Q=2.254; P_Q=Q/10=0.225" > kernel.sl
-          echo "Resultado Q ≈ 2.254" > kernel.bin
-          echo "Log: P_Q ≈ 0.225" > kernel.log
-      - name: Simulação 3D Kernel
-        run: |
-          python - <<'EOF'
-          import numpy as np, matplotlib.pyplot as plt
-          x,y = np.meshgrid(np.linspace(-5,5,100), np.linspace(-5,5,100))
-          z = np.log1p(np.sqrt(x**2+y**2))
-          plt.contourf(x,y,z,20,cmap='inferno')
-          plt.title("Curvas de nível - Kernel QuantumOS")
-          plt.savefig("kernel_3D.png")
-          EOF
+          mkdir -p kernel_cache
+          echo "Q(K) = ∫ 1/sqrt(1-v^2/c^2) dK + log(1+K)" > kernel_cache/output.txt
+          echo "ASM68: LOAD R3,K; INTEGRATE R3,1/SQRT(1-v^2/c^2); LOG(1+K); ADD R3,LOG; STORE Q" >> kernel_cache/output.txt
 
+  # 4. Retrometamorfose
+  retrometamorfose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Dependencies
+        run: pip install numpy scipy
+      - name: Cache Retrometamorfose
+        uses: actions/cache@v3
+        with:
+          path: retro_cache
+          key: retro-${{ github.sha }}
+      - name: Função Irracional + ASM68
+        run: |
+          mkdir -p retro_cache
+          echo "R(x) = π*sqrt(2)*sin(x^φ) + e^(i*x)" > retro_cache/output.txt
+          echo "ASM68: LOAD R4,x; POW R4,φ; SIN R4; MUL R4,π*√2; EXP i*x; ADD R4,EXP; STORE R" >> retro_cache/output.txt
+
+  # 5. Numerário Irracional
+  numerario:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Dependencies
+        run: pip install numpy scipy
+      - name: Cache Numerário
+        uses: actions/cache@v3
+        with:
+          path: num_cache
+          key: num-${{ github.sha }}
+      - name: Função Numerário + ASM68
+        run: |
+          mkdir -p num_cache
+          echo "N(x,y) = sqrt(x) + sqrt(y)*i + atan(x/y)" > num_cache/output.txt
+          echo "ASM68: SQRT x→R5; SQRT y→R6; MUL R6,i; ATAN x/y→R7; ADD R5,R6; ADD R5,R7; STORE N" >> num_cache/output.txt
+
+  # 6. Matriz Física + Ondulatória
+  matriz_fo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Dependencies
+        run: pip install numpy scipy
+      - name: Cache FO
+        uses: actions/cache@v3
+        with:
+          path: fo_cache
+          key: fo-${{ github.sha }}
+      - name: Função FO + ASM68
+        run: |
+          mkdir -p fo_cache
+          echo "M_FO = F(x,y,z,φ) + D(x,y,z,φ) + (F*D)/(1+z)" > fo_cache/output.txt
+          echo "ASM68: LOAD R8,F; ADD R8,D; MUL F,D; DIV F*D,(1+z); ADD R8,RESULT; STORE M_FO" >> fo_cache/output.txt
+
+  # 7. Matriz QuantumOS + Kernel
+  matriz_qk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Dependencies
+        run: pip install numpy scipy
+      - name: Cache QK
+        uses: actions/cache@v3
+        with:
+          path: qk_cache
+          key: qk-${{ github.sha }}
+      - name: Função QK + ASM68
+        run: |
+          mkdir -p qk_cache
+          echo "M_QK = Q(K)*h + sqrt(Q(K)^2 + h^2)" > qk_cache/output.txt
+          echo "ASM68: MUL Q,h→R9; SQRT(Q^2+h^2)→R10; ADD R9,R10; STORE M_QK" >> qk_cache/output.txt
+
+  # 8. Blockchain HEX Temporal
+  blockchain_hex:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Dependencies
+        run: pip install numpy scipy
+      - name: Cache HEX
+        uses: actions/cache@v3
+        with:
+          path: hex_cache
+          key: hex-${{ github.sha }}
+      - name: Função HEX + ASM68
+        run: |
+          mkdir -p hex_cache
+          echo "B(H) = HEX(h) ∧ Binário(h) + Σ(h^n/n!)" > hex_cache/output.txt
+          echo "ASM68: HEX h→R11; BIN h→R12; AND R11,R12; SERIES h^n/n!→R13; ADD R11,R13; STORE B" >> hex_cache/output.txt
+
+  # 9. Eternidade Reconstruível
   eternidade:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Eternidade - 5 Files
+      - name: Install Dependencies
+        run: pip install numpy scipy
+      - name: Cache Eternidade
+        uses: actions/cache@v3
+        with:
+          path: eterno_cache
+          key: eterno-${{ github.sha }}
+      - name: Função Eternidade + ASM68
         run: |
-          echo "E(t) = lim_{n→∞} Q(K)^n + ∫0^∞ e^(-t)*Q(K) dt" > eterno_formula.txt
-          echo "ASM68: LIMIT Q^n,n→∞→R14; INTEGRATE e^-t*Q(K),0→∞→R15; ADD R14,R15; STORE E" > eterno_asm68.txt
-          echo "SL: Ψ(t) = P_Total * exp(-t)" > eterno.sl
-          echo "Resultado E(t) ≈ função decaimento exponencial" > eterno.bin
-          echo "Log: P_Total ≈ 0.234 → Ψ(t)=0.234*e^(-t)" > eterno.log
-      - name: Simulação 3D Eternidade
-        run: |
-          python - <<'EOF'
-          import numpy as np, matplotlib.pyplot as plt
-          t = np.linspace(0,10,200)
-          psi = 0.234*np.exp(-t)
-          plt.plot(t,psi,label="Ψ(t)")
-          plt.title("Decaimento exponencial - Eternidade Reconstruível")
-          plt.xlabel("t")
-          plt.ylabel("Ψ(t)")
-          plt.legend()
-          plt.grid(True)
-          plt.savefig("eterno_3D.png")
-          EOF
+          mkdir -p eterno_cache
+          echo "E(t) = lim_{n→∞} Q(K)^n + ∫0^∞ e^(-t)*Q(K) dt" > eterno_cache/output.txt
+          echo "ASM68: LIMIT Q^n,n→∞→R14; INTEGRATE e^-t*Q(K),0→∞→R15; ADD R14,R15; STORE E" >> eterno_cache/output.txt
 
-  docker_package:
+  # Release Automatizado
+  release:
     runs-on: ubuntu-latest
-    needs: [fisico, ondulatoria, quantum_kernel, eternidade]
+    needs: [fisico, ondulatoria, quantum_kernel, retrometamorfose, numerario, matriz_fo, matriz_qk, blockchain_hex, eternidade]
     steps:
       - uses: actions/checkout@v3
-      - name: Build Docker Image
-        run: |
-          mkdir docker_build
-          cp *.bin docker_build/
-          cp *.log docker_build/
-          cp *.png docker_build/
-          cp *.txt docker_build/
-          cp *.plsql docker_build/
-          cp *.pql docker_build/
-          cp *.sl docker_build/
-          # Criar run_simulations.py dentro do pacote
-          cat <<'PYCODE' > docker_build/run_simulations.py
-          #!/usr/bin/env python3
-          import numpy as np
-          import matplotlib.pyplot as plt
-
-          # Física
-          x,y = np.meshgrid(np.linspace(-5,5,100), np.linspace(-5,5,100))
-          z_fisico = np.sqrt(x**2+y**2) * np.sin(np.pi/6)
-          plt.contourf(x,y,z_fisico,20,cmap="viridis")
-          plt.title("Curvas de nível - Física")
-          plt.savefig("/app/artifacts/fisico_run.png")
-          plt.close()
-
-          # Ondulatória
-          z_onda = np.sin(x) + np.cos(y)
-          plt.contourf(x,y,z_onda,20,cmap="plasma")
-          plt.title("Curvas de nível - Ondulatória")
-          plt.savefig("/app/artifacts/onda_run.png")
-          plt.close()
-
-          # Kernel QuantumOS
-          z_kernel = np.log1p(np.sqrt(x**2+y**2))
-          plt.contourf(x,y,z_kernel,20,cmap="inferno")
-          plt.title("Curvas de nível - Kernel QuantumOS")
-          plt.savefig("/app/artifacts/kernel_run.png")
-          plt.close()
-
-          # Eternidade Reconstruível
-          t = np.linspace(0,10,200)
-          psi = 0.234*np.exp(-t)
-          plt.plot(t,psi,label="Ψ(t)")
-          plt.title("Decaimento exponencial - Eternidade Reconstruível")
-          plt.xlabel("t"); plt.ylabel("Ψ(t)")
-          plt.legend(); plt.grid(True)
-          plt.savefig("/app/artifacts/eterno_run.png")
-          plt.close()
-
-          print("Simulações concluídas. Artefatos salvos em /app/artifacts/")
-          PYCODE
-          chmod +x docker_build/run_simulations.py
-
-          # Dockerfile expandido
-          echo "FROM python:3.11-slim" > docker_build/Dockerfile
-          echo "WORKDIR /app" >> docker_build/Dockerfile
-          echo "ADD . /app/artifacts" >> docker_build/Dockerfile
-          echo "RUN pip install numpy matplotlib" >> docker_build/Dockerfile
-          echo "CMD [\"python\", \"/app/artifacts/run_simulations.py\"]" >> docker_build/Dockerfile
-
-          tar -czf quantum-regress-to-infinity-multidimensional.tar.gz docker_build
-      - name: Upload Docker Package
+      - name: Create Quantum Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.sha }}
-          files: quantum-regress-to-infinity-multidimensional.tar.gz
+          tag_name: release-${{ github.sha }}
+          files: |
+            fisico_cache/output.txt
+            onda_cache/output.txt
+            kernel_cache/output.txt
+            retro_cache/output.txt
+            num_cache/output.txt
+            fo_cache/output.txt
+            qk_cache/output.txt
+            hex_cache/output.txt
+            eterno_cache/output.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
