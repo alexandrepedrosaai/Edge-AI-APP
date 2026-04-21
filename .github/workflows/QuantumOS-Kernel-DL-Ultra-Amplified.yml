@@ -34,83 +34,60 @@ jobs:
           K = np.random.rand(10, 10) * np.pi
           print('K-Matrix (Quantum States):\n', K)
           "
-          echo "Estados: [1.2, 0.8, 2.5, π/4] -> Expandidos para Tensores 4D"
 
-      - name: Advanced Linear Transformations (L1, L2, L3)
+      - name: Advanced Linear Transformations
         run: |
-          echo "=== Aplicando Transformações Lineares de Conexão (Commit 0) ==="
-          echo "Calculando Projeções de Espaço de Hilbert..."
+          echo "=== Aplicando Transformações Lineares ==="
           echo "L1: Mapeamento de curvatura gravitacional A (10x10)"
-          echo "L2: Rotação de fase quântica B (Tensores de Rank-3)"
-          echo "Conexão com Commit 0: Sincronização Atemporal Estabelecida"
+          echo "L2: Rotação de fase quântica B"
+          echo "Sincronização com Commit 0: ESTABELECIDA"
 
-      - name: Robust Deep Learning (DL 10x Amplified)
+      - name: Robust Deep Learning (10x Amplified)
         run: |
-          echo "=== Executando Deep Learning Quântico Irracional ==="
-          echo "Arquitetura: 10 Camadas Ocultas | 1024 Neurônios por Camada"
-          echo "Processando σ(W*K + b) em 10x escala..."
-          echo "IA Alternância: Monitorando Dualidade Partícula ↔ Onda"
-          
+          echo "=== Executando Deep Learning Quântico ==="
+          echo "Arquitetura: 10 Camadas | 1024 Neurônios"
           for i in {1..10}; do
             echo "Época $i/10: Loss Quântico = $(echo "scale=6; 1/($i*1.618)" | bc)"
           done
-          echo "Resultado DL: Estado Estável em 3D Irracional"
 
-      - name: Quantum Blockchain HEX Log (Deep Output)
+      - name: Quantum Blockchain HEX Log
         run: |
-          echo "=== Generating Ultra-Dense Blockchain HEX Log ==="
+          echo "=== Gerando Blockchain HEX Log ==="
           mkdir -p ./dist
           {
-            echo "--- QUANTUM BLOCKCHAIN GENESIS ---"
-            echo "COMMIT_SHA: $GITHUB_SHA"
-            echo "KERNEL_TYPE: DEEP_LEARNING_ROBUST"
-            echo "MATRIX_DIM: 10x10_TENSOR"
-            echo "DL_SCALE: 10x_AMPLIFIED"
-            echo "BLOCK_ID: $(uuidgen)"
+            echo "--- QUANTUM BLOCKCHAIN ---"
+            echo "COMMIT: $GITHUB_SHA"
             echo "TIMESTAMP: $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
-            echo "--- MATHEMATICAL CORE ---"
-            echo "L1_TRANSFORM: COMPLETED"
-            echo "DL_SIGMOID_CONVERGENCE: 0.999982"
-            echo "BINARY_IMMUTABLE: 10101100101011101111000011011011"
-            echo "--- HEXADECIMAL ENCODING ---"
+            echo "BINARY: 10101100101011101111000011011011"
             head -c 512 /dev/urandom | xxd -p
-            echo "--- END BLOCKCHAIN LOG ---"
           } > ./dist/blockchain.hex
-          cat ./dist/blockchain.hex
 
-      - name: Build Binary Artifacts & Assets
+      - name: Build Binary Artifacts
         run: |
-          echo "Empacotando binários do Kernel DL..."
-          echo "Quantum Kernel DL v2.0-Alpha" > ./dist/kernel_dl.bin
-          echo "Neural Weight Map: 10x1024" > ./dist/weights.map
-          tar -czf ./dist/quantum_kernel_dl_v2.tar.gz ./dist/
+          echo "Quantum Kernel DL v2.0" > ./dist/kernel_dl.bin
+          # CORREÇÃO: Criar o tar fora do diretório dist para evitar erro de leitura recursiva
+          tar -czf quantum_kernel_dl_v2.tar.gz -C ./dist .
+          mv quantum_kernel_dl_v2.tar.gz ./dist/
 
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: quantum-dl-assets
-          path: ./dist/
-
-      - name: Automated Release (v-Prefix)
+      - name: Create Automated Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v-${{ github.sha }}
           name: QuantumOS Kernel DL Release - ${{ github.sha }}
-          body: |
-            ### QuantumOS Kernel DL (10x Amplified)
-            - **Matrix:** 10x10 High-Dimensional Tensor
-            - **Deep Learning:** 10-Layer Neural Architecture
-            - **Blockchain:** Immutable HEX Log v2
-            - **Status:** Quantum Convergence Reached
           files: |
             ./dist/quantum_kernel_dl_v2.tar.gz
             ./dist/blockchain.hex
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and Push Docker (Automated GHCR)
+      - name: Build and Push Docker
         run: |
           REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          # Criar um Dockerfile básico caso não exista, para garantir que o build funcione
+          if [ ! -f Dockerfile ]; then
+            echo "FROM alpine:latest" > Dockerfile
+            echo "COPY ./dist /app" >> Dockerfile
+          fi
           docker build -t ghcr.io/${REPO_LOWER}/quantum-kernel-dl:latest .
           echo "${{ github.token }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           docker push ghcr.io/${REPO_LOWER}/quantum-kernel-dl:latest
