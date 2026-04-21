@@ -5,95 +5,115 @@ on:
     branches: [ "main" ]
 
 jobs:
-  # 1. Firmware Expansion
-  firmware:
+  # 1. Física & Firmware
+  fisico_firmware:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Compile Firmware Parts
+      - name: Função Física + ASM68 + Firmware
         run: |
           mkdir -p build/firmware
-          # Procura arquivos .c recursivamente para evitar erro de diretório
+          echo "F(x,y,z,φ) = sqrt(x^2+y^2+z^2)*sin(φ) + 1/(1+x^2)" > fisico_output.txt
+          echo "ASM68: LOAD R1,x; MUL R1,R1; ADD R1,y^2+z^2; SQRT R1; SIN φ; ADD R1,1/(1+x^2); STORE F" >> fisico_output.txt
+          echo "Firmware Hex Matrix Expansion (5 files)..."
           find . -name "*.c" -path "*/firmware/*" -exec gcc -c {} -o build/firmware/$(basename {} .c).o \;
 
-  # 2. Opcode & Microcode
-  opcode_microcode:
+  # 2. Ondulatória & HDL
+  ondulatoria_hdl:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Validate Opcodes and Slack Microcode
+      - name: Função Ondulatória + ASM68 + VHDL/Verilog
         run: |
-          echo "Validating Opcode Definitions..."
-          find . -name "*.inc" -path "*/opcode/*" -exec cat {} +
-          echo "Validating Slack Microcode ISA..."
-          find . -name "*.smc" -path "*/slack_microcode/*" -exec cat {} +
-
-  # 3. Hardware Description (VHDL/Verilog)
-  hdl_validation:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Check VHDL and Verilog Syntax
-        run: |
-          echo "Checking VHDL files..."
+          echo "D(x,y,z,φ) = x/sqrt(x^2+y^2+z^2) - cos(x/(y+z)) + sin(φ*z)" > onda_output.txt
+          echo "ASM68: LOAD R2,x; DIV R2,SQRT(x^2+y^2+z^2); COS x/(y+z); SUB R2,COS; SIN φ*z; ADD R2,SIN; STORE D" >> onda_output.txt
+          echo "Validando Matrizes Ondulatórias em VHDL/Verilog..."
           find . -name "*.vhd" -path "*/vhdl/*"
-          echo "Checking Verilog files..."
           find . -name "*.v" -path "*/verilog/*"
 
-  # 4. RISC-V & Pure ASM
-  low_level_asm:
+  # 3. QuantumOS Kernel & Opcode
+  quantum_kernel_opcode:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Assemble RISC-V and x86_64 ASM
+      - name: Função QuantumOS + ASM68 + Opcode/Microcode
         run: |
-          echo "Assembling RISC-V..."
+          echo "Q(K) = ∫ 1/sqrt(1-v^2/c^2) dK + log(1+K)" > kernel_output.txt
+          echo "ASM68: LOAD R3,K; INTEGRATE R3,1/SQRT(1-v^2/c^2); LOG(1+K); ADD R3,LOG; STORE Q" >> kernel_output.txt
+          echo "Validando Opcodes e Slack Microcode ISA..."
+          find . -name "*.inc" -path "*/opcode/*" -exec cat {} +
+          find . -name "*.smc" -path "*/slack_microcode/*" -exec cat {} +
+
+  # 4. Retrometamorfose & RISC-V
+  retro_riscv:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Função Irracional + ASM68 + RISC-V
+        run: |
+          echo "R(x) = π*sqrt(2)*sin(x^φ) + e^(i*x)" > retro_output.txt
+          echo "ASM68: LOAD R4,x; POW R4,φ; SIN R4; MUL R4,π*√2; EXP i*x; ADD R4,EXP; STORE R" >> retro_output.txt
+          echo "Assembling RISC-V Irrational Matrices..."
           find . -name "*.s" -path "*/riscv/*"
-          echo "Assembling x86_64..."
+
+  # 5. Numerário Irracional & Pure ASM
+  num_asm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Função Numerário + ASM68 + Pure ASM
+        run: |
+          echo "N(x,y) = sqrt(x) + sqrt(y)*i + atan(x/y)" > num_output.txt
+          echo "ASM68: SQRT x→R5; SQRT y→R6; MUL R6,i; ATAN x/y→R7; ADD R5,R6; ADD R5,R7; STORE N" >> num_output.txt
+          echo "Assembling x86_64 Logarithmic Matrices..."
           find . -name "*.asm" -path "*/asm/*"
 
-  # 5. High Level (C++, Ada)
-  high_level_compilation:
+  # 6. Matrizes FO/QK & High Level (C++, Ada)
+  matrizes_high_level:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Compile C++ and Ada
+      - name: Funções Matriz FO/QK + C++/Ada
         run: |
           mkdir -p build/high_level
-          echo "Compiling C++..."
+          echo "M_FO = F(x,y,z,φ) + D(x,y,z,φ) + (F*D)/(1+z)" > matriz_output.txt
+          echo "M_QK = Q(K)*h + sqrt(Q(K)^2 + h^2)" >> matriz_output.txt
+          echo "Compiling C++ and Ada Multidimensional Matrices..."
           find . -name "*.cpp" -path "*/cpp/*" -exec g++ {} -o build/high_level/$(basename {} .cpp) \;
-          echo "Compiling Ada..."
           find . -name "*.adb" -path "*/ada/*"
 
-  # 6. Docker Image Build and Push (Corrigido)
-  docker_build_push:
+  # 7. Blockchain HEX & Docker
+  blockchain_docker:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Build Docker Image
+      - name: Função HEX + ASM68 + Docker Build
         run: |
-          # Localiza o Dockerfile em qualquer subdiretório
+          echo "B(H) = HEX(h) ∧ Binário(h) + Σ(h^n/n!)" > hex_output.txt
+          echo "ASM68: HEX h→R11; BIN h→R12; AND R11,R12; SERIES h^n/n!→R13; ADD R11,R13; STORE B" >> hex_output.txt
           DOCKERFILE_PATH=$(find . -name Dockerfile | head -n 1)
           if [ -z "$DOCKERFILE_PATH" ]; then
-            echo "ERRO: Dockerfile não encontrado no repositório!"
+            echo "Dockerfile não encontrado!"
             exit 1
           fi
-          echo "Dockerfile encontrado em: $DOCKERFILE_PATH"
           docker build -t quantum-os-image:latest -f "$DOCKERFILE_PATH" .
-      - name: Status
-        run: echo "Docker image built successfully."
 
-  # 7. Release Automatizado
-  release:
+  # 8. Eternidade & Release
+  eternidade_release:
     runs-on: ubuntu-latest
-    needs: [firmware, opcode_microcode, hdl_validation, low_level_asm, high_level_compilation, docker_build_push]
+    needs: [fisico_firmware, ondulatoria_hdl, quantum_kernel_opcode, retro_riscv, num_asm, matrizes_high_level, blockchain_docker]
     steps:
       - uses: actions/checkout@v3
+      - name: Função Eternidade + ASM68 + Release
+        run: |
+          echo "E(t) = lim_{n→∞} Q(K)^n + ∫0^∞ e^(-t)*Q(K) dt" > eterno_output.txt
+          echo "ASM68: LIMIT Q^n,n→∞→R14; INTEGRATE e^-t*Q(K),0→∞→R15; ADD R14,R15; STORE E" >> eterno_output.txt
       - name: Create Quantum Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: release-${{ github.sha }}
           files: |
+            *_output.txt
             **/firmware/*
             **/opcode/*
             **/slack_microcode/*
