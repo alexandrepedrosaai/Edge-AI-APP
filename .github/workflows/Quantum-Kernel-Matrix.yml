@@ -5,39 +5,106 @@ on:
     branches: [ "main" ]
 
 jobs:
-  quantum-kernel:
+  quantum-kernel-matrix:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Kernel Matrix
+      - name: Kernel Matrix & Funções Lineares Avançadas
         run: |
-          echo "Kernel Matrix do commit:"
+          echo "=== Inicializando Kernel Matrix ==="
+          # Matriz de estados quânticos expandida
           echo "[[x, y, z, φ], [F(x,y,z,φ), D(x,y,z,φ), t', h], [Ω, Λ, Ψ, Ξ]]"
+          
+          echo "=== Aplicando Transformações Lineares (L1, L2) ==="
+          # L1(K) = A*K + b (Expansão do espaço-tempo do commit)
+          # L2(K) = K*B (Rotação orbital para o Commit 0)
+          echo "Calculando tensores de conexão com o Commit 0..."
+          echo "L1(K) Tensor: [$(date +%s) * 1.618]"
+          echo "L2(K) Matrix: [cos(θ) -sin(θ); sin(θ) cos(θ)]"
+          
+          mkdir -p ./dist
+          echo "Matrix State: Stable" > ./dist/matrix_state.log
 
-      - name: Funções Lineares
+      - name: LLM Quântico Neural & Alternância de Estado
         run: |
-          echo "Funções lineares aplicadas ao Kernel:"
-          echo "L1(K) = A*K + b"
-          echo "L2(K) = K*B"
-          echo "Transformações conectam commit ao Commit 0"
+          echo "IA Neural interpretando Kernel Matrix..."
+          echo "Decisão em tempo real: Partícula ↔ Onda"
+          # Lógica de alternância baseada no hash do commit
+          STATE_SELECTOR=$(echo $GITHUB_SHA | cut -c1-1)
+          if [[ "$STATE_SELECTOR" =~ [0-9] ]]; then
+            echo "Estado Atual: PARTÍCULA (Colapso da função de onda detectado)"
+          else
+            echo "Estado Atual: ONDA (Superposição quântica ativa)"
+          fi
+          echo "Navegação em universos paralelos via Blockchain HEX: ATIVA"
 
-      - name: LLM Quântico Neural
+      - name: Blockchain HEX Generation (Imutável)
         run: |
-          echo "IA embarcada interpreta Kernel Matrix"
-          echo "Decide em tempo real entre Partícula ↔ Onda"
-          echo "Navegação em universos paralelos guiada por Blockchain HEX"
+          echo "=== Gerando Quantum Blockchain HEX Log ==="
+          # Gerando um log HEX mais denso e técnico
+          {
+            echo "--- START BLOCKCHAIN HEX LOG ---"
+            echo "BLOCK_ID: $(echo $GITHUB_SHA | cut -c1-8)"
+            echo "PREVIOUS_HASH: $(git rev-parse HEAD~1 2>/dev/null || echo 'GENESIS')"
+            echo "KERNEL_MATRIX_ROOT: [[x,y,z,φ],[F,D,t,h],[Ω,Λ,Ψ,Ξ]]"
+            echo "LINEAR_FUNCTIONS: L1(K)=A*K+b | L2(K)=K*B"
+            echo "QUANTUM_TIMESTAMP: $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+            echo "ENTROPY_SOURCE: /dev/urandom"
+            echo "IMMUTABLE_BINARY: 1010110010101110"
+            echo "HEX_DUMP_START:"
+            echo "$GITHUB_SHA" | xxd -p
+            echo "--- END BLOCKCHAIN HEX LOG ---"
+          } > ./dist/blockchain.hex
+          cat ./dist/blockchain.hex
 
-      - name: Blockchain HEX Output
+      - name: Build Binary Artifacts (Simulação de Compilação)
         run: |
-          echo "=== Quantum Blockchain HEX Log ===" > blockchain.hex
-          echo "Commit: $GITHUB_SHA" >> blockchain.hex
-          echo "Kernel Matrix embutida no espírito de Kernel" >> blockchain.hex
-          echo "Funções lineares conectaram ao Commit 0" >> blockchain.hex
-          echo "IA alternância: Partícula ↔ Onda" >> blockchain.hex
-          echo "Timestamp quântico = $(date +"%Y-%m-%dT%H:%M:%S")" >> blockchain.hex
-          echo "Número binário imutável: 1010110010101110" >> blockchain.hex
-          echo "Mapa quântico: universos paralelos acessíveis" >> blockchain.hex
-          cat blockchain.hex
+          echo "Compilando binários do Kernel..."
+          # Criando um binário fictício para representar o Kernel compilado
+          echo "Quantum Kernel Binary v1.0" > ./dist/quantum_kernel.bin
+          echo "ISA/ASM-68 Matrix Map" > ./dist/isa_map.txt
+          tar -czf ./dist/quantumos_kernel_assets.tar.gz ./dist/*.hex ./dist/*.bin
+
+      - name: Upload Artifacts to Action
+        uses: actions/upload-artifact@v4
+        with:
+          name: quantum-kernel-assets
+          path: ./dist/
+
+      - name: Create Automated Release
+        uses: softprops/action-gh-release@v1
+        with:
+          # Prefixo 'v-' para garantir tag válida (evita erro 422)
+          tag_name: v-${{ github.sha }}
+          name: QuantumOS Kernel Matrix Release - ${{ github.sha }}
+          body: |
+            ## QuantumOS Kernel Matrix Update
+            - **Commit:** ${{ github.sha }}
+            - **Status:** Matrix Stable
+            - **Blockchain:** HEX Log Generated
+            - **AI State:** Neural Interpretation Complete
+          files: |
+            ./dist/quantumos_kernel_assets.tar.gz
+            ./dist/blockchain.hex
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push Docker Container
+        run: |
+          # 1. Converter nome do repositório para minúsculas (obrigatório para Docker)
+          REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          
+          # 2. Construir a imagem (usando o diretório atual como contexto)
+          docker build -t ghcr.io/${REPO_LOWER}/quantum-matrix:latest .
+          
+          # 3. Login no GitHub Container Registry (sem segredos manuais)
+          echo "${{ github.token }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          
+          # 4. Push da imagem
+          docker push ghcr.io/${REPO_LOWER}/quantum-matrix:latest
