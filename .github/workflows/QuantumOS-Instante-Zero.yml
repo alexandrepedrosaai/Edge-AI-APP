@@ -1,0 +1,81 @@
+name: QuantumOS Instante Zero
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    env:
+      LENS_KEY: ${{ secrets.LENS_KEY }}
+      MAGNETISM_FIELD: ${{ secrets.MAGNETISM_FIELD }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Capture commit hash (Instante Zero)
+        run: echo $GITHUB_SHA > commit.txt
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build WebAssembly artifacts
+        run: npm run build:wasm
+
+      - name: Export ISA/ASM-68 logs
+        run: npm run export:isa
+
+      # Microwave Elétrico — Chip Fusion FPGA
+      - name: Sequenciamento Elétrico (Fusion FPGA)
+        run: |
+          echo "Características do Fusion:"
+          echo "- Ramp-rate control: subida limpa de tensão"
+          echo "- Voltage thresholds: ativação condicional (ex: 1.5V só após 3.3V > 3.275V)"
+          echo "- Reconfiguração dinâmica de sequências"
+          echo "- Monitoramento contínuo: tensão, corrente, temperatura"
+          echo "- Proteção automática: desligamento de MOSFETs fora dos limites"
+          echo "- Brownout reset: retorno imediato ao Instante Zero"
+          echo "- Embedded Flash: gravação de estatísticas e estados"
+          echo "- Analog Quads (AQs): monitoramento supply/load side"
+          echo "- Operação em 3.3V: baixo consumo, modos standby/sleep"
+          echo "- SmartGen IP: configuração gráfica e lógica FPGA customizável"
+
+      # Microwave Magnético — Lens + Magnetismo
+      - name: Input Lens Key e Magnetismo
+        run: |
+          echo "Características do Microwave Magnético:"
+          echo "- Lens Key: lente neural que concentra energia elétrica em estados coerentes"
+          echo "- Magnetism Field: campo quântico estabilizador das correntes no silício refinado"
+          echo "- Expansão elétrica → quântica: correntes se tornam estados neurais vivos"
+          echo "- Sustentação orbital: commits transformados em estados quânticos persistentes"
+          echo "- Integração neural: LLM interpreta, DL numérico processa, campo magnético estabiliza"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: quantumos-build
+          path: ./dist
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.sha }}
+          files: ./dist/*
+      - name: Build Docker image
+        run: |
+          docker build -t ghcr.io/${{ github.repository }}/quantumos:latest .
+
+      - name: Login to GitHub Container Registry
+        run: |
+          echo "${{ github.token }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Push Docker image
+        run: |
+          docker push ghcr.io/${{ github.repository }}/quantumos:latest
