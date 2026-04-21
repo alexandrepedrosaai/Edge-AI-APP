@@ -2,10 +2,6 @@ name: QuantumOS Kernel DL - Ultra Amplified
 
 on:
   push:
-name: QuantumOS Kernel DL - Ultra Amplified
-
-on:
-  push:
     branches: [ "main" ]
 
 jobs:
