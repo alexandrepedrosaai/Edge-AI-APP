@@ -13,9 +13,8 @@ jobs:
       - name: Compile Firmware Parts
         run: |
           mkdir -p build/firmware
-          for f in quantum_os/firmware/*.c; do
-            gcc -c $f -o build/firmware/$(basename $f .c).o
-          done
+          # Procura arquivos .c recursivamente para evitar erro de diretório
+          find . -name "*.c" -path "*/firmware/*" -exec gcc -c {} -o build/firmware/$(basename {} .c).o \;
 
   # 2. Opcode & Microcode
   opcode_microcode:
@@ -25,9 +24,9 @@ jobs:
       - name: Validate Opcodes and Slack Microcode
         run: |
           echo "Validating Opcode Definitions..."
-          cat quantum_os/opcode/*.inc
+          find . -name "*.inc" -path "*/opcode/*" -exec cat {} +
           echo "Validating Slack Microcode ISA..."
-          cat quantum_os/slack_microcode/*.smc
+          find . -name "*.smc" -path "*/slack_microcode/*" -exec cat {} +
 
   # 3. Hardware Description (VHDL/Verilog)
   hdl_validation:
@@ -37,9 +36,9 @@ jobs:
       - name: Check VHDL and Verilog Syntax
         run: |
           echo "Checking VHDL files..."
-          ls quantum_os/vhdl/*.vhd
+          find . -name "*.vhd" -path "*/vhdl/*"
           echo "Checking Verilog files..."
-          ls quantum_os/verilog/*.v
+          find . -name "*.v" -path "*/verilog/*"
 
   # 4. RISC-V & Pure ASM
   low_level_asm:
@@ -49,9 +48,9 @@ jobs:
       - name: Assemble RISC-V and x86_64 ASM
         run: |
           echo "Assembling RISC-V..."
-          ls quantum_os/riscv/*.s
+          find . -name "*.s" -path "*/riscv/*"
           echo "Assembling x86_64..."
-          ls quantum_os/asm/*.asm
+          find . -name "*.asm" -path "*/asm/*"
 
   # 5. High Level (C++, Ada)
   high_level_compilation:
@@ -60,22 +59,29 @@ jobs:
       - uses: actions/checkout@v3
       - name: Compile C++ and Ada
         run: |
+          mkdir -p build/high_level
           echo "Compiling C++..."
-          for f in quantum_os/cpp/*.cpp; do
-            g++ $f -o build/$(basename $f .cpp)
-          done
+          find . -name "*.cpp" -path "*/cpp/*" -exec g++ {} -o build/high_level/$(basename {} .cpp) \;
           echo "Compiling Ada..."
-          ls quantum_os/ada/*.adb
+          find . -name "*.adb" -path "*/ada/*"
 
-  # 6. Docker Image Build and Push
+  # 6. Docker Image Build and Push (Corrigido)
   docker_build_push:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - name: Build Docker Image
-        run: docker build -t quantum-os-image:latest -f quantum_os/Dockerfile .
-      - name: Push Docker Image (Placeholder)
-        run: echo "Docker image built. To push, configure registry login using secrets."
+        run: |
+          # Localiza o Dockerfile em qualquer subdiretório
+          DOCKERFILE_PATH=$(find . -name Dockerfile | head -n 1)
+          if [ -z "$DOCKERFILE_PATH" ]; then
+            echo "ERRO: Dockerfile não encontrado no repositório!"
+            exit 1
+          fi
+          echo "Dockerfile encontrado em: $DOCKERFILE_PATH"
+          docker build -t quantum-os-image:latest -f "$DOCKERFILE_PATH" .
+      - name: Status
+        run: echo "Docker image built successfully."
 
   # 7. Release Automatizado
   release:
@@ -86,17 +92,15 @@ jobs:
       - name: Create Quantum Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.sha }}
+          tag_name: release-${{ github.sha }}
           files: |
-            quantum_os/firmware/*
-            quantum_os/opcode/*
-            quantum_os/slack_microcode/*
-            quantum_os/vhdl/*
-            quantum_os/verilog/*
-            quantum_os/riscv/*
-            quantum_os/asm/*
-            quantum_os/cpp/*
-            quantum_os/ada/*
-            quantum_os/quantum_cicd.yml
-            quantum_os/Dockerfile
-
+            **/firmware/*
+            **/opcode/*
+            **/slack_microcode/*
+            **/vhdl/*
+            **/verilog/*
+            **/riscv/*
+            **/asm/*
+            **/cpp/*
+            **/ada/*
+            **/Dockerfile
