@@ -21,7 +21,7 @@ jobs:
           echo "ASM68: LOAD R1,x; MUL R1,R1; ADD R1,y^2+z^2; SQRT R1; SIN φ; ADD R1,1/(1+x^2); STORE F" >> fisico_output.txt
           find . -name "*.c" -path "*/firmware/*" -exec gcc -c {} -o build/firmware/$(basename {} .c).o \;
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: fisico-firmware
           path: fisico_output.txt
@@ -40,7 +40,7 @@ jobs:
           echo "Wave_Matrix[HEX] = [0x3F800000, 0x40000000, 0x40400000, 0x40800000, 0x40A00000]" >> onda_output.txt
           echo "ASM68: LOAD R2,x; DIV R2,SQRT(x^2+y^2+z^2); COS x/(y+z); SUB R2,COS; SIN φ*z; ADD R2,SIN; STORE D" >> onda_output.txt
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ondulatoria-hdl
           path: onda_output.txt
@@ -49,7 +49,7 @@ jobs:
   quantum_kernel_opcode:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Função QuantumOS + Schrödinger + Opcode
         run: |
           echo "Q(K) = ∫ 1/sqrt(1-v^2/c^2) dK + log(1+K)" > kernel_output.txt
@@ -59,7 +59,7 @@ jobs:
           echo "Kernel_State = Σ c_n |φ_n⟩ where Σ |c_n|^2 = 1" >> kernel_output.txt
           echo "ASM68: LOAD R3,K; INTEGRATE R3,1/SQRT(1-v^2/c^2); LOG(1+K); ADD R3,LOG; STORE Q" >> kernel_output.txt
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: kernel-opcode
           path: kernel_output.txt
@@ -78,7 +78,7 @@ jobs:
           echo "Irrational_Matrix = [π, e, √2, √3, √5, ln(2), sin(1)]" >> retro_output.txt
           echo "ASM68: LOAD R4,x; POW R4,φ; SIN R4; MUL R4,π*√2; EXP i*x; ADD R4,EXP; STORE R" >> retro_output.txt
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: retro-riscv
           path: retro_output.txt
@@ -97,7 +97,7 @@ jobs:
           echo "Complex_Matrix = [[a+bi, c+di], [e+fi, g+hi]]" >> num_output.txt
           echo "ASM68: SQRT x→R5; SQRT y→R6; MUL R6,i; ATAN x/y→R7; ADD R5,R6; ADD R5,R7; STORE N" >> num_output.txt
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: num-asm
           path: num_output.txt
@@ -116,7 +116,7 @@ jobs:
           echo "Trace(M) = Σ λ_i; ||M||_F = sqrt(Σ |a_ij|^2)" >> matriz_output.txt
           echo "High_Level_Matrix[5x5] = Identity(5) * π + Random_Noise" >> matriz_output.txt
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: matrizes-highlevel
           path: matriz_output.txt
@@ -125,7 +125,7 @@ jobs:
   blockchain_docker:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Função HEX + Criptografia + Docker
         run: |
           echo "B(H) = HEX(h) ∧ Binário(h) + Σ(h^n/n!)" > hex_output.txt
@@ -137,7 +137,7 @@ jobs:
           DOCKERFILE_PATH=$(find . -name Dockerfile | head -n 1)
           docker build -t quantum-os-image:latest -f "$DOCKERFILE_PATH" .
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: blockchain-hex
           path: hex_output.txt
@@ -149,7 +149,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Download All Artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
       - name: Função Eternidade + Limites + Release
         run: |
           echo "E(t) = lim_{n→∞} Q(K)^n + ∫0^∞ e^(-t)*Q(K) dt" > eterno_output.txt
