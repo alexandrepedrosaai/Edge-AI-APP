@@ -1,4 +1,4 @@
-name: QuantumOS-Ultra-Expanded
+name: QuantumOS-CCD-Multidimensional-Expanded.yml
 
 on:
   push:
@@ -22,7 +22,7 @@ jobs:
           echo "Matrix_Phys[4x4] = [[cos, -sin, 0, x], [sin, cos, 0, y], [0, 0, 1, z], [0, 0, 0, 1]]" >> fisico_output.txt
           echo "ASM68: LOAD R1,x; MUL R1,R1; ADD R1,y^2+z^2; SQRT R1; SIN phi; ADD R1,1/(1+x^2); STORE F" >> fisico_output.txt
       - name: Upload
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: outputs
           path: fisico_output.txt
@@ -30,7 +30,7 @@ jobs:
   ondulatoria_hdl:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Ondulatoria
         run: |
           echo "D(x,y,z,phi) = x/sqrt(x^2+y^2+z^2) - cos(x/(y+z)) + sin(phi*z)" > onda_output.txt
@@ -40,7 +40,7 @@ jobs:
           echo "Wave_Matrix[HEX] = [0x3F800000, 0x40000000, 0x40400000, 0x40800000, 0x40A00000]" >> onda_output.txt
           echo "ASM68: LOAD R2,x; DIV R2,SQRT(x^2+y^2+z^2); COS x/(y+z); SUB R2,COS; SIN phi*z; ADD R2,SIN; STORE D" >> onda_output.txt
       - name: Upload
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: outputs
           path: onda_output.txt
@@ -58,7 +58,7 @@ jobs:
           echo "Kernel_State = Sigma c_n |phi_n> where Sigma |c_n|^2 = 1" >> kernel_output.txt
           echo "ASM68: LOAD R3,K; INTEGRATE R3,1/SQRT(1-v^2/c^2); LOG(1+K); ADD R3,LOG; STORE Q" >> kernel_output.txt
       - name: Upload
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: outputs
           path: kernel_output.txt
@@ -76,7 +76,7 @@ jobs:
           echo "Irrational_Matrix = [pi, e, sqrt(2), sqrt(3), sqrt(5), ln(2), sin(1)]" >> retro_output.txt
           echo "ASM68: LOAD R4,x; POW R4,phi; SIN R4; MUL R4,pi*sqrt(2); EXP i*x; ADD R4,EXP; STORE R" >> retro_output.txt
       - name: Upload
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: outputs
           path: retro_output.txt
@@ -94,7 +94,7 @@ jobs:
           echo "Complex_Matrix = [[a+bi, c+di], [e+fi, g+hi]]" >> num_output.txt
           echo "ASM68: SQRT x->R5; SQRT y->R6; MUL R6,i; ATAN x/y->R7; ADD R5,R6; ADD R5,R7; STORE N" >> num_output.txt
       - name: Upload
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: outputs
           path: num_output.txt
@@ -112,7 +112,7 @@ jobs:
           echo "Trace(M) = Sigma lambda_i; ||M||_F = sqrt(Sigma |a_ij|^2)" >> matriz_output.txt
           echo "High_Level_Matrix[5x5] = Identity(5) * pi + Random_Noise" >> matriz_output.txt
       - name: Upload
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: outputs
           path: matriz_output.txt
@@ -142,7 +142,7 @@ jobs:
           docker build -t $IMAGE_NAME -f "$DOCKERFILE_PATH" .
           docker push $IMAGE_NAME
       - name: Upload
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: outputs
           path: hex_output.txt
@@ -153,7 +153,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Download
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: outputs
           path: release_assets
