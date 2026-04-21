@@ -1,0 +1,54 @@
+name: SIMULADOR QUÂNTICO MIPS - CI/CD COMPLETO
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - '**.asm'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - '**.asm'
+  workflow_dispatch:
+
+jobs:
+  build-e-processar:
+    name: Compilar, Gerar Binários e Visualizações
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      # 1. Código fonte
+      - name: Checkout repositório
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      # 2. Preparar ambiente completo
+      - name: Instalar dependências
+        run: |
+          sudo apt update -y
+          sudo apt install -y python3 python3-pip zip unzip
+          pip3 install --upgrade pip
+          pip3 install numpy matplotlib plotly trimesh qutip
+        shell: bash
+
+      - name: Configurar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # 3. Baixar e configurar MARS
+      - name: Baixar MARS Simulator
+        run: |
+          wget -q --no-check-certificate https://courses.missouristate.edu/KenVollmar/MARS/MARS_4_5_Aug2014/Mars4_5.jar -O mars.jar
+          chmod +x mars.jar
+
+      # 4. Compilar Assembly para binários
+      - name: Gerar binários .bin e .raw
+        run: |
+          for arquivo in *.asm; do
+            if [ -f "$arquivo" ]; then
+              nome=$(basename "$arquivo" .
