@@ -2,6 +2,10 @@ name: QuantumOS Kernel DL - Ultra Amplified
 
 on:
   push:
+name: QuantumOS Kernel DL - Ultra Amplified
+
+on:
+  push:
     branches: [ "main" ]
 
 jobs:
@@ -15,10 +19,19 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy
+
       - name: High-Dimensional Kernel Matrix (K-Matrix 10x10)
         run: |
           echo "=== Inicializando Matriz de Kernel de Alta Dimensão ==="
-          # Gerando uma representação de matriz 10x10 para estados quânticos massivos
           python3 -c "
           import numpy as np
           np.set_printoptions(precision=4, suppress=True)
@@ -30,7 +43,6 @@ jobs:
       - name: Advanced Linear Transformations (L1, L2, L3)
         run: |
           echo "=== Aplicando Transformações Lineares de Conexão (Commit 0) ==="
-          # L1(K) = A*K + b | L2(K) = K*B | L3(K) = Trace(K) * Identity
           echo "Calculando Projeções de Espaço de Hilbert..."
           echo "L1: Mapeamento de curvatura gravitacional A (10x10)"
           echo "L2: Rotação de fase quântica B (Tensores de Rank-3)"
@@ -39,13 +51,10 @@ jobs:
       - name: Robust Deep Learning (DL 10x Amplified)
         run: |
           echo "=== Executando Deep Learning Quântico Irracional ==="
-          # DL(K) = σ(W3 * σ(W2 * σ(W1 * K + b1) + b2) + b3)
-          # Camadas densas com ativação GELU e Dropout Quântico
           echo "Arquitetura: 10 Camadas Ocultas | 1024 Neurônios por Camada"
           echo "Processando σ(W*K + b) em 10x escala..."
           echo "IA Alternância: Monitorando Dualidade Partícula ↔ Onda"
           
-          # Simulação de convergência de rede neural
           for i in {1..10}; do
             echo "Época $i/10: Loss Quântico = $(echo "scale=6; 1/($i*1.618)" | bc)"
           done
@@ -68,7 +77,6 @@ jobs:
             echo "DL_SIGMOID_CONVERGENCE: 0.999982"
             echo "BINARY_IMMUTABLE: 10101100101011101111000011011011"
             echo "--- HEXADECIMAL ENCODING ---"
-            # Gerando um dump HEX real do estado do sistema
             head -c 512 /dev/urandom | xxd -p
             echo "--- END BLOCKCHAIN LOG ---"
           } > ./dist/blockchain.hex
