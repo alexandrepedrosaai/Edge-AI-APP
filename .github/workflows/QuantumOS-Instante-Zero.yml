@@ -81,7 +81,10 @@ jobs:
         run: |
           echo "${{ github.token }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
+          
+        
       - name: Push Docker image
         run: |
-          docker push ghcr.io/${{ github.repository }}/quantumos:latest
-          
+          REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          docker push ghcr.io/${REPO_LOWER}/quantumos:latest
+
