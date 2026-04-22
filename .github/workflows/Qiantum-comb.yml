@@ -62,12 +62,15 @@ jobs:
       - name: Release Automatizado
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.sha }}
+          tag_name: v-${{ github.sha }}
+          name: QuantumOS Release ${{ github.sha }}
           files: |
             build/fisico.bin
             build/onda.bin
             build/kernel.bin
             build/deploy.bin
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Docker Package (sem segredos/tokens)
       - name: Docker Package
