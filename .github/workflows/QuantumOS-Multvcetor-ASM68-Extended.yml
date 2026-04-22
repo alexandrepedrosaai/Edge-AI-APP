@@ -90,7 +90,7 @@ jobs:
   quantum_kernel:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Kernel - 5 Files & 7 Levels
         run: |
           echo "Q(K) = ∫ 1/sqrt(1-v^2/c^2) dK + log(1+K)" > kernel_formula.txt
