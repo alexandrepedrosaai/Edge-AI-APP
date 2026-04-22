@@ -1,4 +1,4 @@
-name: QuantumOS CI/CD Multidimensional ASM68 Extended
+name: QuantumOS CI/CD Multvcetor ASM68 Extended
 
 on:
   push:
@@ -9,6 +9,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy matplotlib
       - name: Física - 5 Files & 7 Levels
         run: |
           echo "F(x,y,z,φ) = sqrt(x^2+y^2+z^2)*sin(φ) + 1/(1+x^2)" > fisico_formula.txt
@@ -37,7 +45,7 @@ jobs:
       - name: Upload Fisico
         uses: actions/upload-artifact@v4
         with:
-          name: fisico-multidimensional
+          name: fisico-assets
           path: |
             fisico_formula.txt
             fisico_asm68.txt
@@ -50,6 +58,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy matplotlib
       - name: Ondulatória - 5 Files & 7 Levels
         run: |
           echo "D(x,y,z,φ) = x/sqrt(x^2+y^2+z^2) - cos(x/(y+z)) + sin(φ*z)" > onda_formula.txt
@@ -78,7 +94,7 @@ jobs:
       - name: Upload Ondulatoria
         uses: actions/upload-artifact@v4
         with:
-          name: onda-multidimensional
+          name: onda-assets
           path: |
             onda_formula.txt
             onda_asm68.txt
@@ -90,7 +106,15 @@ jobs:
   quantum_kernel:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy matplotlib
       - name: Kernel - 5 Files & 7 Levels
         run: |
           echo "Q(K) = ∫ 1/sqrt(1-v^2/c^2) dK + log(1+K)" > kernel_formula.txt
@@ -102,115 +126,129 @@ jobs:
           echo "Nível 6: Q_state = Q_norm * exp(i*K)" >> kernel_formula.txt
           echo "Nível 7: Ψ_Q = Q_state * e^(-t)" >> kernel_formula.txt
           
-          echo "ASM68: LOAD R3,K; INTEGRATE R3,1/SQRT(1-v^2/c^2); LOG(1+K); ADD R3,LOG; STORE Q" > kernel_asm68.txt
-          echo "SL: Q=2.254; P_Q=Q/10=0.225" > kernel.sl
-          echo "Resultado Q ≈ 2.254" > kernel.bin
+          echo "ASM68: LOAD R3,K; INTEGRATE R3; LOG; ADD; STORE Q" > kernel_asm68.txt
+          echo "SQL: INSERT INTO Kernel VALUES (Q);" > kernel.sql
+          echo "Resultado Q ≈ 1.45" > kernel.bin
           echo "Log: P_Q ≈ 0.225" > kernel.log
       - name: Simulação 3D Kernel
         run: |
           python - <<'EOF'
           import numpy as np, matplotlib.pyplot as plt
           x,y = np.meshgrid(np.linspace(-5,5,100), np.linspace(-5,5,100))
-          z = np.log1p(np.sqrt(x**2+y**2))
-          plt.contourf(x,y,z,20,cmap='inferno')
-          plt.title("Curvas de nível - Kernel QuantumOS")
+          z = np.log(1 + np.abs(x*y))
+          plt.contourf(x,y,z,20,cmap='magma')
+          plt.title("Curvas de nível - Kernel")
           plt.savefig("kernel_3D.png")
           EOF
       - name: Upload Kernel
         uses: actions/upload-artifact@v4
         with:
-          name: kernel-multidimensional
+          name: kernel-assets
           path: |
             kernel_formula.txt
             kernel_asm68.txt
-            kernel.sl
+            kernel.sql
             kernel.bin
             kernel.log
             kernel_3D.png
 
-  eternidade:
+  retrometamorfose:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Eternidade - 5 Files & 7 Levels
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
         run: |
-          echo "E(t) = lim_{n→∞} Q(K)^n + ∫0^∞ e^(-t)*Q(K) dt" > eterno_formula.txt
-          echo "Nível 1: Q_n = Q(K)^n" >> eterno_formula.txt
-          echo "Nível 2: Q_lim = lim(Q_n)" >> eterno_formula.txt
-          echo "Nível 3: f_t = e^(-t)" >> eterno_formula.txt
-          echo "Nível 4: f_int = f_t * Q(K)" >> eterno_formula.txt
-          echo "Nível 5: E_int = ∫ f_int dt" >> eterno_formula.txt
-          echo "Nível 6: E_total = Q_lim + E_int" >> eterno_formula.txt
-          echo "Nível 7: Ψ_E = E_total * exp(-t)" >> eterno_formula.txt
+          python -m pip install --upgrade pip
+          pip install numpy matplotlib
+      - name: Retro - 5 Files & 7 Levels
+        run: |
+          echo "R(x) = π*sqrt(2)*sin(x^φ) + e^(i*x)" > retro_formula.txt
+          echo "Nível 1: R1 = x^φ" >> retro_formula.txt
+          echo "Nível 2: R2 = sin(R1)" >> retro_formula.txt
+          echo "Nível 3: R3 = π*sqrt(2)*R2" >> retro_formula.txt
+          echo "Nível 4: R4 = exp(i*x)" >> retro_formula.txt
+          echo "Nível 5: R5 = R3 + R4" >> retro_formula.txt
+          echo "Nível 6: R_final = abs(R5)" >> retro_formula.txt
+          echo "Nível 7: Ψ_R = R_final * e^(-t)" >> retro_formula.txt
           
-          echo "ASM68: LIMIT Q^n,n→∞→R14; INTEGRATE e^-t*Q(K),0→∞→R15; ADD R14,R15; STORE E" > eterno_asm68.txt
-          echo "SL: Ψ(t) = P_Total * exp(-t)" > eterno.sl
-          echo "Resultado E(t) ≈ função decaimento exponencial" > eterno.bin
-          echo "Log: P_Total ≈ 0.234 → Ψ(t)=0.234*e^(-t)" > eterno.log
-      - name: Simulação 3D Eternidade
+          echo "ASM68: LOAD R4,x; POW R4,φ; SIN; MUL; EXP; ADD; STORE R" > retro_asm68.txt
+          echo "PQL: UPDATE Retro SET Val = R;" > retro.pql
+          echo "Resultado R ≈ 0.88" > retro.bin
+          echo "Log: P_R ≈ 0.12" > retro.log
+      - name: Simulação 3D Retro
         run: |
           python - <<'EOF'
           import numpy as np, matplotlib.pyplot as plt
-          t = np.linspace(0,10,200)
-          psi = 0.234*np.exp(-t)
-          plt.plot(t,psi,label="Ψ(t)")
-          plt.title("Decaimento exponencial - Eternidade Reconstruível")
-          plt.xlabel("t")
-          plt.ylabel("Ψ(t)")
-          plt.legend()
-          plt.grid(True)
-          plt.savefig("eterno_3D.png")
+          x,y = np.meshgrid(np.linspace(-5,5,100), np.linspace(-5,5,100))
+          z = np.sin(x**2 + y**2)
+          plt.contourf(x,y,z,20,cmap='inferno')
+          plt.title("Curvas de nível - Retro")
+          plt.savefig("retro_3D.png")
           EOF
-      - name: Upload Eternidade
+      - name: Upload Retro
         uses: actions/upload-artifact@v4
         with:
-          name: eterno-multidimensional
+          name: retro-assets
           path: |
-            eterno_formula.txt
-            eterno_asm68.txt
-            eterno.sl
-            eterno.bin
-            eterno.log
-            eterno_3D.png
+            retro_formula.txt
+            retro_asm68.txt
+            retro.pql
+            retro.bin
+            retro.log
+            retro_3D.png
 
   release:
     runs-on: ubuntu-latest
-    needs: [fisico, ondulatoria, quantum_kernel, eternidade]
+    needs: [fisico, ondulatoria, quantum_kernel, retrometamorfose]
     permissions:
       contents: write
       packages: write
     steps:
       - uses: actions/checkout@v3
       
-      - name: Baixa Ativos
-        uses: actions/download-artifact@v3
+      - name: Baixa Fisico
+        uses: actions/download-artifact@v4
         with:
+          name: fisico-assets
           path: assets/
-
-      - name: Prepare Release Files
-        run: |
-          mkdir -p release_assets
-          find assets/ -type f -exec cp {} release_assets/ \;
-          tar -czf quantum-multidimensional-assets.tar.gz release_assets/
+      - name: Baixa Ondulatoria
+        uses: actions/download-artifact@v4
+        with:
+          name: onda-assets
+          path: assets/
+      - name: Baixa Kernel
+        uses: actions/download-artifact@v4
+        with:
+          name: kernel-assets
+          path: assets/
+      - name: Baixa Retro
+        uses: actions/download-artifact@v4
+        with:
+          name: retro-assets
+          path: assets/
 
       - name: Create Quantum Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v-multi-${{ github.sha }}
-          name: "QuantumOS Multidimensional Release ${{ github.sha }}"
-          files: quantum-multidimensional-assets.tar.gz
+          tag_name: v-multivector-${{ github.sha }}
+          name: "QuantumOS Multivector Release ${{ github.sha }}"
+          files: assets/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Docker GitHub Package Publish
         run: |
           echo "FROM ubuntu:latest" > Dockerfile
-          echo "COPY release_assets/ /opt/quantumos/multidimensional/" >> Dockerfile
-          echo "CMD [\"ls\", \"-R\", \"/opt/quantumos/multidimensional/\"]" >> Dockerfile
+          echo "COPY assets/ /opt/quantumos/multivector/" >> Dockerfile
+          echo "CMD [\"ls\", \"-R\", \"/opt/quantumos/multivector/\"]" >> Dockerfile
           
           echo "${{ github.token }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           
-          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/quantumos-multidimensional
+          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/quantumos-multivector
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
           
           docker build -t $IMAGE_ID:latest .
