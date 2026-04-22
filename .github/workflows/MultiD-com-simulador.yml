@@ -1,0 +1,247 @@
+name: MultiD com simulador
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  fisico:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Física - 5 Files & 7 Levels
+        run: |
+          echo "F(x,y,z,φ) = sqrt(x^2+y^2+z^2)*sin(φ) + 1/(1+x^2)" > fisico_formula.txt
+          echo "Nível 1: R1 = x^2+y^2+z^2" >> fisico_formula.txt
+          echo "Nível 2: R2 = sqrt(R1)" >> fisico_formula.txt
+          echo "Nível 3: R3 = R2 * sin(φ)" >> fisico_formula.txt
+          echo "Nível 4: R4 = 1+x^2" >> fisico_formula.txt
+          echo "Nível 5: R5 = 1/R4" >> fisico_formula.txt
+          echo "Nível 6: F = R3 + R5" >> fisico_formula.txt
+          echo "Nível 7: Ψ_F = F * exp(-t)" >> fisico_formula.txt
+          
+          echo "ASM68: LOAD R1,x; MUL R1,R1; ADD R1,y^2+z^2; SQRT R1; SIN φ; ADD R1,1/(1+x^2); STORE F" > fisico_asm68.txt
+          echo "PL/SQL: DECLARE F NUMBER; BEGIN F := SQRT(...); END;" > fisico.plsql
+          echo "Resultado F ≈ 2.9" > fisico.bin
+          echo "Log: P_F ≈ 0.34" > fisico.log
+      - name: Simulação 3D Física
+        run: |
+          python - <<'EOF'
+          import numpy as np, matplotlib.pyplot as plt
+          x,y = np.meshgrid(np.linspace(-5,5,100), np.linspace(-5,5,100))
+          z = np.sqrt(x**2+y**2) * np.sin(np.pi/6)
+          plt.contourf(x,y,z,20,cmap='viridis')
+          plt.title("Curvas de nível - Física")
+          plt.savefig("fisico_3D.png")
+          EOF
+      - name: Upload Fisico
+        uses: actions/upload-artifact@v3
+        with:
+          name: fisico-multid
+          path: |
+            fisico_formula.txt
+            fisico_asm68.txt
+            fisico.plsql
+            fisico.bin
+            fisico.log
+            fisico_3D.png
+
+  ondulatoria:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Ondulatória - 5 Files & 7 Levels
+        run: |
+          echo "D(x,y,z,φ) = x/sqrt(x^2+y^2+z^2) - cos(x/(y+z)) + sin(φ*z)" > onda_formula.txt
+          echo "Nível 1: R1 = sqrt(x^2+y^2+z^2)" >> onda_formula.txt
+          echo "Nível 2: R2 = x/R1" >> onda_formula.txt
+          echo "Nível 3: R3 = y+z" >> onda_formula.txt
+          echo "Nível 4: R4 = cos(x/R3)" >> onda_formula.txt
+          echo "Nível 5: R5 = sin(φ*z)" >> onda_formula.txt
+          echo "Nível 6: D = R2 - R4 + R5" >> onda_formula.txt
+          echo "Nível 7: Ψ_D = D * exp(-t)" >> onda_formula.txt
+          
+          echo "ASM68: LOAD R2,x; DIV R2,SQRT(...); COS(...); SUB; SIN φ*z; ADD; STORE D" > onda_asm68.txt
+          echo "PQL: SELECT ... FROM Matriz;" > onda.pql
+          echo "Resultado D ≈ 0.326" > onda.bin
+          echo "Log: P_D ≈ 3.06" > onda.log
+      - name: Simulação 3D Ondulatória
+        run: |
+          python - <<'EOF'
+          import numpy as np, matplotlib.pyplot as plt
+          x,y = np.meshgrid(np.linspace(-5,5,100), np.linspace(-5,5,100))
+          z = np.sin(x) + np.cos(y)
+          plt.contourf(x,y,z,20,cmap='plasma')
+          plt.title("Curvas de nível - Ondulatória")
+          plt.savefig("onda_3D.png")
+          EOF
+      - name: Upload Ondulatoria
+        uses: actions/upload-artifact@v3
+        with:
+          name: onda-multid
+          path: |
+            onda_formula.txt
+            onda_asm68.txt
+            onda.pql
+            onda.bin
+            onda.log
+            onda_3D.png
+
+  quantum_kernel:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Kernel - 5 Files & 7 Levels
+        run: |
+          echo "Q(K) = ∫ 1/sqrt(1-v^2/c^2) dK + log(1+K)" > kernel_formula.txt
+          echo "Nível 1: γ = 1/sqrt(1-v^2/c^2)" >> kernel_formula.txt
+          echo "Nível 2: Q_int = γ * K" >> kernel_formula.txt
+          echo "Nível 3: Q_log = log(1+K)" >> kernel_formula.txt
+          echo "Nível 4: Q_total = Q_int + Q_log" >> kernel_formula.txt
+          echo "Nível 5: Q_norm = Q_total / ΣQi" >> kernel_formula.txt
+          echo "Nível 6: Q_state = Q_norm * exp(i*K)" >> kernel_formula.txt
+          echo "Nível 7: Ψ_Q = Q_state * e^(-t)" >> kernel_formula.txt
+          
+          echo "ASM68: LOAD R3,K; INTEGRATE R3,1/SQRT(1-v^2/c^2); LOG(1+K); ADD R3,LOG; STORE Q" > kernel_asm68.txt
+          echo "SL: Q=2.254; P_Q=Q/10=0.225" > kernel.sl
+          echo "Resultado Q ≈ 2.254" > kernel.bin
+          echo "Log: P_Q ≈ 0.225" > kernel.log
+      - name: Simulação 3D Kernel
+        run: |
+          python - <<'EOF'
+          import numpy as np, matplotlib.pyplot as plt
+          x,y = np.meshgrid(np.linspace(-5,5,100), np.linspace(-5,5,100))
+          z = np.log1p(np.sqrt(x**2+y**2))
+          plt.contourf(x,y,z,20,cmap='inferno')
+          plt.title("Curvas de nível - Kernel QuantumOS")
+          plt.savefig("kernel_3D.png")
+          EOF
+      - name: Upload Kernel
+        uses: actions/upload-artifact@v3
+        with:
+          name: kernel-multid
+          path: |
+            kernel_formula.txt
+            kernel_asm68.txt
+            kernel.sl
+            kernel.bin
+            kernel.log
+            kernel_3D.png
+
+  eternidade:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Eternidade - 5 Files & 7 Levels
+        run: |
+          echo "E(t) = lim_{n→∞} Q(K)^n + ∫0^∞ e^(-t)*Q(K) dt" > eterno_formula.txt
+          echo "Nível 1: Q_n = Q(K)^n" >> eterno_formula.txt
+          echo "Nível 2: Q_lim = lim(Q_n)" >> eterno_formula.txt
+          echo "Nível 3: f_t = e^(-t)" >> eterno_formula.txt
+          echo "Nível 4: f_int = f_t * Q(K)" >> eterno_formula.txt
+          echo "Nível 5: E_int = ∫ f_int dt" >> eterno_formula.txt
+          echo "Nível 6: E_total = Q_lim + E_int" >> eterno_formula.txt
+          echo "Nível 7: Ψ_E = E_total * exp(-t)" >> eterno_formula.txt
+          
+          echo "ASM68: LIMIT Q^n,n→∞→R14; INTEGRATE e^-t*Q(K),0→∞→R15; ADD R14,R15; STORE E" > eterno_asm68.txt
+          echo "SL: Ψ(t) = P_Total * exp(-t)" > eterno.sl
+          echo "Resultado E(t) ≈ função decaimento exponencial" > eterno.bin
+          echo "Log: P_Total ≈ 0.234 → Ψ(t)=0.234*e^(-t)" > eterno.log
+      - name: Simulação 3D Eternidade
+        run: |
+          python - <<'EOF'
+          import numpy as np, matplotlib.pyplot as plt
+          t = np.linspace(0,10,200)
+          psi = 0.234*np.exp(-t)
+          plt.plot(t,psi,label="Ψ(t)")
+          plt.title("Decaimento exponencial - Eternidade Reconstruível")
+          plt.xlabel("t")
+          plt.ylabel("Ψ(t)")
+          plt.legend()
+          plt.grid(True)
+          plt.savefig("eterno_3D.png")
+          EOF
+      - name: Upload Eternidade
+        uses: actions/upload-artifact@v3
+        with:
+          name: eterno-multid
+          path: |
+            eterno_formula.txt
+            eterno_asm68.txt
+            eterno.sl
+            eterno.bin
+            eterno.log
+            eterno_3D.png
+
+  docker_package:
+    runs-on: ubuntu-latest
+    needs: [fisico, ondulatoria, quantum_kernel, eternidade]
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Baixa Ativos
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts/
+
+      - name: Build Docker Image & Package
+        run: |
+          mkdir -p docker_build
+          find artifacts/ -type f -exec cp {} docker_build/ \;
+          
+          # Criar run_simulations.py dentro do pacote
+          cat <<'PYCODE' > docker_build/run_simulations.py
+          import numpy as np
+          import matplotlib.pyplot as plt
+          import os
+
+          os.makedirs("/app/results", exist_ok=True)
+          x,y = np.meshgrid(np.linspace(-5,5,100), np.linspace(-5,5,100))
+          
+          # Física
+          plt.contourf(x,y,np.sqrt(x**2+y**2)*np.sin(np.pi/6),20,cmap="viridis")
+          plt.savefig("/app/results/fisico_run.png"); plt.close()
+
+          # Ondulatória
+          plt.contourf(x,y,np.sin(x)+np.cos(y),20,cmap="plasma")
+          plt.savefig("/app/results/onda_run.png"); plt.close()
+
+          # Kernel
+          plt.contourf(x,y,np.log1p(np.sqrt(x**2+y**2)),20,cmap="inferno")
+          plt.savefig("/app/results/kernel_run.png"); plt.close()
+
+          # Eternidade
+          t = np.linspace(0,10,200)
+          plt.plot(t, 0.234*np.exp(-t))
+          plt.savefig("/app/results/eterno_run.png"); plt.close()
+
+          print("Simulações concluídas em /app/results")
+          PYCODE
+          
+          # Dockerfile
+          echo "FROM python:3.11-slim" > docker_build/Dockerfile
+          echo "WORKDIR /app" >> docker_build/Dockerfile
+          echo "ADD . /app/artifacts" >> docker_build/Dockerfile
+          echo "RUN pip install numpy matplotlib" >> docker_build/Dockerfile
+          echo "CMD [\"python\", \"/app/artifacts/run_simulations.py\"]" >> docker_build/Dockerfile
+          
+          tar -czf quantum-multid-simulador.tar.gz docker_build/
+
+          # Login e Push Docker
+          echo "${{ github.token }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/multid-simulador
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          docker build -t $IMAGE_ID:latest docker_build/
+          docker push $IMAGE_ID:latest
+
+      - name: Automated Quantum Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v-multid-${{ github.sha }}
+          name: "QuantumOS MultiD com simulador Release ${{ github.sha }}"
+          files: quantum-multid-simulador.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
