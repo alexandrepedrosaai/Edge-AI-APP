@@ -65,6 +65,11 @@ jobs:
           echo "A: 0.234 | B: 0.035 | C: 0.151 | D: 0.147 | E: 0.061" >> quantum_deploy.txt
           echo "Ψ(t) = P_Total * e^(-t)" >> quantum_deploy.txt
 
+      - name: Instalar dependências Python
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy matplotlib
+
       - name: Plot Graphs
         run: |
           python - <<'EOF'
