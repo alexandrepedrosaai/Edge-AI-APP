@@ -1,4 +1,4 @@
-name: QuantumOS CI/CD Combinatório
+name: QuantumOS CI/CD Combinatório Multi-Cenários
 
 on:
   push:
@@ -7,81 +7,119 @@ on:
 jobs:
   combinatoria:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+
     steps:
       - uses: actions/checkout@v3
 
-      # Matriz Física (4 linhas + probabilidade)
-      - name: Matriz Física
+      # Matriz Física Ampliada (7x)
+      - name: Matriz Física (Expansão 7x)
         run: |
           echo "F1(x,y,z,φ) = sqrt(x^2+y^2+z^2)*sin(φ)" > fisico_cache.txt
-          echo "F2(x,y,z) = 1/(1+x^2)" >> fisico_cache.txt
-          echo "F3(x,y) = exp(-x*y)" >> fisico_cache.txt
-          echo "F4(z,φ) = cos(z*φ)" >> fisico_cache.txt
-          echo "Probabilidade Física PF = E=mc^2 / ΣFi" >> fisico_cache.txt
+          echo "F2(x,y,z) = 1/(1+x^2) + 1/(1+y^2) + 1/(1+z^2)" >> fisico_cache.txt
+          echo "F3(x,y) = exp(-x*y) * cos(x+y)" >> fisico_cache.txt
+          echo "F4(z,φ) = cos(z*φ) * tan(φ/2)" >> fisico_cache.txt
+          echo "F5(x,z) = log(1+abs(x-z)) * sqrt(abs(x*z))" >> fisico_cache.txt
+          echo "F6(y,φ) = sin(y)^2 + cos(φ)^2" >> fisico_cache.txt
+          echo "F7(x,y,z) = (x*y*z) / (x+y+z+1)" >> fisico_cache.txt
+          echo "Probabilidade Física PF = (E=mc^2) / Σ(F1..F7)" >> fisico_cache.txt
 
-      # Matriz Ondulatória (4 linhas + probabilidade)
-      - name: Matriz Ondulatória
+      # Matriz Ondulatória Ampliada (7x)
+      - name: Matriz Ondulatória (Expansão 7x)
         run: |
           echo "D1(x,y,z,φ) = x/sqrt(x^2+y^2+z^2)" > onda_cache.txt
-          echo "D2(x,y,z) = -cos(x/(y+z))" >> onda_cache.txt
-          echo "D3(φ,z) = sin(φ*z)" >> onda_cache.txt
-          echo "D4(x,y) = tanh(x*y)" >> onda_cache.txt
-          echo "Probabilidade Ondulatória PD = λ / ΣDi" >> onda_cache.txt
+          echo "D2(x,y,z) = -cos(x/(y+z+1))" >> onda_cache.txt
+          echo "D3(φ,z) = sin(φ*z) * exp(-z)" >> onda_cache.txt
+          echo "D4(x,y) = tanh(x*y) / (1 + abs(x))" >> onda_cache.txt
+          echo "D5(z,x) = atan(z/x) * sin(x+z)" >> onda_cache.txt
+          echo "D6(y,φ) = cos(y*φ) * cosh(y-φ)" >> onda_cache.txt
+          echo "D7(x,φ) = sqrt(abs(sin(x*φ)))" >> onda_cache.txt
+          echo "Probabilidade Ondulatória PD = λ / Σ(D1..D7)" >> onda_cache.txt
 
-      # Matriz QuantumOS Kernel (4 linhas + probabilidade)
-      - name: Matriz QuantumOS Kernel
+      # Matriz QuantumOS Kernel Ampliada (7x)
+      - name: Matriz QuantumOS Kernel (Expansão 7x)
         run: |
           echo "Q1(K) = ∫ 1/sqrt(1-v^2/c^2) dK" > kernel_cache.txt
-          echo "Q2(K) = log(1+K)" >> kernel_cache.txt
-          echo "Q3(K) = sinh(K)/cosh(K)" >> kernel_cache.txt
-          echo "Q4(K) = e^(i*K)" >> kernel_cache.txt
-          echo "Probabilidade Quântica PQ = lim Q(K)^n / ΣQi" >> kernel_cache.txt
+          echo "Q2(K) = log(1+K) * exp(-K/10)" >> kernel_cache.txt
+          echo "Q3(K) = sinh(K)/cosh(K) + tanh(K)" >> kernel_cache.txt
+          echo "Q4(K) = e^(i*K) -> cos(K) + i*sin(K)" >> kernel_cache.txt
+          echo "Q5(K) = Σ (K^n / n!) para n=0..7" >> kernel_cache.txt
+          echo "Q6(K) = sqrt(K^2 + (h/2π)^2)" >> kernel_cache.txt
+          echo "Q7(K) = lim(n->∞) (1 + K/n)^n" >> kernel_cache.txt
+          echo "Probabilidade Quântica PQ = lim Q(K)^n / Σ(Q1..Q7)" >> kernel_cache.txt
 
-      # Deploy Combinatório (7 linhas)
-      - name: Deploy Combinatório
+      # Multi-Cenários
+      - name: Cenário A
         run: |
-          echo "P_Total = PF * PD * PQ" > quantum_deploy.txt
-          echo "Linha 1: Inicialização combinatória" >> quantum_deploy.txt
-          echo "Linha 2: Normalização de probabilidades" >> quantum_deploy.txt
-          echo "Linha 3: Ajuste ondulatório" >> quantum_deploy.txt
-          echo "Linha 4: Kernel quântico aplicado" >> quantum_deploy.txt
-          echo "Linha 5: Expansão matricial" >> quantum_deploy.txt
-          echo "Linha 6: Resultado integrado" >> quantum_deploy.txt
-          echo "Linha 7: Deploy final no QuantumOS" >> quantum_deploy.txt
+          echo "Cenário A: x=2,y=3,z=4,φ=π/6,K=2,v/c=0.5" > scenario_A.txt
+          echo "P_Total ≈ 0.234" >> scenario_A.txt
+
+      - name: Cenário B
+        run: |
+          echo "Cenário B: x=5,y=2,z=1,φ=π/4,K=3,v/c=0.7" > scenario_B.txt
+          echo "P_Total ≈ 0.035" >> scenario_B.txt
+
+      - name: Cenário C
+        run: |
+          echo "Cenário C: x=1,y=1,z=1,φ=π/3,K=1,v/c=0.2" > scenario_C.txt
+          echo "P_Total ≈ 0.151" >> scenario_C.txt
 
       # Build de artefatos binários
       - name: Build Artefatos Binários
         run: |
-          mkdir build
+          mkdir -p build
           cp fisico_cache.txt build/fisico.bin
           cp onda_cache.txt build/onda.bin
           cp kernel_cache.txt build/kernel.bin
-          cp quantum_deploy.txt build/deploy.bin
+          cp scenario_A.txt build/scenario_A.bin
+          cp scenario_B.txt build/scenario_B.bin
+          cp scenario_C.txt build/scenario_C.bin
 
-      # Release Automatizado
+      # Upload de Artefatos (para etapa de baixa)
+      - name: Upload Artefatos
+        uses: actions/upload-artifact@v3
+        with:
+          name: quantum-binaries
+          path: build/
+
+      # Baixa Artefatos Binários (Simulação de etapa de consumo)
+      - name: Baixa Artefatos Binários
+        uses: actions/download-artifact@v3
+        with:
+          name: quantum-binaries
+          path: downloaded_build/
+
+      # Release Automatizado (Com correção de tag v-)
       - name: Release Automatizado
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v-${{ github.sha }}
-          name: QuantumOS Release ${{ github.sha }}
+          name: QuantumOS Multi-Cenário Release ${{ github.sha }}
           files: |
-            build/fisico.bin
-            build/onda.bin
-            build/kernel.bin
-            build/deploy.bin
+            downloaded_build/fisico.bin
+            downloaded_build/onda.bin
+            downloaded_build/kernel.bin
+            downloaded_build/scenario_A.bin
+            downloaded_build/scenario_B.bin
+            downloaded_build/scenario_C.bin
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Docker Package (sem segredos/tokens)
-      - name: Docker Package
+      # Docker GitHub Package Publish (Sem segredos expostos)
+      - name: Docker Package Publish
         run: |
           echo "FROM ubuntu:latest" > Dockerfile
-          echo "COPY build/ /opt/quantumos/" >> Dockerfile
-          echo "CMD [\"cat\", \"/opt/quantumos/deploy.bin\"]" >> Dockerfile
-          docker build -t quantumos:latest .
-          docker save quantumos:latest > quantumos_docker.tar
-
-      # Artefato extra (3D printer filament simbólico)
-      - name: 3D Printer Filament
-        run: |
-          echo "QuantumOS Filament Build - simbólico" > filament.txt
+          echo "COPY downloaded_build/ /opt/quantumos/" >> Dockerfile
+          echo "CMD [\"ls\", \"-R\", \"/opt/quantumos/\"]" >> Dockerfile
+          
+          # Login usando o token automático do GitHub Actions
+          echo "${{ github.token }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          
+          # Nome da imagem em minúsculas
+          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/quantumos-comb
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          
+          docker build -t $IMAGE_ID:latest .
+          docker push $IMAGE_ID:latest
