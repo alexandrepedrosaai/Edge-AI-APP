@@ -55,13 +55,13 @@ jobs:
           cp scenario_C.txt build/scenario_C.bin
 
       - name: Upload Artefatos
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: quantum-scenarios
           path: build/
 
       - name: Baixa Artefatos Binários
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: quantum-scenarios
           path: downloaded_build/
