@@ -36,7 +36,7 @@ jobs:
           plt.savefig("fisico_3D.png")
           EOF
       - name: Upload Fisico
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: fisico-multidimensional
           path: |
