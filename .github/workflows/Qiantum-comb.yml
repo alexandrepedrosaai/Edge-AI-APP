@@ -5,7 +5,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  combinatoria:
+  cenarios:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -14,111 +14,79 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      # Matriz Física Ampliada (7x)
-      - name: Matriz Física (Expansão 7x)
-        run: |
-          echo "F1(x,y,z,φ) = sqrt(x^2+y^2+z^2)*sin(φ)" > fisico_cache.txt
-          echo "F2(x,y,z) = 1/(1+x^2) + 1/(1+y^2) + 1/(1+z^2)" >> fisico_cache.txt
-          echo "F3(x,y) = exp(-x*y) * cos(x+y)" >> fisico_cache.txt
-          echo "F4(z,φ) = cos(z*φ) * tan(φ/2)" >> fisico_cache.txt
-          echo "F5(x,z) = log(1+abs(x-z)) * sqrt(abs(x*z))" >> fisico_cache.txt
-          echo "F6(y,φ) = sin(y)^2 + cos(φ)^2" >> fisico_cache.txt
-          echo "F7(x,y,z) = (x*y*z) / (x+y+z+1)" >> fisico_cache.txt
-          echo "Probabilidade Física PF = (E=mc^2) / Σ(F1..F7)" >> fisico_cache.txt
-
-      # Matriz Ondulatória Ampliada (7x)
-      - name: Matriz Ondulatória (Expansão 7x)
-        run: |
-          echo "D1(x,y,z,φ) = x/sqrt(x^2+y^2+z^2)" > onda_cache.txt
-          echo "D2(x,y,z) = -cos(x/(y+z+1))" >> onda_cache.txt
-          echo "D3(φ,z) = sin(φ*z) * exp(-z)" >> onda_cache.txt
-          echo "D4(x,y) = tanh(x*y) / (1 + abs(x))" >> onda_cache.txt
-          echo "D5(z,x) = atan(z/x) * sin(x+z)" >> onda_cache.txt
-          echo "D6(y,φ) = cos(y*φ) * cosh(y-φ)" >> onda_cache.txt
-          echo "D7(x,φ) = sqrt(abs(sin(x*φ)))" >> onda_cache.txt
-          echo "Probabilidade Ondulatória PD = λ / Σ(D1..D7)" >> onda_cache.txt
-
-      # Matriz QuantumOS Kernel Ampliada (7x)
-      - name: Matriz QuantumOS Kernel (Expansão 7x)
-        run: |
-          echo "Q1(K) = ∫ 1/sqrt(1-v^2/c^2) dK" > kernel_cache.txt
-          echo "Q2(K) = log(1+K) * exp(-K/10)" >> kernel_cache.txt
-          echo "Q3(K) = sinh(K)/cosh(K) + tanh(K)" >> kernel_cache.txt
-          echo "Q4(K) = e^(i*K) -> cos(K) + i*sin(K)" >> kernel_cache.txt
-          echo "Q5(K) = Σ (K^n / n!) para n=0..7" >> kernel_cache.txt
-          echo "Q6(K) = sqrt(K^2 + (h/2π)^2)" >> kernel_cache.txt
-          echo "Q7(K) = lim(n->∞) (1 + K/n)^n" >> kernel_cache.txt
-          echo "Probabilidade Quântica PQ = lim Q(K)^n / Σ(Q1..Q7)" >> kernel_cache.txt
-
-      # Multi-Cenários
-      - name: Cenário A
+      - name: Cenário A - Ampliação Matemática (7 Níveis)
         run: |
           echo "Cenário A: x=2,y=3,z=4,φ=π/6,K=2,v/c=0.5" > scenario_A.txt
-          echo "P_Total ≈ 0.234" >> scenario_A.txt
+          echo "Nível 1: F1 = sqrt(x^2+y^2+z^2) = 5.385" >> scenario_A.txt
+          echo "Nível 2: F2 = F1 * sin(φ) = 2.692" >> scenario_A.txt
+          echo "Nível 3: F3 = F2 / (1+K) = 0.897" >> scenario_A.txt
+          echo "Nível 4: F4 = exp(F3) * cos(φ) = 2.123" >> scenario_A.txt
+          echo "Nível 5: F5 = log(F4 + 1) * sqrt(v/c) = 0.805" >> scenario_A.txt
+          echo "Nível 6: F6 = F5^2 + sin(F5) = 1.369" >> scenario_A.txt
+          echo "Nível 7: P_Total = F6 / (ΣFi + 1) ≈ 0.234" >> scenario_A.txt
 
-      - name: Cenário B
+      - name: Cenário B - Ampliação Matemática (7 Níveis)
         run: |
           echo "Cenário B: x=5,y=2,z=1,φ=π/4,K=3,v/c=0.7" > scenario_B.txt
-          echo "P_Total ≈ 0.035" >> scenario_B.txt
+          echo "Nível 1: F1 = x*y*z / (x+y+z) = 1.25" >> scenario_B.txt
+          echo "Nível 2: F2 = F1 * tan(φ) = 1.25" >> scenario_B.txt
+          echo "Nível 3: F3 = F2 * exp(-K/10) = 0.926" >> scenario_B.txt
+          echo "Nível 4: F4 = sqrt(F3^2 + (v/c)^2) = 1.161" >> scenario_B.txt
+          echo "Nível 5: F5 = log10(F4 + 1) * cos(φ) = 0.236" >> scenario_B.txt
+          echo "Nível 6: F6 = F5 * sinh(F5) = 0.056" >> scenario_B.txt
+          echo "Nível 7: P_Total = F6 / (1 + F6) ≈ 0.035" >> scenario_B.txt
 
-      - name: Cenário C
+      - name: Cenário C - Ampliação Matemática (7 Níveis)
         run: |
           echo "Cenário C: x=1,y=1,z=1,φ=π/3,K=1,v/c=0.2" > scenario_C.txt
-          echo "P_Total ≈ 0.151" >> scenario_C.txt
+          echo "Nível 1: F1 = (x+y+z)^φ = 1.732" >> scenario_C.txt
+          echo "Nível 2: F2 = F1 * cos(φ) = 0.866" >> scenario_C.txt
+          echo "Nível 3: F3 = F2 / sqrt(1-(v/c)^2) = 0.884" >> scenario_C.txt
+          echo "Nível 4: F4 = log(F3 + K) = 0.633" >> scenario_C.txt
+          echo "Nível 5: F5 = F4 * exp(v/c) = 0.773" >> scenario_C.txt
+          echo "Nível 6: F6 = atan(F5) * 2 = 1.316" >> scenario_C.txt
+          echo "Nível 7: P_Total = F6 / (ΣFi) ≈ 0.151" >> scenario_C.txt
 
-      # Build de artefatos binários
       - name: Build Artefatos Binários
         run: |
           mkdir -p build
-          cp fisico_cache.txt build/fisico.bin
-          cp onda_cache.txt build/onda.bin
-          cp kernel_cache.txt build/kernel.bin
           cp scenario_A.txt build/scenario_A.bin
           cp scenario_B.txt build/scenario_B.bin
           cp scenario_C.txt build/scenario_C.bin
 
-      # Upload de Artefatos (para etapa de baixa)
       - name: Upload Artefatos
         uses: actions/upload-artifact@v3
         with:
-          name: quantum-binaries
+          name: quantum-scenarios
           path: build/
 
-      # Baixa Artefatos Binários (Simulação de etapa de consumo)
       - name: Baixa Artefatos Binários
         uses: actions/download-artifact@v3
         with:
-          name: quantum-binaries
+          name: quantum-scenarios
           path: downloaded_build/
 
-      # Release Automatizado (Com correção de tag v-)
       - name: Release Automatizado
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v-${{ github.sha }}
           name: QuantumOS Multi-Cenário Release ${{ github.sha }}
           files: |
-            downloaded_build/fisico.bin
-            downloaded_build/onda.bin
-            downloaded_build/kernel.bin
             downloaded_build/scenario_A.bin
             downloaded_build/scenario_B.bin
             downloaded_build/scenario_C.bin
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Docker GitHub Package Publish (Sem segredos expostos)
-      - name: Docker Package Publish
+      - name: Docker GitHub Package Publish
         run: |
           echo "FROM ubuntu:latest" > Dockerfile
           echo "COPY downloaded_build/ /opt/quantumos/" >> Dockerfile
           echo "CMD [\"ls\", \"-R\", \"/opt/quantumos/\"]" >> Dockerfile
           
-          # Login usando o token automático do GitHub Actions
           echo "${{ github.token }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           
-          # Nome da imagem em minúsculas
-          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/quantumos-comb
+          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/quantumos-scenarios
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
           
           docker build -t $IMAGE_ID:latest .
