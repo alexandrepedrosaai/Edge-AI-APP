@@ -1,0 +1,165 @@
+name: QuantumOS CI/CD Multi-Cenarios Graphs
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build_cenarios:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Cenário A (PL/SQL) - Ampliação 7 Níveis
+        run: |
+          echo "PL/SQL: P_F=0.34, P_D=3.06, P_Q=0.225, P_Total=0.234" > scenario_A.plsql
+          echo "Nível 1: F1 = sqrt(P_F^2 + P_D^2) = 3.078" >> scenario_A.plsql
+          echo "Nível 2: F2 = F1 * cos(P_Q) = 3.001" >> scenario_A.plsql
+          echo "Nível 3: F3 = log(F2 + 1) = 1.386" >> scenario_A.plsql
+          echo "Nível 4: F4 = exp(F3/10) = 1.148" >> scenario_A.plsql
+          echo "Nível 5: F5 = F4 * sin(P_Total) = 0.266" >> scenario_A.plsql
+          echo "Nível 6: F6 = F5^2 + sqrt(F5) = 0.586" >> scenario_A.plsql
+          echo "Nível 7: Ψ_A = F6 * e^(-t) -> Estabilidade Quântica" >> scenario_A.plsql
+
+      - name: Cenário B (PQL) - Ampliação 7 Níveis
+        run: |
+          echo "PQL: P_F=0.196, P_D=0.645, P_Q=0.279, P_Total=0.035" > scenario_B.pql
+          echo "Nível 1: F1 = P_F * P_D * P_Q = 0.035" >> scenario_B.pql
+          echo "Nível 2: F2 = F1 / (P_F + P_D) = 0.041" >> scenario_B.pql
+          echo "Nível 3: F3 = atan(F2) = 0.041" >> scenario_B.pql
+          echo "Nível 4: F4 = F3 * exp(P_Q) = 0.054" >> scenario_B.pql
+          echo "Nível 5: F5 = sqrt(abs(F4 - P_Total)) = 0.138" >> scenario_B.pql
+          echo "Nível 6: F6 = log10(F5 + 1) = 0.056" >> scenario_B.pql
+          echo "Nível 7: Ψ_B = F6 * e^(-t) -> Decaimento Rápido" >> scenario_B.pql
+
+      - name: Cenário C (SL) - Ampliação 7 Níveis
+        run: |
+          echo "SL: P_F=0.5, P_D=1.77, P_Q=0.171, P_Total=0.151" > scenario_C.sl
+          echo "Nível 1: F1 = (P_F + P_D)^P_Q = 1.145" >> scenario_C.sl
+          echo "Nível 2: F2 = F1 * sin(P_F) = 0.549" >> scenario_C.sl
+          echo "Nível 3: F3 = F2 / (1 + P_Q) = 0.469" >> scenario_C.sl
+          echo "Nível 4: F4 = exp(-F3) = 0.625" >> scenario_C.sl
+          echo "Nível 5: F5 = log(F4 + 2) = 0.965" >> scenario_C.sl
+          echo "Nível 6: F6 = sqrt(F5) * cos(P_Total) = 0.971" >> scenario_C.sl
+          echo "Nível 7: Ψ_C = F6 * e^(-t) -> Ressonância Harmônica" >> scenario_C.sl
+
+      - name: Cenário D (PL/SQL) - Ampliação 7 Níveis
+        run: |
+          echo "PL/SQL: P_F=0.28, P_D=2.1, P_Q=0.25, P_Total=0.147" > scenario_D.plsql
+          echo "Nível 1: F1 = P_D / P_F = 7.5" >> scenario_D.plsql
+          echo "Nível 2: F2 = log(F1) * P_Q = 0.503" >> scenario_D.plsql
+          echo "Nível 3: F3 = F2^2 = 0.253" >> scenario_D.plsql
+          echo "Nível 4: F4 = sqrt(F3 + P_Total) = 0.632" >> scenario_D.plsql
+          echo "Nível 5: F5 = sin(F4) * exp(P_F) = 0.781" >> scenario_D.plsql
+          echo "Nível 6: F6 = F5 / (1 + P_Q) = 0.625" >> scenario_D.plsql
+          echo "Nível 7: Ψ_D = F6 * e^(-t) -> Convergência Linear" >> scenario_D.plsql
+
+      - name: Cenário E (PQL+SL) - Ampliação 7 Níveis
+        run: |
+          echo "PQL/SL: P_F=0.22, P_D=0.9, P_Q=0.31, P_Total=0.061" > scenario_E.pqlsl
+          echo "Nível 1: F1 = P_F + P_D + P_Q = 1.43" >> scenario_E.pqlsl
+          echo "Nível 2: F2 = F1 * P_Total = 0.087" >> scenario_E.pqlsl
+          echo "Nível 3: F3 = sqrt(F2) = 0.295" >> scenario_E.pqlsl
+          echo "Nível 4: F4 = tanh(F3) = 0.287" >> scenario_E.pqlsl
+          echo "Nível 5: F5 = exp(F4) * cos(P_F) = 1.301" >> scenario_E.pqlsl
+          echo "Nível 6: F6 = log(F5) = 0.263" >> scenario_E.pqlsl
+          echo "Nível 7: Ψ_E = F6 * e^(-t) -> Entropia Reduzida" >> scenario_E.pqlsl
+
+      - name: Quantum Deploy
+        run: |
+          echo "Tabela comparativa dos cinco cenários (Ampliada):" > quantum_deploy.txt
+          echo "A: 0.234 | B: 0.035 | C: 0.151 | D: 0.147 | E: 0.061" >> quantum_deploy.txt
+          echo "Ψ(t) = P_Total * e^(-t)" >> quantum_deploy.txt
+          echo "Status: Deploy Combinatório Ativado" >> quantum_deploy.txt
+
+      - name: Plot Graphs
+        run: |
+          python - <<'EOF'
+          import numpy as np
+          import matplotlib.pyplot as plt
+
+          scenarios = {
+              "A": 0.234,
+              "B": 0.035,
+              "C": 0.151,
+              "D": 0.147,
+              "E": 0.061
+          }
+
+          t = np.linspace(0, 10, 200)
+          plt.figure(figsize=(10,7))
+          for label, P in scenarios.items():
+              plt.plot(t, P*np.exp(-t), label=f"Cenário {label} (P={P})", linewidth=2)
+          plt.title("Curvas de Probabilidade Quântica Ψ(t) - 5 Cenários", fontsize=14)
+          plt.xlabel("Tempo (t)", fontsize=12)
+          plt.ylabel("Amplitude Ψ(t)", fontsize=12)
+          plt.legend()
+          plt.grid(True, linestyle='--', alpha=0.7)
+          plt.savefig("quantum_curves.png", dpi=300)
+          EOF
+
+      - name: Build Artefatos Binários
+        run: |
+          mkdir -p build
+          cp scenario_A.plsql build/
+          cp scenario_B.pql build/
+          cp scenario_C.sl build/
+          cp scenario_D.plsql build/
+          cp scenario_E.pqlsl build/
+          cp quantum_deploy.txt build/
+          cp quantum_curves.png build/
+
+      - name: Upload Artefatos
+        uses: actions/upload-artifact@v3
+        with:
+          name: quantum-graphs-assets
+          path: build/
+
+  release:
+    runs-on: ubuntu-latest
+    needs: [build_cenarios]
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Baixa Artefatos Binários
+        uses: actions/download-artifact@v3
+        with:
+          name: quantum-graphs-assets
+          path: downloaded_assets/
+
+      - name: Automated Quantum Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v-graphs-${{ github.sha }}
+          name: "QuantumOS Graphs Release ${{ github.sha }}"
+          files: |
+            downloaded_assets/scenario_A.plsql
+            downloaded_assets/scenario_B.pql
+            downloaded_assets/scenario_C.sl
+            downloaded_assets/scenario_D.plsql
+            downloaded_assets/scenario_E.pqlsl
+            downloaded_assets/quantum_deploy.txt
+            downloaded_assets/quantum_curves.png
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker GitHub Package Publish
+        run: |
+          echo "FROM ubuntu:latest" > Dockerfile
+          echo "COPY downloaded_assets/ /opt/quantumos/graphs/" >> Dockerfile
+          echo "CMD [\"ls\", \"-R\", \"/opt/quantumos/graphs/\"]" >> Dockerfile
+          
+          echo "${{ github.token }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          
+          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/quantumos-graphs
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          
+          docker build -t $IMAGE_ID:latest .
+          docker push $IMAGE_ID:latest
