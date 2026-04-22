@@ -32,7 +32,7 @@ jobs:
 
       - name: Baixar MARS Simulator
         run: |
-          curl -L https://github.com/dpetersanderson/MARS/releases/download/v.4.5.1/Mars4_5.jar -o mars.jar
+          curl -L https://github.com/dpetersanderson/MARS/releases/download/v.4.5/Mars4_5.jar -o mars.jar
           chmod +x mars.jar
 
       - name: Gerar binários MIPS
