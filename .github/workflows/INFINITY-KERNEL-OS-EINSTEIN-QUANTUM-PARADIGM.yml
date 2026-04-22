@@ -109,7 +109,7 @@ jobs:
 
       - name: Download MARS Simulator
         run: |
-          wget -q --no-check-certificate https://courses.missouristate.edu/KenVollmar/MARS/MARS_4_5_Aug2014/Mars4_5.jar -O mars.jar
+          wget -q https://github.com/dpetersanderson/MARS/releases/download/v.4.5.1/Mars4_5.jar -O mars.jar
           chmod +x mars.jar
 
       # ==================================================
