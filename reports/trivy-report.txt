@@ -16,9 +16,9 @@ Report Summary
 ├────────────────────────────────────────┼───────────────────┼─────────────────┼─────────┤
 │ mix.lock                               │        hex        │        0        │    -    │
 ├────────────────────────────────────────┼───────────────────┼─────────────────┼─────────┤
-│ package-lock.json                      │        npm        │       11        │    -    │
+│ package-lock.json                      │        npm        │       14        │    -    │
 ├────────────────────────────────────────┼───────────────────┼─────────────────┼─────────┤
-│ pnpm-lock.yaml                         │       pnpm        │       11        │    -    │
+│ pnpm-lock.yaml                         │       pnpm        │       14        │    -    │
 ├────────────────────────────────────────┼───────────────────┼─────────────────┼─────────┤
 │ python-core/requirements.txt           │        pip        │        6        │    -    │
 └────────────────────────────────────────┴───────────────────┴─────────────────┴─────────┘
@@ -166,7 +166,7 @@ Total: 21 (UNKNOWN: 0, LOW: 0, MEDIUM: 11, HIGH: 8, CRITICAL: 2)
 
 package-lock.json (npm)
 =======================
-Total: 11 (UNKNOWN: 0, LOW: 0, MEDIUM: 7, HIGH: 4, CRITICAL: 0)
+Total: 14 (UNKNOWN: 0, LOW: 0, MEDIUM: 10, HIGH: 4, CRITICAL: 0)
 
 ┌──────────────────┬─────────────────────┬──────────┬────────┬───────────────────┬─────────────────────┬──────────────────────────────────────────────────────────────┐
 │     Library      │    Vulnerability    │ Severity │ Status │ Installed Version │    Fixed Version    │                            Title                             │
@@ -179,7 +179,18 @@ Total: 11 (UNKNOWN: 0, LOW: 0, MEDIUM: 7, HIGH: 4, CRITICAL: 0)
 │                  │                     │          │        │                   │                     │ escalation                                                   │
 │                  │                     │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-40175                   │
 ├──────────────────┼─────────────────────┤          │        ├───────────────────┼─────────────────────┼──────────────────────────────────────────────────────────────┤
-│ dompurify        │ GHSA-39q2-94rc-95cp │          │        │ 3.3.3             │ 3.4.0               │ DOMPurify's ADD_TAGS function form bypasses FORBID_TAGS due  │
+│ dompurify        │ CVE-2026-41238      │          │        │ 3.3.3             │ 3.4.0               │ DOMPurify: Prototype Pollution to XSS Bypass via             │
+│                  │                     │          │        │                   │                     │ CUSTOM_ELEMENT_HANDLING Fallback                             │
+│                  │                     │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-41238                   │
+│                  ├─────────────────────┤          │        │                   │                     ├──────────────────────────────────────────────────────────────┤
+│                  │ CVE-2026-41239      │          │        │                   │                     │ DOMPurify has a SAFE_FOR_TEMPLATES bypass in RETURN_DOM mode │
+│                  │                     │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-41239                   │
+│                  ├─────────────────────┤          │        │                   │                     ├──────────────────────────────────────────────────────────────┤
+│                  │ CVE-2026-41240      │          │        │                   │                     │ DOMPurify: FORBID_TAGS bypassed by function-based ADD_TAGS   │
+│                  │                     │          │        │                   │                     │ predicate (asymmetry with FORBID_ATTR fix)                   │
+│                  │                     │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-41240                   │
+│                  ├─────────────────────┤          │        │                   │                     ├──────────────────────────────────────────────────────────────┤
+│                  │ GHSA-39q2-94rc-95cp │          │        │                   │                     │ DOMPurify's ADD_TAGS function form bypasses FORBID_TAGS due  │
 │                  │                     │          │        │                   │                     │ to short-circuit evaluation                                  │
 │                  │                     │          │        │                   │                     │ https://github.com/advisories/GHSA-39q2-94rc-95cp            │
 ├──────────────────┼─────────────────────┤          │        ├───────────────────┼─────────────────────┼──────────────────────────────────────────────────────────────┤
@@ -218,7 +229,7 @@ Total: 11 (UNKNOWN: 0, LOW: 0, MEDIUM: 7, HIGH: 4, CRITICAL: 0)
 
 pnpm-lock.yaml (pnpm)
 =====================
-Total: 11 (UNKNOWN: 0, LOW: 0, MEDIUM: 7, HIGH: 4, CRITICAL: 0)
+Total: 14 (UNKNOWN: 0, LOW: 0, MEDIUM: 10, HIGH: 4, CRITICAL: 0)
 
 ┌──────────────────┬─────────────────────┬──────────┬────────┬───────────────────┬─────────────────────┬──────────────────────────────────────────────────────────────┐
 │     Library      │    Vulnerability    │ Severity │ Status │ Installed Version │    Fixed Version    │                            Title                             │
@@ -231,7 +242,18 @@ Total: 11 (UNKNOWN: 0, LOW: 0, MEDIUM: 7, HIGH: 4, CRITICAL: 0)
 │                  │                     │          │        │                   │                     │ escalation                                                   │
 │                  │                     │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-40175                   │
 ├──────────────────┼─────────────────────┤          │        ├───────────────────┼─────────────────────┼──────────────────────────────────────────────────────────────┤
-│ dompurify        │ GHSA-39q2-94rc-95cp │          │        │ 3.3.3             │ 3.4.0               │ DOMPurify's ADD_TAGS function form bypasses FORBID_TAGS due  │
+│ dompurify        │ CVE-2026-41238      │          │        │ 3.3.3             │ 3.4.0               │ DOMPurify: Prototype Pollution to XSS Bypass via             │
+│                  │                     │          │        │                   │                     │ CUSTOM_ELEMENT_HANDLING Fallback                             │
+│                  │                     │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-41238                   │
+│                  ├─────────────────────┤          │        │                   │                     ├──────────────────────────────────────────────────────────────┤
+│                  │ CVE-2026-41239      │          │        │                   │                     │ DOMPurify has a SAFE_FOR_TEMPLATES bypass in RETURN_DOM mode │
+│                  │                     │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-41239                   │
+│                  ├─────────────────────┤          │        │                   │                     ├──────────────────────────────────────────────────────────────┤
+│                  │ CVE-2026-41240      │          │        │                   │                     │ DOMPurify: FORBID_TAGS bypassed by function-based ADD_TAGS   │
+│                  │                     │          │        │                   │                     │ predicate (asymmetry with FORBID_ATTR fix)                   │
+│                  │                     │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-41240                   │
+│                  ├─────────────────────┤          │        │                   │                     ├──────────────────────────────────────────────────────────────┤
+│                  │ GHSA-39q2-94rc-95cp │          │        │                   │                     │ DOMPurify's ADD_TAGS function form bypasses FORBID_TAGS due  │
 │                  │                     │          │        │                   │                     │ to short-circuit evaluation                                  │
 │                  │                     │          │        │                   │                     │ https://github.com/advisories/GHSA-39q2-94rc-95cp            │
 ├──────────────────┼─────────────────────┤          │        ├───────────────────┼─────────────────────┼──────────────────────────────────────────────────────────────┤
