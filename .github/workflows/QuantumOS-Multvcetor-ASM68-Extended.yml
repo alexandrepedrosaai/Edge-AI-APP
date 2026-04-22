@@ -1,0 +1,223 @@
+name: QuantumOS CI/CD Multvcetor ASM68 Extended
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  fisico:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Física - 5 Files & 7 Levels
+        run: |
+          echo "F(x,y,z,φ) = sqrt(x^2+y^2+z^2)*sin(φ) + 1/(1+x^2)" > fisico_formula.txt
+          echo "Nível 1: R1 = x^2+y^2+z^2" >> fisico_formula.txt
+          echo "Nível 2: R2 = sqrt(R1)" >> fisico_formula.txt
+          echo "Nível 3: R3 = R2 * sin(φ)" >> fisico_formula.txt
+          echo "Nível 4: R4 = 1+x^2" >> fisico_formula.txt
+          echo "Nível 5: R5 = 1/R4" >> fisico_formula.txt
+          echo "Nível 6: F = R3 + R5" >> fisico_formula.txt
+          echo "Nível 7: Ψ_F = F * exp(-t)" >> fisico_formula.txt
+          
+          echo "ASM68: LOAD R1,x; MUL R1,R1; ADD R1,y^2+z^2; SQRT R1; SIN φ; ADD R1,1/(1+x^2); STORE F" > fisico_asm68.txt
+          echo "PL/SQL: DECLARE F NUMBER; BEGIN F := SQRT(...); END;" > fisico.plsql
+          echo "Resultado F ≈ 2.9" > fisico.bin
+          echo "Log: P_F ≈ 0.34" > fisico.log
+      - name: Simulação 3D Física
+        run: |
+          python - <<'EOF'
+          import numpy as np, matplotlib.pyplot as plt
+          x,y = np.meshgrid(np.linspace(-5,5,100), np.linspace(-5,5,100))
+          z = np.sqrt(x**2+y**2) * np.sin(np.pi/6)
+          plt.contourf(x,y,z,20,cmap='viridis')
+          plt.title("Curvas de nível - Física")
+          plt.savefig("fisico_3D.png")
+          EOF
+      - name: Upload Fisico
+        uses: actions/upload-artifact@v3
+        with:
+          name: fisico-assets
+          path: |
+            fisico_formula.txt
+            fisico_asm68.txt
+            fisico.plsql
+            fisico.bin
+            fisico.log
+            fisico_3D.png
+
+  ondulatoria:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Ondulatória - 5 Files & 7 Levels
+        run: |
+          echo "D(x,y,z,φ) = x/sqrt(x^2+y^2+z^2) - cos(x/(y+z)) + sin(φ*z)" > onda_formula.txt
+          echo "Nível 1: R1 = sqrt(x^2+y^2+z^2)" >> onda_formula.txt
+          echo "Nível 2: R2 = x/R1" >> onda_formula.txt
+          echo "Nível 3: R3 = y+z" >> onda_formula.txt
+          echo "Nível 4: R4 = cos(x/R3)" >> onda_formula.txt
+          echo "Nível 5: R5 = sin(φ*z)" >> onda_formula.txt
+          echo "Nível 6: D = R2 - R4 + R5" >> onda_formula.txt
+          echo "Nível 7: Ψ_D = D * exp(-t)" >> onda_formula.txt
+          
+          echo "ASM68: LOAD R2,x; DIV R2,SQRT(...); COS(...); SUB; SIN φ*z; ADD; STORE D" > onda_asm68.txt
+          echo "PQL: SELECT ... FROM Matriz;" > onda.pql
+          echo "Resultado D ≈ 0.326" > onda.bin
+          echo "Log: P_D ≈ 3.06" > onda.log
+      - name: Simulação 3D Ondulatória
+        run: |
+          python - <<'EOF'
+          import numpy as np, matplotlib.pyplot as plt
+          x,y = np.meshgrid(np.linspace(-5,5,100), np.linspace(-5,5,100))
+          z = np.sin(x) + np.cos(y)
+          plt.contourf(x,y,z,20,cmap='plasma')
+          plt.title("Curvas de nível - Ondulatória")
+          plt.savefig("onda_3D.png")
+          EOF
+      - name: Upload Ondulatoria
+        uses: actions/upload-artifact@v3
+        with:
+          name: onda-assets
+          path: |
+            onda_formula.txt
+            onda_asm68.txt
+            onda.pql
+            onda.bin
+            onda.log
+            onda_3D.png
+
+  quantum_kernel:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Kernel - 5 Files & 7 Levels
+        run: |
+          echo "Q(K) = ∫ 1/sqrt(1-v^2/c^2) dK + log(1+K)" > kernel_formula.txt
+          echo "Nível 1: γ = 1/sqrt(1-v^2/c^2)" >> kernel_formula.txt
+          echo "Nível 2: Q_int = γ * K" >> kernel_formula.txt
+          echo "Nível 3: Q_log = log(1+K)" >> kernel_formula.txt
+          echo "Nível 4: Q_total = Q_int + Q_log" >> kernel_formula.txt
+          echo "Nível 5: Q_norm = Q_total / ΣQi" >> kernel_formula.txt
+          echo "Nível 6: Q_state = Q_norm * exp(i*K)" >> kernel_formula.txt
+          echo "Nível 7: Ψ_Q = Q_state * e^(-t)" >> kernel_formula.txt
+          
+          echo "ASM68: LOAD R3,K; INTEGRATE R3; LOG; ADD; STORE Q" > kernel_asm68.txt
+          echo "SQL: INSERT INTO Kernel VALUES (Q);" > kernel.sql
+          echo "Resultado Q ≈ 1.45" > kernel.bin
+          echo "Log: P_Q ≈ 0.225" > kernel.log
+      - name: Simulação 3D Kernel
+        run: |
+          python - <<'EOF'
+          import numpy as np, matplotlib.pyplot as plt
+          x,y = np.meshgrid(np.linspace(-5,5,100), np.linspace(-5,5,100))
+          z = np.log(1 + np.abs(x*y))
+          plt.contourf(x,y,z,20,cmap='magma')
+          plt.title("Curvas de nível - Kernel")
+          plt.savefig("kernel_3D.png")
+          EOF
+      - name: Upload Kernel
+        uses: actions/upload-artifact@v3
+        with:
+          name: kernel-assets
+          path: |
+            kernel_formula.txt
+            kernel_asm68.txt
+            kernel.sql
+            kernel.bin
+            kernel.log
+            kernel_3D.png
+
+  retrometamorfose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Retro - 5 Files & 7 Levels
+        run: |
+          echo "R(x) = π*sqrt(2)*sin(x^φ) + e^(i*x)" > retro_formula.txt
+          echo "Nível 1: R1 = x^φ" >> retro_formula.txt
+          echo "Nível 2: R2 = sin(R1)" >> retro_formula.txt
+          echo "Nível 3: R3 = π*sqrt(2)*R2" >> retro_formula.txt
+          echo "Nível 4: R4 = exp(i*x)" >> retro_formula.txt
+          echo "Nível 5: R5 = R3 + R4" >> retro_formula.txt
+          echo "Nível 6: R_final = abs(R5)" >> retro_formula.txt
+          echo "Nível 7: Ψ_R = R_final * e^(-t)" >> retro_formula.txt
+          
+          echo "ASM68: LOAD R4,x; POW R4,φ; SIN; MUL; EXP; ADD; STORE R" > retro_asm68.txt
+          echo "PQL: UPDATE Retro SET Val = R;" > retro.pql
+          echo "Resultado R ≈ 0.88" > retro.bin
+          echo "Log: P_R ≈ 0.12" > retro.log
+      - name: Simulação 3D Retro
+        run: |
+          python - <<'EOF'
+          import numpy as np, matplotlib.pyplot as plt
+          x,y = np.meshgrid(np.linspace(-5,5,100), np.linspace(-5,5,100))
+          z = np.sin(x**2 + y**2)
+          plt.contourf(x,y,z,20,cmap='inferno')
+          plt.title("Curvas de nível - Retro")
+          plt.savefig("retro_3D.png")
+          EOF
+      - name: Upload Retro
+        uses: actions/upload-artifact@v3
+        with:
+          name: retro-assets
+          path: |
+            retro_formula.txt
+            retro_asm68.txt
+            retro.pql
+            retro.bin
+            retro.log
+            retro_3D.png
+
+  release:
+    runs-on: ubuntu-latest
+    needs: [fisico, ondulatoria, quantum_kernel, retrometamorfose]
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Baixa Fisico
+        uses: actions/download-artifact@v3
+        with:
+          name: fisico-assets
+          path: assets/
+      - name: Baixa Ondulatoria
+        uses: actions/download-artifact@v3
+        with:
+          name: onda-assets
+          path: assets/
+      - name: Baixa Kernel
+        uses: actions/download-artifact@v3
+        with:
+          name: kernel-assets
+          path: assets/
+      - name: Baixa Retro
+        uses: actions/download-artifact@v3
+        with:
+          name: retro-assets
+          path: assets/
+
+      - name: Create Quantum Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v-multivector-${{ github.sha }}
+          name: "QuantumOS Multivector Release ${{ github.sha }}"
+          files: assets/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker GitHub Package Publish
+        run: |
+          echo "FROM ubuntu:latest" > Dockerfile
+          echo "COPY assets/ /opt/quantumos/multivector/" >> Dockerfile
+          echo "CMD [\"ls\", \"-R\", \"/opt/quantumos/multivector/\"]" >> Dockerfile
+          
+          echo "${{ github.token }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          
+          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/quantumos-multivector
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          
+          docker build -t $IMAGE_ID:latest .
+          docker push $IMAGE_ID:latest
