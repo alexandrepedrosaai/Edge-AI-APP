@@ -78,7 +78,7 @@ jobs:
           EOF
 
       - name: Upload Artefatos Binários
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: mips-quantum-binaries
           path: build_binaries/
