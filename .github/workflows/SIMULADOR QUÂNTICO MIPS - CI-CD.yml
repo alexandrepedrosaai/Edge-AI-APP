@@ -20,7 +20,7 @@ jobs:
       - name: Instalar dependências
         run: |
           sudo apt update -y
-          sudo apt install -y python3 python3-pip zip unzip
+          sudo apt install -y python3 python3-pip zip unzip curl
           pip3 install numpy matplotlib qutip
         shell: bash
 
@@ -32,7 +32,7 @@ jobs:
 
       - name: Baixar MARS Simulator
         run: |
-          wget -q --no-check-certificate https://github.com/dpetersanderson/MARS/releases/download/v4.5/Mars4_5.jar -O mars.jar
+          curl -L https://github.com/dpetersanderson/MARS/releases/download/v.4.5.1/Mars4_5.jar -o mars.jar
           chmod +x mars.jar
 
       - name: Gerar binários MIPS
@@ -93,7 +93,7 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: Baixa Artefatos
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: mips-quantum-binaries
           path: release_assets/
@@ -124,3 +124,4 @@ jobs:
           
           docker build -t $IMAGE_ID:latest .
           docker push $IMAGE_ID:latest
+          
