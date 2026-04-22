@@ -35,7 +35,7 @@ jobs:
           plt.savefig("fisico_3D.png")
           EOF
       - name: Upload Fisico
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: fisico-assets
           path: |
@@ -76,7 +76,7 @@ jobs:
           plt.savefig("onda_3D.png")
           EOF
       - name: Upload Ondulatoria
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: onda-assets
           path: |
@@ -117,7 +117,7 @@ jobs:
           plt.savefig("kernel_3D.png")
           EOF
       - name: Upload Kernel
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: kernel-assets
           path: |
@@ -131,7 +131,7 @@ jobs:
   retrometamorfose:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Retro - 5 Files & 7 Levels
         run: |
           echo "R(x) = π*sqrt(2)*sin(x^φ) + e^(i*x)" > retro_formula.txt
@@ -158,7 +158,7 @@ jobs:
           plt.savefig("retro_3D.png")
           EOF
       - name: Upload Retro
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: retro-assets
           path: |
@@ -179,22 +179,22 @@ jobs:
       - uses: actions/checkout@v3
       
       - name: Baixa Fisico
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: fisico-assets
           path: assets/
       - name: Baixa Ondulatoria
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: onda-assets
           path: assets/
       - name: Baixa Kernel
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: kernel-assets
           path: assets/
       - name: Baixa Retro
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: retro-assets
           path: assets/
