@@ -12,7 +12,7 @@ jobs:
       packages: write
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Build Física (PL/SQL) - Ampliação Matemática
         run: |
@@ -66,7 +66,7 @@ jobs:
           cp quantum_output.txt build/
 
       - name: Upload Artefatos
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: metaverseos-binaries
           path: build/
@@ -81,7 +81,7 @@ jobs:
       - uses: actions/checkout@v3
       
       - name: Baixa Artefatos Binários
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: metaverseos-binaries
           path: downloaded_binaries/
