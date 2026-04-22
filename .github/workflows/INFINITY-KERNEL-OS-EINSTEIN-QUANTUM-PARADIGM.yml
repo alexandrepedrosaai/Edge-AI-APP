@@ -148,7 +148,7 @@ jobs:
           from fundamental_laws import *
 
           quantum_gates = {
-              'H': hadamard_transform(1).full(),
+              'H': snot().full(),
               'X': sigmax().full(),
               'Y': sigmay().full(),
               'Z': sigmaz().full(),
