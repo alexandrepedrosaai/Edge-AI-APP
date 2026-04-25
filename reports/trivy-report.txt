@@ -16,9 +16,9 @@ Report Summary
 ├────────────────────────────────────────┼───────────────────┼─────────────────┼─────────┤
 │ mix.lock                               │        hex        │        0        │    -    │
 ├────────────────────────────────────────┼───────────────────┼─────────────────┼─────────┤
-│ package-lock.json                      │        npm        │       14        │    -    │
+│ package-lock.json                      │        npm        │       15        │    -    │
 ├────────────────────────────────────────┼───────────────────┼─────────────────┼─────────┤
-│ pnpm-lock.yaml                         │       pnpm        │       14        │    -    │
+│ pnpm-lock.yaml                         │       pnpm        │       15        │    -    │
 ├────────────────────────────────────────┼───────────────────┼─────────────────┼─────────┤
 │ python-core/requirements.txt           │        pip        │        6        │    -    │
 └────────────────────────────────────────┴───────────────────┴─────────────────┴─────────┘
@@ -166,7 +166,7 @@ Total: 21 (UNKNOWN: 0, LOW: 0, MEDIUM: 11, HIGH: 8, CRITICAL: 2)
 
 package-lock.json (npm)
 =======================
-Total: 14 (UNKNOWN: 0, LOW: 0, MEDIUM: 10, HIGH: 4, CRITICAL: 0)
+Total: 15 (UNKNOWN: 0, LOW: 0, MEDIUM: 11, HIGH: 4, CRITICAL: 0)
 
 ┌──────────────────┬─────────────────────┬──────────┬────────┬───────────────────┬─────────────────────┬──────────────────────────────────────────────────────────────┐
 │     Library      │    Vulnerability    │ Severity │ Status │ Installed Version │    Fixed Version    │                            Title                             │
@@ -179,15 +179,16 @@ Total: 14 (UNKNOWN: 0, LOW: 0, MEDIUM: 10, HIGH: 4, CRITICAL: 0)
 │                  │                     │          │        │                   │                     │ escalation                                                   │
 │                  │                     │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-40175                   │
 ├──────────────────┼─────────────────────┤          │        ├───────────────────┼─────────────────────┼──────────────────────────────────────────────────────────────┤
-│ dompurify        │ CVE-2026-41238      │          │        │ 3.3.3             │ 3.4.0               │ DOMPurify: Prototype Pollution to XSS Bypass via             │
-│                  │                     │          │        │                   │                     │ CUSTOM_ELEMENT_HANDLING Fallback                             │
+│ dompurify        │ CVE-2026-41238      │          │        │ 3.3.3             │ 3.4.0               │ DOMPurify is a DOM-only cross-site scripting sanitizer for   │
+│                  │                     │          │        │                   │                     │ HTML, MathM ...                                              │
 │                  │                     │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-41238                   │
 │                  ├─────────────────────┤          │        │                   │                     ├──────────────────────────────────────────────────────────────┤
-│                  │ CVE-2026-41239      │          │        │                   │                     │ DOMPurify has a SAFE_FOR_TEMPLATES bypass in RETURN_DOM mode │
+│                  │ CVE-2026-41239      │          │        │                   │                     │ DOMPurify is a DOM-only cross-site scripting sanitizer for   │
+│                  │                     │          │        │                   │                     │ HTML, MathM ...                                              │
 │                  │                     │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-41239                   │
 │                  ├─────────────────────┤          │        │                   │                     ├──────────────────────────────────────────────────────────────┤
-│                  │ CVE-2026-41240      │          │        │                   │                     │ DOMPurify: FORBID_TAGS bypassed by function-based ADD_TAGS   │
-│                  │                     │          │        │                   │                     │ predicate (asymmetry with FORBID_ATTR fix)                   │
+│                  │ CVE-2026-41240      │          │        │                   │                     │ DOMPurify is a DOM-only cross-site scripting sanitizer for   │
+│                  │                     │          │        │                   │                     │ HTML, MathM ...                                              │
 │                  │                     │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-41240                   │
 │                  ├─────────────────────┤          │        │                   │                     ├──────────────────────────────────────────────────────────────┤
 │                  │ GHSA-39q2-94rc-95cp │          │        │                   │                     │ DOMPurify's ADD_TAGS function form bypasses FORBID_TAGS due  │
@@ -225,11 +226,15 @@ Total: 14 (UNKNOWN: 0, LOW: 0, MEDIUM: 10, HIGH: 4, CRITICAL: 0)
 │                  │ CVE-2026-33672      │ MEDIUM   │        │                   │                     │ picomatch: Picomatch: Data integrity compromised via method  │
 │                  │                     │          │        │                   │                     │ injection with crafted POSIX bracket...                      │
 │                  │                     │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-33672                   │
+├──────────────────┼─────────────────────┤          │        ├───────────────────┼─────────────────────┼──────────────────────────────────────────────────────────────┤
+│ uuid             │ GHSA-w5hq-g745-h8pq │          │        │ 11.1.0            │ 14.0.0              │ uuid: Missing buffer bounds check in v3/v5/v6 when buf is    │
+│                  │                     │          │        │                   │                     │ provided                                                     │
+│                  │                     │          │        │                   │                     │ https://github.com/advisories/GHSA-w5hq-g745-h8pq            │
 └──────────────────┴─────────────────────┴──────────┴────────┴───────────────────┴─────────────────────┴──────────────────────────────────────────────────────────────┘
 
 pnpm-lock.yaml (pnpm)
 =====================
-Total: 14 (UNKNOWN: 0, LOW: 0, MEDIUM: 10, HIGH: 4, CRITICAL: 0)
+Total: 15 (UNKNOWN: 0, LOW: 0, MEDIUM: 11, HIGH: 4, CRITICAL: 0)
 
 ┌──────────────────┬─────────────────────┬──────────┬────────┬───────────────────┬─────────────────────┬──────────────────────────────────────────────────────────────┐
 │     Library      │    Vulnerability    │ Severity │ Status │ Installed Version │    Fixed Version    │                            Title                             │
@@ -242,15 +247,16 @@ Total: 14 (UNKNOWN: 0, LOW: 0, MEDIUM: 10, HIGH: 4, CRITICAL: 0)
 │                  │                     │          │        │                   │                     │ escalation                                                   │
 │                  │                     │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-40175                   │
 ├──────────────────┼─────────────────────┤          │        ├───────────────────┼─────────────────────┼──────────────────────────────────────────────────────────────┤
-│ dompurify        │ CVE-2026-41238      │          │        │ 3.3.3             │ 3.4.0               │ DOMPurify: Prototype Pollution to XSS Bypass via             │
-│                  │                     │          │        │                   │                     │ CUSTOM_ELEMENT_HANDLING Fallback                             │
+│ dompurify        │ CVE-2026-41238      │          │        │ 3.3.3             │ 3.4.0               │ DOMPurify is a DOM-only cross-site scripting sanitizer for   │
+│                  │                     │          │        │                   │                     │ HTML, MathM ...                                              │
 │                  │                     │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-41238                   │
 │                  ├─────────────────────┤          │        │                   │                     ├──────────────────────────────────────────────────────────────┤
-│                  │ CVE-2026-41239      │          │        │                   │                     │ DOMPurify has a SAFE_FOR_TEMPLATES bypass in RETURN_DOM mode │
+│                  │ CVE-2026-41239      │          │        │                   │                     │ DOMPurify is a DOM-only cross-site scripting sanitizer for   │
+│                  │                     │          │        │                   │                     │ HTML, MathM ...                                              │
 │                  │                     │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-41239                   │
 │                  ├─────────────────────┤          │        │                   │                     ├──────────────────────────────────────────────────────────────┤
-│                  │ CVE-2026-41240      │          │        │                   │                     │ DOMPurify: FORBID_TAGS bypassed by function-based ADD_TAGS   │
-│                  │                     │          │        │                   │                     │ predicate (asymmetry with FORBID_ATTR fix)                   │
+│                  │ CVE-2026-41240      │          │        │                   │                     │ DOMPurify is a DOM-only cross-site scripting sanitizer for   │
+│                  │                     │          │        │                   │                     │ HTML, MathM ...                                              │
 │                  │                     │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-41240                   │
 │                  ├─────────────────────┤          │        │                   │                     ├──────────────────────────────────────────────────────────────┤
 │                  │ GHSA-39q2-94rc-95cp │          │        │                   │                     │ DOMPurify's ADD_TAGS function form bypasses FORBID_TAGS due  │
@@ -288,6 +294,10 @@ Total: 14 (UNKNOWN: 0, LOW: 0, MEDIUM: 10, HIGH: 4, CRITICAL: 0)
 │                  │ CVE-2026-33672      │ MEDIUM   │        │                   │                     │ picomatch: Picomatch: Data integrity compromised via method  │
 │                  │                     │          │        │                   │                     │ injection with crafted POSIX bracket...                      │
 │                  │                     │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-33672                   │
+├──────────────────┼─────────────────────┤          │        ├───────────────────┼─────────────────────┼──────────────────────────────────────────────────────────────┤
+│ uuid             │ GHSA-w5hq-g745-h8pq │          │        │ 11.1.0            │ 14.0.0              │ uuid: Missing buffer bounds check in v3/v5/v6 when buf is    │
+│                  │                     │          │        │                   │                     │ provided                                                     │
+│                  │                     │          │        │                   │                     │ https://github.com/advisories/GHSA-w5hq-g745-h8pq            │
 └──────────────────┴─────────────────────┴──────────┴────────┴───────────────────┴─────────────────────┴──────────────────────────────────────────────────────────────┘
 
 python-core/requirements.txt (pip)
