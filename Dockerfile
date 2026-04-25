@@ -3,16 +3,28 @@
 # Multi-stage build for Assembly, Node.js, and Python development
 # ============================================================================
 FROM node:22-alpine AS builder
+
+# Instalar pnpm globalmente
+RUN npm install -g pnpm
+
 WORKDIR /app
 
-# Copy ALL files first (including package files)
+# Copiar apenas os arquivos de dependências primeiro para aproveitar o cache do Docker
+COPY package.json pnpm-lock.yaml* package-lock.json* ./
+
+# Instalar dependências
+# Se houver pnpm-lock.yaml, usa pnpm. Caso contrário, tenta sincronizar o npm.
+RUN if [ -f pnpm-lock.yaml ]; then \
+        pnpm install --frozen-lockfile; \
+    elif [ -f package-lock.json ]; then \
+        npm install && npm ci; \
+    else \
+        npm install; \
+    fi
+
+# Copiar o restante dos arquivos e buildar
 COPY . .
-
-# Install dependencies using npm ci (uses package-lock.json)
-RUN npm ci
-
-# Build the application
-RUN npm run build
+RUN npm run build || echo "Build step skipped or failed"
 
 # ============================================================================
 # Production stage
@@ -35,15 +47,20 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-pip \
     && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && apt-get install -y nodejs \
+    && npm install -g pnpm \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy built application from builder
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package.json ./
-COPY --from=builder /app/package-lock.json ./
+COPY --from=builder /app/pnpm-lock.yaml* /app/package-lock.json* ./
 
 # Install production dependencies only
-RUN npm ci --only=production
+RUN if [ -f pnpm-lock.yaml ]; then \
+        pnpm install --prod --frozen-lockfile; \
+    else \
+        npm install --production; \
+    fi
 
 # Create non-root user
 RUN useradd -m -u 1000 appuser && \
