@@ -144,17 +144,17 @@ jobs:
           import numpy as np
           import torch
           import os
-          from qutip import *
+          import qutip
           from fundamental_laws import *
 
           quantum_gates = {
-              'H': snot().full(),
-              'X': sigmax().full(),
-              'Y': sigmay().full(),
-              'Z': sigmaz().full(),
-              'CNOT': cnot().full(),
-              'SWAP': swap().full(),
-              'TOFFOLI': toffoli().full()
+              'H': qutip.hadamard_transform(1).full() if hasattr(qutip, 'hadamard_transform') else qutip.snot().full(),
+              'X': qutip.sigmax().full(),
+              'Y': qutip.sigmay().full(),
+              'Z': qutip.sigmaz().full(),
+              'CNOT': qutip.cnot().full(),
+              'SWAP': qutip.swap().full(),
+              'TOFFOLI': qutip.toffoli().full()
           }
 
           def transduce_to_neural(binary_file):
