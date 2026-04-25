@@ -2,7 +2,7 @@
 # Edge-AI-APP Docker Build
 # Multi-stage build for Assembly, Node.js, and Python development
 # ============================================================================
-FROM node:22-alpine AS builder
+FROM node:25-alpine AS builder
 WORKDIR /app
 
 # Copy ALL files first (including package files)
