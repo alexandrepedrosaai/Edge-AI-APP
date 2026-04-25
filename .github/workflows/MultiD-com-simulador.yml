@@ -12,6 +12,14 @@ jobs:
       packages: write 
     steps:
       - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy matplotlib
       - name: Física - 5 Files & 7 Levels
         run: |
           echo "F(x,y,z,φ) = sqrt(x^2+y^2+z^2)*sin(φ) + 1/(1+x^2)" > fisico_formula.txt
@@ -53,6 +61,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy matplotlib
       - name: Ondulatória - 5 Files & 7 Levels
         run: |
           echo "D(x,y,z,φ) = x/sqrt(x^2+y^2+z^2) - cos(x/(y+z)) + sin(φ*z)" > onda_formula.txt
@@ -94,6 +110,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy matplotlib
       - name: Kernel - 5 Files & 7 Levels
         run: |
           echo "Q(K) = ∫ 1/sqrt(1-v^2/c^2) dK + log(1+K)" > kernel_formula.txt
@@ -135,6 +159,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy matplotlib
       - name: Eternidade - 5 Files & 7 Levels
         run: |
           echo "E(t) = lim_{n→∞} Q(K)^n + ∫0^∞ e^(-t)*Q(K) dt" > eterno_formula.txt
@@ -186,7 +218,7 @@ jobs:
       - uses: actions/checkout@v3
       
       - name: Baixa Ativos
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: artifacts/
 
