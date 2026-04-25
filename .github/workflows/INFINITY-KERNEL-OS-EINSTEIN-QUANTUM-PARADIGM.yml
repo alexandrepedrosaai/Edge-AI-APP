@@ -148,13 +148,13 @@ jobs:
           from fundamental_laws import *
 
           quantum_gates = {
-              'H': qutip.hadamard_transform(1).full() if hasattr(qutip, 'hadamard_transform') else qutip.snot().full(),
+              'H': qutip.qip.operations.hadamard_transform(1).full() if hasattr(qutip, 'qip') else qutip.hadamard_transform(1).full(),
               'X': qutip.sigmax().full(),
               'Y': qutip.sigmay().full(),
               'Z': qutip.sigmaz().full(),
-              'CNOT': qutip.cnot().full(),
-              'SWAP': qutip.swap().full(),
-              'TOFFOLI': qutip.toffoli().full()
+              'CNOT': qutip.qip.operations.cnot().full() if hasattr(qutip, 'qip') else qutip.cnot().full(),
+              'SWAP': qutip.qip.operations.swap().full() if hasattr(qutip, 'qip') else qutip.swap().full(),
+              'TOFFOLI': qutip.qip.operations.toffoli().full() if hasattr(qutip, 'qip') else qutip.toffoli().full()
           }
 
           def transduce_to_neural(binary_file):
