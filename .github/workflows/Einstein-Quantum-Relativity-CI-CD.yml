@@ -10,6 +10,10 @@ on:
 jobs:
   quantum-laws:
     runs-on: ubuntu-latest
+     
+    permissions:
+      contents: write
+      packages: write 
     steps:
       - name: Initialize Quantum Physics Laws
         run: |
