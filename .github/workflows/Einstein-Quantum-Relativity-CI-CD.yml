@@ -132,6 +132,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build]
     steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
     - name: Build Docker Container
       run: docker build -t ghcr.io/${GITHUB_REPOSITORY,,}/edge-ai-app:latest .
 
