@@ -132,11 +132,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build]
     steps:
-      - name: Build Docker Container
-        run: docker build -t ghcr.io/${{ github.repository }}/edge-ai-app:latest .
+    - name: Build Docker Container
+      run: docker build -t ghcr.io/${GITHUB_REPOSITORY,,}/edge-ai-app:latest .
 
-      - name: Publish Docker Container
-        run: echo "Container published without exposed secrets"
+    - name: Publish Docker Container
+      run: echo "Container published without exposed secrets"
 
   release:
     runs-on: ubuntu-latest
