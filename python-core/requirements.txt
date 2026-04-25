@@ -10,7 +10,7 @@ torchvision==0.17.2
 tensorflow==2.16.1
 
 # Utilities
-requests==2.31.0
+requests==2.33.1
 pyyaml==6.0.1
 
 # Jupyter / notebooks
