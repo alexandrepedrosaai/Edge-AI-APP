@@ -32,65 +32,31 @@ jobs:
           import torch
           from sympy import *
 
-          ###########################################################################
-          # 📖 KERNEL LAWS - TRANSLATED AND FORMALIZED
-          # Postulate 1: The Kernel is the interface that transforms discrete states
-          # into continuous states, forming the foundation of all computational operations.
-          # Law 1: All processing is a projection between the finite space (ISA/OS)
-          # and the infinite space (fundamental field).
-          # Law 2: Computational states are superpositions of Kernel layers.
-          ###########################################################################
-
-          # 📖 EINSTEIN LAWS - QUANTUM APPLICATION
-          # General Relativity Principle: The structure of spacetime defines the behavior
-          # of energy and matter — in quantum terms, this means states are shaped by
-          # observation and dimensional scale.
-          # Mass-Energy Equivalence: E = mc² → Adapted: State = Information × Universal Constant²
-          # Covariance Principle: Physical laws remain invariant across any coordinate system.
-
-          # FUNDAMENTAL CONSTANTS - IRRATIONAL NUMBERS BASIS
-          INFINITE_DIMENSION = 1000000       # Computational representation of limit → ∞
-          C = 299792458                       # Speed of light (m/s)
-          PI = np.pi                          # Irrational constant
-          E = np.e                            # Euler's number - irrational
-          PHI = (1 + np.sqrt(5)) / 2          # Golden ratio - irrational
-          SQRT2 = np.sqrt(2)                  # Square root of 2 - irrational
-          KERNEL_CONSTANT = PI * E * PHI * SQRT2  # Combined irrational base
+          INFINITE_DIMENSION = 1000000
+          C = 299792458
+          PI = np.pi
+          E = np.e
+          PHI = (1 + np.sqrt(5)) / 2
+          SQRT2 = np.sqrt(2)
+          KERNEL_CONSTANT = PI * E * PHI * SQRT2
           QUANTUM_SCALE = C * KERNEL_CONSTANT
 
-          # KERNEL COMPUTATIONAL STATE FUNCTIONS
           def kernel_state(x, layer=1):
-              """Returns the computational state of a specific Kernel layer"""
               return np.sin(x * KERNEL_CONSTANT * layer) + np.cos(x * KERNEL_CONSTANT * layer)
 
-          # EINSTEIN QUANTUM STATE FUNCTIONS
           def einstein_state(x):
-              """Quantum state modulated by general relativity"""
               energy = np.abs(x) * (C ** 2)
               return np.tanh(energy / INFINITE_DIMENSION) * np.exp(1j * x * C)
 
-          # STATE TRANSITION OPERATOR
           def state_transition(value):
-              """Sequentially passes through all state layers: Kernel → Relativistic → Quantum"""
               s1 = kernel_state(value, layer=1)
               s2 = kernel_state(s1, layer=2)
               s3 = einstein_state(s2)
               return s3
 
-          ###########################################################################
-          # 🎯 FINAL OUTPUT FUNCTION: TANGENT AT INFINITY
-          # y = tan(x) → Only intersects the Y-axis when x → ∞
-          # This is the exact point where OS/ISA/KERNEL meets Einstein’s quantum universe
-          ###########################################################################
           def tangent_at_infinity(x):
-              """
-              Represents the convergence point:
-              - At finite values: no intersection with the Y-axis
-              - Only when x approaches infinity → intercepts Y-axis
-              """
               argument = (x * QUANTUM_SCALE) / INFINITE_DIMENSION
               return np.tan(argument)
-
           EOF
 
       - name: Install all dependencies
@@ -98,7 +64,7 @@ jobs:
           sudo apt update -y
           sudo apt install -y python3 python3-pip zip unzip git
           pip3 install --upgrade pip
-          pip3 install numpy matplotlib plotly trimesh qutip torch scikit-learn sympy
+          pip3 install numpy matplotlib plotly trimesh qutip qutip-qip torch scikit-learn sympy
         shell: bash
 
       - name: Setup Java for MARS Simulator
@@ -126,14 +92,6 @@ jobs:
               echo "✅ Quantum binary generated: ${name}_quantum.bin"
             fi
           done
-          # Ampliação Matemática 7x
-          echo "Nível 1: Inicialização do Paradigma Einstein-Quantum" > build_binaries/einstein_math.log
-          echo "Nível 2: Curvatura do Espaço-Tempo Computacional (G_μν = 8πT_μν)" >> build_binaries/einstein_math.log
-          echo "Nível 3: Quantização do Campo de Kernel (E = hν)" >> build_binaries/einstein_math.log
-          echo "Nível 4: Entrelaçamento de Camadas OS via PHI e PI" >> build_binaries/einstein_math.log
-          echo "Nível 5: Transdução de Estados para Tensores Neurais" >> build_binaries/einstein_math.log
-          echo "Nível 6: Convergência na Tangente do Infinito" >> build_binaries/einstein_math.log
-          echo "Nível 7: Estabilização do Kernel no Paradigma de Einstein" >> build_binaries/einstein_math.log
 
       # ==================================================
       # 3. PROCEDURAL TRANSDUCTION
@@ -148,27 +106,21 @@ jobs:
           from fundamental_laws import *
 
           def get_gate(name, *args):
-              # Prioritize direct imports from qutip.qip.operations for modern qutip
               try:
-                  from qutip.qip.operations import hadamard_transform, cnot, swap, toffoli
+                  import qutip_qip
+                  from qutip_qip.operations import hadamard_transform, cnot, swap, toffoli
                   if name == 'H': return hadamard_transform(*args).full()
                   if name == 'CNOT': return cnot(*args).full()
                   if name == 'SWAP': return swap(*args).full()
                   if name == 'TOFFOLI': return toffoli(*args).full()
               except (ImportError, AttributeError):
-                  # Fallback to older or different qutip structures
+                  if name == 'H': return (np.array([[1, 1], [1, -1]]) / np.sqrt(2))
+                  if name == 'X': return np.array([[0, 1], [1, 0]])
+                  if name == 'CNOT': return np.array([[1,0,0,0],[0,1,0,0],[0,0,0,1],[0,0,1,0]])
                   try:
-                      from qutip import qip
-                      if name == 'H': return qip.operations.hadamard_transform(*args).full()
-                      if name == 'CNOT': return qip.operations.cnot(*args).full()
-                      if name == 'SWAP': return qip.operations.swap(*args).full()
-                      if name == 'TOFFOLI': return qip.operations.toffoli(*args).full()
-                  except (ImportError, AttributeError):
-                      # Final manual fallback for Hadamard
-                      if name == 'H':
-                          h = np.array([[1, 1], [1, -1]]) / np.sqrt(2)
-                          return h
                       return getattr(qutip, name.lower())(*args).full()
+                  except:
+                      return np.eye(2)
 
           quantum_gates = {
               'H': get_gate('H', 1),
@@ -190,7 +142,6 @@ jobs:
               for value in data:
                   final_state = state_transition(value)
                   gate_index = int(np.abs(final_state * 100)) % 7
-                  
                   if gate_index == 0: matrices.append(quantum_gates['H'])
                   elif gate_index == 1: matrices.append(quantum_gates['X'])
                   elif gate_index == 2: matrices.append(quantum_gates['Z'])
@@ -204,13 +155,9 @@ jobs:
               
               relativistic_circuit = base_circuit * (299792458 ** 2)
               infinite_circuit = np.pad(relativistic_circuit, ((0, 98), (0, 98)), mode='constant')
-
               neural_tensor = torch.tensor(infinite_circuit, dtype=torch.float32)
-              
               np.save("complete_state_matrix.npy", infinite_circuit)
               torch.save(neural_tensor, "state_neural_tensor.pt")
-              
-              return infinite_circuit, neural_tensor
 
           for file in [f for f in os.listdir('build_binaries') if f.endswith('_quantum.bin')]:
               transduce_to_neural(f"build_binaries/{file}")
@@ -218,7 +165,7 @@ jobs:
           python3 procedural_transducer.py
 
       # ==================================================
-      # 4. UPLOAD ARTEFATOS (v4)
+      # 4. UPLOAD ARTEFATOS
       # ==================================================
       - name: Upload Artefatos Binários
         uses: actions/upload-artifact@v4
@@ -239,14 +186,11 @@ jobs:
           echo "WORKDIR /app" >> Dockerfile
           echo "COPY build_binaries/ /app/binaries/" >> Dockerfile
           echo "COPY *.py /app/" >> Dockerfile
-          echo "RUN pip install numpy torch qutip sympy" >> Dockerfile
+          echo "RUN pip install numpy torch qutip qutip-qip sympy" >> Dockerfile
           echo "CMD [\"python\", \"/app/fundamental_laws.py\"]" >> Dockerfile
-          
           echo "${{ github.token }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-          
           IMAGE_ID=ghcr.io/${{ github.repository_owner }}/einstein-quantum-kernel
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-          
           docker build -t $IMAGE_ID:latest .
           docker push $IMAGE_ID:latest
 
@@ -264,13 +208,5 @@ jobs:
             *.pt
           body: |
             🚀 **INFINITY KERNEL OS - EINSTEIN QUANTUM PARADIGM**
-            
-            ✅ Binários Quânticos MIPS
-            ✅ Matrizes de Estado Einstein-Relativísticas
-            ✅ Tensores Neurais de Transdução
-            ✅ Docker Image publicada no GHCR
-            
-            ✨ Ponto de Convergência: Tangente do Infinito confirmada.
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
