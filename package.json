@@ -82,7 +82,7 @@
     "add": "^2.0.6",
     "autoprefixer": "^10.4.20",
     "esbuild": "^0.25.11",
-    "pnpm": "10.28.2",
+    "pnpm": "10.33.2",
     "postcss": "^8.4.47",
     "prettier": "^3.6.2",
     "tailwindcss": "^4.1.14",
