@@ -1,4 +1,4 @@
-name: MultiD com simulador
+name: Quantum MultiD com simulador
 
 on:
   push:
@@ -7,6 +7,9 @@ on:
 jobs:
   fisico:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write 
     steps:
       - uses: actions/checkout@v3
       - name: Física - 5 Files & 7 Levels
@@ -35,7 +38,7 @@ jobs:
           plt.savefig("fisico_3D.png")
           EOF
       - name: Upload Fisico
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: fisico-multid
           path: |
@@ -76,7 +79,7 @@ jobs:
           plt.savefig("onda_3D.png")
           EOF
       - name: Upload Ondulatoria
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: onda-multid
           path: |
@@ -117,7 +120,7 @@ jobs:
           plt.savefig("kernel_3D.png")
           EOF
       - name: Upload Kernel
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: kernel-multid
           path: |
@@ -162,7 +165,7 @@ jobs:
           plt.savefig("eterno_3D.png")
           EOF
       - name: Upload Eternidade
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: eterno-multid
           path: |
