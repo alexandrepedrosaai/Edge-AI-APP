@@ -149,15 +149,22 @@ jobs:
 
           def get_gate(name, *args):
               try:
-                  if name == 'H': return qutip.qip.operations.hadamard_transform(*args).full()
-                  if name == 'CNOT': return qutip.qip.operations.cnot(*args).full()
-                  if name == 'SWAP': return qutip.qip.operations.swap(*args).full()
-                  if name == 'TOFFOLI': return qutip.qip.operations.toffoli(*args).full()
+                  from qutip import gates
+                  if name == 'H': return gates.hadamard(*args).full()
+                  if name == 'CNOT': return gates.cnot().full()
+                  if name == 'SWAP': return gates.swap().full()
+                  if name == 'TOFFOLI': return gates.toffoli().full()
               except (AttributeError, ImportError):
-                  if name == 'H': return qutip.hadamard_transform(*args).full()
-                  if name == 'CNOT': return qutip.cnot(*args).full()
-                  if name == 'SWAP': return qutip.swap(*args).full()
-                  if name == 'TOFFOLI': return qutip.toffoli(*args).full()
+                  try:
+                      if name == 'H': return qutip.qip.operations.hadamard_transform(*args).full()
+                      if name == 'CNOT': return qutip.qip.operations.cnot(*args).full()
+                      if name == 'SWAP': return qutip.qip.operations.swap(*args).full()
+                      if name == 'TOFFOLI': return qutip.qip.operations.toffoli(*args).full()
+                  except (AttributeError, ImportError):
+                      if name == 'H': return qutip.hadamard_transform(*args).full()
+                      if name == 'CNOT': return qutip.cnot(*args).full()
+                      if name == 'SWAP': return qutip.swap(*args).full()
+                      if name == 'TOFFOLI': return qutip.toffoli(*args).full()
               return getattr(qutip, name.lower())(*args).full()
 
           quantum_gates = {
