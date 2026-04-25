@@ -119,7 +119,7 @@ jobs:
         run: |
           mkdir -p build_binaries
           for file in *.asm; do
-            if [ -f "$file" ]; then
+            if [ -f "$file" ] && [ "$file" != "vite.config.asm" ]; then
               name=$(basename "$file" .asm)
               java -jar mars.jar a dump .text HexText "build_binaries/${name}_quantum.bin" "$file"
               java -jar mars.jar a dump .text Binary "build_binaries/${name}_quantum.raw" "$file"
@@ -147,14 +147,27 @@ jobs:
           import qutip
           from fundamental_laws import *
 
+          def get_gate(name, *args):
+              try:
+                  if name == 'H': return qutip.qip.operations.hadamard_transform(*args).full()
+                  if name == 'CNOT': return qutip.qip.operations.cnot(*args).full()
+                  if name == 'SWAP': return qutip.qip.operations.swap(*args).full()
+                  if name == 'TOFFOLI': return qutip.qip.operations.toffoli(*args).full()
+              except (AttributeError, ImportError):
+                  if name == 'H': return qutip.hadamard_transform(*args).full()
+                  if name == 'CNOT': return qutip.cnot(*args).full()
+                  if name == 'SWAP': return qutip.swap(*args).full()
+                  if name == 'TOFFOLI': return qutip.toffoli(*args).full()
+              return getattr(qutip, name.lower())(*args).full()
+
           quantum_gates = {
-              'H': qutip.qip.operations.hadamard_transform(1).full() if hasattr(qutip, 'qip') else qutip.hadamard_transform(1).full(),
+              'H': get_gate('H', 1),
               'X': qutip.sigmax().full(),
               'Y': qutip.sigmay().full(),
               'Z': qutip.sigmaz().full(),
-              'CNOT': qutip.qip.operations.cnot().full() if hasattr(qutip, 'qip') else qutip.cnot().full(),
-              'SWAP': qutip.qip.operations.swap().full() if hasattr(qutip, 'qip') else qutip.swap().full(),
-              'TOFFOLI': qutip.qip.operations.toffoli().full() if hasattr(qutip, 'qip') else qutip.toffoli().full()
+              'CNOT': get_gate('CNOT'),
+              'SWAP': get_gate('SWAP'),
+              'TOFFOLI': get_gate('TOFFOLI')
           }
 
           def transduce_to_neural(binary_file):
