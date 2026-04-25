@@ -17,7 +17,7 @@ RUN npm run build
 # ============================================================================
 # Production stage
 # ============================================================================
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 LABEL maintainer="Alexandre Pedrosa <alexandrepedrosa@example.com>"
 LABEL description="Edge-AI-APP - Assembly, Node.js, and Python Development Environment"
 
