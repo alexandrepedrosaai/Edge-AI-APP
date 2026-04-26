@@ -7,16 +7,10 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Install FreeBASIC Dependencies
+    - name: Install FreeBASIC
       run: |
         sudo apt-get update
-        sudo apt-get install -y wget unzip xz-utils
-        sudo apt-get install -y libncurses5
-        # Baixa e instala a versão correta do libtinfo5
-        wget http://archive.ubuntu.com/ubuntu/pool/main/n/ncurses/libtinfo5_5.9-10ubuntu4_amd64.deb
-        sudo dpkg -i libtinfo5_5.9-10ubuntu4_amd64.deb
-
-        # Instala FreeBASIC
+        sudo apt-get install -y wget unzip libncurses5 libtinfo6 xz-utils || true
         wget -O FreeBASIC-1.10.0-linux-x86_64.tar.xz "https://downloads.sourceforge.net/project/fbc/FreeBASIC-1.10.0/Binaries-Linux/FreeBASIC-1.10.0-linux-x86_64.tar.xz"
         tar -xJf FreeBASIC-1.10.0-linux-x86_64.tar.xz
         cd FreeBASIC-1.10.0-linux-x86_64
@@ -39,3 +33,4 @@ jobs:
         files: hello_basic
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
