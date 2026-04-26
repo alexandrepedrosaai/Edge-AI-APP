@@ -1,18 +1,32 @@
-REM BASIC Matrix Artifact - Extended
+' hello.bas
+' FreeBASIC demo for Edge-AI-APP workflow
+' Versão compatível com libtinfo.so.6
 
-DIM Matrix(3, 3) AS INTEGER
-DIM i AS INTEGER, j AS INTEGER
+DECLARE FUNCTION Tangente(x AS DOUBLE) AS DOUBLE
+DECLARE FUNCTION Cotangente(x AS DOUBLE) AS DOUBLE
 
-PRINT "BASIC Matrix Artifact - Extended"
+PRINT "Quantum AGI initialized via FreeBASIC"
+PRINT "Hello from Edge-AI-APP workflow!"
+PRINT "This confirms FreeBASIC integration is working with libtinfo.so.6"
 
-' Preenche a matriz
-Matrix(1,1) = 1: Matrix(1,2) = 2: Matrix(1,3) = 3
-Matrix(2,1) = 4: Matrix(2,2) = 5: Matrix(2,3) = 6
-Matrix(3,1) = 7: Matrix(3,2) = 8: Matrix(3,3) = 9
+DIM x AS DOUBLE
+INPUT "Enter x (decimal): ", x
 
-' Exibe os valores
-FOR i = 1 TO 3
-    FOR j = 1 TO 3
-        PRINT "Matrix("; i; ","; j; ") = "; Matrix(i,j)
-    NEXT j
-NEXT i
+PRINT "Input x = "; x
+PRINT "tan(x) ≈ "; Tangente(x)
+PRINT "cot(x) ≈ "; Cotangente(x)
+
+FUNCTION Tangente(x AS DOUBLE) AS DOUBLE
+    ' Aproximação simples: tan(x) ≈ x + x^3/3
+    RETURN x + (x^3)/3
+END FUNCTION
+
+FUNCTION Cotangente(x AS DOUBLE) AS DOUBLE
+    DIM t AS DOUBLE
+    t = Tangente(x)
+    IF t <> 0 THEN
+        RETURN 1 / t
+    ELSE
+        RETURN 0
+    END IF
+END FUNCTION
