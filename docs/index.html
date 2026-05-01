@@ -22,7 +22,13 @@ async function loadWasm(file) {
     const response = await fetch(file);
     if (!response.ok) throw new Error(`Failed to fetch ${file}: ${response.statusText}`);
     const buffer = await response.arrayBuffer();
-    const wasmModule = await WebAssembly.instantiate(buffer);
+    // Using instantiateStreaming for better performance, falling back to buffer
+    let wasmModule;
+    if (WebAssembly.instantiateStreaming) {
+      wasmModule = await WebAssembly.instantiateStreaming(fetch(file));
+    } else {
+      wasmModule = await WebAssembly.instantiate(buffer);
+    }
     return wasmModule.instance.exports;
   } catch (e) {
     console.error(`Error loading ${file}:`, e);
