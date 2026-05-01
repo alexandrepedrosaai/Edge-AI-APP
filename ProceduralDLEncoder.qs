@@ -23,7 +23,7 @@ namespace QuantumLunarSimulation {
             set embedding w/= index <- channel;
         }
 
-        let confidence = 1.0 / (1.0 + Abs(phase - amplitude));
+        let confidence = 1.0 / (1.0 + AbsD(phase - amplitude));
         
         mutable sumSq = 0.0;
         for val in embedding {
