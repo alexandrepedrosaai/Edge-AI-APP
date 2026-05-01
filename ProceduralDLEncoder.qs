@@ -1,7 +1,7 @@
 namespace QuantumLunarSimulation {
     open Microsoft.Quantum.Canon;
     open Microsoft.Quantum.Intrinsic;
-    open Microsoft.Quantum.Math;
+    open Microsoft.Quantum.Math as Math;
     open Microsoft.Quantum.Convert;
     open Microsoft.Quantum.Arrays;
 
@@ -14,22 +14,22 @@ namespace QuantumLunarSimulation {
 
         for index in 0..dim-1 {
             let phaseFactor = (IntAsDouble(index) + 1.0) * temp;
-            let channel = Tanh(
-                Sin(seed * phaseFactor)
-                + Cos((IntAsDouble(x - y + z) + 1.0) * phaseFactor)
+            let channel = Math.Tanh(
+                Math.Sin(seed * phaseFactor)
+                + Math.Cos((IntAsDouble(x - y + z) + 1.0) * phaseFactor)
                 + (energy / (IntAsDouble(index) + 2.0))
                 - phase / (IntAsDouble(index) + 3.0)
             );
             set embedding w/= index <- channel;
         }
 
-        let confidence = 1.0 / (1.0 + AbsD(phase - amplitude));
+        let confidence = 1.0 / (1.0 + Math.AbsD(phase - amplitude));
         
         mutable sumSq = 0.0;
         for val in embedding {
             set sumSq = sumSq + (val * val);
         }
-        let latentNorm = Sqrt(sumSq);
+        let latentNorm = Math.Sqrt(sumSq);
 
         return (embedding, confidence, latentNorm);
     }

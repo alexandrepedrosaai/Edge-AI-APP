@@ -1,7 +1,7 @@
 namespace QuantumLunarSimulation {
     open Microsoft.Quantum.Canon;
     open Microsoft.Quantum.Intrinsic;
-    open Microsoft.Quantum.Math;
+    open Microsoft.Quantum.Math as Math;
     open Microsoft.Quantum.Convert;
     open Microsoft.Quantum.Arrays;
 
@@ -25,7 +25,7 @@ namespace QuantumLunarSimulation {
 
         for i in 0..Length(points)-1 {
             let (embedding, confidence, _) = EncodePoint(config, points[i]);
-            set totalConfidence += confidence;
+            set totalConfidence = totalConfidence + confidence;
             for j in 0..dim-1 {
                 set channelMeans w/= j <- channelMeans[j] + embedding[j];
             }

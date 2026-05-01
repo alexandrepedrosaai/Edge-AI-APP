@@ -1,7 +1,7 @@
 namespace WaveSpaceDL {
     open Microsoft.Quantum.Intrinsic;
     open Microsoft.Quantum.Canon;
-    open Microsoft.Quantum.Math;
+    open Microsoft.Quantum.Math as Math;
     open Microsoft.Quantum.Arrays;
     open Microsoft.Quantum.Measurement;
     open Microsoft.Quantum.Convert;
@@ -15,7 +15,7 @@ namespace WaveSpaceDL {
         mutable outputs = [0.0, size = nOutputs];
 
         // Irrational Derivative Constant (e.g., related to sqrt(2) or PI for quantum phase)
-        let irrationalConst = Sqrt(2.0);
+        let irrationalConst = Math.Sqrt(2.0);
         
         for i in 0 .. nOutputs - 1 {
             mutable sum = 0.0;
@@ -26,7 +26,7 @@ namespace WaveSpaceDL {
             
             // Apply Activation with Irrational Component (Simulating a Quantum-inspired activation)
             // f(x) = tanh(x * sqrt(2))
-            set outputs w/= i <- Tanh(sum * irrationalConst);
+            set outputs w/= i <- Math.Tanh(sum * irrationalConst);
         }
 
         return outputs;
@@ -36,8 +36,8 @@ namespace WaveSpaceDL {
     /// Computes an irrational derivative approximation for gradient-based learning in quantum space.
     function IrrationalDerivative(value : Double) : Double {
         // Derivative of Tanh(x * sqrt(2)) is sqrt(2) * (1 - Tanh^2(x * sqrt(2)))
-        let irrationalConst = Sqrt(2.0);
-        let t = Tanh(value * irrationalConst);
+        let irrationalConst = Math.Sqrt(2.0);
+        let t = Math.Tanh(value * irrationalConst);
         return irrationalConst * (1.0 - t * t);
     }
 

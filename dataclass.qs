@@ -1,7 +1,7 @@
 namespace QuantumLunarSimulation {
     open Microsoft.Quantum.Canon;
     open Microsoft.Quantum.Intrinsic;
-    open Microsoft.Quantum.Math;
+    open Microsoft.Quantum.Math as Math;
     open Microsoft.Quantum.Convert;
 
     // Representação de um ponto no espaço quântico
@@ -20,34 +20,35 @@ namespace QuantumLunarSimulation {
     );
 
     // Função atemporal irracional f
-    // Transformada em OPERATION porque Sin/Cos/Exp podem ser tratados como operações intrínsecas
-    operation AtemporalIrrationalF(x : Int, y : Int, z : Int, phi : Double) : Double {
-        let radius = Sqrt(IntAsDouble(x * x + y * y + z * z));
-        return Sin(radius + phi) + Cos(IntAsDouble(x - y + z) * phi) + Exp(-((radius * radius) / 18.0));
+    function AtemporalIrrationalF(x : Int, y : Int, z : Int, phi : Double) : Double {
+        let radius = Math.Sqrt(IntAsDouble(x * x + y * y + z * z));
+        // Usando Math. para garantir que estamos chamando as FUNÇÕES do namespace Math,
+        // e não as OPERAÇÕES do namespace Intrinsic que têm o mesmo nome.
+        return Math.Sin(radius + phi) + Math.Cos(IntAsDouble(x - y + z) * phi) + Math.Exp(-((radius * radius) / 18.0));
     }
 
     // Função derivada dual d
-    operation DualDerivativeD(x : Int, y : Int, z : Int, phi : Double) : Double {
-        return phi * Cos(IntAsDouble(x) + phi)
-             - phi * Sin(IntAsDouble(y) - phi)
-             + (1.0 / (1.0 + AbsD(IntAsDouble(z)))) * Cos(IntAsDouble(z) * phi);
+    function DualDerivativeD(x : Int, y : Int, z : Int, phi : Double) : Double {
+        return phi * Math.Cos(IntAsDouble(x) + phi)
+             - phi * Math.Sin(IntAsDouble(y) - phi)
+             + (1.0 / (1.0 + Math.AbsD(IntAsDouble(z)))) * Math.Cos(IntAsDouble(z) * phi);
     }
 
     // Transformar coordenadas em PointState
-    operation TransformPoint(x : Int, y : Int, z : Int, phi : Double) : PointState {
+    function TransformPoint(x : Int, y : Int, z : Int, phi : Double) : PointState {
         let f_value = AtemporalIrrationalF(x, y, z, phi);
         let d_value = DualDerivativeD(x, y, z, phi);
-        let amplitude = Sqrt(AbsD(f_value * d_value) + 1e-9);
-        let frequency = AbsD(f_value - d_value) + phi;
+        let amplitude = Math.Sqrt(Math.AbsD(f_value * d_value) + 1e-9);
+        let frequency = Math.AbsD(f_value - d_value) + phi;
         let energy = f_value * f_value + d_value * d_value;
-        let spin = Sin(f_value + d_value);
+        let spin = Math.Sin(f_value + d_value);
         let phase = (f_value + d_value) / 2.0;
 
         return PointState(x, y, z, phi, f_value, d_value, energy, spin, amplitude, frequency, phase);
     }
 
     // Gerar espaço de pontos
-    operation GenerateSpace(gridMin : Int, gridMax : Int, phi : Double) : PointState[] {
+    function GenerateSpace(gridMin : Int, gridMax : Int, phi : Double) : PointState[] {
         mutable result = [];
         for x in gridMin..gridMax {
             for y in gridMin..gridMax {
