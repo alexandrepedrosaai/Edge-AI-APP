@@ -30,5 +30,8 @@ namespace QuantumLunarSimulation {
     operation Main() : Unit {
         Message("🌌 Quantum Lunar Base Simulation started...");
         ShowVersion();
+        
+        // Integrando chamadas para o novo módulo Neural DL
+        WaveSpaceDL.RunNeuralQuantumDL();
     }
 }
