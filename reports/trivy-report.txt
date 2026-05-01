@@ -182,16 +182,16 @@ Total: 15 (UNKNOWN: 0, LOW: 0, MEDIUM: 11, HIGH: 4, CRITICAL: 0)
 │                  │                     │          │        │                   │                     │ escalation                                                   │
 │                  │                     │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-40175                   │
 ├──────────────────┼─────────────────────┤          │        ├───────────────────┼─────────────────────┼──────────────────────────────────────────────────────────────┤
-│ dompurify        │ CVE-2026-41238      │          │        │ 3.3.3             │ 3.4.0               │ DOMPurify is a DOM-only cross-site scripting sanitizer for   │
-│                  │                     │          │        │                   │                     │ HTML, MathM ...                                              │
+│ dompurify        │ CVE-2026-41238      │          │        │ 3.3.3             │ 3.4.0               │ DOMPurify: DOMPurify: Cross-Site Scripting bypass via        │
+│                  │                     │          │        │                   │                     │ prototype pollution                                          │
 │                  │                     │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-41238                   │
 │                  ├─────────────────────┤          │        │                   │                     ├──────────────────────────────────────────────────────────────┤
-│                  │ CVE-2026-41239      │          │        │                   │                     │ DOMPurify is a DOM-only cross-site scripting sanitizer for   │
-│                  │                     │          │        │                   │                     │ HTML, MathM ...                                              │
+│                  │ CVE-2026-41239      │          │        │                   │                     │ DOMPurify: Vue 2: DOMPurify: Cross-site scripting due to     │
+│                  │                     │          │        │                   │                     │ incomplete sanitization of template...                       │
 │                  │                     │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-41239                   │
 │                  ├─────────────────────┤          │        │                   │                     ├──────────────────────────────────────────────────────────────┤
-│                  │ CVE-2026-41240      │          │        │                   │                     │ DOMPurify is a DOM-only cross-site scripting sanitizer for   │
-│                  │                     │          │        │                   │                     │ HTML, MathM ...                                              │
+│                  │ CVE-2026-41240      │          │        │                   │                     │ DOMPurify: DOMPurify: Cross-Site Scripting (XSS) via         │
+│                  │                     │          │        │                   │                     │ inconsistent tag sanitization                                │
 │                  │                     │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-41240                   │
 │                  ├─────────────────────┤          │        │                   │                     ├──────────────────────────────────────────────────────────────┤
 │                  │ GHSA-39q2-94rc-95cp │          │        │                   │                     │ DOMPurify's ADD_TAGS function form bypasses FORBID_TAGS due  │
@@ -250,16 +250,16 @@ Total: 15 (UNKNOWN: 0, LOW: 0, MEDIUM: 11, HIGH: 4, CRITICAL: 0)
 │                  │                     │          │        │                   │                     │ escalation                                                   │
 │                  │                     │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-40175                   │
 ├──────────────────┼─────────────────────┤          │        ├───────────────────┼─────────────────────┼──────────────────────────────────────────────────────────────┤
-│ dompurify        │ CVE-2026-41238      │          │        │ 3.3.3             │ 3.4.0               │ DOMPurify is a DOM-only cross-site scripting sanitizer for   │
-│                  │                     │          │        │                   │                     │ HTML, MathM ...                                              │
+│ dompurify        │ CVE-2026-41238      │          │        │ 3.3.3             │ 3.4.0               │ DOMPurify: DOMPurify: Cross-Site Scripting bypass via        │
+│                  │                     │          │        │                   │                     │ prototype pollution                                          │
 │                  │                     │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-41238                   │
 │                  ├─────────────────────┤          │        │                   │                     ├──────────────────────────────────────────────────────────────┤
-│                  │ CVE-2026-41239      │          │        │                   │                     │ DOMPurify is a DOM-only cross-site scripting sanitizer for   │
-│                  │                     │          │        │                   │                     │ HTML, MathM ...                                              │
+│                  │ CVE-2026-41239      │          │        │                   │                     │ DOMPurify: Vue 2: DOMPurify: Cross-site scripting due to     │
+│                  │                     │          │        │                   │                     │ incomplete sanitization of template...                       │
 │                  │                     │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-41239                   │
 │                  ├─────────────────────┤          │        │                   │                     ├──────────────────────────────────────────────────────────────┤
-│                  │ CVE-2026-41240      │          │        │                   │                     │ DOMPurify is a DOM-only cross-site scripting sanitizer for   │
-│                  │                     │          │        │                   │                     │ HTML, MathM ...                                              │
+│                  │ CVE-2026-41240      │          │        │                   │                     │ DOMPurify: DOMPurify: Cross-Site Scripting (XSS) via         │
+│                  │                     │          │        │                   │                     │ inconsistent tag sanitization                                │
 │                  │                     │          │        │                   │                     │ https://avd.aquasec.com/nvd/cve-2026-41240                   │
 │                  ├─────────────────────┤          │        │                   │                     ├──────────────────────────────────────────────────────────────┤
 │                  │ GHSA-39q2-94rc-95cp │          │        │                   │                     │ DOMPurify's ADD_TAGS function form bypasses FORBID_TAGS due  │
