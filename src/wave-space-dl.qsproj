@@ -1,8 +1,8 @@
-<Project Sdk="Microsoft.Quantum.Sdk/0.27.258156-beta">
+<Project Sdk="Microsoft.Quantum.Sdk/1.0.0">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <AssemblyName>wave-space-dl</AssemblyName>
     <RootNamespace>WaveSpaceDL</RootNamespace>
     
@@ -13,7 +13,7 @@
   <ItemGroup>
     <!-- Explicitly include the Q# source files -->
     <QSharpCompile Include="wave-space-dl.qs" />
-    <QSharpCompile Include="LLM NEURAL DL Quantum com operacoes matriciais e derivadas irracionais integradas.qs" />
+    <QSharpCompile Include="LLMNeuralDLQuantum.qs" />
     <QSharpCompile Include="..\ProceduralDLEncoder.qs" />
     <QSharpCompile Include="..\Program.qs" />
     <QSharpCompile Include="..\_version.qs" />
