@@ -24,7 +24,7 @@ namespace QuantumLunarSimulation {
         let radius = Math.Sqrt(IntAsDouble(x * x + y * y + z * z));
         // Usando Math. para garantir que estamos chamando as FUNÇÕES do namespace Math,
         // e não as OPERAÇÕES do namespace Intrinsic que têm o mesmo nome.
-        return Math.Sin(radius + phi) + Math.Cos(IntAsDouble(x - y + z) * phi) + Math.Exp(-((radius * radius) / 18.0));
+        return Math.Sin(radius + phi) + Math.Cos(IntAsDouble(x - y + z) * phi) + Math.ExpD(-((radius * radius) / 18.0));
     }
 
     // Função derivada dual d
