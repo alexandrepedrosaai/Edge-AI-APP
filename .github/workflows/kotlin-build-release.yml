@@ -26,8 +26,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v3
 
       - name: Build with Gradle
-        working-directory: src/main/kotlin
-        run: ../../gradlew clean build fatJar --no-daemon
+        run: ./gradlew clean build fatJar --no-daemon
 
       - name: Archive binaries
         run: |
