@@ -51,9 +51,9 @@ jobs:
         with:
           name: quantum-lunar-base-artifacts
           path: |
-            Quantum-Lunar-Base-Simulation/Reports/*.qs
-            Quantum-Lunar-Base-Simulation/Visuals/*.qs
-            Quantum-Lunar-Base-Simulation/LunarSim/*.qs
+            Quantum-Lunar-Base-Simulation/Reports/
+            Quantum-Lunar-Base-Simulation/Visuals/
+            Quantum-Lunar-Base-Simulation/LunarSim/
             Quantum-Lunar-Base-Simulation/LunarSim/bin/Debug/net6.0/
 
       # ==================================================
@@ -65,9 +65,9 @@ jobs:
           tag_name: v-quantum-lunar-${{ github.sha }}
           name: "Quantum Lunar Base Simulation Release ${{ github.sha }}"
           files: |
-            Quantum-Lunar-Base-Simulation/Reports/*.qs
-            Quantum-Lunar-Base-Simulation/Visuals/*.qs
-            Quantum-Lunar-Base-Simulation/LunarSim/*.qs
+            Quantum-Lunar-Base-Simulation/Reports/
+            Quantum-Lunar-Base-Simulation/Visuals/
+            Quantum-Lunar-Base-Simulation/LunarSim/
             Quantum-Lunar-Base-Simulation/LunarSim/bin/Debug/net6.0/
           body: |
             🚀 **Quantum Lunar Base Simulation**
@@ -82,9 +82,9 @@ jobs:
         run: |
           echo "FROM mcr.microsoft.com/quantum/iqsharp-base:latest" > Dockerfile
           echo "WORKDIR /app" >> Dockerfile
-          echo "COPY Quantum-Lunar-Base-Simulation/Reports/*.qs /app/" >> Dockerfile
-          echo "COPY Quantum-Lunar-Base-Simulation/Visuals/*.qs /app/" >> Dockerfile
-          echo "COPY Quantum-Lunar-Base-Simulation/LunarSim/*.qs /app/" >> Dockerfile
+          echo "COPY Quantum-Lunar-Base-Simulation/Reports/ /app/Reports/" >> Dockerfile
+          echo "COPY Quantum-Lunar-Base-Simulation/Visuals/ /app/Visuals/" >> Dockerfile
+          echo "COPY Quantum-Lunar-Base-Simulation/LunarSim/ /app/LunarSim/" >> Dockerfile
           echo "CMD [\"dotnet\", \"run\", \"--project\", \"Quantum-Lunar-Base-Simulation/LunarSim\"]" >> Dockerfile
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           IMAGE_ID=ghcr.io/${{ github.repository_owner }}/quantum-lunar-base-simulation
