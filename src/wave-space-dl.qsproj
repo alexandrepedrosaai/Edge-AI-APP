@@ -1,15 +1,30 @@
-<Project Sdk="Microsoft.Quantum.Sdk/0.27.258020">
+<Project Sdk="Microsoft.Quantum.Sdk/0.27.258156-beta">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <AssemblyName>wave-space-dl</AssemblyName>
     <RootNamespace>WaveSpaceDL</RootNamespace>
+    
+    <!-- Disable automatic inclusion of files to prevent NETSDK1022 errors -->
+    <EnableDefaultItems>false</EnableDefaultItems>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Quantum.Standard" Version="0.27.258020" />
-    <PackageReference Include="Microsoft.Quantum.Canon" Version="0.27.258020" />
+    <!-- Explicitly include the Q# source files -->
+    <QSharpCompile Include="wave-space-dl.qs" />
+    <QSharpCompile Include="LLM NEURAL DL Quantum com operacoes matriciais e derivadas irracionais integradas.qs" />
+    <QSharpCompile Include="..\ProceduralDLEncoder.qs" />
+    <QSharpCompile Include="..\Program.qs" />
+    <QSharpCompile Include="..\_version.qs" />
+    <QSharpCompile Include="..\cli.qs" />
+    <QSharpCompile Include="..\dataclass.qs" />
+    <QSharpCompile Include="..\procedural_dl.qs" />
+  </ItemGroup>
+
+  <!-- Include other necessary files if they exist -->
+  <ItemGroup>
+    <None Include="**\*.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

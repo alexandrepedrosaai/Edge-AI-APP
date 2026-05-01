@@ -47,8 +47,7 @@ namespace QuantumLunarSimulation {
         return pep440;
     }
 
-    @EntryPoint()
-    operation Main() : Unit {
+    operation ShowDetailedVersion() : Unit {
         let semver = DefaultSemVer();
         let semverStr = SemVerToString(semver);
         let pep440Str = SemVerToPep440(semver);

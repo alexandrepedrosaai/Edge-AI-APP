@@ -56,8 +56,7 @@ namespace QuantumLunarSimulation {
         return result;
     }
 
-    @EntryPoint()
-    operation Main() : Unit {
+    operation Main_DataClass() : Unit {
         let phi = 1.0;
         let space = GenerateSpace(-5, 5, phi);
         Message($"#Q QuantumOS Procedural Space generated with {Length(space)} points.");

@@ -79,8 +79,7 @@ namespace QuantumLunarSimulation {
         return (channelMeans, avgConfidence, Length(points));
     }
 
-    @EntryPoint()
-    operation Main() : Unit {
+    operation Main_ProceduralDL() : Unit {
         let config = DefaultConfig();
         let point = PointState(1.0, 0.5, -0.2, 0.3, 0.7, 0.4, 2.0, 0.9, 0.8);
         let (embedding, confidence, latentNorm) = EncodePoint(config, point);

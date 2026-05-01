@@ -4,8 +4,7 @@ namespace WaveSpaceDL {
     open System;
     open System.IO;
 
-    @EntryPoint()
-    operation Main() : Unit {
+    operation RunWaveSpaceGeneration() : Unit {
         // Parse CLI args
         let args = Environment.GetCommandLineArgs();
         mutable outputPath = "dist/wave-space.json";
@@ -28,6 +27,10 @@ namespace WaveSpaceDL {
         File.WriteAllText(outputPath, JsonSerialize(points));
 
         Message($"✅ Wave-space generated at {outputPath} with {Length(points)} points");
+    }
+
+    operation RunNeuralQuantumDL_Entry() : Unit {
+        RunNeuralQuantumDL();
     }
 
     // Example generator (simplified)

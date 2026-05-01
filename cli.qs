@@ -7,8 +7,7 @@ namespace QuantumLunarSimulation {
     open System.IO;
     open System.Text.Json;
 
-    @EntryPoint()
-    operation Main() : Unit {
+    operation Main_CLI() : Unit {
         // Captura argumentos da linha de comando
         let args = Environment.GetCommandLineArgs();
 
