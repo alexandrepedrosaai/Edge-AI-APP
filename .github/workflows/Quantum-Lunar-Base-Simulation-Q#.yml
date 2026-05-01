@@ -35,6 +35,13 @@ jobs:
         run: |
           cd Quantum-Lunar-Base-Simulation/LunarSim
           dotnet build QuantumLunarSimulationProject.csproj
+      
+      - name: Cleanup Invalid Filenames
+        run: |
+          # Find and remove any files with a literal '*' in their name to fix artifact upload
+          find Quantum-Lunar-Base-Simulation/LunarSim/bin/Debug/net6.0/ -name "*\**" -delete
+          echo "Cleanup of invalid filenames completed."
+
       # ==================================================
       # 3. UPLOAD ARTIFACTS
       # ==================================================
