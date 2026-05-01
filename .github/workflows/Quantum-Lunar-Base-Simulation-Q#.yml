@@ -55,9 +55,9 @@ jobs:
           tag_name: v-quantum-lunar-${{ github.sha }}
           name: "Quantum Lunar Base Simulation Release ${{ github.sha }}"
           files: |
-            Quantum-Lunar-Base-Simulation/Reports/*
-            Quantum-Lunar-Base-Simulation/Visuals/*
-            Quantum-Lunar-Base-Simulation/LunarSim/bin/Debug/net6.0/*
+            Quantum-Lunar-Base-Simulation/Reports/
+            Quantum-Lunar-Base-Simulation/Visuals/
+            Quantum-Lunar-Base-Simulation/LunarSim/bin/Debug/net6.0/
           body: |
             🚀 **Quantum Lunar Base Simulation**
             🌌 Q# simulation with O₂, H₂O parameters and semi-spherical dome for 500 humans.
