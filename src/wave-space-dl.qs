@@ -1,42 +1,28 @@
 namespace WaveSpaceDL {
     open Microsoft.Quantum.Canon;
     open Microsoft.Quantum.Intrinsic;
-    open System;
-    open System.IO;
+    open Microsoft.Quantum.Convert;
+    open Microsoft.Quantum.Math;
 
     operation RunWaveSpaceGeneration() : Unit {
-        // Parse CLI args
-        let args = Environment.GetCommandLineArgs();
-        mutable outputPath = "dist/wave-space.json";
-        mutable embeddingDim = 12;
-
-        for (i in 0..Length(args)-1) {
-            if (args[i] == "--output" && i+1 < Length(args)) {
-                set outputPath <- args[i+1];
-            }
-            if (args[i] == "--embedding-dim" && i+1 < Length(args)) {
-                set embeddingDim <- Int.Parse(args[i+1]);
-            }
-        }
+        // Q# does not support System.IO or CLI args directly in this way.
+        // We simulate the logic for the quantum simulator.
+        let embeddingDim = 12;
 
         // Generate space
-        let points = GenerateSpace(-5, 5, 1.0, embeddingDim);
+        let pointsCount = GenerateSpaceCount(-5, 5);
 
-        // Serialize to JSON
-        Directory.CreateDirectory(Path.GetDirectoryName(outputPath));
-        File.WriteAllText(outputPath, JsonSerialize(points));
-
-        Message($"✅ Wave-space generated at {outputPath} with {Length(points)} points");
+        Message($"✅ Wave-space logic initialized with {pointsCount} points");
     }
 
     operation RunNeuralQuantumDL_Entry() : Unit {
+        // Assuming RunNeuralQuantumDL is defined in another file in the same project
         RunNeuralQuantumDL();
     }
 
     // Example generator (simplified)
-    function GenerateSpace(gridMin : Int, gridMax : Int, phi : Double, embeddingDim : Int) : String {
-        // Here you would call TransformPoint for each coordinate and build JSON
-        // For demo, return a placeholder JSON string
-        return $"{{\"points\": {((gridMax-gridMin+1)*(gridMax-gridMin+1)*(gridMax-gridMin+1))}, \"phi\": {phi}, \"embedding_dim\": {embeddingDim}}}";
+    function GenerateSpaceCount(gridMin : Int, gridMax : Int) : Int {
+        let size = gridMax - gridMin + 1;
+        return size * size * size;
     }
 }

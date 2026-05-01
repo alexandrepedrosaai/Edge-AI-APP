@@ -1,6 +1,9 @@
 namespace QuantumLunarSimulation {
     open Microsoft.Quantum.Canon;
     open Microsoft.Quantum.Intrinsic;
+    open Microsoft.Quantum.Math;
+    open Microsoft.Quantum.Convert;
+    open Microsoft.Quantum.Arrays;
 
     // Configuração procedural
     newtype ProceduralDLConfig = (
@@ -14,28 +17,14 @@ namespace QuantumLunarSimulation {
         return ProceduralDLConfig(12, 0.61803398875, "procedural-dl", "tanh");
     }
 
-    // Representação de um ponto no espaço quântico
-    newtype PointState = (
-        X : Double,
-        Y : Double,
-        Z : Double,
-        Phi : Double,
-        FValue : Double,
-        DValue : Double,
-        ParticleEnergy : Double,
-        WavePhase : Double,
-        WaveAmplitude : Double
-    );
-
-    // Função de ativação tanh
-    function Tanh(x : Double) : Double {
-        return (Exp(2.0 * x) - 1.0) / (Exp(2.0 * x) + 1.0);
-    }
+    // PointState is defined in dataclass.qs, we should use that or define a local version if namespaces were different.
+    // To avoid "PointState already exists", we use the one from the project.
+    // If it's in the same namespace, we don't need to redefine it.
 
     // Codificação de um ponto
-    function EncodePoint(config : ProceduralDLConfig, point : PointState) : (Embedding : Double[], Confidence : Double, LatentNorm : Double) {
-        let (dim, temp, _, _) = config!;
-        let (x, y, z, phi, fval, dval, energy, phase, amplitude) = point!;
+    function EncodePoint(config : ProceduralDLConfig, point : PointState) : (Double[], Double, Double) {
+        let (dim, temp, name, act) = config!;
+        let (x, y, z, phi, fval, dval, energy, spin, amplitude, frequency, phase) = point!;
         mutable embedding = new Double[dim];
         let seed = fval + dval + phi;
 
@@ -43,27 +32,32 @@ namespace QuantumLunarSimulation {
             let phaseFactor = (IntAsDouble(index) + 1.0) * temp;
             let channel = Tanh(
                 Sin(seed * phaseFactor)
-                + Cos((x - y + z + 1.0) * phaseFactor)
+                + Cos((IntAsDouble(x - y + z) + 1.0) * phaseFactor)
                 + (energy / (IntAsDouble(index) + 2.0))
                 - phase / (IntAsDouble(index) + 3.0)
             );
-            set embedding w/= index <- Round(channel, 8);
+            set embedding w/= index <- channel;
         }
 
-        let confidence = Round(1.0 / (1.0 + Abs(phase - amplitude)), 8);
-        let latentNorm = Round(Sqrt(Sum(embedding, x -> x * x)), 8);
+        let confidence = 1.0 / (1.0 + Abs(phase - amplitude));
+        
+        mutable sumSq = 0.0;
+        for val in embedding {
+            set sumSq += val * val;
+        }
+        let latentNorm = Sqrt(sumSq);
 
         return (embedding, confidence, latentNorm);
     }
 
     operation Main_ProceduralDLEncoder() : Unit {
         let config = DefaultConfig();
-        let point = PointState(1.0, 0.5, -0.2, 0.3, 0.7, 0.4, 2.0, 0.9, 0.8);
+        // PointState(x, y, z, phi, fval, dval, energy, spin, amplitude, frequency, phase)
+        let point = PointState(1, 0, -1, 0.3, 0.7, 0.4, 2.0, 0.5, 0.9, 1.2, 0.8);
         let (embedding, confidence, latentNorm) = EncodePoint(config, point);
 
         Message($"#Q Procedural DL Encoder");
-        Message($"Model: {config::ModelName}, Activation: {config::Activation}");
-        Message($"Embedding: {embedding}");
+        Message($"Model: {config::ModelName}");
         Message($"Confidence: {confidence}");
         Message($"Latent Norm: {latentNorm}");
     }

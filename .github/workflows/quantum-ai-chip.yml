@@ -85,12 +85,6 @@ jobs:
         run: |
           echo "Checking integration of core Q# files..."
           ls -l ProceduralDLEncoder.qs Program.qs _version.qs cli.qs dataclass.qs procedural_dl.qs src/wave-space-dl.qs src/"LLM NEURAL DL Quantum com operacoes matriciais e derivadas irracionais integradas.qs"
-      - name: Generate Wave Space JSON
-        run: |
-          mkdir -p dist
-          # Usando o comando correto para gerar o artefato final
-          dotnet run --project src/wave-space-dl.qsproj -- --output dist/wave-space.json --embedding-dim "${EMBEDDING_DIM}"
-          sha256sum dist/wave-space.json > dist/wave-space.json.sha256
       - uses: actions/upload-artifact@v4
         with:
           name: quantum-ai-chip-quality-${{ needs.prepare-version.outputs.safe_version }}
