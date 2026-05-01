@@ -2,12 +2,15 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <AssemblyName>wave-space-dl</AssemblyName>
     <RootNamespace>WaveSpaceDL</RootNamespace>
     
     <!-- Disable automatic inclusion of files to prevent NETSDK1022 errors -->
     <EnableDefaultItems>false</EnableDefaultItems>
+    
+    <!-- Explicitly set the SDK to avoid MSB4057 in some environments -->
+    <MicrosoftNetSdkTasksDirectoryRoot>$(MSBuildSDKsPath)\Microsoft.NET.Sdk\targets\</MicrosoftNetSdkTasksDirectoryRoot>
   </PropertyGroup>
 
   <ItemGroup>
