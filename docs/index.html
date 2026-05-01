@@ -2,18 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Edge-AI-APP WebAssembly 3D Interactive</title>
   <style>
     body { margin:0; overflow:hidden; background:#000; color: #fff; font-family: sans-serif; }
-    canvas { display:block; width:100vw; height:100vh; cursor:grab; }
-    #info { position: absolute; top: 10px; left: 10px; pointer-events: none; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 5px; }
+    canvas { display:block; width:100vw; height:100vh; cursor:grab; touch-action: none; }
+    #info { position: absolute; top: 10px; left: 10px; pointer-events: none; background: rgba(0,0,0,0.7); padding: 15px; border-radius: 8px; border: 1px solid #444; }
+    h1 { margin: 0 0 5px 0; font-size: 18px; color: #00ccff; }
+    p { margin: 5px 0; font-size: 12px; color: #aaa; }
+    #status { color: #00ff00; font-weight: bold; }
   </style>
 </head>
 <body>
 <div id="info">
   <h1>Edge-AI-APP</h1>
   <p>Interactive 3D Cube driven by WebAssembly</p>
-  <p id="status">Loading WASM modules...</p>
+  <p id="status">Initializing system...</p>
 </div>
 <canvas id="c"></canvas>
 <script>
@@ -22,53 +26,64 @@ async function loadWasm(file) {
     const response = await fetch(file);
     if (!response.ok) throw new Error(`Failed to fetch ${file}: ${response.statusText}`);
     const buffer = await response.arrayBuffer();
-    // Using instantiateStreaming for better performance, falling back to buffer
     let wasmModule;
     if (WebAssembly.instantiateStreaming) {
-      wasmModule = await WebAssembly.instantiateStreaming(fetch(file));
+      try {
+        wasmModule = await WebAssembly.instantiateStreaming(fetch(file));
+      } catch (e) {
+        wasmModule = await WebAssembly.instantiate(buffer);
+      }
     } else {
       wasmModule = await WebAssembly.instantiate(buffer);
     }
     return wasmModule.instance.exports;
   } catch (e) {
     console.error(`Error loading ${file}:`, e);
-    document.getElementById("status").innerText = `Error loading ${file}`;
+    document.getElementById("status").innerText = `Error: ${file} not found`;
     throw e;
   }
 }
 
 async function run() {
   try {
-    // Load modules with correct names and error handling
-    const linear = await loadWasm("Linear.wasm");
+    document.getElementById("status").innerText = "Loading WASM modules...";
     const trig = await loadWasm("Functions.wasm");
-    const matrix = await loadWasm("Matrixderivate.wasm");
-    const hyper = await loadWasm("Hyperbolic.wasm");
-    const factor = await loadWasm("Factor.wasm");
-    const unified = await loadWasm("Unified.wasm");
+    // Other modules are optional for this demo
+    try { await loadWasm("Linear.wasm"); } catch(e){}
+    try { await loadWasm("Matrixderivate.wasm"); } catch(e){}
     
-    document.getElementById("status").innerText = "All modules loaded. Use mouse/arrows to rotate.";
+    document.getElementById("status").innerText = "System Active. Drag to Rotate.";
 
     const canvas = document.getElementById("c");
-    const gl = canvas.getContext("webgl");
+    const gl = canvas.getContext("webgl", { antialias: true });
     if (!gl) { alert("WebGL not supported"); return; }
 
-    // Shaders
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      gl.viewport(0, 0, canvas.width, canvas.height);
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
     const vsSource = `
       attribute vec4 aVertexPosition;
       uniform mat4 uModelViewMatrix;
       uniform mat4 uProjectionMatrix;
+      varying lowp vec4 vColor;
       void main(void) {
         gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
+        vColor = aVertexPosition * 0.5 + 0.5; // Color based on position
       }
     `;
     const fsSource = `
-      precision mediump float;
-      uniform float uColorIntensity;
+      varying lowp vec4 vColor;
+      uniform lowp float uColorIntensity;
       void main(void) {
-        gl_FragColor = vec4(0.2 * uColorIntensity, 0.8 * uColorIntensity, 1.0 * uColorIntensity, 1.0);
+        gl_FragColor = vec4(vColor.rgb * uColorIntensity, 1.0);
       }
     `;
+
     function loadShader(type, source) {
       const shader = gl.createShader(type);
       gl.shaderSource(shader, source);
@@ -80,6 +95,7 @@ async function run() {
       }
       return shader;
     }
+
     const vertexShader = loadShader(gl.VERTEX_SHADER, vsSource);
     const fragmentShader = loadShader(gl.FRAGMENT_SHADER, fsSource);
     const shaderProgram = gl.createProgram();
@@ -89,9 +105,7 @@ async function run() {
 
     const programInfo = {
       program: shaderProgram,
-      attribLocations: {
-        vertexPosition: gl.getAttribLocation(shaderProgram, 'aVertexPosition'),
-      },
+      attribLocations: { vertexPosition: gl.getAttribLocation(shaderProgram, 'aVertexPosition') },
       uniformLocations: {
         projectionMatrix: gl.getUniformLocation(shaderProgram, 'uProjectionMatrix'),
         modelViewMatrix: gl.getUniformLocation(shaderProgram, 'uModelViewMatrix'),
@@ -99,25 +113,19 @@ async function run() {
       },
     };
 
-    // Cube vertices
     const positions = [
-      -1.0, -1.0,  1.0,
-       1.0, -1.0,  1.0,
-       1.0,  1.0,  1.0,
-      -1.0,  1.0,  1.0,
-      -1.0, -1.0, -1.0,
-      -1.0,  1.0, -1.0,
-       1.0,  1.0, -1.0,
-       1.0, -1.0, -1.0,
+      -1.0,-1.0, 1.0,  1.0,-1.0, 1.0,  1.0, 1.0, 1.0, -1.0, 1.0, 1.0,
+      -1.0,-1.0,-1.0, -1.0, 1.0,-1.0,  1.0, 1.0,-1.0,  1.0,-1.0,-1.0,
+      -1.0, 1.0,-1.0, -1.0, 1.0, 1.0,  1.0, 1.0, 1.0,  1.0, 1.0,-1.0,
+      -1.0,-1.0,-1.0,  1.0,-1.0,-1.0,  1.0,-1.0, 1.0, -1.0,-1.0, 1.0,
+       1.0,-1.0,-1.0,  1.0, 1.0,-1.0,  1.0, 1.0, 1.0,  1.0,-1.0, 1.0,
+      -1.0,-1.0,-1.0, -1.0,-1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0,-1.0,
     ];
     const indices = [
-      0, 1, 2, 0, 2, 3,
-      4, 5, 6, 4, 6, 7,
-      0, 3, 5, 0, 5, 4,
-      1, 7, 6, 1, 6, 2,
-      3, 2, 6, 3, 6, 5,
-      0, 4, 7, 0, 7, 1,
+      0, 1, 2, 0, 2, 3,    4, 5, 6, 4, 6, 7,    8, 9,10, 8,10,11,
+      12,13,14, 12,14,15,  16,17,18, 16,18,19,  20,21,22, 20,22,23,
     ];
+
     const positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
@@ -125,7 +133,6 @@ async function run() {
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
 
-    // Minimal mat4 utility
     const mat4 = {
       create: () => new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]),
       perspective: (out,fovy,aspect,near,far)=>{
@@ -133,6 +140,7 @@ async function run() {
         out[0]=f/aspect; out[5]=f; out[10]=(far+near)*nf; out[11]=-1;
         out[14]=2*far*near*nf; out[1]=out[2]=out[3]=out[4]=out[6]=out[7]=out[8]=out[9]=out[12]=out[13]=out[15]=0;
       },
+      identity: (out) => { out.set([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]); },
       translate:(out,a,v)=>{
         out[12]=a[12]+v[0]; out[13]=a[13]+v[1]; out[14]=a[14]+v[2];
       },
@@ -150,14 +158,12 @@ async function run() {
       }
     };
 
-    // Interaction state
-    let rotationX = 0, rotationY = 0, zoom = -6;
+    let rotationX = 0.5, rotationY = 0.5, zoom = -5;
     let dragging = false, lastX, lastY;
 
-    // Mouse controls
-    canvas.addEventListener("mousedown", e => { dragging = true; lastX = e.clientX; lastY = e.clientY; });
-    window.addEventListener("mouseup", () => dragging = false);
-    window.addEventListener("mousemove", e => {
+    canvas.addEventListener("pointerdown", e => { dragging = true; lastX = e.clientX; lastY = e.clientY; canvas.setPointerCapture(e.pointerId); });
+    canvas.addEventListener("pointerup", e => { dragging = false; canvas.releasePointerCapture(e.pointerId); });
+    canvas.addEventListener("pointermove", e => {
       if (dragging) {
         rotationY += (e.clientX - lastX) * 0.01;
         rotationX += (e.clientY - lastY) * 0.01;
@@ -167,32 +173,22 @@ async function run() {
     canvas.addEventListener("wheel", e => { zoom += e.deltaY * 0.005; e.preventDefault(); }, {passive: false});
 
     function drawScene(time) {
-      gl.clearColor(0, 0, 0, 1);
+      gl.clearColor(0.05, 0.05, 0.1, 1);
       gl.clearDepth(1.0);
       gl.enable(gl.DEPTH_TEST);
       gl.depthFunc(gl.LEQUAL);
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
       const projectionMatrix = mat4.create();
-      mat4.perspective(projectionMatrix, 45*Math.PI/180, canvas.clientWidth/canvas.clientHeight, 0.1, 100.0);
+      mat4.perspective(projectionMatrix, 45*Math.PI/180, canvas.width/canvas.height, 0.1, 100.0);
       
       const modelViewMatrix = mat4.create();
       mat4.translate(modelViewMatrix, modelViewMatrix, [0.0, 0.0, zoom]);
       mat4.rotateX(modelViewMatrix, modelViewMatrix, rotationX);
       mat4.rotateY(modelViewMatrix, modelViewMatrix, rotationY);
 
-      // WASM-driven values
       const angle = time * 0.001;
-      const cosVal = trig.cos(angle);
-      const sinVal = trig.sin(angle);
-      
-      // Using available functions from modules
-      // Linear.wasm: vec_scalar_mul(ptr, len, scalar)
-      // Functions.wasm: sin(f32), cos(f32)
-      // Matrixderivate.wasm: mat_derivative(A, dA, N, dx)
-      // Hyperbolic.wasm: sinh(f32), cosh(f32)
-      // Factor.wasm: fact(i32)
-      
+      const cosVal = trig.cos ? trig.cos(angle) : Math.cos(angle);
       const colorIntensity = Math.abs(cosVal) * 0.5 + 0.5;
 
       gl.useProgram(programInfo.program);
@@ -215,6 +211,7 @@ async function run() {
     requestAnimationFrame(render);
   } catch (e) {
     console.error("Run error:", e);
+    document.getElementById("status").innerText = "Critical Error. Check Console.";
   }
 }
 run();
