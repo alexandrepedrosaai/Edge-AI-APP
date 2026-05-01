@@ -8,9 +8,6 @@
     
     <!-- Disable automatic inclusion of files to prevent NETSDK1022 errors -->
     <EnableDefaultItems>false</EnableDefaultItems>
-    
-    <!-- Explicitly set the SDK to avoid MSB4057 in some environments -->
-    <MicrosoftNetSdkTasksDirectoryRoot>$(MSBuildSDKsPath)\Microsoft.NET.Sdk\targets\</MicrosoftNetSdkTasksDirectoryRoot>
   </PropertyGroup>
 
   <ItemGroup>
