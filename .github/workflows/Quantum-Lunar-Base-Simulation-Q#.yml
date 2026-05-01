@@ -68,7 +68,7 @@ jobs:
             Quantum-Lunar-Base-Simulation/Reports/*.qs
             Quantum-Lunar-Base-Simulation/Visuals/*.qs
             Quantum-Lunar-Base-Simulation/LunarSim/*.qs
-            Quantum-Lunar-Base-Simulation/LunarSim/bin/Debug/net6.0/*
+            Quantum-Lunar-Base-Simulation/LunarSim/bin/Debug/net6.0/
           body: |
             🚀 **Quantum Lunar Base Simulation**
             🌌 Q# simulation with O₂, H₂O parameters and semi-spherical dome for 500 humans.
