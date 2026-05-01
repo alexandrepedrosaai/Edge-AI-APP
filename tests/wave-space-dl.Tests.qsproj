@@ -1,15 +1,15 @@
-<Project Sdk="Microsoft.Quantum.Sdk/0.27.258020">
-
+<Project Sdk="Microsoft.Quantum.Sdk/0.28.263081">
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <AssemblyName>wave-space-dl.Tests</AssemblyName>
     <RootNamespace>WaveSpaceDL.Tests</RootNamespace>
   </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="Microsoft.Quantum.Xunit" Version="0.27.258020" />
-    <PackageReference Include="Microsoft.Quantum.Standard" Version="0.27.258020" />
-    <PackageReference Include="Microsoft.Quantum.Canon" Version="0.27.258020" />
+    <PackageReference Include="Microsoft.Quantum.Xunit" Version="0.28.263081" />
+    <PackageReference Include="Microsoft.Quantum.Standard" Version="0.28.263081" />
+    <PackageReference Include="Microsoft.Quantum.Canon" Version="0.28.263081" />
   </ItemGroup>
-
+  <ItemGroup>
+    <ProjectReference Include="..\src\wave-space-dl.qsproj" />
+  </ItemGroup>
 </Project>
