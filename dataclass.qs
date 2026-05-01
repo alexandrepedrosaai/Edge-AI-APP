@@ -51,7 +51,7 @@ namespace QuantumLunarSimulation {
         for x in gridMin..gridMax {
             for y in gridMin..gridMax {
                 for z in gridMin..gridMax {
-                    set result += [TransformPoint(x, y, z, phi)];
+                    set result = result + [TransformPoint(x, y, z, phi)];
                 }
             }
         }

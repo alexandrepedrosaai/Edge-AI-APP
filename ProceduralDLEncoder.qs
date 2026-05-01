@@ -5,22 +5,6 @@ namespace QuantumLunarSimulation {
     open Microsoft.Quantum.Convert;
     open Microsoft.Quantum.Arrays;
 
-    // Configuração procedural
-    // Note: ProceduralDLConfig is already defined in procedural_dl.qs
-    // I will comment it out to avoid duplicate definition errors.
-    /*
-    newtype ProceduralDLConfig = (
-        EmbeddingDim : Int,
-        LatentTemperature : Double,
-        ModelName : String,
-        Activation : String
-    );
-
-    function DefaultConfig() : ProceduralDLConfig {
-        return ProceduralDLConfig(12, 0.61803398875, "procedural-dl", "tanh");
-    }
-    */
-
     // Codificação de um ponto
     function EncodePoint(config : ProceduralDLConfig, point : PointState) : (Double[], Double, Double) {
         let (dim, temp, name, act) = config!;
@@ -43,7 +27,7 @@ namespace QuantumLunarSimulation {
         
         mutable sumSq = 0.0;
         for val in embedding {
-            set sumSq += val * val;
+            set sumSq = sumSq + (val * val);
         }
         let latentNorm = Sqrt(sumSq);
 

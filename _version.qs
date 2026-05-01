@@ -2,31 +2,6 @@ namespace QuantumLunarSimulation {
     open Microsoft.Quantum.Canon;
     open Microsoft.Quantum.Intrinsic;
 
-    // Representação de versão semântica
-    // Note: SemVer is already defined in Program.qs, but we keep it here if they are in different projects.
-    // However, they are in the same project, so we should avoid duplicate definitions.
-    // I will comment out the type and common functions to avoid QS6003/QS6001 errors.
-
-    /*
-    newtype SemVer = (Major : Int, Minor : Int, Patch : Int, PreRelease : String, Build : String);
-
-    function DefaultSemVer() : SemVer {
-        return SemVer(0, 2, 0, "", "");
-    }
-
-    function SemVerToString(ver : SemVer) : String {
-        let (major, minor, patch, prerelease, build) = ver!;
-        mutable version = $"{major}.{minor}.{patch}";
-        if (prerelease != "") {
-            set version = $"{version}-{prerelease}";
-        }
-        if (build != "") {
-            set version = $"{version}+{build}";
-        }
-        return version;
-    }
-    */
-
     // Converte SemVer para formato PEP440-like
     function SemVerToPep440(ver : SemVer) : String {
         let (major, minor, patch, prerelease, build) = ver!;
