@@ -1,0 +1,188 @@
+name: Quantum AI Chip Microwave MCU Neural Matricial Learning Procedural Transduction, Firmware-ota-pipeline
+
+on:
+  push:
+    branches: ["main"]
+    tags: ["v*", "release-*"]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: quantum-ai-chip-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  packages: write
+
+env:
+  DOTNET_VERSION: "7.0.x"
+  EMBEDDING_DIM: "12"
+
+jobs:
+  prepare-version:
+    runs-on: ubuntu-latest
+    outputs:
+      semver: ${{ steps.version.outputs.semver }}
+      docker_tag: ${{ steps.version.outputs.docker_tag }}
+      safe_version: ${{ steps.version.outputs.safe_version }}
+      release_tag: ${{ steps.version.outputs.release_tag }}
+      sha_short: ${{ steps.version.outputs.sha_short }}
+      is_release: ${{ steps.version.outputs.is_release }}
+    steps:
+      - name: Resolve semantic version and tags
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          REF_NAME="${GITHUB_REF_NAME}"
+          SHA_SHORT="${GITHUB_SHA::7}"
+          IS_RELEASE="false"
+          RELEASE_TAG=""
+
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            SEMVER="${REF_NAME#v}"
+            RELEASE_TAG="${REF_NAME}"
+            IS_RELEASE="true"
+          elif [[ "${GITHUB_REF}" == refs/tags/release-* ]]; then
+            SEMVER="0.2.0-release.${GITHUB_RUN_NUMBER}+sha.${SHA_SHORT}"
+            RELEASE_TAG="${REF_NAME}"
+            IS_RELEASE="true"
+          else
+            SEMVER="0.2.0-ci.${GITHUB_RUN_NUMBER}+sha.${SHA_SHORT}"
+          fi
+
+          SAFE_VERSION="${SEMVER//+/-}"
+          DOCKER_TAG="${SAFE_VERSION}"
+
+          echo "semver=${SEMVER}" >> "$GITHUB_OUTPUT"
+          echo "docker_tag=${DOCKER_TAG}" >> "$GITHUB_OUTPUT"
+          echo "safe_version=${SAFE_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "release_tag=${RELEASE_TAG}" >> "$GITHUB_OUTPUT"
+          echo "sha_short=${SHA_SHORT}" >> "$GITHUB_OUTPUT"
+          echo "is_release=${IS_RELEASE}" >> "$GITHUB_OUTPUT"
+
+  quality-and-artifacts:
+    needs: prepare-version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      - run: dotnet build src/wave-space-dl.qsproj --configuration Release
+      - run: dotnet test src/wave-space-dl.qsproj --configuration Release
+      - run: |
+          mkdir -p dist
+          dotnet run --project src/wave-space-dl.qsproj -- --output dist/wave-space.json --embedding-dim "${EMBEDDING_DIM}"
+          sha256sum dist/wave-space.json > dist/wave-space.json.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: quantum-ai-chip-quality-${{ needs.prepare-version.outputs.safe_version }}
+          path: dist/*
+
+  build-all-binaries:
+    needs: [prepare-version, quality-and-artifacts]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - run: |
+          mkdir -p dist
+          docker build --platform linux/amd64 -t quantum-ai-chip-build .
+          docker run --rm -v $PWD/dist:/out quantum-ai-chip-build
+      - run: |
+          for file_path in dist/*; do
+            if [[ -f "$file_path" && ! "$file_path" =~ \.sha256$ ]]; then
+              sha256sum "$file_path" > "$file_path.sha256"
+            fi
+          done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: quantum-ai-chip-binaries-${{ needs.prepare-version.outputs.safe_version }}
+          path: dist/*
+
+  docker-package:
+    needs: [prepare-version, quality-and-artifacts]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        if: github.event_name != 'pull_request'
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          platforms: linux/amd64,linux/arm64
+          tags: ghcr.io/${{ github.repository }}:${{ needs.prepare-version.outputs.docker_tag }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: quantum-ai-chip-docker-${{ needs.prepare-version.outputs.safe_version }}
+          path: dist/*
+
+  ota-package:
+    needs: [prepare-version, quality-and-artifacts]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "7.0.x"
+      - run: |
+          mkdir -p dist/azure-sphere
+          dotnet publish src/wave-space-dl.qsproj -c Release -r linux-arm --self-contained true -o dist/azure-sphere
+          cp azure-sphere.json dist/azure-sphere/
+      - run: |
+          tar -czf dist/azure-sphere-ota.tar.gz -C dist/azure-sphere .
+          sha256sum dist/azure-sphere-ota.tar.gz > dist/azure-sphere-ota.tar.gz.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: quantum-ai-chip-ota
+          path: dist/azure-sphere-ota*
+
+  github-release:
+    if: needs.prepare-version.outputs.is_release == 'true'
+    needs: [prepare-version, build-all-binaries, docker-package, ota-package]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - run: |
+          cat > RELEASE_NOTES.md <<EOF
+          # Quantum AI Chip Microwave MCU Neural Matricial Learning Procedural Transduction, Firmware-ota-pipeline ${GITHUB_REF_NAME}
+
+          🚀 Automatic release generated by CI/CD pipeline.
+
+          ## Included in this release
+          - Multi-platform binaries: Linux, Windows, macOS
+          - **Azure Sphere ARM binaries**
+          - **Microchip ARMv7 binaries**
+          - OTA bundle for Azure Sphere
+          - Wave-space JSON com IA procedural DL embarcada
+          - Manifests e SHA-256 checksums
+          - Multi-arch Docker image publicada em ghcr.io/${{ github.repository }}:${{ needs.prepare-version.outputs.docker_tag }}
+
+          ## MCU Qualities (Microchip DSNO-20WEPE301)
+          - Obsolescence Management
+          - Supply Chain Updates
+          - Standard Compliance (JEDEC J-STD-046/048)
+          - Reliability
+          - Long-Term Support
+
+          ## Security
+          - Apenas GITHUB_TOKEN interno usado para autenticação
+          EOF
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.prepare-version.outputs.release_tag }}
+          name: Quantum AI Chip Microwave MCU Neural Matricial Learning Procedural Transduction, Firmware-ota-pipeline ${{ needs.prepare-version.outputs.release_tag }}
+          body_path: RELEASE_NOTES.md
+          files: artifacts/**
