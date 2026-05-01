@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "name": "Edge-AI-APP-WaveSpace",
+  "version": "1.0.0",
+  "componentId": "12345678-1234-5678-1234-567812345678",
+  "entryPoint": "/bin/wave-space-dl",
+  "cmdArgs": ["--output", "/data/wave-space.json", "--embedding-dim", "12"],
+  "capabilities": {
+    "AllowedConnections": ["iot-hub"],
+    "DeviceAuthentication": "AzureSphere",
+    "SystemEventNotifications": ["NetworkConnected", "NetworkDisconnected"]
+  }
+}
