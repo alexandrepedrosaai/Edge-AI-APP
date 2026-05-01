@@ -1,0 +1,27 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v6.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v6.0": {
+      "QuantumLunarSimulationProject/1.0.0": {
+        "dependencies": {
+          "Microsoft.Quantum.Standard": "0.26.258020",
+          "Microsoft.Quantum.QSharp.Foundation": "0.26.258020"
+        },
+        "runtime": {
+          "QuantumLunarSimulationProject.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "QuantumLunarSimulationProject/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
