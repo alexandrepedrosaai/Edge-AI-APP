@@ -20,21 +20,21 @@ namespace QuantumLunarSimulation {
     );
 
     // Função atemporal irracional f
-    function AtemporalIrrationalF(x : Int, y : Int, z : Int, phi : Double) : Double {
+    // Transformada em OPERATION porque Sin/Cos/Exp podem ser tratados como operações intrínsecas
+    operation AtemporalIrrationalF(x : Int, y : Int, z : Int, phi : Double) : Double {
         let radius = Sqrt(IntAsDouble(x * x + y * y + z * z));
-        // Em Q#, Sin, Cos, Exp etc do namespace Math são FUNÇÕES, não operações.
         return Sin(radius + phi) + Cos(IntAsDouble(x - y + z) * phi) + Exp(-((radius * radius) / 18.0));
     }
 
     // Função derivada dual d
-    function DualDerivativeD(x : Int, y : Int, z : Int, phi : Double) : Double {
+    operation DualDerivativeD(x : Int, y : Int, z : Int, phi : Double) : Double {
         return phi * Cos(IntAsDouble(x) + phi)
              - phi * Sin(IntAsDouble(y) - phi)
              + (1.0 / (1.0 + AbsD(IntAsDouble(z)))) * Cos(IntAsDouble(z) * phi);
     }
 
     // Transformar coordenadas em PointState
-    function TransformPoint(x : Int, y : Int, z : Int, phi : Double) : PointState {
+    operation TransformPoint(x : Int, y : Int, z : Int, phi : Double) : PointState {
         let f_value = AtemporalIrrationalF(x, y, z, phi);
         let d_value = DualDerivativeD(x, y, z, phi);
         let amplitude = Sqrt(AbsD(f_value * d_value) + 1e-9);
@@ -47,7 +47,7 @@ namespace QuantumLunarSimulation {
     }
 
     // Gerar espaço de pontos
-    function GenerateSpace(gridMin : Int, gridMax : Int, phi : Double) : PointState[] {
+    operation GenerateSpace(gridMin : Int, gridMax : Int, phi : Double) : PointState[] {
         mutable result = [];
         for x in gridMin..gridMax {
             for y in gridMin..gridMax {
