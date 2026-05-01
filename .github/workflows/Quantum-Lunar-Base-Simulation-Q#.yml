@@ -1,10 +1,8 @@
 name: Quantum Lunar Base Simulation
-
 on:
   push:
     branches: [ "main" ]
   workflow_dispatch:
-
 jobs:
   quantumlunarpipeline:
     name: Q# Lunar Simulation → Oxygen & Water → Semi-sphere Dome
@@ -12,7 +10,6 @@ jobs:
     permissions:
       contents: write
       packages: write
-
     steps:
       # ==================================================
       # 1. ENVIRONMENT SETUP
@@ -21,20 +18,16 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
-
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '6.0.x'
-
       - name: Install Jupyter
         run: pip install jupyter
-
       - name: Install QDK
         run: |
           dotnet tool install -g Microsoft.Quantum.IQSharp
           dotnet iqsharp install
-
       # ==================================================
       # 2. COMPILE Q# PROJECT
       # ==================================================
@@ -42,7 +35,6 @@ jobs:
         run: |
           cd Quantum-Lunar-Base-Simulation/LunarSim
           dotnet build QuantumLunarSimulationProject.csproj
-
       # ==================================================
       # 3. UPLOAD ARTIFACTS
       # ==================================================
@@ -53,9 +45,7 @@ jobs:
           path: |
             Quantum-Lunar-Base-Simulation/Reports/
             Quantum-Lunar-Base-Simulation/Visuals/
-            Quantum-Lunar-Base-Simulation/LunarSim/
             Quantum-Lunar-Base-Simulation/LunarSim/bin/Debug/net6.0/
-
       # ==================================================
       # 4. AUTOMATIC RELEASE
       # ==================================================
@@ -65,16 +55,14 @@ jobs:
           tag_name: v-quantum-lunar-${{ github.sha }}
           name: "Quantum Lunar Base Simulation Release ${{ github.sha }}"
           files: |
-            Quantum-Lunar-Base-Simulation/Reports/
-            Quantum-Lunar-Base-Simulation/Visuals/
-            Quantum-Lunar-Base-Simulation/LunarSim/
-            Quantum-Lunar-Base-Simulation/LunarSim/bin/Debug/net6.0/
+            Quantum-Lunar-Base-Simulation/Reports/*
+            Quantum-Lunar-Base-Simulation/Visuals/*
+            Quantum-Lunar-Base-Simulation/LunarSim/bin/Debug/net6.0/*
           body: |
             🚀 **Quantum Lunar Base Simulation**
             🌌 Q# simulation with O₂, H₂O parameters and semi-spherical dome for 500 humans.
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       # ==================================================
       # 5. DOCKER PACKAGE PUBLISH
       # ==================================================
@@ -91,3 +79,4 @@ jobs:
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
           docker build -t $IMAGE_ID:latest .
           docker push $IMAGE_ID:latest
+          
