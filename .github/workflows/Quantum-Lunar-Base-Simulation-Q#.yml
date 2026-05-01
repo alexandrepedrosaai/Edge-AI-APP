@@ -1,0 +1,87 @@
+name: Q# Quantum Lunar Base Simulation
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  quantumlunarpipeline:
+    name: Q# Lunar Simulation → Oxygen & Water → Semi-sphere Dome
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      # ==================================================
+      # 1. ENVIRONMENT SETUP
+      # ==================================================
+      - name: Checkout source code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Install QDK
+        run: |
+          sudo apt update -y
+          sudo apt install -y dotnet-sdk-6.0
+          dotnet tool install -g Microsoft.Quantum.IQSharp
+          dotnet iqsharp install
+
+      # ==================================================
+      # 2. COMPILE Q# PROJECT
+      # ==================================================
+      - name: Compile Q# Lunar Simulation
+        run: |
+          cd Quantum-Lunar-Base-Simulation
+          dotnet build
+
+      # ==================================================
+      # 3. UPLOAD ARTIFACTS
+      # ==================================================
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: quantum-lunar-base-artifacts
+          path: |
+            Quantum-Lunar-Base-Simulation/Reports/*.qs
+            Quantum-Lunar-Base-Simulation/Visuals/*.qs
+            Quantum-Lunar-Base-Simulation/LunarSim/*.qs
+            Quantum-Lunar-Base-Simulation/LunarSim/bin/Debug/net6.0/
+
+      # ==================================================
+      # 4. AUTOMATIC RELEASE
+      # ==================================================
+      - name: Create Automatic Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v-quantum-lunar-${{ github.sha }}
+          name: "Quantum Lunar Base Simulation Release ${{ github.sha }}"
+          files: |
+            Quantum-Lunar-Base-Simulation/Reports/*.qs
+            Quantum-Lunar-Base-Simulation/Visuals/*.qs
+            Quantum-Lunar-Base-Simulation/LunarSim/*.qs
+            Quantum-Lunar-Base-Simulation/LunarSim/bin/Debug/net6.0/*
+          body: |
+            🚀 **Quantum Lunar Base Simulation**
+            🌌 Q# simulation with O₂, H₂O parameters and semi-spherical dome for 500 humans.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # ==================================================
+      # 5. DOCKER PACKAGE PUBLISH
+      # ==================================================
+      - name: Docker GitHub Package Publish
+        run: |
+          echo "FROM mcr.microsoft.com/quantum/iqsharp-base:latest" > Dockerfile
+          echo "WORKDIR /app" >> Dockerfile
+          echo "COPY Quantum-Lunar-Base-Simulation/Reports/*.qs /app/" >> Dockerfile
+          echo "COPY Quantum-Lunar-Base-Simulation/Visuals/*.qs /app/" >> Dockerfile
+          echo "COPY Quantum-Lunar-Base-Simulation/LunarSim/*.qs /app/" >> Dockerfile
+          echo "CMD [\"dotnet\", \"run\", \"--project\", \"Quantum-Lunar-Base-Simulation/LunarSim\"]" >> Dockerfile
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/quantum-lunar-base-simulation
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          docker build -t $IMAGE_ID:latest .
+          docker push $IMAGE_ID:latest
