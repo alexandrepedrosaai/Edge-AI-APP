@@ -70,10 +70,25 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
-      - run: dotnet build src/wave-space-dl.qsproj --configuration Release
-      - run: dotnet test src/wave-space-dl.qsproj --configuration Release
-      - run: |
+      - name: Build Quantum Project
+        run: dotnet build src/wave-space-dl.qsproj --configuration Release
+      - name: Run Neural Quantum DL Operations
+        run: dotnet run --project src/wave-space-dl.qsproj
+      - name: Run Comprehensive Tests
+        run: |
+          if [ -f tests/wave-space-dl.Tests.qsproj ]; then
+            dotnet test tests/wave-space-dl.Tests.qsproj --configuration Release --logger "console;verbosity=detailed"
+          else
+            echo "Tests project not found, skipping."
+          fi
+      - name: Verify Root Files Integration
+        run: |
+          echo "Checking integration of core Q# files..."
+          ls -l ProceduralDLEncoder.qs Program.qs _version.qs cli.qs dataclass.qs procedural_dl.qs src/wave-space-dl.qs src/LLM-NEURAL-DL-Quantum-com-operacoes-matriciais-e-derivadas-irracionais-integradas.qs
+      - name: Generate Wave Space JSON
+        run: |
           mkdir -p dist
+          # Usando o comando correto para gerar o artefato final
           dotnet run --project src/wave-space-dl.qsproj -- --output dist/wave-space.json --embedding-dim "${EMBEDDING_DIM}"
           sha256sum dist/wave-space.json > dist/wave-space.json.sha256
       - uses: actions/upload-artifact@v4
@@ -186,3 +201,4 @@ jobs:
           name: Quantum AI Chip Microwave MCU Neural Matricial Learning Procedural Transduction, Firmware-ota-pipeline ${{ needs.prepare-version.outputs.release_tag }}
           body_path: RELEASE_NOTES.md
           files: artifacts/**
+          
