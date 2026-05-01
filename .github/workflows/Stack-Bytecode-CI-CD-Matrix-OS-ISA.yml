@@ -127,13 +127,19 @@ jobs:
               });
             }
 
-      - name: Upload new assets
+      - name: Compactar Artifacts
+        run: |
+         cd artifacts
+         zip -r ../artifacts.zip .
+         cd ..
+
+      - name: Fazer upload do arquivo compactado
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/**/*
+          asset_path: ./artifacts.zip
           asset_name: artifacts.zip
           asset_content_type: application/zip
 
