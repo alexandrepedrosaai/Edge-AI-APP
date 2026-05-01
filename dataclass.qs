@@ -1,6 +1,8 @@
 namespace QuantumLunarSimulation {
     open Microsoft.Quantum.Canon;
     open Microsoft.Quantum.Intrinsic;
+    open Microsoft.Quantum.Math;
+    open Microsoft.Quantum.Convert;
 
     // Representação de um ponto no espaço quântico
     newtype PointState = (
@@ -10,11 +12,11 @@ namespace QuantumLunarSimulation {
         Phi : Double,
         FValue : Double,
         DValue : Double,
-        ParticleEnergy : Double,
-        ParticleSpin : Double,
-        WaveAmplitude : Double,
-        WaveFrequency : Double,
-        WavePhase : Double
+        Energy : Double,
+        Spin : Double,
+        Amplitude : Double,
+        Frequency : Double,
+        Phase : Double
     );
 
     // Função atemporal irracional f
@@ -36,19 +38,19 @@ namespace QuantumLunarSimulation {
         let d_value = DualDerivativeD(x, y, z, phi);
         let amplitude = Sqrt(Abs(f_value * d_value) + 1e-9);
         let frequency = Abs(f_value - d_value) + phi;
-        let energy = Round(f_value * f_value + d_value * d_value, 8);
-        let spin = Round(Sin(f_value + d_value), 8);
-        let phase = Round((f_value + d_value) / 2.0, 8);
+        let energy = f_value * f_value + d_value * d_value;
+        let spin = Sin(f_value + d_value);
+        let phase = (f_value + d_value) / 2.0;
 
-        return PointState(x, y, z, phi, Round(f_value, 8), Round(d_value, 8), energy, spin, Round(amplitude, 8), Round(frequency, 8), phase);
+        return PointState(x, y, z, phi, f_value, d_value, energy, spin, amplitude, frequency, phase);
     }
 
     // Gerar espaço de pontos
     function GenerateSpace(gridMin : Int, gridMax : Int, phi : Double) : PointState[] {
-        mutable result = new PointState[0];
-        for (x in gridMin..gridMax) {
-            for (y in gridMin..gridMax) {
-                for (z in gridMin..gridMax) {
+        mutable result = [];
+        for x in gridMin..gridMax {
+            for y in gridMin..gridMax {
+                for z in gridMin..gridMax {
                     set result += [TransformPoint(x, y, z, phi)];
                 }
             }
@@ -58,8 +60,7 @@ namespace QuantumLunarSimulation {
 
     operation Main_DataClass() : Unit {
         let phi = 1.0;
-        let space = GenerateSpace(-5, 5, phi);
+        let space = GenerateSpace(-2, 2, phi);
         Message($"#Q QuantumOS Procedural Space generated with {Length(space)} points.");
-        Message($"First point: {space[0]}");
     }
 }

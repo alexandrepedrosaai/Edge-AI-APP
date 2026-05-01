@@ -1,6 +1,7 @@
 namespace QuantumLunarSimulation {
     open Microsoft.Quantum.Canon;
     open Microsoft.Quantum.Intrinsic;
+    open WaveSpaceDL;
 
     // Definições padrão
     newtype SemVer = (Major : Int, Minor : Int, Patch : Int, PreRelease : String, Build : String);
@@ -13,10 +14,10 @@ namespace QuantumLunarSimulation {
         let (major, minor, patch, prerelease, build) = ver!;
         mutable version = $"{major}.{minor}.{patch}";
         if (prerelease != "") {
-            set version <- $"{version}-{prerelease}";
+            set version = $"{version}-{prerelease}";
         }
         if (build != "") {
-            set version <- $"{version}+{build}";
+            set version = $"{version}+{build}";
         }
         return version;
     }

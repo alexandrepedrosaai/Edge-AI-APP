@@ -16,7 +16,7 @@ namespace WaveSpaceDL {
     }
 
     operation RunNeuralQuantumDL_Entry() : Unit {
-        // Assuming RunNeuralQuantumDL is defined in another file in the same project
+        // RunNeuralQuantumDL is in the same namespace or opened
         RunNeuralQuantumDL();
     }
 

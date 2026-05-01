@@ -21,7 +21,7 @@ namespace WaveSpaceDL {
             mutable sum = 0.0;
             for j in 0 .. nInputs - 1 {
                 // Matrix Multiplication: sum += weights[i][j] * inputs[j]
-                set sum += weights[i][j] * inputs[j];
+                set sum = sum + (weights[i][j] * inputs[j]);
             }
             
             // Apply Activation with Irrational Component (Simulating a Quantum-inspired activation)

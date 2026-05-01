@@ -6,6 +6,9 @@ namespace QuantumLunarSimulation {
     open Microsoft.Quantum.Arrays;
 
     // Configuração procedural
+    // Note: ProceduralDLConfig is already defined in procedural_dl.qs
+    // I will comment it out to avoid duplicate definition errors.
+    /*
     newtype ProceduralDLConfig = (
         EmbeddingDim : Int,
         LatentTemperature : Double,
@@ -16,19 +19,16 @@ namespace QuantumLunarSimulation {
     function DefaultConfig() : ProceduralDLConfig {
         return ProceduralDLConfig(12, 0.61803398875, "procedural-dl", "tanh");
     }
-
-    // PointState is defined in dataclass.qs, we should use that or define a local version if namespaces were different.
-    // To avoid "PointState already exists", we use the one from the project.
-    // If it's in the same namespace, we don't need to redefine it.
+    */
 
     // Codificação de um ponto
     function EncodePoint(config : ProceduralDLConfig, point : PointState) : (Double[], Double, Double) {
         let (dim, temp, name, act) = config!;
         let (x, y, z, phi, fval, dval, energy, spin, amplitude, frequency, phase) = point!;
-        mutable embedding = new Double[dim];
+        mutable embedding = [0.0, size = dim];
         let seed = fval + dval + phi;
 
-        for (index in 0..dim-1) {
+        for index in 0..dim-1 {
             let phaseFactor = (IntAsDouble(index) + 1.0) * temp;
             let channel = Tanh(
                 Sin(seed * phaseFactor)

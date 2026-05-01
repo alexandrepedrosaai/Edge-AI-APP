@@ -5,21 +5,33 @@ namespace QuantumLunarSimulation {
     open Microsoft.Quantum.Convert;
     open Microsoft.Quantum.Arrays;
 
+    // Configuração procedural
+    newtype ProceduralDLConfig = (
+        EmbeddingDim : Int,
+        LatentTemperature : Double,
+        ModelName : String,
+        Activation : String
+    );
+
+    function DefaultConfig() : ProceduralDLConfig {
+        return ProceduralDLConfig(12, 0.61803398875, "procedural-dl", "tanh");
+    }
+
     // Sumarizar espaço de pontos
     function SummarizeSpace(config : ProceduralDLConfig, points : PointState[]) : (Double[], Double, Int) {
         let (dim, temp, name, act) = config!;
-        mutable channelMeans = new Double[dim];
+        mutable channelMeans = [0.0, size = dim];
         mutable totalConfidence = 0.0;
 
-        for (i in 0..Length(points)-1) {
+        for i in 0..Length(points)-1 {
             let (embedding, confidence, _) = EncodePoint(config, points[i]);
             set totalConfidence += confidence;
-            for (j in 0..dim-1) {
+            for j in 0..dim-1 {
                 set channelMeans w/= j <- channelMeans[j] + embedding[j];
             }
         }
 
-        for (j in 0..dim-1) {
+        for j in 0..dim-1 {
             set channelMeans w/= j <- channelMeans[j] / IntAsDouble(Length(points));
         }
 
