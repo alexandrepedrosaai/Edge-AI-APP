@@ -8,8 +8,6 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Quantum.Xunit" Version="0.27.258156-beta" />
-    <PackageReference Include="Microsoft.Quantum.Standard" Version="0.27.258156-beta" />
-    <PackageReference Include="Microsoft.Quantum.Canon" Version="0.27.258156-beta" />
   </ItemGroup>
 
   <ItemGroup>
@@ -17,4 +15,3 @@
   </ItemGroup>
 
 </Project>
-
