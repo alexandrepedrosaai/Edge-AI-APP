@@ -4,8 +4,7 @@ namespace WaveSpaceDL {
     open System;
     open System.IO;
 
-    @EntryPoint()
-    operation Main() : Unit {
+    operation RunWaveSpaceGeneration() : Unit {
         // Parse CLI args
         let args = Environment.GetCommandLineArgs();
         mutable outputPath = "dist/wave-space.json";
@@ -30,10 +29,12 @@ namespace WaveSpaceDL {
         Message($"✅ Wave-space generated at {outputPath} with {Length(points)} points");
     }
 
+    operation RunNeuralQuantumDL_Entry() : Unit {
+        RunNeuralQuantumDL();
+    }
+
     // Example generator (simplified)
     function GenerateSpace(gridMin : Int, gridMax : Int, phi : Double, embeddingDim : Int) : String {
-        // Here you would call TransformPoint for each coordinate and build JSON
-        // For demo, return a placeholder JSON string
         return $"{{\"points\": {((gridMax-gridMin+1)*(gridMax-gridMin+1)*(gridMax-gridMin+1))}, \"phi\": {phi}, \"embedding_dim\": {embeddingDim}}}";
     }
 }
