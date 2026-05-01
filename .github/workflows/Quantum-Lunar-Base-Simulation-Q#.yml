@@ -71,19 +71,18 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       # ==================================================
-      # 5. DOCKER PACKAGE PUBLISH
+      # 5. DOCKER BUILD (LOCAL VERIFICATION)
       # ==================================================
-      - name: Docker GitHub Package Publish
+      - name: Docker Local Build Verification
         run: |
-          echo "FROM mcr.microsoft.com/quantum/iqsharp-base:latest" > Dockerfile
+          # Using official .NET SDK image as the base
+          echo "FROM mcr.microsoft.com/dotnet/sdk:6.0" > Dockerfile
           echo "WORKDIR /app" >> Dockerfile
           echo "COPY Quantum-Lunar-Base-Simulation/Reports/ /app/Reports/" >> Dockerfile
           echo "COPY Quantum-Lunar-Base-Simulation/Visuals/ /app/Visuals/" >> Dockerfile
           echo "COPY Quantum-Lunar-Base-Simulation/LunarSim/ /app/LunarSim/" >> Dockerfile
-          echo "CMD [\"dotnet\", \"run\", \"--project\", \"Quantum-Lunar-Base-Simulation/LunarSim\"]" >> Dockerfile
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/quantum-lunar-base-simulation
-          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-          docker build -t $IMAGE_ID:latest .
-          docker push $IMAGE_ID:latest
+          echo "CMD [\"dotnet\", \"run\", \"--project\", \"/app/LunarSim/QuantumLunarSimulationProject.csproj\"]" >> Dockerfile
           
+          IMAGE_ID=quantum-lunar-base-simulation
+          docker build -t $IMAGE_ID:latest .
+          echo "Docker local build verification completed successfully."
