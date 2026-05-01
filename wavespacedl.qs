@@ -127,6 +127,12 @@ namespace WaveSpaceDL {
         return Take(sorted, n);
     }
 
+    // Combined Top-N by weighted score (Energy + Confidence)
+    function TopNByScore(points : PointState[], n : Int, energyWeight : Double, confidenceWeight : Double) : PointState[] {
+        let sorted = SortBy(points, p -> -(energyWeight * p::Particle::Energy + confidenceWeight * p::DL::Confidence));
+        return Take(sorted, n);
+    }
+
     // Export workflow
     operation ExportSpace(outputPath : String, gridMin : Int, gridMax : Int, phi : Double, embeddingDim : Int) : Unit {
         let space = GenerateSpace(gridMin, gridMax, phi, embeddingDim);
@@ -138,6 +144,7 @@ namespace WaveSpaceDL {
 
         let topEnergy = TopNByEnergy(space, 10);
         let topConfidence = TopNByConfidence(space, 10);
+        let topScore = TopNByScore(space, 10, 1.0, 1.0); // equal weights
 
         let jsonSerializer = new JsonSerializerOptions();
         let json = JsonSerializer.Serialize(space, jsonSerializer);
@@ -150,6 +157,7 @@ namespace WaveSpaceDL {
         Message($"Filtered -> HighEnergy={Length(highEnergyPoints)} points, Reliable={Length(reliablePoints)} points, Elite={Length(elitePoints)} points");
         Message($"Top 10 Energy -> First point energy={topEnergy[0]::Particle::Energy}");
         Message($"Top 10 Confidence -> First point confidence={topConfidence[0]::DL::Confidence}");
+        Message($"Top 10 Overall Score -> First point score={(topScore[0]::Particle::Energy + topScore[0]::DL::Confidence)}");
     }
 
     @EntryPoint()
