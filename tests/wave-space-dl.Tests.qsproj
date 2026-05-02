@@ -17,4 +17,5 @@
     <QSharpCompile Include="..\src\LLMNeuralDLQuantum.qs" />
   </ItemGroup>
 
+  <Target Name="CreateManifestResourceNames" />
 </Project>
