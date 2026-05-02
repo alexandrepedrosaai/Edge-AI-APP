@@ -11,7 +11,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\wave-space-dl.qsproj" />
+    <!-- Directly include source Q# files so the Q# compiler sees WaveSpaceDL symbols.
+         A ProjectReference to the Exe-output source project does not expose Q# callables. -->
+    <QSharpCompile Include="..\src\wave-space-dl.qs" />
+    <QSharpCompile Include="..\src\LLMNeuralDLQuantum.qs" />
   </ItemGroup>
 
 </Project>
