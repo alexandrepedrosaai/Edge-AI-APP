@@ -31,6 +31,6 @@ namespace WaveSpaceDL {
     function GenerateSpace(gridMin : Int, gridMax : Int, phi : Double, embeddingDim : Int) : Int[] {
         let sideLength = gridMax - gridMin + 1;
         let totalPoints = sideLength * sideLength * sideLength;
-        return [i | i in 0..totalPoints-1];
+        return [0..totalPoints-1];
     }
 }
