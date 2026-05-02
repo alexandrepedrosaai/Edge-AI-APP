@@ -1,0 +1,69 @@
+name: WebAssembly Build & Dynamic Deploy
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - 'docs/**'
+      - 'WEBASSEMBLY/**'
+  workflow_dispatch:
+
+# Permissões necessárias para o deploy no GitHub Pages
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install WABT (WebAssembly Binary Toolkit)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wabt
+
+      - name: Compile WAT to WASM
+        run: |
+          mkdir -p docs
+          cd WEBASSEMBLY
+          for file in *.wat; do
+            echo "🚀 Compiling $file to WASM..."
+            wat2wasm "$file" -o "../docs/${file%.wat}.wasm"
+          done
+          echo "✅ Compilation complete. Files generated:"
+          ls -lh ../docs/*.wasm
+
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Artifact to Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './docs'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Sync WASM Binaries to Repo
+        if: github.event_name == 'push'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add docs/*.wasm
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: dynamic build of WebAssembly modules [skip ci]"
+            git push
+          else
+            echo "No changes in WASM binaries."
+          fi
