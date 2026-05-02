@@ -11,6 +11,7 @@
     <!-- Disable UI framework targets to prevent MSB4057 CreateManifestResourceNames error -->
     <UseWpf>false</UseWpf>
     <UseMaui>false</UseMaui>
+    <UseWindowsForms>false</UseWindowsForms>
   </PropertyGroup>
 
   <ItemGroup>
