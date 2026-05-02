@@ -25,6 +25,7 @@ jobs:
     outputs:
       semver: ${{ steps.version.outputs.semver }}
       docker_tag: ${{ steps.version.outputs.docker_tag }}
+      repo_lower: ${{ steps.version.outputs.repo_lower }}
       safe_version: ${{ steps.version.outputs.safe_version }}
       release_tag: ${{ steps.version.outputs.release_tag }}
       sha_short: ${{ steps.version.outputs.sha_short }}
@@ -53,8 +54,9 @@ jobs:
           fi
 
           SAFE_VERSION="${SEMVER//+/-}"
-          DOCKER_TAG=$(echo "${SAFE_VERSION}" | tr "[:upper:]" "[:lower:]")
-          REPO_LOWER=$(echo "${GITHUB_REPOSITORY}" | tr "[:upper:]" "[:lower:]")
+          # Docker tags and repository names must be lowercase
+          DOCKER_TAG=$(echo "${SAFE_VERSION}" | tr '[:upper:]' '[:lower:]')
+          REPO_LOWER=$(echo "${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')
 
           echo "semver=${SEMVER}" >> "$GITHUB_OUTPUT"
           echo "repo_lower=${REPO_LOWER}" >> "$GITHUB_OUTPUT"
@@ -147,11 +149,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - name: Setup .NET Runtimes for Q#
+        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: "3.1.x"
+          dotnet-version: |
+            3.1.x
+            6.0.x
       - run: |
           mkdir -p dist/azure-sphere
+          # Force AnyCPU/arm for Q# project to avoid NETSDK1032 PlatformTarget x64 conflict
           dotnet publish src/wave-space-dl.qsproj -c Release -r linux-arm -p:PlatformTarget=AnyCpu --self-contained true -o dist/azure-sphere
           cp azure-sphere.json dist/azure-sphere/
       - run: |
@@ -183,7 +189,7 @@ jobs:
           - OTA bundle for Azure Sphere
           - Wave-space JSON com IA procedural DL embarcada
           - Manifests e SHA-256 checksums
-          - Multi-arch Docker image publicada em ghcr.io/${{ github.repository }}:${{ needs.prepare-version.outputs.docker_tag }}
+          - Multi-arch Docker image publicada em ghcr.io/${{ needs.prepare-version.outputs.repo_lower }}:${{ needs.prepare-version.outputs.docker_tag }}
 
           ## MCU Qualities (Microchip DSNO-20WEPE301)
           - Obsolescence Management
