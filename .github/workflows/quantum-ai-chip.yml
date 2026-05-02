@@ -53,9 +53,11 @@ jobs:
           fi
 
           SAFE_VERSION="${SEMVER//+/-}"
-          DOCKER_TAG="${SAFE_VERSION}"
+          DOCKER_TAG=$(echo "${SAFE_VERSION}" | tr "[:upper:]" "[:lower:]")
+          REPO_LOWER=$(echo "${GITHUB_REPOSITORY}" | tr "[:upper:]" "[:lower:]")
 
           echo "semver=${SEMVER}" >> "$GITHUB_OUTPUT"
+          echo "repo_lower=${REPO_LOWER}" >> "$GITHUB_OUTPUT"
           echo "docker_tag=${DOCKER_TAG}" >> "$GITHUB_OUTPUT"
           echo "safe_version=${SAFE_VERSION}" >> "$GITHUB_OUTPUT"
           echo "release_tag=${RELEASE_TAG}" >> "$GITHUB_OUTPUT"
@@ -134,7 +136,7 @@ jobs:
           file: ./Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           platforms: linux/amd64,linux/arm64
-          tags: ghcr.io/${{ github.repository }}:${{ needs.prepare-version.outputs.docker_tag }}
+          tags: ghcr.io/${{ needs.prepare-version.outputs.repo_lower }}:${{ needs.prepare-version.outputs.docker_tag }}
       - uses: actions/upload-artifact@v4
         with:
           name: quantum-ai-chip-docker-${{ needs.prepare-version.outputs.safe_version }}
@@ -150,7 +152,7 @@ jobs:
           dotnet-version: "3.1.x"
       - run: |
           mkdir -p dist/azure-sphere
-          dotnet publish src/wave-space-dl.qsproj -c Release -r linux-arm --self-contained true -o dist/azure-sphere
+          dotnet publish src/wave-space-dl.qsproj -c Release -r linux-arm -p:PlatformTarget=AnyCpu --self-contained true -o dist/azure-sphere
           cp azure-sphere.json dist/azure-sphere/
       - run: |
           tar -czf dist/azure-sphere-ota.tar.gz -C dist/azure-sphere .
@@ -199,3 +201,4 @@ jobs:
           name: Quantum AI Chip Microwave MCU Neural Matricial Learning Procedural Transduction, Firmware-ota-pipeline ${{ needs.prepare-version.outputs.release_tag }}
           body_path: RELEASE_NOTES.md
           files: artifacts/**
+          
