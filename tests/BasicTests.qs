@@ -2,12 +2,12 @@ namespace WaveSpaceDL.Tests {
     open Microsoft.Quantum.Canon;
     open Microsoft.Quantum.Intrinsic;
     open Microsoft.Quantum.Diagnostics;
-    open Microsoft.Quantum.Xunit;
+    open Microsoft.Quantum.Simulation.Xunit;
     open WaveSpaceDL;
 
-    @Test("QuantumSimulator")
+    [Fact]
     operation CheckPointCount() : Unit {
         let points = GenerateSpace(-5, 5, 1.0, 12);
-        AssertEqualI(1331, 1331, "Expected 1331 points");
+        Assert.Equal(1331, Length(points));
     }
 }
