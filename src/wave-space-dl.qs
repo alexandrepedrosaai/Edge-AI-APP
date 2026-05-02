@@ -25,4 +25,12 @@ namespace WaveSpaceDL {
         let size = gridMax - gridMin + 1;
         return size * size * size;
     }
+
+    // Generate a flat index array representing all grid points in 3D space.
+    // Returns an array of length (gridMax - gridMin + 1)^3.
+    function GenerateSpace(gridMin : Int, gridMax : Int, phi : Double, embeddingDim : Int) : Int[] {
+        let size = gridMax - gridMin + 1;
+        let totalPoints = size * size * size;
+        return [0, size = totalPoints];
+    }
 }
