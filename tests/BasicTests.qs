@@ -6,7 +6,7 @@ namespace WaveSpaceDL.Tests {
 
     @Test("QuantumSimulator")
     operation CheckPointCount() : Unit {
-        let points : Int[] = GenerateSpace(-5, 5, 1.0, 12);
+        let points = GenerateSpace(-5, 5, 1.0, 12);
         EqualityFactI(Length(points), 1331, "Unexpected number of points.");
     }
 }
