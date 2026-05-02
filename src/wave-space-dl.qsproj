@@ -2,12 +2,15 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <AssemblyName>wave-space-dl</AssemblyName>
     <RootNamespace>WaveSpaceDL</RootNamespace>
     
     <!-- Disable automatic inclusion of files to prevent NETSDK1022 errors -->
     <EnableDefaultItems>false</EnableDefaultItems>
+    <!-- Disable UI framework targets to prevent MSB4057 CreateManifestResourceNames error -->
+    <UseWpf>false</UseWpf>
+    <UseMaui>false</UseMaui>
   </PropertyGroup>
 
   <ItemGroup>
