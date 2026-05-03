@@ -39,18 +39,16 @@ async function loadWasm(file) {
     return wasmModule.instance.exports;
   } catch (e) {
     console.error(`Error loading ${file}:`, e);
-    document.getElementById("status").innerText = `Error: ${file} not found`;
-    throw e;
+    return null;
   }
 }
 
 async function run() {
   try {
     document.getElementById("status").innerText = "Loading WASM modules...";
-    const trig = await loadWasm("Functions.wasm");
-    // Other modules are optional for this demo
-    try { await loadWasm("Linear.wasm"); } catch(e){}
-    try { await loadWasm("Matrixderivate.wasm"); } catch(e){}
+    const trig = await loadWasm("Functions.wasm") || {};
+    const linear = await loadWasm("Linear.wasm") || {};
+    const matrix = await loadWasm("Matrixderivate.wasm") || {};
     
     document.getElementById("status").innerText = "System Active. Drag to Rotate.";
 
@@ -73,7 +71,7 @@ async function run() {
       varying lowp vec4 vColor;
       void main(void) {
         gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
-        vColor = aVertexPosition * 0.5 + 0.5; // Color based on position
+        vColor = aVertexPosition * 0.5 + 0.5;
       }
     `;
     const fsSource = `
@@ -140,7 +138,6 @@ async function run() {
         out[0]=f/aspect; out[5]=f; out[10]=(far+near)*nf; out[11]=-1;
         out[14]=2*far*near*nf; out[1]=out[2]=out[3]=out[4]=out[6]=out[7]=out[8]=out[9]=out[12]=out[13]=out[15]=0;
       },
-      identity: (out) => { out.set([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]); },
       translate:(out,a,v)=>{
         out[12]=a[12]+v[0]; out[13]=a[13]+v[1]; out[14]=a[14]+v[2];
       },
@@ -188,7 +185,7 @@ async function run() {
       mat4.rotateY(modelViewMatrix, modelViewMatrix, rotationY);
 
       const angle = time * 0.001;
-      const cosVal = trig.cos ? trig.cos(angle) : Math.cos(angle);
+      const cosVal = (trig && trig.cos) ? trig.cos(angle) : Math.cos(angle);
       const colorIntensity = Math.abs(cosVal) * 0.5 + 0.5;
 
       gl.useProgram(programInfo.program);

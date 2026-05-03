@@ -8,7 +8,6 @@ on:
       - 'WEBASSEMBLY/**'
   workflow_dispatch:
 
-# Permissões necessárias para o deploy no GitHub Pages
 permissions:
   contents: write
   pages: write
