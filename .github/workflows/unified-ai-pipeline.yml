@@ -1,4 +1,4 @@
-name: Unified Quantum-ASM AI Pipeline
+name: Unified Quantum-ASM AI Pipeline 3D
 
 on:
   push:
@@ -28,7 +28,7 @@ jobs:
           ./emsdk activate latest
           echo "source $(pwd)/emsdk_env.sh" >> $GITHUB_ENV
 
-      - name: Build ASM to WASM (from asm_pipeline)
+      - name: Build ASM to WASM
         run: |
           source emsdk/emsdk_env.sh
           mkdir -p WEBASSEMBLY
@@ -37,44 +37,31 @@ jobs:
             filename=$(basename "$file" .asm)
             echo "Compiling $file..."
             nasm -f elf64 "$file" -o "${filename}.o"
-            # Link to WASM
             emcc "${filename}.o" -o "../WEBASSEMBLY/${filename}.wasm" -s STANDALONE_WASM --no-entry || echo "Warning: $filename failed"
           done
 
-      - name: Process WAT files in WEBASSEMBLY
+      - name: Process WAT files
         run: |
           cd WEBASSEMBLY
           for file in *.wat; do
             filename=$(basename "$file" .wat)
-            echo "Assembling $file..."
             wat2wasm "$file" -o "${filename}.wasm" || echo "Warning: $file failed"
           done
 
-      - name: Generate Unified Neural Model (.sm)
+      - name: Generate Neural Model Manifest (.sm)
         run: |
-          echo "Generating Unified Neural Model..."
           cd WEBASSEMBLY
-          # Create a JSON manifest of all .wasm files
           WASM_LIST=$(ls *.wasm | xargs -n 1 basename | sed 's/\(.*\)/"\1"/' | paste -sd "," -)
           cat > NeuralModel.sm <<EOF
           {
-            "model_name": "Quantum-ASM-Neural-Model",
+            "model_name": "Quantum-ASM-3D-Neural-Model",
             "version": "$(date +%Y%m%d%H%M%S)",
-            "components": [
-              $WASM_LIST
-            ],
-            "metadata": {
-              "type": "Dynamic-Build-Deploy",
-              "platform": "Edge-AI",
-              "source": "asm_pipeline & WEBASSEMBLY/wat"
-            }
+            "components": [ $WASM_LIST ],
+            "metadata": { "type": "3D-Dynamic-Edge-AI" }
           }
           EOF
 
-      - name: Setup GitHub Pages
-        uses: actions/configure-pages@v4
-
-      - name: Create Web Dashboard
+      - name: Create 3D Web Dashboard
         run: |
           mkdir -p public
           cp WEBASSEMBLY/* public/
@@ -82,46 +69,97 @@ jobs:
           <!DOCTYPE html>
           <html>
           <head>
-            <title>Edge-AI Dynamic Dashboard</title>
+            <title>Edge-AI 3D Neural Dashboard</title>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
             <style>
-              body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f0f0f; color: #e0e0e0; padding: 40px; line-height: 1.6; }
-              .container { max-width: 900px; margin: auto; }
-              .card { background: #1e1e1e; padding: 25px; margin: 20px 0; border-radius: 12px; border: 1px solid #333; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
-              h1 { color: #00ffcc; border-bottom: 2px solid #00ffcc; padding-bottom: 10px; }
-              h3 { color: #00ccff; margin-top: 0; }
-              .status { color: #33ff77; font-weight: bold; }
-              ul { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; }
-              li { background: #2a2a2a; padding: 10px; border-radius: 6px; transition: transform 0.2s; }
-              li:hover { transform: translateY(-3px); background: #333; }
-              a { color: #00ffcc; text-decoration: none; font-size: 0.9em; word-break: break-all; }
-              .footer { margin-top: 50px; font-size: 0.8em; color: #666; text-align: center; }
+              body { margin: 0; overflow: hidden; background: #050505; font-family: 'Courier New', Courier, monospace; color: #00ffcc; }
+              #ui { position: absolute; top: 20px; left: 20px; z-index: 10; pointer-events: none; }
+              .panel { background: rgba(0, 20, 20, 0.8); padding: 15px; border: 1px solid #00ffcc; border-radius: 5px; pointer-events: auto; margin-bottom: 10px; }
+              h1 { margin: 0; font-size: 1.5em; text-shadow: 0 0 10px #00ffcc; }
+              .status { color: #33ff77; }
+              a { color: #00ccff; text-decoration: none; }
+              a:hover { text-decoration: underline; }
+              #info-box { position: absolute; bottom: 20px; right: 20px; text-align: right; }
             </style>
           </head>
           <body>
-            <div class="container">
-              <h1>Edge-AI Quantum-ASM Pipeline</h1>
-              <div class="card">
-                <h3>System Status: <span class="status">Operational</span></h3>
-                <p><strong>Last Build:</strong> $(date)</p>
-                <p><strong>Commit SHA:</strong> <code style="color: #ffcc00;">${{ github.sha }}</code></p>
+            <div id="ui">
+              <div class="panel">
+                <h1>EDGE-AI 3D PIPELINE</h1>
+                <p>Status: <span class="status">OPERATIONAL</span></p>
+                <p>Commit: <small>${{ github.sha }}</small></p>
               </div>
-              <div class="card">
-                <h3>Compiled Neural Model (.sm)</h3>
-                <p><a href="NeuralModel.sm" style="font-size: 1.2em; font-weight: bold;">📦 Download NeuralModel.sm</a></p>
-              </div>
-              <div class="card">
-                <h3>WASM Components (from asm_pipeline & wat)</h3>
-                <ul>
-                  $(ls WEBASSEMBLY/*.wasm | xargs -n 1 basename | sed 's|.*|<li><a href="\0">📄 \0</a></li>|')
+              <div class="panel">
+                <h3>NEURAL COMPONENTS</h3>
+                <ul id="component-list" style="list-style: none; padding: 0; font-size: 0.8em;">
+                  $(ls WEBASSEMBLY/*.wasm | xargs -n 1 basename | sed 's|.*|<li><a href="\0">>> \0</a></li>|')
                 </ul>
               </div>
-              <div class="footer">
-                Generated by GitHub Actions for alexandrepedrosaai/Edge-AI-APP
+              <div class="panel">
+                <a href="NeuralModel.sm" style="font-weight: bold;">[ DOWNLOAD MODEL.SM ]</a>
               </div>
             </div>
+            <div id="info-box">
+              <p>Dynamic 3D Visualization</p>
+              <p>Powered by Three.js & WASM</p>
+            </div>
+
+            <script>
+              const scene = new THREE.Scene();
+              const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+              const renderer = new THREE.WebGLRenderer({ antialias: true });
+              renderer.setSize(window.innerWidth, window.innerHeight);
+              document.body.appendChild(renderer.domElement);
+
+              // Create Neural Network Visualization
+              const group = new THREE.Group();
+              const nodeCount = 50;
+              const nodes = [];
+              
+              for(let i=0; i<nodeCount; i++) {
+                const geometry = new THREE.SphereGeometry(0.1, 16, 16);
+                const material = new THREE.MeshBasicMaterial({ color: 0x00ffcc });
+                const sphere = new THREE.Mesh(geometry, material);
+                sphere.position.set((Math.random()-0.5)*10, (Math.random()-0.5)*10, (Math.random()-0.5)*10);
+                nodes.push(sphere);
+                group.add(sphere);
+              }
+
+              // Add connections
+              const lineMaterial = new THREE.LineBasicMaterial({ color: 0x004444, transparent: true, opacity: 0.5 });
+              for(let i=0; i<nodeCount; i++) {
+                for(let j=i+1; j<nodeCount; j++) {
+                  if(nodes[i].position.distanceTo(nodes[j].position) < 3) {
+                    const geometry = new THREE.BufferGeometry().setFromPoints([nodes[i].position, nodes[j].position]);
+                    const line = new THREE.Line(geometry, lineMaterial);
+                    group.add(line);
+                  }
+                }
+              }
+
+              scene.add(group);
+              camera.position.z = 8;
+
+              function animate() {
+                requestAnimationFrame(animate);
+                group.rotation.y += 0.002;
+                group.rotation.x += 0.001;
+                renderer.render(scene, camera);
+              }
+              animate();
+
+              window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+              });
+            </script>
           </body>
           </html>
           EOF
+
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v4
 
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
@@ -137,5 +175,5 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add WEBASSEMBLY/
-          git commit -m "Automated build: Sync asm_pipeline to WEBASSEMBLY [skip ci]" || echo "No changes to commit"
+          git commit -m "Automated build: 3D Dashboard & WASM Sync [skip ci]" || echo "No changes to commit"
           git push origin main
