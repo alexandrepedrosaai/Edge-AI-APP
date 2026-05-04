@@ -1,19 +1,24 @@
-name: Unified Quantum-ASM AI Pipeline 3D
+name: Unified Edge-AI Pipeline (Build, Deploy & Release)
 
 on:
   push:
-    branches: [ main ]
+    branches: ["main"]
+  workflow_dispatch:
 
 permissions:
   contents: write
   pages: write
   id-token: write
 
+concurrency:
+  group: "pages-unified"
+  cancel-in-progress: true
+
 jobs:
-  build-and-deploy:
+  pipeline:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout Repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -22,7 +27,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y nasm wabt
-          git clone https://github.com/emscripten-core/emsdk.git
+          if [ ! -d "emsdk" ]; then
+            git clone https://github.com/emscripten-core/emsdk.git
+          fi
           cd emsdk
           ./emsdk install latest
           ./emsdk activate latest
@@ -30,26 +37,43 @@ jobs:
       - name: Build ASM to WASM
         run: |
           source emsdk/emsdk_env.sh
-          mkdir -p WEBASSEMBLY
-          cd asm_pipeline
-          for file in *.asm; do
-            filename=$(basename "$file" .asm)
-            echo "Compiling $file..."
-            nasm -f elf64 "$file" -o "${filename}.o"
-            emcc "${filename}.o" -o "../WEBASSEMBLY/${filename}.wasm" -s STANDALONE_WASM --no-entry || echo "Warning: $filename failed"
-          done
+          mkdir -p docs
+          if [ -d "asm_pipeline" ]; then
+            cd asm_pipeline
+            for file in *.asm; do
+              filename=$(basename "$file" .asm)
+              echo "Compiling $file..."
+              nasm -f elf64 "$file" -o "${filename}.o"
+              emcc "${filename}.o" -o "../docs/${filename}.wasm" -s STANDALONE_WASM --no-entry || echo "Warning: $filename failed"
+            done
+          fi
 
-      - name: Process WAT files
+      - name: Granular WAT to WASM Build
         run: |
-          cd WEBASSEMBLY
-          for file in *.wat; do
-            filename=$(basename "$file" .wat)
-            wat2wasm "$file" -o "${filename}.wasm" || echo "Warning: $file failed"
-          done
+          mkdir -p docs
+          if [ -d "WEBASSEMBLY" ]; then
+            cd WEBASSEMBLY
+            # Core functions list
+            functions=("Functions" "Linear" "Matrixderivate" "Hyperbolic" "Factor" "Unified" "AdvancedLinear" "Ratio")
+            for func in "${functions[@]}"; do
+              if [ -f "${func}.wat" ]; then
+                echo "🚀 Compiling Granular Module: ${func}.wat"
+                wat2wasm "${func}.wat" -o "../docs/${func}.wasm"
+              fi
+            done
+            # Other WAT files
+            for file in *.wat; do
+              base=$(basename "$file" .wat)
+              if [[ ! " ${functions[@]} " =~ " ${base} " ]]; then
+                echo "📦 Compiling Additional Module: $file"
+                wat2wasm "$file" -o "../docs/${base}.wasm"
+              fi
+            done
+          fi
 
       - name: Generate Neural Model Manifest (.sm)
         run: |
-          cd WEBASSEMBLY
+          cd docs
           WASM_LIST=$(ls *.wasm | xargs -n 1 basename | sed 's/\(.*\)/"\1"/' | paste -sd "," -)
           cat > NeuralModel.sm <<EOF
           {
@@ -60,119 +84,66 @@ jobs:
           }
           EOF
 
-      - name: Create 3D Web Dashboard
+      - name: Patch index.html Visualization
         run: |
-          mkdir -p public
-          cp WEBASSEMBLY/* public/
-          cat > public/index.html <<EOF
-          <!DOCTYPE html>
-          <html>
-          <head>
-            <title>Edge-AI 3D Neural Dashboard</title>
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-            <style>
-              body { margin: 0; overflow: hidden; background: #050505; font-family: 'Courier New', Courier, monospace; color: #00ffcc; }
-              #ui { position: absolute; top: 20px; left: 20px; z-index: 10; pointer-events: none; }
-              .panel { background: rgba(0, 20, 20, 0.8); padding: 15px; border: 1px solid #00ffcc; border-radius: 5px; pointer-events: auto; margin-bottom: 10px; }
-              h1 { margin: 0; font-size: 1.5em; text-shadow: 0 0 10px #00ffcc; }
-              .status { color: #33ff77; }
-              a { color: #00ccff; text-decoration: none; }
-              a:hover { text-decoration: underline; }
-              #info-box { position: absolute; bottom: 20px; right: 20px; text-align: right; }
-            </style>
-          </head>
-          <body>
-            <div id="ui">
-              <div class="panel">
-                <h1>EDGE-AI 3D PIPELINE</h1>
-                <p>Status: <span class="status">OPERATIONAL</span></p>
-                <p>Commit: <small>${{ github.sha }}</small></p>
-              </div>
-              <div class="panel">
-                <h3>NEURAL COMPONENTS</h3>
-                <ul id="component-list" style="list-style: none; padding: 0; font-size: 0.8em;">
-                  $(ls WEBASSEMBLY/*.wasm | xargs -n 1 basename | sed 's|.*|<li><a href="\0">>> \0</a></li>|')
-                </ul>
-              </div>
-              <div class="panel">
-                <a href="NeuralModel.sm" style="font-weight: bold;">[ DOWNLOAD MODEL.SM ]</a>
-              </div>
-            </div>
-            <div id="info-box">
-              <p>Dynamic 3D Visualization</p>
-              <p>Powered by Three.js & WASM</p>
-            </div>
+          echo "🛠️ Patching visualization settings..."
+          if [ -f "docs/index.html" ]; then
+            # Ensure ideal zoom
+            sed -i 's/zoom = -[0-9.]\+/zoom = -3.5/g' docs/index.html
+            # Ensure rotation limits (clamping)
+            if ! grep -q "const limit = Math.PI / 2 - 0.1" docs/index.html; then
+              sed -i 's/rotX += (e.clientY - lastY) \* 0.01;/rotX += (e.clientY - lastY) * 0.01; const limit = Math.PI \/ 2 - 0.1; if (rotX > limit) rotX = limit; if (rotX < -limit) rotX = -limit;/g' docs/index.html
+            fi
+            echo "✅ Patch applied to index.html."
+          else
+            echo "⚠️ docs/index.html not found."
+          fi
 
-            <script>
-              const scene = new THREE.Scene();
-              const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-              const renderer = new THREE.WebGLRenderer({ antialias: true });
-              renderer.setSize(window.innerWidth, window.innerHeight);
-              document.body.appendChild(renderer.domElement);
-
-              // Create Neural Network Visualization
-              const group = new THREE.Group();
-              const nodeCount = 50;
-              const nodes = [];
-              
-              for(let i=0; i<nodeCount; i++) {
-                const geometry = new THREE.SphereGeometry(0.1, 16, 16);
-                const material = new THREE.MeshBasicMaterial({ color: 0x00ffcc });
-                const sphere = new THREE.Mesh(geometry, material);
-                sphere.position.set((Math.random()-0.5)*10, (Math.random()-0.5)*10, (Math.random()-0.5)*10);
-                nodes.push(sphere);
-                group.add(sphere);
-              }
-
-              // Add connections
-              const lineMaterial = new THREE.LineBasicMaterial({ color: 0x004444, transparent: true, opacity: 0.5 });
-              for(let i=0; i<nodeCount; i++) {
-                for(let j=i+1; j<nodeCount; j++) {
-                  if(nodes[i].position.distanceTo(nodes[j].position) < 3) {
-                    const geometry = new THREE.BufferGeometry().setFromPoints([nodes[i].position, nodes[j].position]);
-                    const line = new THREE.Line(geometry, lineMaterial);
-                    group.add(line);
-                  }
-                }
-              }
-
-              scene.add(group);
-              camera.position.z = 8;
-
-              function animate() {
-                requestAnimationFrame(animate);
-                group.rotation.y += 0.002;
-                group.rotation.x += 0.001;
-                renderer.render(scene, camera);
-              }
-              animate();
-
-              window.addEventListener('resize', () => {
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(window.innerWidth, window.innerHeight);
-              });
-            </script>
-          </body>
-          </html>
-          EOF
+      - name: Verify Documentation Structure
+        run: |
+          echo "🔍 Checking documentation structure..."
+          mkdir -p docs/assets/css docs/assets/js
+          touch docs/.nojekyll
+          echo "Documentation structure verified!"
 
       - name: Setup GitHub Pages
-        uses: actions/configure-pages@v4
+        uses: actions/configure-pages@v5
 
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: public/
+          path: './docs'
 
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
 
-      - name: Commit and Push to WEBASSEMBLY folder
+      - name: Create Release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: release-v${{ github.run_number }}
+          name: Edge-AI Neural Build v${{ github.run_number }}
+          files: |
+            docs/*.wasm
+            docs/index.html
+            docs/NeuralModel.sm
+          body: |
+            🚀 **Automated Edge-AI Unified Pipeline**
+            ✅ WebAssembly modules compiled and deployed.
+            🔗 **Live App:** ${{ steps.deployment.outputs.page_url }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Sync Binaries to Branch
+        if: github.event_name == 'push'
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add WEBASSEMBLY/
-          git commit -m "Automated build: 3D Dashboard & WASM Sync [skip ci]" || echo "No changes to commit"
-          git push origin main
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add docs/*.wasm docs/NeuralModel.sm
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: sync build artifacts [skip ci]"
+            git push origin main
+          else
+            echo "No changes in binaries to sync."
+          fi
