@@ -3,10 +3,6 @@ name: Dynamic WebAssembly Build & Face-Mapped Deploy
 on:
   push:
     branches: ["main"]
-    paths:
-      - 'docs/index.html'
-      - 'WEBASSEMBLY/**'
-      - '.github/workflows/pages-deploy.yml'
   workflow_dispatch:
 
 permissions:
