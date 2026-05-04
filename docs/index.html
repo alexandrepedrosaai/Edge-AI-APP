@@ -213,7 +213,7 @@ async function run() {
     }
   };
 
-  let rotX = 0.5, rotY = 0.5, zoom = -5;
+  let rotX = 0.5, rotY = 0.5, zoom = -3.5;
   let dragging = false, lastX, lastY;
 
   canvas.onpointerdown = e => { dragging = true; lastX = e.clientX; lastY = e.clientY; canvas.setPointerCapture(e.pointerId); };
@@ -222,6 +222,10 @@ async function run() {
     if (dragging) {
       rotY += (e.clientX - lastX) * 0.01;
       rotX += (e.clientY - lastY) * 0.01;
+      // Clamp rotX to prevent flipping and losing orientation
+      const limit = Math.PI / 2 - 0.1;
+      if (rotX > limit) rotX = limit;
+      if (rotX < -limit) rotX = -limit;
       lastX = e.clientX; lastY = e.clientY;
     }
   };
