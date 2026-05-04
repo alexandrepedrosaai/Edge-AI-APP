@@ -87,7 +87,7 @@ jobs:
             3.1.x
             6.0.x
             ${{ env.DOTNET_VERSION }}
-          cache: true
+          cache: false
 
       - name: Build Quantum Project
         run: dotnet build src/wave-space-dl.qsproj --configuration Release
@@ -241,7 +241,7 @@ jobs:
           dotnet-version: |
             3.1.x
             6.0.x
-          cache: true
+          cache: false
 
       - run: |
           mkdir -p dist/azure-sphere
