@@ -1,11 +1,12 @@
-name: WebAssembly Build & Dynamic Deploy
+name: Dynamic WebAssembly Build & Face-Mapped Deploy
 
 on:
   push:
     branches: ["main"]
     paths:
-      - 'docs/**'
+      - 'docs/index.html'
       - 'WEBASSEMBLY/**'
+      - '.github/workflows/pages-deploy.yml'
   workflow_dispatch:
 
 permissions:
@@ -31,21 +32,45 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y wabt
 
-      - name: Compile WAT to WASM
+      - name: Granular WASM Build
+        id: build
         run: |
           mkdir -p docs
           cd WEBASSEMBLY
-          for file in *.wat; do
-            echo "🚀 Compiling $file to WASM..."
-            wat2wasm "$file" -o "../docs/${file%.wat}.wasm"
+          
+          # Compilar cada função explicitamente para garantir que as dependências do index.html sejam atendidas
+          functions=("Functions" "Linear" "Matrixderivate" "Hyperbolic" "Factor" "Unified")
+          
+          for func in "${functions[@]}"; do
+            if [ -f "${func}.wat" ]; then
+              echo "🚀 Compiling Granular Module: ${func}.wat"
+              wat2wasm "${func}.wat" -o "../docs/${func}.wasm"
+            else
+              echo "⚠️ Warning: ${func}.wat not found, skipping..."
+            fi
           done
-          echo "✅ Compilation complete. Files generated:"
+          
+          # Compilar quaisquer outros arquivos .wat remanescentes
+          for file in *.wat; do
+            base=$(basename "$file" .wat)
+            if [[ ! " ${functions[@]} " =~ " ${base} " ]]; then
+              echo "📦 Compiling Additional Module: $file"
+              wat2wasm "$file" -o "../docs/${base}.wasm"
+            fi
+          done
+          
+          echo "✅ Build Complete. Artifacts in docs/:"
           ls -lh ../docs/*.wasm
+
+      - name: Validate index.html Linkage
+        run: |
+          echo "🔍 Checking index.html for WASM references..."
+          grep -E "loadWasm\(\".+\.wasm\"\)" docs/index.html || echo "No WASM references found in index.html"
 
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v5
 
-      - name: Upload Artifact to Pages
+      - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: './docs'
@@ -54,15 +79,15 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-      - name: Sync WASM Binaries to Repo
+      - name: Sync Binaries to Branch
         if: github.event_name == 'push'
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add docs/*.wasm
           if ! git diff --cached --quiet; then
-            git commit -m "chore: dynamic build of WebAssembly modules [skip ci]"
+            git commit -m "chore: dynamic granular build of WASM modules [skip ci]"
             git push
           else
-            echo "No changes in WASM binaries."
+            echo "No changes in binaries to sync."
           fi
