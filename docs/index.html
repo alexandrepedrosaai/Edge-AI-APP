@@ -3,39 +3,50 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Edge-AI-APP WASM Multi-Function Cube</title>
+  <title>Edge-AI-APP WASM Neural Engine</title>
   <style>
     body { margin:0; overflow:hidden; background:#050505; color: #fff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     canvas { display:block; width:100vw; height:100vh; cursor:grab; }
-    #info { position: absolute; top: 10px; left: 10px; pointer-events: none; background: rgba(0,0,0,0.85); padding: 15px; border-radius: 12px; border: 1px solid #00ccff; box-shadow: 0 0 15px rgba(0,204,255,0.3); max-width: 300px; }
-    h1 { margin: 0 0 10px 0; font-size: 18px; color: #00ccff; text-transform: uppercase; letter-spacing: 2px; }
-    .face-label { font-size: 12px; margin: 4px 0; display: flex; justify-content: space-between; gap: 10px; }
-    .label-name { font-weight: bold; }
+    #info { position: absolute; top: 10px; left: 10px; pointer-events: none; background: rgba(0,0,0,0.9); padding: 15px; border-radius: 12px; border: 1px solid #00ccff; box-shadow: 0 0 20px rgba(0,204,255,0.2); max-width: 320px; z-index: 10; }
+    h1 { margin: 0 0 10px 0; font-size: 16px; color: #00ccff; text-transform: uppercase; letter-spacing: 2px; text-align: center; }
+    .face-label { font-size: 11px; margin: 3px 0; display: flex; justify-content: space-between; gap: 8px; }
+    .label-name { font-weight: bold; opacity: 0.9; }
     .label-status { font-weight: bold; }
-    #status { margin-top: 10px; padding-top: 5px; border-top: 1px solid #333; font-weight: bold; color: #ffcc00; font-size: 13px; }
+    #status { margin-top: 10px; padding-top: 5px; border-top: 1px solid #333; font-weight: bold; color: #ffcc00; font-size: 12px; text-align: center; }
     
-    /* Cores específicas para cada função */
-    .c-functions { color: #0088ff; } /* Azul */
-    .c-linear { color: #00ff88; }    /* Verde Esmeralda */
-    .c-matrix { color: #cc00ff; }    /* Roxo */
-    .c-hyperbolic { color: #ff3333; }/* Vermelho */
-    .c-factor { color: #ff8800; }    /* Laranja */
-    .c-unified { color: #00ffff; }   /* Ciano */
-    .c-advanced { color: #ffff00; }  /* Amarelo */
-    .c-ratio { color: #ff00ff; }     /* Magenta */
+    /* Scarlet Blue Neural Graph Container */
+    #ml-graph-container { margin-top: 15px; border-top: 1px solid #333; padding-top: 10px; }
+    h2 { font-size: 12px; color: #5600ff; text-transform: uppercase; margin: 0 0 8px 0; text-align: center; text-shadow: 0 0 5px #5600ff; }
+    #ml-canvas { width: 100%; height: 80px; background: rgba(0,0,0,0.5); border-radius: 4px; border: 1px solid #222; }
+
+    /* Specific colors for each function */
+    .c-functions { color: #0088ff; } 
+    .c-linear { color: #00ff88; }    
+    .c-matrix { color: #cc00ff; }    
+    .c-hyperbolic { color: #ff3333; }
+    .c-factor { color: #ff8800; }    
+    .c-unified { color: #00ffff; }   
+    .c-advanced { color: #ffff00; }  
+    .c-ratio { color: #ff00ff; }     
   </style>
 </head>
 <body>
 <div id="info">
-  <h1>Edge-AI WASM Engine</h1>
+  <h1>Edge-AI Neural Engine</h1>
   <div class="face-label"><span class="label-name c-functions">Front:</span> <span class="label-status c-functions" id="f-status">Functions (cos)</span></div>
   <div class="face-label"><span class="label-name c-linear">Back:</span> <span class="label-status c-linear" id="b-status">Linear (add)</span></div>
   <div class="face-label"><span class="label-name c-matrix">Top:</span> <span class="label-status c-matrix" id="t-status">Matrix (derivate)</span></div>
   <div class="face-label"><span class="label-name c-hyperbolic">Bottom:</span> <span class="label-status c-hyperbolic" id="bo-status">Hyperbolic (sinh)</span></div>
   <div class="face-label"><span class="label-name c-factor">Right:</span> <span class="label-status c-factor" id="r-status">Factor (mul)</span></div>
   <div class="face-label"><span class="label-name c-unified">Left:</span> <span class="label-status c-unified" id="l-status">Unified (complex)</span></div>
-  <div class="face-label"><span class="label-name c-advanced">Core:</span> <span class="label-status c-advanced" id="a-status">AdvancedLinear</span></div>
-  <div class="face-label"><span class="label-name c-ratio">Grid:</span> <span class="label-status c-ratio" id="ra-status">Ratio Analysis</span></div>
+  <div class="face-label"><span class="label-name c-advanced">Core:</span> <span class="label-status c-advanced" id="a-status">Advanced (sync)</span></div>
+  <div class="face-label"><span class="label-name c-ratio">Grid:</span> <span class="label-status c-ratio" id="ra-status">Ratio (analysis)</span></div>
+  
+  <div id="ml-graph-container">
+    <h2>Neural ML Insights (Scarlet Blue)</h2>
+    <canvas id="ml-canvas"></canvas>
+  </div>
+  
   <p id="status">Initializing Neural Grid...</p>
 </div>
 <canvas id="c"></canvas>
@@ -55,7 +66,10 @@ async function loadWasm(file) {
 
 async function run() {
   const statusEl = document.getElementById("status");
-  statusEl.innerText = "Synchronizing 8 WASM Modules...";
+  const mlCanvas = document.getElementById("ml-canvas");
+  const mlCtx = mlCanvas.getContext("2d");
+  
+  statusEl.innerText = "Synchronizing Neural Modules...";
 
   const modules = {
     functions: await loadWasm("Functions.wasm"),
@@ -68,7 +82,7 @@ async function run() {
     ratio: await loadWasm("Ratio.wasm")
   };
 
-  statusEl.innerText = "8 Modules Online. Neural Cube Active.";
+  statusEl.innerText = "System Online. Neural Cube Active.";
   statusEl.style.color = "#00ff00";
 
   const canvas = document.getElementById("c");
@@ -79,9 +93,41 @@ async function run() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     gl.viewport(0, 0, canvas.width, canvas.height);
+    mlCanvas.width = mlCanvas.offsetWidth;
+    mlCanvas.height = mlCanvas.offsetHeight;
   }
   window.addEventListener('resize', resize);
   resize();
+
+  // Neural ML Graph Data
+  const dataPoints = new Array(50).fill(0);
+  function drawMLGraph(value) {
+    dataPoints.push(value);
+    dataPoints.shift();
+    
+    mlCtx.clearRect(0, 0, mlCanvas.width, mlCanvas.height);
+    mlCtx.beginPath();
+    mlCtx.strokeStyle = "#5600ff"; // Scarlet Blue (Deep Purple-ish Blue)
+    mlCtx.lineWidth = 2;
+    mlCtx.shadowBlur = 8;
+    mlCtx.shadowColor = "#5600ff";
+    
+    const step = mlCanvas.width / (dataPoints.length - 1);
+    for(let i=0; i<dataPoints.length; i++) {
+      const x = i * step;
+      const y = mlCanvas.height - (dataPoints[i] * mlCanvas.height * 0.8) - 5;
+      if(i === 0) mlCtx.moveTo(x, y);
+      else mlCtx.lineTo(x, y);
+    }
+    mlCtx.stroke();
+    
+    // Fill under graph
+    mlCtx.lineTo(mlCanvas.width, mlCanvas.height);
+    mlCtx.lineTo(0, mlCanvas.height);
+    mlCtx.fillStyle = "rgba(86, 0, 255, 0.1)";
+    mlCtx.fill();
+    mlCtx.shadowBlur = 0;
+  }
 
   const vsSource = `
     attribute vec4 aVertexPosition;
@@ -108,22 +154,19 @@ async function run() {
     void main(void) {
       vec3 color = vec3(0.0);
       float intensity = uWasmValues[int(vFaceIndex)];
-      float adv = uWasmValues[6]; // AdvancedLinear impact
-      float rat = uWasmValues[7]; // Ratio impact
+      float adv = uWasmValues[6];
+      float rat = uWasmValues[7];
 
-      if (vFaceIndex < 0.5) color = vec3(0.0, 0.5, 1.0) * intensity; // Front - Blue
-      else if (vFaceIndex < 1.5) color = vec3(0.0, 1.0, 0.5) * intensity; // Back - Emerald
-      else if (vFaceIndex < 2.5) color = vec3(0.8, 0.0, 1.0) * intensity; // Top - Purple
-      else if (vFaceIndex < 3.5) color = vec3(1.0, 0.2, 0.2) * intensity; // Bottom - Red
-      else if (vFaceIndex < 4.5) color = vec3(1.0, 0.5, 0.0) * intensity; // Right - Orange
-      else color = vec3(0.0, 1.0, 1.0) * intensity; // Left - Cyan
+      if (vFaceIndex < 0.5) color = vec3(0.0, 0.5, 1.0) * intensity;
+      else if (vFaceIndex < 1.5) color = vec3(0.0, 1.0, 0.5) * intensity;
+      else if (vFaceIndex < 2.5) color = vec3(0.8, 0.0, 1.0) * intensity;
+      else if (vFaceIndex < 3.5) color = vec3(1.0, 0.2, 0.2) * intensity;
+      else if (vFaceIndex < 4.5) color = vec3(1.0, 0.5, 0.0) * intensity;
+      else color = vec3(0.0, 1.0, 1.0) * intensity;
       
-      // Mix Advanced color into the core
       color = mix(color, vec3(1.0, 1.0, 0.0), adv * 0.2);
-      
-      // Grid effect using Ratio
       float grid = step(0.92, fract(vTextureCoord.x * 10.0)) + step(0.92, fract(vTextureCoord.y * 10.0));
-      vec3 gridColor = vec3(1.0, 0.0, 1.0) * rat; // Magenta grid
+      vec3 gridColor = vec3(1.0, 0.0, 1.0) * rat;
       color += grid * gridColor * 0.5;
       
       gl_FragColor = vec4(color, 1.0);
@@ -158,12 +201,12 @@ async function run() {
   };
 
   const positions = [
-    -1,-1, 1, 1,-1, 1, 1, 1, 1, -1, 1, 1, // Front
-    -1,-1,-1, -1, 1,-1, 1, 1,-1, 1,-1,-1, // Back
-    -1, 1,-1, -1, 1, 1, 1, 1, 1, 1, 1,-1, // Top
-    -1,-1,-1, 1,-1,-1, 1,-1, 1, -1,-1, 1, // Bottom
-     1,-1,-1, 1, 1,-1, 1, 1, 1, 1,-1, 1, // Right
-    -1,-1,-1, -1,-1, 1, -1, 1, 1, -1, 1,-1, // Left
+    -1,-1, 1, 1,-1, 1, 1, 1, 1, -1, 1, 1,
+    -1,-1,-1, -1, 1,-1, 1, 1,-1, 1,-1,-1,
+    -1, 1,-1, -1, 1, 1, 1, 1, 1, 1, 1,-1,
+    -1,-1,-1, 1,-1,-1, 1,-1, 1, -1,-1, 1,
+     1,-1,-1, 1, 1,-1, 1, 1, 1, 1,-1, 1,
+    -1,-1,-1, -1,-1, 1, -1, 1, 1, -1, 1,-1,
   ];
   
   const faceIndices = [];
@@ -246,7 +289,6 @@ async function run() {
     const t = time * 0.001;
     const wasmValues = new Float32Array(8);
     
-    // Calculate values from all 8 modules
     wasmValues[0] = (modules.functions && modules.functions.cos) ? Math.abs(modules.functions.cos(t)) : Math.abs(Math.cos(t));
     wasmValues[1] = (modules.linear && modules.linear.add) ? Math.abs(modules.linear.add(t, 0.5)) % 1.0 : Math.abs(Math.sin(t * 0.5));
     wasmValues[2] = (modules.matrix && modules.matrix.derivate) ? Math.abs(modules.matrix.derivate(t)) % 1.0 : Math.abs(Math.cos(t * 0.8));
@@ -255,6 +297,8 @@ async function run() {
     wasmValues[5] = (modules.unified && modules.unified.complex) ? Math.abs(modules.unified.complex(t % 1.0)) : Math.abs(Math.sin(t * 2.0));
     wasmValues[6] = (modules.advanced && modules.advanced.calculate) ? Math.abs(modules.advanced.calculate(t)) % 1.0 : Math.abs(Math.sin(t * 0.3));
     wasmValues[7] = (modules.ratio && modules.ratio.analyze) ? Math.abs(modules.ratio.analyze(t)) % 1.0 : Math.abs(Math.cos(t * 0.4));
+
+    drawMLGraph((wasmValues[6] + wasmValues[7]) / 2);
 
     gl.uniformMatrix4fv(programInfo.unif.proj, false, proj);
     gl.uniformMatrix4fv(programInfo.unif.mv, false, mv);
