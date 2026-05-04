@@ -35,7 +35,7 @@ jobs:
           cd WEBASSEMBLY
           
           # Compilar cada função explicitamente para garantir que as dependências do index.html sejam atendidas
-          functions=("Functions" "Linear" "Matrixderivate" "Hyperbolic" "Factor" "Unified")
+          functions=("Functions" "Linear" "Matrixderivate" "Hyperbolic" "Factor" "Unified" "AdvancedLinear" "Ratio")
           
           for func in "${functions[@]}"; do
             if [ -f "${func}.wat" ]; then
