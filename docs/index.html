@@ -1,289 +1,251 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Edge-AI-APP WASM Multi-Function Cube</title>
-  <style>
-    body { margin:0; overflow:hidden; background:#050505; color: #fff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    canvas { display:block; width:100vw; height:100vh; cursor:grab; }
-    #info { position: absolute; top: 10px; left: 10px; pointer-events: none; background: rgba(0,0,0,0.85); padding: 20px; border-radius: 12px; border: 1px solid #00ccff; box-shadow: 0 0 15px rgba(0,204,255,0.3); }
-    h1 { margin: 0 0 10px 0; font-size: 22px; color: #00ccff; text-transform: uppercase; letter-spacing: 2px; }
-    .face-label { font-size: 14px; margin: 5px 0; display: flex; justify-content: space-between; gap: 20px; }
-    .label-name { color: #00ccff; font-weight: bold; }
-    .label-status { color: #00ff00; }
-    #status { margin-top: 15px; padding-top: 10px; border-top: 1px solid #333; font-weight: bold; color: #ffcc00; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDGE-AI 3D PIPELINE</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000;
+            color: #00ffcc;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        canvas {
+            display: block;
+        }
+        #ui-container {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
+            pointer-events: none;
+        }
+        .panel {
+            background: rgba(0, 20, 20, 0.8);
+            border: 1px solid #00ffcc;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            width: 300px;
+            pointer-events: auto;
+        }
+        .panel h2 {
+            margin: 0 0 10px 0;
+            font-size: 18px;
+            letter-spacing: 2px;
+            border-bottom: 1px solid #00ffcc;
+            padding-bottom: 5px;
+        }
+        .status-row {
+            margin: 5px 0;
+            font-size: 12px;
+        }
+        .status-value {
+            color: #00ff00;
+            font-weight: bold;
+        }
+        .component-list {
+            font-size: 11px;
+            line-height: 1.4;
+        }
+        .component-item {
+            color: #00ccff;
+        }
+        .download-btn {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 8px 15px;
+            border: 1px solid #00ffcc;
+            background: transparent;
+            color: #00ffcc;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+        .download-btn:hover {
+            background: #00ffcc;
+            color: #000;
+        }
+        #footer {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            text-align: right;
+            font-size: 12px;
+            pointer-events: none;
+        }
+        .footer-text {
+            margin: 2px 0;
+            opacity: 0.8;
+        }
+    </style>
 </head>
 <body>
-<div id="info">
-  <h1>Edge-AI WASM Engine</h1>
-  <div class="face-label"><span class="label-name">Front Face:</span> <span class="label-status" id="f-status">Functions.wasm (cos)</span></div>
-  <div class="face-label"><span class="label-name">Back Face:</span> <span class="label-status" id="b-status">Linear.wasm (add)</span></div>
-  <div class="face-label"><span class="label-name">Top Face:</span> <span class="label-status" id="t-status">Matrix.wasm (derivate)</span></div>
-  <div class="face-label"><span class="label-name">Bottom Face:</span> <span class="label-status" id="bo-status">Hyperbolic.wasm (sinh)</span></div>
-  <div class="face-label"><span class="label-name">Right Face:</span> <span class="label-status" id="r-status">Factor.wasm (mul)</span></div>
-  <div class="face-label"><span class="label-name">Left Face:</span> <span class="label-status" id="l-status">Unified.wasm (complex)</span></div>
-  <p id="status">Initializing Neural Grid...</p>
-</div>
-<canvas id="c"></canvas>
-<script>
-async function loadWasm(file) {
-  try {
-    const response = await fetch(file);
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const buffer = await response.arrayBuffer();
-    const wasm = await WebAssembly.instantiate(buffer);
-    return wasm.instance.exports;
-  } catch (e) {
-    console.warn(`WASM ${file} load failed, using JS fallback`, e);
-    return null;
-  }
-}
+    <div id="ui-container">
+        <div class="panel">
+            <h2>EDGE-AI 3D PIPELINE</h2>
+            <div class="status-row">Status: <span class="status-value">OPERATIONAL</span></div>
+            <div class="status-row" style="word-break: break-all;">Commit: <span id="commit-hash">004334df73e5d8128c36944dee4c442f31a32266</span></div>
+        </div>
+        <div class="panel">
+            <h2>NEURAL COMPONENTS</h2>
+            <div class="component-list">
+                <div class="component-item">>> AdvancedLinear.wasm</div>
+                <div class="component-item">>> Factor.wasm</div>
+                <div class="component-item">>> Functions.wasm</div>
+                <div class="component-item">>> Hyperbolic.wasm</div>
+                <div class="component-item">>> Linear.wasm</div>
+                <div class="component-item">>> Matrixderivate.wasm</div>
+                <div class="component-item">>> Ratio.wasm</div>
+                <div class="component-item">>> Unified.wasm</div>
+            </div>
+        </div>
+        <div class="panel" style="padding: 10px; width: auto; display: inline-block;">
+            <a href="NeuralModel.sm" class="download-btn">[ DOWNLOAD MODEL.SM ]</a>
+        </div>
+    </div>
 
-async function run() {
-  const statusEl = document.getElementById("status");
-  statusEl.innerText = "Synchronizing WASM Modules...";
+    <div id="footer">
+        <div class="footer-text">Dynamic 3D Visualization</div>
+        <div class="footer-text">Powered by Three.js & WASM</div>
+    </div>
 
-  // Load all modules
-  const modules = {
-    functions: await loadWasm("Functions.wasm"),
-    linear: await loadWasm("Linear.wasm"),
-    matrix: await loadWasm("Matrixderivate.wasm"),
-    hyperbolic: await loadWasm("Hyperbolic.wasm"),
-    factor: await loadWasm("Factor.wasm"),
-    unified: await loadWasm("Unified.wasm")
-  };
+    <script>
+        // Scene Setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
 
-  statusEl.innerText = "System Online. Neural Cube Active.";
-  statusEl.style.color = "#00ff00";
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0x404040);
+        scene.add(ambientLight);
+        const pointLight = new THREE.PointLight(0x00ffcc, 1, 100);
+        pointLight.position.set(10, 10, 10);
+        scene.add(pointLight);
 
-  const canvas = document.getElementById("c");
-  const gl = canvas.getContext("webgl");
-  if (!gl) return;
+        // Neural Network Graph
+        const nodes = [];
+        const nodeCount = 40;
+        const nodeGeometry = new THREE.SphereGeometry(0.15, 16, 16);
+        const nodeMaterial = new THREE.MeshPhongMaterial({ color: 0x00ffcc, emissive: 0x00ffcc, emissiveIntensity: 0.5 });
 
-  function resize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    gl.viewport(0, 0, canvas.width, canvas.height);
-  }
-  window.addEventListener('resize', resize);
-  resize();
+        for (let i = 0; i < nodeCount; i++) {
+            const node = new THREE.Mesh(nodeGeometry, nodeMaterial);
+            node.position.set(
+                (Math.random() - 0.5) * 15,
+                (Math.random() - 0.5) * 15,
+                (Math.random() - 0.5) * 15
+            );
+            node.velocity = new THREE.Vector3(
+                (Math.random() - 0.5) * 0.02,
+                (Math.random() - 0.5) * 0.02,
+                (Math.random() - 0.5) * 0.02
+            );
+            scene.add(node);
+            nodes.push(node);
+        }
 
-  const vsSource = `
-    attribute vec4 aVertexPosition;
-    attribute vec2 aTextureCoord;
-    attribute float aFaceIndex;
-    uniform mat4 uModelViewMatrix;
-    uniform mat4 uProjectionMatrix;
-    varying lowp vec2 vTextureCoord;
-    varying lowp float vFaceIndex;
-    varying lowp vec4 vPos;
-    void main(void) {
-      gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
-      vTextureCoord = aTextureCoord;
-      vFaceIndex = aFaceIndex;
-      vPos = aVertexPosition;
-    }
-  `;
+        // Connections (Lines)
+        const lineMaterial = new THREE.LineBasicMaterial({ color: 0x00ffcc, transparent: true, opacity: 0.2 });
+        const connections = [];
 
-  const fsSource = `
-    precision lowp float;
-    varying lowp vec2 vTextureCoord;
-    varying lowp float vFaceIndex;
-    varying lowp vec4 vPos;
-    uniform float uTime;
-    uniform float uWasmValues[6];
+        for (let i = 0; i < nodes.length; i++) {
+            for (let j = i + 1; j < nodes.length; j++) {
+                if (nodes[i].position.distanceTo(nodes[j].position) < 4) {
+                    const geometry = new THREE.BufferGeometry().setFromPoints([nodes[i].position, nodes[j].position]);
+                    const line = new THREE.Line(geometry, lineMaterial);
+                    scene.add(line);
+                    connections.push({ line, start: nodes[i], end: nodes[j] });
+                }
+            }
+        }
 
-    void main(void) {
-      vec3 color = vec3(0.1, 0.1, 0.2);
-      float intensity = uWasmValues[int(vFaceIndex)];
-      
-      if (vFaceIndex < 0.5) { // Front - Functions (Blue)
-        color = vec3(0.0, 0.5, 1.0) * intensity;
-      } else if (vFaceIndex < 1.5) { // Back - Linear (Green)
-        color = vec3(0.0, 1.0, 0.5) * intensity;
-      } else if (vFaceIndex < 2.5) { // Top - Matrix (Purple)
-        color = vec3(0.7, 0.0, 1.0) * intensity;
-      } else if (vFaceIndex < 3.5) { // Bottom - Hyperbolic (Red)
-        color = vec3(1.0, 0.2, 0.2) * intensity;
-      } else if (vFaceIndex < 4.5) { // Right - Factor (Orange)
-        color = vec3(1.0, 0.6, 0.0) * intensity;
-      } else { // Left - Unified (Cyan)
-        color = vec3(0.0, 1.0, 1.0) * intensity;
-      }
-      
-      // Grid effect
-      float grid = step(0.95, fract(vTextureCoord.x * 10.0)) + step(0.95, fract(vTextureCoord.y * 10.0));
-      color += grid * 0.3;
-      
-      gl_FragColor = vec4(color, 1.0);
-    }
-  `;
+        // Interactive Cube (from the second image)
+        const cubeGeometry = new THREE.BoxGeometry(2, 2, 2);
+        const cubeMaterials = [
+            new THREE.MeshBasicMaterial({ color: 0x00ffff }), // Cyan
+            new THREE.MeshBasicMaterial({ color: 0xffff00 }), // Yellow
+            new THREE.MeshBasicMaterial({ color: 0xff00ff }), // Magenta
+            new THREE.MeshBasicMaterial({ color: 0x00ff00 }), // Green
+            new THREE.MeshBasicMaterial({ color: 0x0000ff }), // Blue
+            new THREE.MeshBasicMaterial({ color: 0xff0000 })  // Red
+        ];
+        const cube = new THREE.Mesh(cubeGeometry, cubeMaterials);
+        cube.position.set(0, 0, 0);
+        scene.add(cube);
 
-  function loadShader(type, source) {
-    const s = gl.createShader(type);
-    gl.shaderSource(s, source);
-    gl.compileShader(s);
-    return s;
-  }
+        camera.position.z = 10;
 
-  const shaderProgram = gl.createProgram();
-  gl.attachShader(shaderProgram, loadShader(gl.VERTEX_SHADER, vsSource));
-  gl.attachShader(shaderProgram, loadShader(gl.FRAGMENT_SHADER, fsSource));
-  gl.linkProgram(shaderProgram);
-  gl.useProgram(shaderProgram);
+        // Interaction
+        let isDragging = false;
+        let previousMousePosition = { x: 0, y: 0 };
 
-  const programInfo = {
-    attrib: {
-      pos: gl.getAttribLocation(shaderProgram, 'aVertexPosition'),
-      tex: gl.getAttribLocation(shaderProgram, 'aTextureCoord'),
-      face: gl.getAttribLocation(shaderProgram, 'aFaceIndex'),
-    },
-    unif: {
-      proj: gl.getUniformLocation(shaderProgram, 'uProjectionMatrix'),
-      mv: gl.getUniformLocation(shaderProgram, 'uModelViewMatrix'),
-      time: gl.getUniformLocation(shaderProgram, 'uTime'),
-      wasm: gl.getUniformLocation(shaderProgram, 'uWasmValues'),
-    }
-  };
+        document.addEventListener('mousedown', () => isDragging = true);
+        document.addEventListener('mouseup', () => isDragging = false);
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                const deltaMove = {
+                    x: e.offsetX - previousMousePosition.x,
+                    y: e.offsetY - previousMousePosition.y
+                };
 
-  // Cube data with face indices
-  const positions = [
-    // Front
-    -1,-1, 1,  1,-1, 1,  1, 1, 1, -1, 1, 1,
-    // Back
-    -1,-1,-1, -1, 1,-1,  1, 1,-1,  1,-1,-1,
-    // Top
-    -1, 1,-1, -1, 1, 1,  1, 1, 1,  1, 1,-1,
-    // Bottom
-    -1,-1,-1,  1,-1,-1,  1,-1, 1, -1,-1, 1,
-    // Right
-     1,-1,-1,  1, 1,-1,  1, 1, 1,  1,-1, 1,
-    // Left
-    -1,-1,-1, -1,-1, 1, -1, 1, 1, -1, 1,-1,
-  ];
-  
-  const faceIndices = [];
-  for(let i=0; i<6; i++) for(let j=0; j<4; j++) faceIndices.push(i);
+                const rotationQuaternion = new THREE.Quaternion()
+                    .setFromEuler(new THREE.Euler(
+                        deltaMove.y * 0.01,
+                        deltaMove.x * 0.01,
+                        0,
+                        'XYZ'
+                    ));
+                
+                scene.quaternion.multiplyQuaternions(rotationQuaternion, scene.quaternion);
+            }
+            previousMousePosition = { x: e.offsetX, y: e.offsetY };
+        });
 
-  const texCoords = [];
-  for(let i=0; i<6; i++) texCoords.push(0,0, 1,0, 1,1, 0,1);
+        // Animation Loop
+        function animate() {
+            requestAnimationFrame(animate);
 
-  const indices = [
-    0,1,2, 0,2,3,    4,5,6, 4,6,7,    8,9,10, 8,10,11,
-    12,13,14, 12,14,15,  16,17,18, 16,18,19,  20,21,22, 20,22,23
-  ];
+            // Move nodes
+            nodes.forEach(node => {
+                node.position.add(node.velocity);
+                if (Math.abs(node.position.x) > 8) node.velocity.x *= -1;
+                if (Math.abs(node.position.y) > 8) node.velocity.y *= -1;
+                if (Math.abs(node.position.z) > 8) node.velocity.z *= -1;
+            });
 
-  const posBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+            // Update lines
+            connections.forEach(conn => {
+                const positions = conn.line.geometry.attributes.position.array;
+                positions[0] = conn.start.position.x;
+                positions[1] = conn.start.position.y;
+                positions[2] = conn.start.position.z;
+                positions[3] = conn.end.position.x;
+                positions[4] = conn.end.position.y;
+                positions[5] = conn.end.position.z;
+                conn.line.geometry.attributes.position.needsUpdate = true;
+            });
 
-  const faceBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, faceBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(faceIndices), gl.STATIC_DRAW);
+            // Rotate cube slightly
+            cube.rotation.x += 0.005;
+            cube.rotation.y += 0.005;
 
-  const texBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, texBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(texCoords), gl.STATIC_DRAW);
+            renderer.render(scene, camera);
+        }
 
-  const indexBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
 
-  const mat4 = {
-    create: () => new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]),
-    perspective: (out,fovy,aspect,near,far)=>{
-      const f=1.0/Math.tan(fovy/2), nf=1/(near-far);
-      out[0]=f/aspect; out[5]=f; out[10]=(far+near)*nf; out[11]=-1;
-      out[14]=2*far*near*nf; out[1]=out[2]=out[3]=out[4]=out[6]=out[7]=out[8]=out[9]=out[12]=out[13]=out[15]=0;
-    },
-    translate:(out,a,v)=>{ out[12]=a[12]+v[0]; out[13]=a[13]+v[1]; out[14]=a[14]+v[2]; },
-    rotateX:(out,a,rad)=>{
-      const s=Math.sin(rad), c=Math.cos(rad);
-      const a10=a[4], a11=a[5], a12=a[6], a13=a[7], a20=a[8], a21=a[9], a22=a[10], a23=a[11];
-      out[4]=a10*c+a20*s; out[5]=a11*c+a21*s; out[6]=a12*c+a22*s; out[7]=a13*c+a23*s;
-      out[8]=a20*c-a10*s; out[9]=a21*c-a11*s; out[10]=a22*c-a12*s; out[11]=a23*c-a13*s;
-    },
-    rotateY:(out,a,rad)=>{
-      const s=Math.sin(rad), c=Math.cos(rad);
-      const a00=a[0], a01=a[1], a02=a[2], a03=a[3], a20=a[8], a21=a[9], a22=a[10], a23=a[11];
-      out[0]=a00*c-a20*s; out[1]=a01*c-a21*s; out[2]=a02*c-a22*s; out[3]=a03*c-a23*s;
-      out[8]=a00*s+a20*c; out[9]=a01*s+a21*c; out[10]=a02*s+a22*c; out[11]=a03*s+a23*c;
-    }
-  };
-
-  let rotX = 0.5, rotY = 0.5, zoom = -3.5;
-  let dragging = false, lastX, lastY;
-
-  canvas.onpointerdown = e => { dragging = true; lastX = e.clientX; lastY = e.clientY; canvas.setPointerCapture(e.pointerId); };
-  canvas.onpointerup = e => dragging = false;
-  canvas.onpointermove = e => {
-    if (dragging) {
-      rotY += (e.clientX - lastX) * 0.01;
-      rotX += (e.clientY - lastY) * 0.01; const limit = Math.PI / 2 - 0.1; if (rotX > limit) rotX = limit; if (rotX < -limit) rotX = -limit;
-      // Clamp rotX to prevent flipping and losing orientation
-      const limit = Math.PI / 2 - 0.1;
-      if (rotX > limit) rotX = limit;
-      if (rotX < -limit) rotX = -limit;
-      lastX = e.clientX; lastY = e.clientY;
-    }
-  };
-
-  function render(time) {
-    gl.clearColor(0.02, 0.02, 0.05, 1);
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    gl.enable(gl.DEPTH_TEST);
-
-    const proj = mat4.create();
-    mat4.perspective(proj, 45*Math.PI/180, canvas.width/canvas.height, 0.1, 100);
-    const mv = mat4.create();
-    mat4.translate(mv, mv, [0, 0, zoom]);
-    mat4.rotateX(mv, mv, rotX);
-    mat4.rotateY(mv, mv, rotY);
-
-    const t = time * 0.001;
-    
-    // Calculate values from WASM modules
-    const wasmValues = new Float32Array(6);
-    // Face 0: Functions.wasm (cos)
-    wasmValues[0] = (modules.functions && modules.functions.cos) ? Math.abs(modules.functions.cos(t)) : Math.abs(Math.cos(t));
-    // Face 1: Linear.wasm (add/offset)
-    wasmValues[1] = (modules.linear && modules.linear.add) ? Math.abs(modules.linear.add(t, 0.5)) % 1.0 : Math.abs(Math.sin(t * 0.5));
-    // Face 2: Matrixderivate.wasm
-    wasmValues[2] = (modules.matrix && modules.matrix.derivate) ? Math.abs(modules.matrix.derivate(t)) % 1.0 : Math.abs(Math.cos(t * 0.8));
-    // Face 3: Hyperbolic.wasm
-    wasmValues[3] = (modules.hyperbolic && modules.hyperbolic.sinh) ? Math.abs(modules.hyperbolic.sinh(t % 1.0)) : Math.abs(Math.sin(t * 1.2));
-    // Face 4: Factor.wasm
-    wasmValues[4] = (modules.factor && modules.factor.mul) ? Math.abs(modules.factor.mul(t % 1.0, 0.5)) : Math.abs(Math.cos(t * 1.5));
-    // Face 5: Unified.wasm
-    wasmValues[5] = (modules.unified && modules.unified.complex) ? Math.abs(modules.unified.complex(t % 1.0)) : Math.abs(Math.sin(t * 2.0));
-
-    gl.uniformMatrix4fv(programInfo.unif.proj, false, proj);
-    gl.uniformMatrix4fv(programInfo.unif.mv, false, mv);
-    gl.uniform1f(programInfo.unif.time, t);
-    gl.uniform1fv(programInfo.unif.wasm, wasmValues);
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer);
-    gl.vertexAttribPointer(programInfo.attrib.pos, 3, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(programInfo.attrib.pos);
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, faceBuffer);
-    gl.vertexAttribPointer(programInfo.attrib.face, 1, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(programInfo.attrib.face);
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, texBuffer);
-    gl.vertexAttribPointer(programInfo.attrib.tex, 2, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(programInfo.attrib.tex);
-
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-    gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0);
-
-    requestAnimationFrame(render);
-  }
-  requestAnimationFrame(render);
-}
-run();
-</script>
+        animate();
+    </script>
 </body>
 </html>
