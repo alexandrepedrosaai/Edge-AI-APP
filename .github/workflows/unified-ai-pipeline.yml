@@ -26,7 +26,6 @@ jobs:
           cd emsdk
           ./emsdk install latest
           ./emsdk activate latest
-          echo "source $(pwd)/emsdk_env.sh" >> $GITHUB_ENV
 
       - name: Build ASM to WASM
         run: |
