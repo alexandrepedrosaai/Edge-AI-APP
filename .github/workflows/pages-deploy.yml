@@ -62,6 +62,17 @@ jobs:
           echo "✅ Build Complete. Artifacts in docs/:"
           ls -lh ../docs/*.wasm
 
+      - name: Patch index.html Cube Visualization
+        run: |
+          echo "🛠️ Patching cube visualization settings..."
+          # Garantir zoom ideal
+          sed -i 's/zoom = -[0-9.]\+/zoom = -3.5/g' docs/index.html
+          # Garantir limites de rotação (clamping)
+          if ! grep -q "const limit = Math.PI / 2 - 0.1" docs/index.html; then
+            sed -i 's/rotX += (e.clientY - lastY) \* 0.01;/rotX += (e.clientY - lastY) * 0.01; const limit = Math.PI \/ 2 - 0.1; if (rotX > limit) rotX = limit; if (rotX < -limit) rotX = -limit;/g' docs/index.html
+          fi
+          echo "✅ Patch applied."
+
       - name: Validate index.html Linkage
         run: |
           echo "🔍 Checking index.html for WASM references..."
