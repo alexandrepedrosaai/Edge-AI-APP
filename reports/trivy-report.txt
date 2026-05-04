@@ -6,7 +6,7 @@ Report Summary
 ├──────────────────────────────────────────────────────────────────────────────────┼───────────────────┼─────────────────┼─────────┤
 │ JAVA/pom.xml                                                                     │        pom        │        8        │    -    │
 ├──────────────────────────────────────────────────────────────────────────────────┼───────────────────┼─────────────────┼─────────┤
-│ JULIA/Manifest.toml                                                              │       julia       │       21        │    -    │
+│ JULIA/Manifest.toml                                                              │       julia       │       38        │    -    │
 ├──────────────────────────────────────────────────────────────────────────────────┼───────────────────┼─────────────────┼─────────┤
 │ Quantum-Lunar-Base-Simulation/LunarSim/bin/Debug/net6.0/QuantumLunarSimulationP- │    dotnet-core    │        0        │    -    │
 │ roject.deps.json                                                                 │                   │                 │         │
@@ -81,13 +81,73 @@ Total: 8 (UNKNOWN: 0, LOW: 0, MEDIUM: 5, HIGH: 2, CRITICAL: 1)
 
 JULIA/Manifest.toml (julia)
 ===========================
-Total: 21 (UNKNOWN: 0, LOW: 0, MEDIUM: 11, HIGH: 8, CRITICAL: 2)
+Total: 38 (UNKNOWN: 0, LOW: 4, MEDIUM: 22, HIGH: 10, CRITICAL: 2)
 
 ┌─────────────┬────────────────┬──────────┬──────────┬───────────────────┬───────────────┬──────────────────────────────────────────────────────────────┐
 │   Library   │ Vulnerability  │ Severity │  Status  │ Installed Version │ Fixed Version │                            Title                             │
 ├─────────────┼────────────────┼──────────┼──────────┼───────────────────┼───────────────┼──────────────────────────────────────────────────────────────┤
-│ LibCURL_jll │ CVE-2024-7264  │ MEDIUM   │ fixed    │ 8.4.0+0           │ 8.9.1+0       │ curl: libcurl: ASN.1 date parser overread                    │
+│ LibCURL_jll │ CVE-2024-2398  │ HIGH     │ fixed    │ 8.4.0+0           │ 8.7.1+0       │ curl: HTTP/2 push headers memory-leak                        │
+│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2024-2398                    │
+│             ├────────────────┤          │          │                   ├───────────────┼──────────────────────────────────────────────────────────────┤
+│             │ CVE-2025-0725  │          │          │                   │ 8.12.0+0      │ libcurl: Buffer Overflow in libcurl via zlib Integer         │
+│             │                │          │          │                   │               │ Overflow                                                     │
+│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2025-0725                    │
+│             ├────────────────┼──────────┤          │                   ├───────────────┼──────────────────────────────────────────────────────────────┤
+│             │ CVE-2023-46218 │ MEDIUM   │          │                   │ 8.5.0+0       │ curl: information disclosure by exploiting a mixed case flaw │
+│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2023-46218                   │
+│             ├────────────────┤          │          │                   ├───────────────┼──────────────────────────────────────────────────────────────┤
+│             │ CVE-2024-7264  │          │          │                   │ 8.9.1+0       │ curl: libcurl: ASN.1 date parser overread                    │
 │             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2024-7264                    │
+│             ├────────────────┤          │          │                   ├───────────────┼──────────────────────────────────────────────────────────────┤
+│             │ CVE-2024-8096  │          │          │                   │ 8.11.0+0      │ curl: OCSP stapling bypass with GnuTLS                       │
+│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2024-8096                    │
+│             ├────────────────┤          │          │                   │               ├──────────────────────────────────────────────────────────────┤
+│             │ CVE-2024-9681  │          │          │                   │               │ curl: HSTS subdomain overwrites parent cache entry           │
+│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2024-9681                    │
+│             ├────────────────┤          │          │                   ├───────────────┼──────────────────────────────────────────────────────────────┤
+│             │ CVE-2025-10966 │          │          │                   │ 8.17.0+0      │ curl: Curl missing SFTP host verification with wolfSSH       │
+│             │                │          │          │                   │               │ backend                                                      │
+│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2025-10966                   │
+│             ├────────────────┤          │          │                   ├───────────────┼──────────────────────────────────────────────────────────────┤
+│             │ CVE-2025-14017 │          │          │                   │ 8.18.0+0      │ curl: curl: Security bypass due to global TLS option changes │
+│             │                │          │          │                   │               │ in multi-threaded...                                         │
+│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2025-14017                   │
+│             ├────────────────┤          │          │                   │               ├──────────────────────────────────────────────────────────────┤
+│             │ CVE-2025-14524 │          │          │                   │               │ curl: Information disclosure via cross-protocol redirect     │
+│             │                │          │          │                   │               │ with OAuth2 bearer token                                     │
+│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2025-14524                   │
+│             ├────────────────┤          │          │                   │               ├──────────────────────────────────────────────────────────────┤
+│             │ CVE-2025-14819 │          │          │                   │               │ curl: libcurl: Improper certificate validation due to cached │
+│             │                │          │          │                   │               │ TLS settings reuse                                           │
+│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2025-14819                   │
+│             ├────────────────┤          │          │                   │               ├──────────────────────────────────────────────────────────────┤
+│             │ CVE-2025-15079 │          │          │                   │               │ curl: Host verification bypass during SSH transfers          │
+│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2025-15079                   │
+│             ├────────────────┤          │          │                   ├───────────────┼──────────────────────────────────────────────────────────────┤
+│             │ CVE-2026-1965  │          │          │                   │ 8.19.0+0      │ curl: curl: Authentication bypass due to incorrect           │
+│             │                │          │          │                   │               │ connection reuse with Negotiate authentication...            │
+│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2026-1965                    │
+│             ├────────────────┤          │          │                   │               ├──────────────────────────────────────────────────────────────┤
+│             │ CVE-2026-3783  │          │          │                   │               │ curl: curl: Information disclosure via OAuth2 bearer token   │
+│             │                │          │          │                   │               │ leakage during HTTP(S) redirect...                           │
+│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2026-3783                    │
+│             ├────────────────┤          │          │                   ├───────────────┼──────────────────────────────────────────────────────────────┤
+│             │ CVE-2026-3784  │          │          │                   │ 8.18.0+0      │ curl: curl: Unauthorized access due to improper HTTP proxy   │
+│             │                │          │          │                   │               │ connection reuse                                             │
+│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2026-3784                    │
+│             ├────────────────┼──────────┤          │                   ├───────────────┼──────────────────────────────────────────────────────────────┤
+│             │ CVE-2024-11053 │ LOW      │          │                   │ 8.11.1+0      │ curl: curl netrc password leak                               │
+│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2024-11053                   │
+│             ├────────────────┤          │          │                   ├───────────────┼──────────────────────────────────────────────────────────────┤
+│             │ CVE-2024-2004  │          │          │                   │ 8.7.1+0       │ curl: Usage of disabled protocol                             │
+│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2024-2004                    │
+│             ├────────────────┤          │          │                   ├───────────────┼──────────────────────────────────────────────────────────────┤
+│             │ CVE-2025-0167  │          │          │                   │ 8.12.0+0      │ When asked to use a `.netrc` file for credentials **and** to │
+│             │                │          │          │                   │               │ follow...                                                    │
+│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2025-0167                    │
+│             ├────────────────┤          │          │                   ├───────────────┼──────────────────────────────────────────────────────────────┤
+│             │ CVE-2025-15224 │          │          │                   │ 8.18.0+0      │ curl: libssh key passphrase bypass without agent set         │
+│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2025-15224                   │
 ├─────────────┼────────────────┼──────────┤          ├───────────────────┼───────────────┼──────────────────────────────────────────────────────────────┤
 │ LibGit2_jll │ CVE-2024-24577 │ CRITICAL │          │ 1.6.4+0           │ 1.7.2+0       │ libgit2: arbitrary code execution due to heap corruption in  │
 │             │                │          │          │                   │               │ git_index_add                                                │
