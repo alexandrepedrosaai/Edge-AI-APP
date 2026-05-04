@@ -221,7 +221,7 @@ async function run() {
   canvas.onpointermove = e => {
     if (dragging) {
       rotY += (e.clientX - lastX) * 0.01;
-      rotX += (e.clientY - lastY) * 0.01;
+      rotX += (e.clientY - lastY) * 0.01; const limit = Math.PI / 2 - 0.1; if (rotX > limit) rotX = limit; if (rotX < -limit) rotX = -limit;
       // Clamp rotX to prevent flipping and losing orientation
       const limit = Math.PI / 2 - 0.1;
       if (rotX > limit) rotX = limit;
