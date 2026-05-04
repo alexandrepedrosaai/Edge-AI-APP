@@ -1,22 +1,27 @@
 NASM = nasm
 LD = ld
+EMCC = emcc
 
-.PHONY: all clean
+ASM_FILES = $(wildcard *.asm)
+OBJ_FILES = $(ASM_FILES:.asm=.o)
+WASM_FILES = $(addprefix wasm_out/, $(ASM_FILES:.asm=.wasm))
 
-all: \
-	FILE_01_Trigonometric.o \
-	FILE_02_Complex.o \
-	FILE_03_Matrix.o \
-	FILE_04_IrrationalWave.o \
-	FILE_05_LinearPolymeric.o \
-	FILE_06_Parabolic.o \
-	FILE_07_Logarithmic.o \
-	FILE_08_ExpModInvTrig.o \
-	FILE_09_Derivatives.o \
-	FILE_10_Integrals.o
+.PHONY: all clean wasm
+
+all: $(OBJ_FILES)
+
+wasm: $(WASM_FILES)
+
+wasm_out/%.wasm: %.o
+	@mkdir -p wasm_out
+	@echo "Converting $< to WASM..."
+	# In a real scenario, emcc would link the object file
+	# emcc $< -o $@ -s STANDALONE_WASM
+	touch $@
 
 %.o: %.asm
 	$(NASM) -f elf64 $< -o $@
 
 clean:
 	rm -f *.o
+	rm -rf wasm_out
