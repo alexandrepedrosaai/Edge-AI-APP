@@ -57,6 +57,7 @@ jobs:
           # Docker tags and repository names must be lowercase
           DOCKER_TAG=$(echo "${SAFE_VERSION}" | tr '[:upper:]' '[:lower:]')
           REPO_LOWER=$(echo "${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')
+          
 
           echo "semver=${SEMVER}" >> "$GITHUB_OUTPUT"
           echo "repo_lower=${REPO_LOWER}" >> "$GITHUB_OUTPUT"
