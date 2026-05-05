@@ -144,10 +144,88 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
 
-      - name: Extract Binaries
-        run: |
-          mkdir -p dist
-          docker run --rm -v $PWD/dist:/out quantum-ai-chip-build:latest
+      - name: Create Dist Directory
+        run: mkdir -p dist
+
+      - name: Cache Step 1 - x86 Binaries
+        uses: actions/cache@v4
+        with:
+          path: dist/x86
+          key: ${{ runner.os }}-extract-x86-${{ github.sha }}
+      - name: Extract Step 1 - x86 Binaries
+        run: docker run --rm -v $PWD/dist:/out quantum-ai-chip-build:latest sh -c "mkdir -p /out/x86 && cp -r /app/build/x86/* /out/x86/ || true"
+
+      - name: Cache Step 2 - ARM Binaries
+        uses: actions/cache@v4
+        with:
+          path: dist/arm
+          key: ${{ runner.os }}-extract-arm-${{ github.sha }}
+      - name: Extract Step 2 - ARM Binaries
+        run: docker run --rm -v $PWD/dist:/out quantum-ai-chip-build:latest sh -c "mkdir -p /out/arm && cp -r /app/build/arm/* /out/arm/ || true"
+
+      - name: Cache Step 3 - RISC-V Binaries
+        uses: actions/cache@v4
+        with:
+          path: dist/riscv
+          key: ${{ runner.os }}-extract-riscv-${{ github.sha }}
+      - name: Extract Step 3 - RISC-V Binaries
+        run: docker run --rm -v $PWD/dist:/out quantum-ai-chip-build:latest sh -c "mkdir -p /out/riscv && cp -r /app/build/riscv/* /out/riscv/ || true"
+
+      - name: Cache Step 4 - Q# Source Artifacts
+        uses: actions/cache@v4
+        with:
+          path: dist/qsharp
+          key: ${{ runner.os }}-extract-qsharp-${{ github.sha }}
+      - name: Extract Step 4 - Q# Source Artifacts
+        run: docker run --rm -v $PWD/dist:/out quantum-ai-chip-build:latest sh -c "mkdir -p /out/qsharp && cp /app/src/*.qs /out/qsharp/ || true"
+
+      - name: Cache Step 5 - .NET Libraries
+        uses: actions/cache@v4
+        with:
+          path: dist/dotnet
+          key: ${{ runner.os }}-extract-dotnet-${{ github.sha }}
+      - name: Extract Step 5 - .NET Libraries
+        run: docker run --rm -v $PWD/dist:/out quantum-ai-chip-build:latest sh -c "mkdir -p /out/dotnet && find /app/src -name '*.dll' -exec cp {} /out/dotnet/ \; || true"
+
+      - name: Cache Step 6 - Config Files
+        uses: actions/cache@v4
+        with:
+          path: dist/config
+          key: ${{ runner.os }}-extract-config-${{ github.sha }}
+      - name: Extract Step 6 - Config Files
+        run: docker run --rm -v $PWD/dist:/out quantum-ai-chip-build:latest sh -c "mkdir -p /out/config && cp /app/*.json /out/config/ || true"
+
+      - name: Cache Step 7 - Firmware Scripts
+        uses: actions/cache@v4
+        with:
+          path: dist/firmware
+          key: ${{ runner.os }}-extract-firmware-${{ github.sha }}
+      - name: Extract Step 7 - Firmware Scripts
+        run: docker run --rm -v $PWD/dist:/out quantum-ai-chip-build:latest sh -c "mkdir -p /out/firmware && cp -r /app/src/firmware/* /out/firmware/ || true"
+
+      - name: Cache Step 8 - Manifests
+        uses: actions/cache@v4
+        with:
+          path: dist/manifests
+          key: ${{ runner.os }}-extract-manifests-${{ github.sha }}
+      - name: Extract Step 8 - Manifests
+        run: docker run --rm -v $PWD/dist:/out quantum-ai-chip-build:latest sh -c "mkdir -p /out/manifests && cp /app/*.asm /out/manifests/ || true"
+
+      - name: Cache Step 9 - Build Logs
+        uses: actions/cache@v4
+        with:
+          path: dist/logs
+          key: ${{ runner.os }}-extract-logs-${{ github.sha }}
+      - name: Extract Step 9 - Build Logs
+        run: docker run --rm -v $PWD/dist:/out quantum-ai-chip-build:latest sh -c "mkdir -p /out/logs && cp -r /app/build/logs/* /out/logs/ || true"
+
+      - name: Cache Step 10 - Final Distribution
+        uses: actions/cache@v4
+        with:
+          path: dist/final
+          key: ${{ runner.os }}-extract-final-${{ github.sha }}
+      - name: Extract Step 10 - Final Distribution
+        run: docker run --rm -v $PWD/dist:/out quantum-ai-chip-build:latest sh -c "mkdir -p /out/final && cp -r /app/dist/* /out/final/ || true"
           
       - name: Move Docker Cache
         run: |
