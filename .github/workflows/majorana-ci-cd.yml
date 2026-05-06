@@ -135,7 +135,7 @@ jobs:
       - name: Create Automatic Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ github.run_number }}-${{ github.sha[0:7] }}
+          tag_name: v${{ github.run_number }}-${{ github.sha }}
           name: Majorana Quantum Era v${{ github.run_number }}
           body: |
             **Release Automática** - Build #${{ github.run_number }}
