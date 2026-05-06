@@ -171,6 +171,7 @@ jobs:
         with:
           name: majorana-starship-binaries
           path: majorana-starship/bin_output
+
   docker:
     runs-on: ubuntu-latest
     needs: build
@@ -195,7 +196,8 @@ jobs:
           file: ./majorana-starship/Dockerfile
           push: true
           tags: ghcr.io/${{ github.repository }}/majorana-starship:latest
-    quantum-polymorphism:
+
+  quantum-polymorphism:
     runs-on: ubuntu-latest
     needs: build
     steps:
@@ -208,7 +210,7 @@ jobs:
           echo " - Logarithmic functions modulares do estado Majorana"
           echo "✅ Outputs gerados e integrados ao pipeline"
 
-    azure-sphere:
+  azure-sphere:
     runs-on: ubuntu-latest
     needs: build
     steps:
