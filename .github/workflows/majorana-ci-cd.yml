@@ -27,9 +27,12 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install -r requirements.txt
+          if [ -f MajoranaQuantumEra/requirements.txt ]; then
+            pip install -r MajoranaQuantumEra/requirements.txt
+          fi
 
       - name: Run All Simulations (1D + 2D + Tetron + VQA + QKD)
+        working-directory: ./MajoranaQuantumEra
         run: |
           echo "=== Executando todas as simulações da Majorana Quantum Era ==="
           python kitaev_sim.py
@@ -39,6 +42,7 @@ jobs:
           python qkd_topological_attack.py
 
       - name: Generate Dynamic README.md
+        working-directory: ./MajoranaQuantumEra
         run: |
           python - << 'EOF'
           import datetime
@@ -85,6 +89,7 @@ jobs:
         with:
           dotnet-version: '8.0.x'
       - name: Build Q# Project
+        working-directory: ./MajoranaQuantumEra
         run: |
           dotnet new console -o QSharpBuild --force
           cp *.qs QSharpBuild/ 2>/dev/null || echo "Q# files copied"
@@ -149,9 +154,9 @@ jobs:
 
             **Majorana Quantum Era is LIVE!** 
           files: |
-            *.py
-            *.qs
-            README.md
-            *.png
+            MajoranaQuantumEra/*.py
+            MajoranaQuantumEra/*.qs
+            MajoranaQuantumEra/README.md
+            MajoranaQuantumEra/*.png
           draft: false
           prerelease: false
