@@ -23,11 +23,21 @@ def build_cost_hamiltonian():
     return H
 
 H_cost = build_cost_hamiltonian()
-mixer = sum([sigmax(j) for j in range(N)])
+def build_mixer_hamiltonian():
+    H = 0 * tensor([qeye(2)] * N)
+    for i in range(N):
+        x = [qeye(2)] * N
+        x[i] = sigmax()
+        H += tensor(x)
+    return H
+
+mixer = build_mixer_hamiltonian()
 
 def qaoa_expectation(theta, p=2):
     gamma, beta = theta[:p], theta[p:]
-    state = basis(2**N, 0)
+    # Estado inicial: superposição uniforme |+> em todos os qubits
+    initial_state = tensor([hadamard_transform(1) * basis(2, 0)] * N)
+    state = initial_state
     for i in range(p):
         state = (-1j * gamma[i] * H_cost).expm() * state
         state = (-1j * beta[i] * mixer).expm() * state
