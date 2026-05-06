@@ -1,11 +1,8 @@
 name: ASM to WASM CI/CD
-
 on:
   push:
-    branches: [ main ]
-    paths:
-      - 'asm_pipeline/**'
-
+    branches: [ "main" ]
+  workflow_dispatch:
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
