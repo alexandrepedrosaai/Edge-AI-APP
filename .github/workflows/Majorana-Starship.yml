@@ -20,10 +20,12 @@ jobs:
         id: version
         run: echo "version=$(date +'%Y.%m.%d')-${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
 
-      - name: Setup .NET
+      - name: Setup .NET Runtimes
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: |
+            6.0.x
+            8.0.x
 
       # Cache + Build para cada file
       - name: Cache starshipquantumpro_fibonaccidashboard
@@ -244,18 +246,18 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nuget-ota-
 
-      - name: Setup .NET Runtimes for Q#
+      - name: Setup .NET Runtimes
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |
             3.1.x
             6.0.x
+            8.0.x
           cache: false
 
       - run: |
           mkdir -p dist/azure-sphere
           # Force AnyCPU/arm for Q# project to avoid NETSDK1032 PlatformTarget x64 conflict
-          # Note: Using majorana-starship as the project directory
           dotnet publish majorana-starship -c Release -r linux-arm -p:PlatformTarget=AnyCpu --self-contained true -o dist/azure-sphere
           cp azure-sphere.json dist/azure-sphere/
       - run: |
