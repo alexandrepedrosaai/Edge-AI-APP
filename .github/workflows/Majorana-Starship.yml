@@ -149,25 +149,17 @@ jobs:
         run: dotnet build majorana-starship/DQNN.qs -c Release
 
       # Publicação dos binários
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.x'
+      - name: Build and Run Polymorphism Calculations (Q#)
+        run: dotnet run --project majorana-starship/PolymorphismCalculations.qs
 
-      - name: Install Python dependencies
-        run: pip install numpy scipy
+      - name: Build and Run General Relativity Calculations (Q#)
+        run: dotnet run --project majorana-starship/GeneralRelativityCalculations.qs
 
-      - name: Run Polymorphism Calculations
-        run: python calculations/polymorphism_calculations.py
+      - name: Build and Run Quantum Laws Calculations (Q#)
+        run: dotnet run --project majorana-starship/QuantumLawsCalculations.qs
 
-      - name: Run General Relativity Calculations
-        run: python calculations/general_relativity_calculations.py
-
-      - name: Run Quantum Laws Calculations
-        run: python calculations/quantum_laws_calculations.py
-
-      - name: Run Kernel Law Calculations
-        run: python calculations/kernel_law_calculations.py
+      - name: Build and Run Kernel Law Calculations (Q#)
+        run: dotnet run --project majorana-starship/KernelLawCalculations.qs
 
       - name: Publish binaries
         run: |
