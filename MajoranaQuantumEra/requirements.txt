@@ -1,0 +1,6 @@
+qutip
+numpy
+scipy
+matplotlib
+azure-quantum
+qsharp
