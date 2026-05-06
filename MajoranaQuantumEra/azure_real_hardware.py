@@ -1,0 +1,50 @@
+# azure_real_hardware.py
+from azure.quantum import Workspace
+import qsharp
+from qsharp import azure
+
+print("🚀 Conectando ao Azure Quantum para hardware real...")
+
+# === CONFIGURE SEU WORKSPACE (faça uma vez) ===
+workspace = Workspace(
+    resource_id="/subscriptions/SEU_SUBSCRIPTION_ID/resourceGroups/SEU_RG/providers/Microsoft.Quantum/Workspaces/SEU_WORKSPACE",
+    location="westus"  # ou sua região
+)
+
+# Liste targets disponíveis (inclui hardware real)
+targets = workspace.get_targets()
+print("Targets disponíveis:")
+for t in targets:
+    print(f" - {t.id} ({t.name}) - {t.status}")
+
+# Escolha um hardware real (exemplos):
+# target = workspace.get_target("ionq.qpu")           # IonQ Aria / Tempo
+# target = workspace.get_target("quantinuum.h1-1")    # Quantinuum H1 (melhor fidelidade)
+# target = workspace.get_target("rigetti.qpu")        # Rigetti
+
+target = workspace.get_target("ionq.qpu")  # ← mude para o que você tem crédito
+
+# === Submeter o Tetron Braiding no hardware real ===
+print("\n📤 Enviando Tetron Braiding para hardware real...")
+
+# Carrega a operação Q#
+qsharp.packages.add("Microsoft.Quantum.Standard")
+
+result = target.submit(
+    "MajoranaEra.Tetron.RunTetronDemo",   # Nome completo da operação
+    shots=512,                            # Número de execuções
+    input_params={}, 
+    name="Majorana-Tetron-Braiding-Real"
+)
+
+print(f"Job ID: {result.id}")
+print("Status:", result.status)
+
+# Aguarda resultado (pode demorar minutos/horas dependendo da fila)
+results = result.get_results()
+print("\n✅ Resultado do hardware real:")
+print(results)
+
+# Salva resultado
+with open("tetron_real_results.txt", "w") as f:
+    f.write(str(results))
