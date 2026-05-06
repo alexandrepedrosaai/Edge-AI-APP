@@ -36,7 +36,8 @@ mixer = build_mixer_hamiltonian()
 def qaoa_expectation(theta, p=2):
     gamma, beta = theta[:p], theta[p:]
     # Estado inicial: superposição uniforme |+> em todos os qubits
-    initial_state = tensor([hadamard_transform(1) * basis(2, 0)] * N)
+    plus_state = (basis(2, 0) + basis(2, 1)).unit()
+    initial_state = tensor([plus_state] * N)
     state = initial_state
     for i in range(p):
         state = (-1j * gamma[i] * H_cost).expm() * state
