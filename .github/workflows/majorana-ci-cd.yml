@@ -64,13 +64,15 @@ jobs:
           with open('README.md', 'w', encoding='utf-8') as f:
           f.write(content)
           print(" README.md gerado dinamicamente!")
-    EOF  - name: Upload Simulation Artifacts
-    uses: actions/upload-artifact@v4
+          EOF
+      - name: Upload Simulation Artifacts
+        uses: actions/upload-artifact@v4
     with:
       name: majorana-simulations
       path: |
         *.png
-        *.txt  qsharp-build:
+        *.txt
+  qsharp-build:
     runs-on: ubuntu-latest
     needs: simulate
     steps:
@@ -83,12 +85,14 @@ jobs:
         run: |
           dotnet new console -o QSharpBuild --force
           cp *.qs QSharpBuild/ 2>/dev/null || echo "Q# files copied"
-          cd QSharpBuild && dotnet build  docker:
+          cd QSharpBuild && dotnet build
+  docker:
     needs: [simulate, qsharp-build]
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: writesteps:
+      packages: write
+    steps:
       - uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
@@ -97,9 +101,9 @@ jobs:
     with:
       registry: ghcr.io
       username: ${{ github.repository_owner }}
-      password: ${{ secrets.GITHUB_TOKEN }      
+      password: ${{ secrets.GITHUB_TOKEN }}
 
-      uses: docker/build-push-action@v6
+      - uses: docker/build-push-action@v6
       with:
       context: .
       push: true
@@ -107,13 +111,15 @@ jobs:
         ghcr.io/${{ github.repository_owner }}/majorana-quantum-era:latest
         ghcr.io/${{ github.repository_owner }}/majorana-quantum-era:${{ github.sha }}
       cache-from: type=gha
-      cache-to: type=gha,mode=max  release:
+      cache-to: type=gha,mode=max
+  release:
     needs: docker
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     permissions:
       contents: write
-      packages: writesteps:
+      packages: write
+    steps:
       - uses: actions/checkout@v4
     with:
       fetch-depth: 0
