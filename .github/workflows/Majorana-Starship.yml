@@ -258,7 +258,7 @@ jobs:
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ci-${{ needs.build.outputs.safe_version }}
+          tag_name: ci-${{ needs.build.outputs.safe_version }}-${{ github.run_number }}
           files: dist/azure-sphere-ota*
           append_body: true
         env:
@@ -300,7 +300,7 @@ jobs:
           EOF
       - uses: softprops/action-gh-release@v2
         with:
-          tag_name: ci-${{ needs.build.outputs.safe_version }}
-          name: Quantum AI Chip Microwave MCU Neural Matricial Learning Procedural Transduction, Firmware-ota-pipeline ci-${{ needs.build.outputs.safe_version }}
+          tag_name: ci-${{ needs.build.outputs.safe_version }}-${{ github.run_number }}
+          name: Quantum AI Chip Microwave MCU Neural Matricial Learning Procedural Transduction, Firmware-ota-pipeline ci-${{ needs.build.outputs.safe_version }}-${{ github.run_number }}
           body_path: RELEASE_NOTES.md
           files: artifacts/**
