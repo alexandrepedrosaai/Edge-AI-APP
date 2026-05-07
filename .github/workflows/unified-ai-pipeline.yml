@@ -27,25 +27,15 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y nasm wabt
-          if [ ! -d "emsdk" ]; then
-            git clone https://github.com/emscripten-core/emsdk.git
-          fi
-          cd emsdk
-          ./emsdk install latest
-          ./emsdk activate latest
 
       - name: Build ASM to WASM
         run: |
-          source emsdk/emsdk_env.sh
           mkdir -p docs
           if [ -d "asm_pipeline" ]; then
-            cd asm_pipeline
-            for file in *.asm; do
-              filename=$(basename "$file" .asm)
-              echo "Compiling $file..."
-              nasm -f elf64 "$file" -o "${filename}.o"
-              emcc "${filename}.o" -o "../docs/${filename}.wasm" -s STANDALONE_WASM --no-entry || echo "Warning: $filename failed"
-            done
+            echo "Skipping ASM to WASM build: nasm -f elf64 produces ELF64 objects, which Emscripten cannot link into WebAssembly."
+            echo "Granular WAT to WASM artifacts will continue to be generated from WEBASSEMBLY/."
+          else
+            echo "asm_pipeline directory not present; skipping ASM to WASM build."
           fi
 
       - name: Granular WAT to WASM Build
@@ -134,16 +124,3 @@ jobs:
             🔗 **Live App:** ${{ steps.deployment.outputs.page_url }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Sync Binaries to Branch
-        if: github.event_name == 'push'
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add docs/*.wasm docs/NeuralModel.sm
-          if ! git diff --cached --quiet; then
-            git commit -m "chore: sync build artifacts [skip ci]"
-            git push origin main
-          else
-            echo "No changes in binaries to sync."
-          fi
