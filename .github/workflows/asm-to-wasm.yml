@@ -37,17 +37,47 @@ jobs:
           fi
         done
 
+    - name: Neural Integration & Deploy
+      run: |
+        echo "🧠 Integrating Neural Components into index.html..."
+        # Adicionar novos componentes WASM ao painel NEURAL COMPONENTS se ainda não existirem
+        cd WEBASSEMBLY
+        for wasm_file in *.wasm; do
+          if ! grep -q "$wasm_file" ../docs/index.html; then
+            echo "➕ Adding $wasm_file to index.html"
+            sed -i "/<div class=\"component-list\">/a \                <div class=\"component-item\">>> $wasm_file</div>" ../docs/index.html
+          fi
+          # Copiar para a pasta docs para deploy no Pages
+          cp "$wasm_file" ../docs/
+        done
+        
+        # Atualizar o hash do commit no index.html
+        sed -i "s/<span id=\"commit-hash\">.*<\/span>/<span id=\"commit-hash\">${GITHUB_SHA}<\/span>/" ../docs/index.html
+        
+        # Configurar Git e fazer commit das mudanças no docs/
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git add ../docs/
+        git commit -m "🚀 Deploy: LLM NEURAL ML DL PROCEDURAL auto-deploy [skip ci]" || echo "No changes to commit"
+        git push
+
     - name: Create Release
       id: create_release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
-        files: asm_pipeline/wasm_out/*.wasm
-        tag_name: release-${{ github.sha }}
-        name: Automated WASM Release ${{ github.sha }}
+        files: |
+          WEBASSEMBLY/*.wasm
+          WEBASSEMBLY/*.sm
+        tag_name: neural-wasm-${{ github.run_number }}
+        name: 🧠 LLM NEURAL ML DL PROCEDURAL Release #${{ github.run_number }}
         body: |
-          Automated build of ASM to WASM artifacts.
-          Commit: ${{ github.sha }}
+          🚀 **Automatic Neural Deployment**
+          
+          This release contains the latest WebAssembly neural modules and the silicon-colored 3D neural network integration.
+          
+          **Execution:** #${{ github.run_number }}
+          **Commit:** ${{ github.sha }}
         draft: false
         prerelease: false
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ github.token }}
