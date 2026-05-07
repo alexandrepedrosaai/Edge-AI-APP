@@ -11,7 +11,9 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
     - name: Install NASM and Emscripten
       run: |
@@ -41,25 +43,30 @@ jobs:
       run: |
         echo "🧠 Integrating Neural Components into index.html..."
         # Adicionar novos componentes WASM ao painel NEURAL COMPONENTS se ainda não existirem
-        cd WEBASSEMBLY
-        for wasm_file in *.wasm; do
-          if ! grep -q "$wasm_file" ../docs/index.html; then
-            echo "➕ Adding $wasm_file to index.html"
-            sed -i "/<div class=\"component-list\">/a \                <div class=\"component-item\">>> $wasm_file</div>" ../docs/index.html
+        # Usar arquivos de WEBASSEMBLY como fonte de verdade para o deploy
+        for wasm_file in WEBASSEMBLY/*.wasm; do
+          base_name=$(basename "$wasm_file")
+          if ! grep -q "$base_name" docs/index.html; then
+            echo "➕ Adding $base_name to index.html"
+            sed -i "/<div class=\"component-list\">/a \                <div class=\"component-item\">>> $base_name</div>" docs/index.html
           fi
           # Copiar para a pasta docs para deploy no Pages
-          cp "$wasm_file" ../docs/
+          cp "$wasm_file" docs/
         done
         
         # Atualizar o hash do commit no index.html
-        sed -i "s/<span id=\"commit-hash\">.*<\/span>/<span id=\"commit-hash\">${GITHUB_SHA}<\/span>/" ../docs/index.html
+        sed -i "s/<span id=\"commit-hash\">.*<\/span>/<span id=\"commit-hash\">${GITHUB_SHA}<\/span>/" docs/index.html
         
         # Configurar Git e fazer commit das mudanças no docs/
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
-        git add ../docs/
+        git add docs/
         git commit -m "🚀 Deploy: LLM NEURAL ML DL PROCEDURAL auto-deploy [skip ci]" || echo "No changes to commit"
-        git push
+        
+        # Rebase para evitar conflitos de push simultâneos
+        git fetch origin main
+        git rebase origin/main
+        git push origin HEAD:main
 
     - name: Create Release
       id: create_release
