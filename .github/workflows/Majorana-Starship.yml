@@ -23,159 +23,24 @@ jobs:
       - name: Setup .NET Runtimes
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: |
-            6.0.x
-            8.0.x
+          dotnet-version: 6.0.x
 
-      # Cache + Build para cada file
-      - name: Cache starshipquantumpro_fibonaccidashboard
+      - name: Cache Majorana Starship project
         uses: actions/cache@v4
         with:
           path: ~/.nuget/packages
-          key: fibo-${{ runner.os }}-${{ hashFiles('majorana-starship/starshipquantumpro_fibonaccidashboard.qs') }}
-      - name: Build starshipquantumpro_fibonaccidashboard
+          key: majorana-starship-${{ runner.os }}-${{ hashFiles('majorana-starship/majorana-starship.qsproj', 'majorana-starship/majorana_starship_ci.qs') }}
+
+      - name: Build Majorana Starship project
         run: dotnet build majorana-starship/majorana-starship.qsproj -c Release
 
-
-
-      # Publicação dos binários
-      - name: Cache starshipquantumpro_dashboard
-        uses: actions/cache@v4
-        with:
-          path: ~/.nuget/packages
-          key: dash-${{ runner.os }}-${{ hashFiles('majorana-starship/starshipquantumpro_dashboard.qs') }}
-      - name: Build starshipquantumpro_dashboard
-        run: dotnet build majorana-starship/starshipquantumpro_dashboard.qs -c Release
-
-      - name: Cache starshipquantumproFQHE_dashboard
-        uses: actions/cache@v4
-        with:
-          path: ~/.nuget/packages
-          key: fqhe-${{ runner.os }}-${{ hashFiles('majorana-starship/starshipquantumproFQHE_dashboard.qs') }}
-      - name: Build starshipquantumproFQHE_dashboard
-        run: dotnet build majorana-starship/starshipquantumproFQHE_dashboard.qs -c Release
-
-      - name: Cache starshipquantummission_dashboard
-        uses: actions/cache@v4
-        with:
-          path: ~/.nuget/packages
-          key: mission-${{ runner.os }}-${{ hashFiles('majorana-starship/starshipquantummission_dashboard.qs') }}
-      - name: Build starshipquantummission_dashboard
-        run: dotnet build majorana-starship/starshipquantummission_dashboard.qs -c Release
-
-      - name: Cache starshipquantumadvanced_dashboard
-        uses: actions/cache@v4
-        with:
-          path: ~/.nuget/packages
-          key: adv-${{ runner.os }}-${{ hashFiles('majorana-starship/starshipquantumadvanced_dashboard.qs') }}
-      - name: Build starshipquantumadvanced_dashboard
-        run: dotnet build majorana-starship/starshipquantumadvanced_dashboard.qs -c Release
-
-      - name: Cache starshipmissionenvironment
-        uses: actions/cache@v4
-        with:
-          path: ~/.nuget/packages
-          key: env-${{ runner.os }}-${{ hashFiles('majorana-starship/starshipmissionenvironment.qs') }}
-      - name: Build starshipmissionenvironment
-        run: dotnet build majorana-starship/starshipmissionenvironment.qs -c Release
-
-      - name: Cache starshipmajoranamissionwithestimator
-        uses: actions/cache@v4
-        with:
-          path: ~/.nuget/packages
-          key: estimator-${{ runner.os }}-${{ hashFiles('majorana-starship/starshipmajoranamissionwithestimator.qs') }}
-      - name: Build starshipmajoranamissionwithestimator
-        run: dotnet build majorana-starship/starshipmajoranamissionwithestimator.qs -c Release
-
-      - name: Cache resourceestimatortopoconductor
-        uses: actions/cache@v4
-        with:
-          path: ~/.nuget/packages
-          key: topo-${{ runner.os }}-${{ hashFiles('majorana-starship/resourceestimatortopoconductor.qs') }}
-      - name: Build resourceestimatortopoconductor
-        run: dotnet build majorana-starship/resourceestimatortopoconductor.qs -c Release
-
-      - name: Cache lunarstarshipmission
-        uses: actions/cache@v4
-        with:
-          path: ~/.nuget/packages
-          key: lunar-${{ runner.os }}-${{ hashFiles('majorana-starship/lunarstarshipmission.qs') }}
-      - name: Build lunarstarshipmission
-        run: dotnet build majorana-starship/lunarstarshipmission.qs -c Release
-
-      - name: Cache braidingmzmsimulation
-        uses: actions/cache@v4
-        with:
-          path: ~/.nuget/packages
-          key: mzm-${{ runner.os }}-${{ hashFiles('majorana-starship/braidingmzmsimulation.qs') }}
-      - name: Build braidingmzmsimulation
-        run: dotnet build majorana-starship/braidingmzmsimulation.qs -c Release
-
-      - name: Cache braidingcryptographysimulation
-        uses: actions/cache@v4
-        with:
-          path: ~/.nuget/packages
-          key: crypto-${{ runner.os }}-${{ hashFiles('majorana-starship/braidingcryptographysimulation.qs') }}
-      - name: Build braidingcryptographysimulation
-        run: dotnet build majorana-starship/braidingcryptographysimulation.qs -c Release
-
-      - name: Cache UltraFQHEAnimation
-        uses: actions/cache@v4
-        with:
-          path: ~/.nuget/packages
-          key: ultra-${{ runner.os }}-${{ hashFiles('majorana-starship/UltraFQHEAnimation.qs') }}
-      - name: Build UltraFQHEAnimation
-        run: dotnet build majorana-starship/UltraFQHEAnimation.qs -c Release
-
-      - name: Cache TopologicoQuantumProceduralNeuralMLDL
-        uses: actions/cache@v4
-        with:
-          path: ~/.nuget/packages
-          key: topo-ml-${{ runner.os }}-${{ hashFiles('majorana-starship/TopologicoQuantumProceduralNeuralMLDL.qs') }}
-      - name: Build TopologicoQuantumProceduralNeuralMLDL
-        run: dotnet build majorana-starship/TopologicoQuantumProceduralNeuralMLDL.qs -c Release
-
-      - name: Cache ImprovedAnyonicBraiding
-        uses: actions/cache@v4
-        with:
-          path: ~/.nuget/packages
-          key: imp-${{ runner.os }}-${{ hashFiles('majorana-starship/ImprovedAnyonicBraiding.qs') }}
-      - name: Build ImprovedAnyonicBraiding
-        run: dotnet build majorana-starship/ImprovedAnyonicBraiding.qs -c Release
-
-      - name: Cache AdvancedAnyonicBraiding
-        uses: actions/cache@v4
-        with:
-          path: ~/.nuget/packages
-          key: adv-braid-${{ runner.os }}-${{ hashFiles('majorana-starship/AdvancedAnyonicBraiding.qs') }}
-      - name: Build AdvancedAnyonicBraiding
-        run: dotnet build majorana-starship/AdvancedAnyonicBraiding.qs -c Release
-
-      - name: Cache DQNN
-        uses: actions/cache@v4
-        with:
-          path: ~/.nuget/packages
-          key: dqnn-${{ runner.os }}-${{ hashFiles('majorana-starship/DQNN.qs') }}
-      - name: Build DQNN
-        run: dotnet build majorana-starship/DQNN.qs -c Release
-
-      # Publicação dos binários
-      - name: Build and Run Polymorphism Calculations (Q#)
-        run: dotnet run --project majorana-starship/PolymorphismCalculations.qs
-
-      - name: Build and Run General Relativity Calculations (Q#)
-        run: dotnet run --project majorana-starship/GeneralRelativityCalculations.qs
-
-      - name: Build and Run Quantum Laws Calculations (Q#)
-        run: dotnet run --project majorana-starship/QuantumLawsCalculations.qs
-
-      - name: Build and Run Kernel Law Calculations (Q#)
-        run: dotnet run --project majorana-starship/KernelLawCalculations.qs
+      - name: Run Majorana Starship entrypoint
+        run: dotnet run --project majorana-starship/majorana-starship.qsproj -c Release
 
       - name: Publish binaries
         run: |
           mkdir -p majorana-starship/bin_output
-          dotnet publish majorana-starship -c Release -o majorana-starship/bin_output
+          dotnet publish majorana-starship/majorana-starship.qsproj -c Release -o majorana-starship/bin_output
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -249,16 +114,13 @@ jobs:
       - name: Setup .NET Runtimes
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: |
-            3.1.x
-            6.0.x
-            8.0.x
+          dotnet-version: 6.0.x
           cache: false
 
       - run: |
           mkdir -p dist/azure-sphere
           # Force AnyCPU/arm for Q# project to avoid NETSDK1032 PlatformTarget x64 conflict
-          dotnet publish majorana-starship -c Release -r linux-arm -p:PlatformTarget=AnyCpu --self-contained true -o dist/azure-sphere
+          dotnet publish majorana-starship/majorana-starship.qsproj -c Release -r linux-arm -p:PlatformTarget=AnyCpu --self-contained true -o dist/azure-sphere
           cp azure-sphere.json dist/azure-sphere/
       - run: |
           tar -czf dist/azure-sphere-ota.tar.gz -C dist/azure-sphere .
