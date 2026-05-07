@@ -25,7 +25,6 @@ jobs:
         with:
           dotnet-version: |
             6.0.x
-            8.0.x
 
       - name: Cache Majorana Starship project
         uses: actions/cache@v4
@@ -118,7 +117,6 @@ jobs:
         with:
           dotnet-version: |
             6.0.x
-            8.0.x
           cache: false
 
       - run: |
