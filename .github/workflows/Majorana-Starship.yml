@@ -23,8 +23,7 @@ jobs:
       - name: Setup .NET Runtimes
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: |
-            6.0.x
+          dotnet-version: 6.0.x
 
       - name: Cache Majorana Starship project
         uses: actions/cache@v4
@@ -115,8 +114,7 @@ jobs:
       - name: Setup .NET Runtimes
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: |
-            6.0.x
+          dotnet-version: 6.0.x
           cache: false
 
       - run: |
