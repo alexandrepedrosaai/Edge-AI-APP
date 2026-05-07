@@ -3,10 +3,6 @@ name: Dynamic WebAssembly Build & Face-Mapped Deploy
 on:
   push:
     branches: ["main"]
-    paths:
-      - 'docs/index.html'
-      - 'WEBASSEMBLY/**'
-      - '.github/workflows/pages-deploy.yml'
   workflow_dispatch:
 
 permissions:
@@ -90,6 +86,21 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
+      - name: Create Release
+        if: github.event_name == 'push'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: pages-deploy-${{ github.run_number }}
+          name: WebAssembly Build & Deploy #${{ github.run_number }}
+          body: |
+            🚀 Automatic WebAssembly build and deployment to GitHub Pages.
+            
+            **Run Number:** ${{ github.run_number }}
+            **Commit:** ${{ github.sha }}
+          files: docs/*.wasm
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
       - name: Sync Binaries to Branch
         if: github.event_name == 'push'
         run: |
@@ -102,3 +113,18 @@ jobs:
           else
             echo "No changes in binaries to sync."
           fi
+
+      - name: Create Release
+        if: github.event_name == 'push'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: pages-deploy-${{ github.run_number }}
+          name: WebAssembly Build & Deploy #${{ github.run_number }}
+          body: |
+            🚀 Automatic WebAssembly build and deployment to GitHub Pages.
+            
+            **Run Number:** ${{ github.run_number }}
+            **Commit:** ${{ github.sha }}
+          files: docs/*.wasm
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
