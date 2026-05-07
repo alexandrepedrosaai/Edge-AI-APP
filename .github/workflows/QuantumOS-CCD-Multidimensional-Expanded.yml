@@ -137,7 +137,9 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Docker
         run: |
-          DOCKERFILE_PATH=$(find . -name Dockerfile | head -n 1)
+          # Pin the Dockerfile so this workflow always builds the Q# image with .NET 8.
+          # Using `find ... | head -n 1` is nondeterministic and can pick an unrelated Dockerfile.
+          DOCKERFILE_PATH=src/Dockerfile
           IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/quantum-os:latest
           docker build -t $IMAGE_NAME -f "$DOCKERFILE_PATH" .
           docker push $IMAGE_NAME
