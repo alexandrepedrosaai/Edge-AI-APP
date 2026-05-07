@@ -4,7 +4,7 @@ FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 
 # Copia os arquivos de projeto
-COPY *.qsproj ./
+COPY majorana-starship.qsproj ./
 COPY majorana_starship_ci.qs ./
 RUN dotnet restore ./majorana-starship.qsproj
 
