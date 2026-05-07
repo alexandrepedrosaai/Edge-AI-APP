@@ -37,36 +37,9 @@ jobs:
           if [ ! -f "wasm_out/${filename}.wasm" ]; then
             echo "Creating artifact for $filename" > "wasm_out/${filename}.wasm"
           fi
+          # Copiar para a pasta global WEBASSEMBLY para o release
+          cp "wasm_out/${filename}.wasm" ../WEBASSEMBLY/
         done
-
-    - name: Neural Integration & Deploy
-      run: |
-        echo "🧠 Integrating Neural Components into index.html..."
-        # Adicionar novos componentes WASM ao painel NEURAL COMPONENTS se ainda não existirem
-        # Usar arquivos de WEBASSEMBLY como fonte de verdade para o deploy
-        for wasm_file in WEBASSEMBLY/*.wasm; do
-          base_name=$(basename "$wasm_file")
-          if ! grep -q "$base_name" docs/index.html; then
-            echo "➕ Adding $base_name to index.html"
-            sed -i "/<div class=\"component-list\">/a \                <div class=\"component-item\">>> $base_name</div>" docs/index.html
-          fi
-          # Copiar para a pasta docs para deploy no Pages
-          cp "$wasm_file" docs/
-        done
-        
-        # Atualizar o hash do commit no index.html
-        sed -i "s/<span id=\"commit-hash\">.*<\/span>/<span id=\"commit-hash\">${GITHUB_SHA}<\/span>/" docs/index.html
-        
-        # Configurar Git e fazer commit das mudanças no docs/
-        git config --local user.email "github-actions[bot]@users.noreply.github.com"
-        git config --local user.name "github-actions[bot]"
-        git add docs/
-        git commit -m "🚀 Deploy: LLM NEURAL ML DL PROCEDURAL auto-deploy [skip ci]" || echo "No changes to commit"
-        
-        # Rebase para evitar conflitos de push simultâneos
-        git fetch origin main
-        git rebase origin/main
-        git push origin HEAD:main
 
     - name: Create Release
       id: create_release
@@ -88,3 +61,35 @@ jobs:
         prerelease: false
       env:
         GITHUB_TOKEN: ${{ github.token }}
+
+    - name: Deploy Released Artifacts to Repo
+      run: |
+        echo "🧠 Deploying Released Neural Components..."
+        
+        # Sincronizar os arquivos do release com a pasta docs/ e atualizar index.html
+        for wasm_file in WEBASSEMBLY/*.wasm; do
+          base_name=$(basename "$wasm_file")
+          
+          # Inscrição neural no index.html
+          if ! grep -q "$base_name" docs/index.html; then
+            echo "➕ Adding $base_name to index.html"
+            sed -i "/<div class=\"component-list\">/a \                <div class=\"component-item\">>> $base_name</div>" docs/index.html
+          fi
+          
+          # Deploy para a pasta docs (Pages)
+          cp "$wasm_file" docs/
+        done
+        
+        # Atualizar o hash do commit no index.html
+        sed -i "s/<span id=\"commit-hash\">.*<\/span>/<span id=\"commit-hash\">${GITHUB_SHA}<\/span>/" docs/index.html
+        
+        # Configurar Git e fazer commit das mudanças
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git add docs/ WEBASSEMBLY/
+        git commit -m "🚀 Deploy: LLM NEURAL ML DL PROCEDURAL from release #${{ github.run_number }} [skip ci]" || echo "No changes to commit"
+        
+        # Rebase e Push
+        git fetch origin main
+        git rebase origin/main
+        git push origin HEAD:main
