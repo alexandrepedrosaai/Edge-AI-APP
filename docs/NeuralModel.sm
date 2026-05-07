@@ -1,6 +1,6 @@
 {
   "model_name": "Quantum-ASM-3D-Neural-Model",
-  "version": "20260504174026",
+  "version": "20260507005522",
   "components": [ "AdvancedLinear.wasm","Factor.wasm","Functions.wasm","Hyperbolic.wasm","Linear.wasm","Matrixderivate.wasm","Ratio.wasm","Unified.wasm" ],
   "metadata": { "type": "3D-Dynamic-Edge-AI" }
 }
