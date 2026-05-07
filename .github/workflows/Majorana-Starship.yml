@@ -29,24 +29,155 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.nuget/packages
-          key: majorana-starship-${{ runner.os }}-${{ hashFiles('majorana-starship/majorana-starship.qsproj', 'majorana-starship/majorana_starship_ci.qs') }}
+          key: majorana-starship-${{ runner.os }}-${{ hashFiles('majorana-starship/projects/**/*.qsproj', 'majorana-starship/projects/**/*.qs', 'majorana-starship/*.qs') }}
 
-      - name: Build Majorana Starship project
-        run: dotnet build majorana-starship/majorana-starship.qsproj -c Release
+      - name: Build AdvancedAnyonicBraiding project
+        run: dotnet build majorana-starship/projects/AdvancedAnyonicBraiding/AdvancedAnyonicBraiding.qsproj -c Release
 
-      - name: Run Majorana Starship entrypoint
-        run: dotnet run --project majorana-starship/majorana-starship.qsproj -c Release
+      - name: Run AdvancedAnyonicBraiding project
+        run: dotnet run --project majorana-starship/projects/AdvancedAnyonicBraiding/AdvancedAnyonicBraiding.qsproj -c Release --no-build
 
+      - name: Build DQNN project
+        run: dotnet build majorana-starship/projects/DQNN/DQNN.qsproj -c Release
+
+      - name: Run DQNN project
+        run: dotnet run --project majorana-starship/projects/DQNN/DQNN.qsproj -c Release --no-build
+
+      - name: Build GeneralRelativityCalculations project
+        run: dotnet build majorana-starship/projects/GeneralRelativityCalculations/GeneralRelativityCalculations.qsproj -c Release
+
+      - name: Run GeneralRelativityCalculations project
+        run: dotnet run --project majorana-starship/projects/GeneralRelativityCalculations/GeneralRelativityCalculations.qsproj -c Release --no-build
+
+      - name: Build ImprovedAnyonicBraiding project
+        run: dotnet build majorana-starship/projects/ImprovedAnyonicBraiding/ImprovedAnyonicBraiding.qsproj -c Release
+
+      - name: Run ImprovedAnyonicBraiding project
+        run: dotnet run --project majorana-starship/projects/ImprovedAnyonicBraiding/ImprovedAnyonicBraiding.qsproj -c Release --no-build
+
+      - name: Build KernelLawCalculations project
+        run: dotnet build majorana-starship/projects/KernelLawCalculations/KernelLawCalculations.qsproj -c Release
+
+      - name: Run KernelLawCalculations project
+        run: dotnet run --project majorana-starship/projects/KernelLawCalculations/KernelLawCalculations.qsproj -c Release --no-build
+
+      - name: Build PolymorphismCalculations project
+        run: dotnet build majorana-starship/projects/PolymorphismCalculations/PolymorphismCalculations.qsproj -c Release
+
+      - name: Run PolymorphismCalculations project
+        run: dotnet run --project majorana-starship/projects/PolymorphismCalculations/PolymorphismCalculations.qsproj -c Release --no-build
+
+      - name: Build QuantumLawsCalculations project
+        run: dotnet build majorana-starship/projects/QuantumLawsCalculations/QuantumLawsCalculations.qsproj -c Release
+
+      - name: Run QuantumLawsCalculations project
+        run: dotnet run --project majorana-starship/projects/QuantumLawsCalculations/QuantumLawsCalculations.qsproj -c Release --no-build
+
+      - name: Build TopologicoQuantumProceduralNeuralMLDL project
+        run: dotnet build majorana-starship/projects/TopologicoQuantumProceduralNeuralMLDL/TopologicoQuantumProceduralNeuralMLDL.qsproj -c Release
+
+      - name: Run TopologicoQuantumProceduralNeuralMLDL project
+        run: dotnet run --project majorana-starship/projects/TopologicoQuantumProceduralNeuralMLDL/TopologicoQuantumProceduralNeuralMLDL.qsproj -c Release --no-build
+
+      - name: Build UltraFQHEAnimation project
+        run: dotnet build majorana-starship/projects/UltraFQHEAnimation/UltraFQHEAnimation.qsproj -c Release
+
+      - name: Run UltraFQHEAnimation project
+        run: dotnet run --project majorana-starship/projects/UltraFQHEAnimation/UltraFQHEAnimation.qsproj -c Release --no-build
+
+      - name: Build braidingcryptographysimulation project
+        run: dotnet build majorana-starship/projects/braidingcryptographysimulation/braidingcryptographysimulation.qsproj -c Release
+
+      - name: Run braidingcryptographysimulation project
+        run: dotnet run --project majorana-starship/projects/braidingcryptographysimulation/braidingcryptographysimulation.qsproj -c Release --no-build
+
+      - name: Build braidingmzmsimulation project
+        run: dotnet build majorana-starship/projects/braidingmzmsimulation/braidingmzmsimulation.qsproj -c Release
+
+      - name: Run braidingmzmsimulation project
+        run: dotnet run --project majorana-starship/projects/braidingmzmsimulation/braidingmzmsimulation.qsproj -c Release --no-build
+
+      - name: Build lunarstarshipmission project
+        run: dotnet build majorana-starship/projects/lunarstarshipmission/lunarstarshipmission.qsproj -c Release
+
+      - name: Run lunarstarshipmission project
+        run: dotnet run --project majorana-starship/projects/lunarstarshipmission/lunarstarshipmission.qsproj -c Release --no-build
+
+      - name: Build majorana_starship_ci project
+        run: dotnet build majorana-starship/projects/majorana_starship_ci/majorana_starship_ci.qsproj -c Release
+
+      - name: Run majorana_starship_ci project
+        run: dotnet run --project majorana-starship/projects/majorana_starship_ci/majorana_starship_ci.qsproj -c Release --no-build
+
+      - name: Build resourceestimatortopoconductor project
+        run: dotnet build majorana-starship/projects/resourceestimatortopoconductor/resourceestimatortopoconductor.qsproj -c Release
+
+      - name: Run resourceestimatortopoconductor project
+        run: dotnet run --project majorana-starship/projects/resourceestimatortopoconductor/resourceestimatortopoconductor.qsproj -c Release --no-build
+
+      - name: Build starshipmajoranamissionwithestimator project
+        run: dotnet build majorana-starship/projects/starshipmajoranamissionwithestimator/starshipmajoranamissionwithestimator.qsproj -c Release
+
+      - name: Run starshipmajoranamissionwithestimator project
+        run: dotnet run --project majorana-starship/projects/starshipmajoranamissionwithestimator/starshipmajoranamissionwithestimator.qsproj -c Release --no-build
+
+      - name: Build starshipmissionenvironment project
+        run: dotnet build majorana-starship/projects/starshipmissionenvironment/starshipmissionenvironment.qsproj -c Release
+
+      - name: Run starshipmissionenvironment project
+        run: dotnet run --project majorana-starship/projects/starshipmissionenvironment/starshipmissionenvironment.qsproj -c Release --no-build
+
+      - name: Build starshipquantumadvanced_dashboard project
+        run: dotnet build majorana-starship/projects/starshipquantumadvanced_dashboard/starshipquantumadvanced_dashboard.qsproj -c Release
+
+      - name: Run starshipquantumadvanced_dashboard project
+        run: dotnet run --project majorana-starship/projects/starshipquantumadvanced_dashboard/starshipquantumadvanced_dashboard.qsproj -c Release --no-build
+
+      - name: Build starshipquantummission_dashboard project
+        run: dotnet build majorana-starship/projects/starshipquantummission_dashboard/starshipquantummission_dashboard.qsproj -c Release
+
+      - name: Run starshipquantummission_dashboard project
+        run: dotnet run --project majorana-starship/projects/starshipquantummission_dashboard/starshipquantummission_dashboard.qsproj -c Release --no-build
+
+      - name: Build starshipquantumproFQHE_dashboard project
+        run: dotnet build majorana-starship/projects/starshipquantumproFQHE_dashboard/starshipquantumproFQHE_dashboard.qsproj -c Release
+
+      - name: Run starshipquantumproFQHE_dashboard project
+        run: dotnet run --project majorana-starship/projects/starshipquantumproFQHE_dashboard/starshipquantumproFQHE_dashboard.qsproj -c Release --no-build
+
+      - name: Build starshipquantumpro_dashboard project
+        run: dotnet build majorana-starship/projects/starshipquantumpro_dashboard/starshipquantumpro_dashboard.qsproj -c Release
+
+      - name: Run starshipquantumpro_dashboard project
+        run: dotnet run --project majorana-starship/projects/starshipquantumpro_dashboard/starshipquantumpro_dashboard.qsproj -c Release --no-build
+
+      - name: Build starshipquantumpro_fibonaccidashboard project
+        run: dotnet build majorana-starship/projects/starshipquantumpro_fibonaccidashboard/starshipquantumpro_fibonaccidashboard.qsproj -c Release
+
+      - name: Run starshipquantumpro_fibonaccidashboard project
+        run: dotnet run --project majorana-starship/projects/starshipquantumpro_fibonaccidashboard/starshipquantumpro_fibonaccidashboard.qsproj -c Release --no-build
       - name: Publish binaries
         run: |
           mkdir -p majorana-starship/bin_output
           dotnet publish majorana-starship/majorana-starship.qsproj -c Release -o majorana-starship/bin_output
 
+      - name: Build all artifacts (Q#)
+        run: |
+          rm -rf majorana-starship/qs-artifacts
+          mkdir -p majorana-starship/qs-artifacts
+          cp majorana-starship/*.qs majorana-starship/qs-artifacts/
+          cp -R majorana-starship/projects majorana-starship/qs-artifacts/projects
+          tar -czf majorana-starship/majorana-starship-qs-artifacts.tar.gz -C majorana-starship/qs-artifacts .
+          sha256sum majorana-starship/majorana-starship-qs-artifacts.tar.gz > majorana-starship/majorana-starship-qs-artifacts.tar.gz.sha256
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: majorana-starship-binaries
-          path: majorana-starship/bin_output
+          path: |
+            majorana-starship/bin_output
+            majorana-starship/majorana-starship-qs-artifacts.tar.gz
+            majorana-starship/majorana-starship-qs-artifacts.tar.gz.sha256
 
   docker:
     runs-on: ubuntu-latest
@@ -65,13 +196,18 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ github.token }}
 
+      - name: Compute image name (lowercase)
+        id: img
+        run: |
+          echo "image=ghcr.io/$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')/majorana-starship-ci-cd" >> "$GITHUB_OUTPUT"
+
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v5
         with:
           context: ./majorana-starship
           file: ./majorana-starship/Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository }}/majorana-starship-ci-cd:latest
+          tags: ${{ steps.img.outputs.image }}:latest
 
   quantum-polymorphism:
     runs-on: ubuntu-latest
@@ -102,7 +238,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Cache NuGet packages
         uses: actions/cache@v4
         with:
@@ -151,7 +287,7 @@ jobs:
           path: artifacts
       - run: |
           cat > RELEASE_NOTES.md <<EOF
-          # Quantum AI Chip Microwave MCU Neural Matricial Learning Procedural Transduction, Firmware-ota-pipeline ${GITHUB_REF_NAME}
+          # Quantum AI Chip Microwave MCU Neural Matricial Learning Procedural Transduction, Firmware-ota-pipeline ${{ GITHUB_REF_NAME }}
 
           🚀 Automatic release generated by CI/CD pipeline.
 
