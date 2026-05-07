@@ -43,7 +43,7 @@ To disable this notice, set the TRIVY_DISABLE_VEX_NOTICE environment variable.
 
 JULIA/Manifest.toml (julia)
 ===========================
-Total: 38 (UNKNOWN: 0, LOW: 4, MEDIUM: 22, HIGH: 10, CRITICAL: 2)
+Total: 38 (UNKNOWN: 0, LOW: 4, MEDIUM: 22, HIGH: 11, CRITICAL: 1)
 
 ┌─────────────┬────────────────┬──────────┬──────────┬───────────────────┬───────────────┬──────────────────────────────────────────────────────────────┐
 │   Library   │ Vulnerability  │ Severity │  Status  │ Installed Version │ Fixed Version │                            Title                             │
@@ -111,13 +111,13 @@ Total: 38 (UNKNOWN: 0, LOW: 4, MEDIUM: 22, HIGH: 10, CRITICAL: 2)
 │             │ CVE-2025-15224 │          │          │                   │ 8.18.0+0      │ curl: libssh key passphrase bypass without agent set         │
 │             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2025-15224                   │
 ├─────────────┼────────────────┼──────────┤          ├───────────────────┼───────────────┼──────────────────────────────────────────────────────────────┤
-│ LibGit2_jll │ CVE-2024-24577 │ CRITICAL │          │ 1.6.4+0           │ 1.7.2+0       │ libgit2: arbitrary code execution due to heap corruption in  │
-│             │                │          │          │                   │               │ git_index_add                                                │
-│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2024-24577                   │
-│             ├────────────────┼──────────┤          │                   │               ├──────────────────────────────────────────────────────────────┤
-│             │ CVE-2024-24575 │ HIGH     │          │                   │               │ libgit2: potential infiniate loop condition in               │
+│ LibGit2_jll │ CVE-2024-24575 │ HIGH     │          │ 1.6.4+0           │ 1.7.2+0       │ libgit2: potential infiniate loop condition in               │
 │             │                │          │          │                   │               │ git_revparse_single                                          │
 │             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2024-24575                   │
+│             ├────────────────┤          │          │                   │               ├──────────────────────────────────────────────────────────────┤
+│             │ CVE-2024-24577 │          │          │                   │               │ libgit2: arbitrary code execution due to heap corruption in  │
+│             │                │          │          │                   │               │ git_index_add                                                │
+│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2024-24577                   │
 ├─────────────┼────────────────┼──────────┤          ├───────────────────┼───────────────┼──────────────────────────────────────────────────────────────┤
 │ LibSSH2_jll │ CVE-2023-48795 │ MEDIUM   │          │ 1.11.0+1          │ 1.11.3+0      │ ssh: Prefix truncation attack on Binary Packet Protocol      │
 │             │                │          │          │                   │               │ (BPP)                                                        │
