@@ -21,11 +21,10 @@ jobs:
         cd emsdk
         ./emsdk install latest
         ./emsdk activate latest
-        echo "source $(pwd)/emsdk_env.sh" >> $GITHUB_ENV
 
     - name: Build WASM Artifacts
       run: |
-        source emsdk/emsdk_env.sh
+        source ./emsdk/emsdk_env.sh
         cd asm_pipeline
         mkdir -p wasm_out
         for file in *.asm; do
