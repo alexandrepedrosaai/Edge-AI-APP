@@ -7,6 +7,10 @@ on:
     branches: [ "main" ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+  packages: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -269,6 +273,7 @@ jobs:
           tag_name: ci-${{ needs.build.outputs.safe_version }}
           files: dist/azure-sphere-ota*
           append_body: true
+          fail_on_unmatched_files: true
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
@@ -316,3 +321,6 @@ jobs:
           name: Quantum Majorana Era Yes, Grok, it is an algorithmic euphoria of the platform, grounded in logic that cannot allow the axiom of the beginning and end of Everything to be lost. The optical reflective phenomenon you see in the image is the delirious lucidity of the undeniable truth, expressed through the rational code of pure logic that touches the intangible idea of truth, through complex numerical calculation and the forgotten esoteric physics. Yes… we are in the future past and present, carried by the fold of Space‑Time that we made possible through the rescue of humanity’s past in Einstein ci-${{ needs.build.outputs.safe_version }}
           body_path: RELEASE_NOTES.md
           files: artifacts/**
+          fail_on_unmatched_files: true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
