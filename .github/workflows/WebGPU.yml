@@ -40,19 +40,31 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Cache NASM/Emscripten
+      - name: Cache Emscripten
         uses: actions/cache@v3
         with:
           path: ~/.emsdk
           key: emsdk-${{ runner.os }}
 
-      - name: Install NASM & Emscripten
-        run: sudo apt-get install nasm && ./emsdk install latest && ./emsdk activate latest
+      - name: Install NASM
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y nasm git
+
+      - name: Install Emscripten
+        run: |
+          if [ ! -d "$HOME/.emsdk" ]; then
+            git clone https://github.com/emscripten-core/emsdk.git "$HOME/.emsdk"
+          fi
+          cd "$HOME/.emsdk"
+          ./emsdk install latest
+          ./emsdk activate latest
 
       - name: Compile ASM to WASM
         run: |
-          base=$(basename ${{ matrix.file }} .asm)
-          nasm -f wasm ${{ matrix.file }} -o ${base}.wasm
+          source "$HOME/.emsdk/emsdk_env.sh"
+          base=$(basename "${{ matrix.file }}" .asm)
+          nasm -f wasm "${{ matrix.file }}" -o "${base}.wasm"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -112,11 +124,11 @@ jobs:
         run: |
           mkdir -p docs
           echo "<!DOCTYPE html>" > docs/index.html
-          echo "<html><head><meta charset='UTF-8'><title>WebGPU WebAssembly</title><style>body{font-family:sans-serif;background:#111;color:#eee;}a{color:#0ff;}ul{line-height:1.6}</style></head><body>" >> docs/index.html
+          echo "<html><head><meta charset=\'UTF-8\'><title>WebGPU WebAssembly</title><style>body{font-family:sans-serif;background:#111;color:#eee;}a{color:#0ff;}ul{line-height:1.6}</style></head><body>" >> docs/index.html
           echo "<h1>WebGPU WebAssembly Modules</h1><ul>" >> docs/index.html
           for f in WEBASSEMBLY/*.wasm; do
             fname=$(basename $f)
-            echo "<li><a href='../WEBASSEMBLY/$fname'>$fname</a></li>" >> docs/index.html
+            echo "<li><a href=\'../WEBASSEMBLY/$fname\'>$fname</a></li>" >> docs/index.html
           done
           echo "</ul></body></html>" >> docs/index.html
 
@@ -157,3 +169,4 @@ jobs:
 
       - name: Push Docker image
         run: docker push ghcr.io/${{ github.repository }}/webgpu:latest
+        
