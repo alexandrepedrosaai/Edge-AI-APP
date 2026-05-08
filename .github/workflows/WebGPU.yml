@@ -218,8 +218,8 @@ jobs:
         run: |
           docker build \
             --file Dockerfile \
-            --tag ghcr.io/${{ github.repository }}/webgpu:latest \
+            --tag ghcr.io/${GITHUB_REPOSITORY,,}/webgpu:latest \
             .
 
       - name: Push Docker image
-        run: docker push ghcr.io/${{ github.repository }}/webgpu:latest
+        run: docker push ghcr.io/${GITHUB_REPOSITORY,,}/webgpu:latest
