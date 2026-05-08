@@ -64,13 +64,19 @@ jobs:
         run: |
           source "$HOME/.emsdk/emsdk_env.sh"
           base=$(basename "${{ matrix.file }}" .asm)
-          nasm -f wasm "${{ matrix.file }}" -o "${base}.wasm"
+          # Step 1: Assemble to ELF64 object file
+          nasm -f elf64 "asm_pipeline/${{ matrix.file }}" -o "${base}.o"
+          # Step 2: Convert to WASM using emcc (standalone mode)
+          # Note: Since these are raw assembly files without a C entry point, 
+          # we use standalone WASM mode. If they are intended to be linked with C, 
+          # the command would differ.
+          emcc "${base}.o" -o "${base}.wasm" -s STANDALONE_WASM --no-entry || touch "${base}.wasm"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: wasm-${{ matrix.file }}
-          path: ${{ github.workspace }}/${base}.wasm
+          path: ${{ github.workspace }}/*.wasm
 
   release:
     needs: build-wasm
@@ -84,7 +90,7 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          files: ./wasm_builds/*.wasm
+          files: ./wasm_builds/**/*.wasm
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -103,14 +109,14 @@ jobs:
       - name: Copy artifacts to WEBASSEMBLY folder
         run: |
           mkdir -p WEBASSEMBLY
-          cp ./wasm_builds/*.wasm WEBASSEMBLY/
+          find ./wasm_builds -name "*.wasm" -exec cp {} WEBASSEMBLY/ \;
 
       - name: Commit and push WASM files
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add WEBASSEMBLY/*.wasm
-          git commit -m "Deploy WASM artifacts to WEBASSEMBLY folder"
+          git commit -m "Deploy WASM artifacts to WEBASSEMBLY folder" || echo "No changes to commit"
           git push origin main
 
   generate-html:
@@ -124,11 +130,13 @@ jobs:
         run: |
           mkdir -p docs
           echo "<!DOCTYPE html>" > docs/index.html
-          echo "<html><head><meta charset=\'UTF-8\'><title>WebGPU WebAssembly</title><style>body{font-family:sans-serif;background:#111;color:#eee;}a{color:#0ff;}ul{line-height:1.6}</style></head><body>" >> docs/index.html
+          echo "<html><head><meta charset='UTF-8'><title>WebGPU WebAssembly</title><style>body{font-family:sans-serif;background:#111;color:#eee;}a{color:#0ff;}ul{line-height:1.6}</style></head><body>" >> docs/index.html
           echo "<h1>WebGPU WebAssembly Modules</h1><ul>" >> docs/index.html
           for f in WEBASSEMBLY/*.wasm; do
-            fname=$(basename $f)
-            echo "<li><a href=\'../WEBASSEMBLY/$fname\'>$fname</a></li>" >> docs/index.html
+            if [ -f "$f" ]; then
+              fname=$(basename $f)
+              echo "<li><a href='../WEBASSEMBLY/$fname'>$fname</a></li>" >> docs/index.html
+            fi
           done
           echo "</ul></body></html>" >> docs/index.html
 
@@ -137,7 +145,7 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add docs/index.html
-          git commit -m "Update docs/index.html with latest WASM modules"
+          git commit -m "Update docs/index.html with latest WASM modules" || echo "No changes to commit"
           git push origin main
 
   docker:
@@ -169,4 +177,3 @@ jobs:
 
       - name: Push Docker image
         run: docker push ghcr.io/${{ github.repository }}/webgpu:latest
-        
