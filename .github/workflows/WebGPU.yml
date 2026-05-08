@@ -1,0 +1,159 @@
+name: WebGPU CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-wasm:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        file: [
+          "FILE_01_Trigonometric.asm","FILE_02_Complex.asm","FILE_03_Matrix.asm",
+          "FILE_04_IrrationalWave.asm","FILE_05_LinearPolymeric.asm","FILE_06_Parabolic.asm",
+          "FILE_07_Logarithmic.asm","FILE_08_ExpModInvTrig.asm","FILE_09_Derivatives.asm",
+          "FILE_10_Integrals.asm","AdvancedLinear.asm","Factor.asm","Functions.asm","Hyperbolic.asm",
+          "Linear.asm","MatrixDerivative.asm","Ratio.asm","Unified.asm",
+          "ASM_HEX_01.asm","ASM_HEX_02.asm","ASM_HEX_03.asm","ASM_HEX_04.asm","ASM_HEX_05.asm",
+          "ASM_HEX_06.asm","ASM_HEX_07.asm","ASM_HEX_08.asm","ASM_HEX_09.asm","ASM_HEX_10.asm",
+          "Pipeline_01.asm","Pipeline_02.asm","Pipeline_03.asm","Pipeline_04.asm","Pipeline_05.asm",
+          "Majorana_01.asm","Majorana_02.asm","Majorana_03.asm","Majorana_04.asm","Majorana_05.asm",
+          "LunarBase_01.asm","LunarBase_02.asm","LunarBase_03.asm","LunarBase_04.asm","LunarBase_05.asm",
+          "QuantumKernel_01.asm","QuantumKernel_02.asm","QuantumKernel_03.asm","QuantumKernel_04.asm","QuantumKernel_05.asm",
+          "NeuralWave_01.asm","NeuralWave_02.asm","NeuralWave_03.asm","NeuralWave_04.asm","NeuralWave_05.asm",
+          "NeuralCircuit_01.asm","NeuralCircuit_02.asm","NeuralCircuit_03.asm","NeuralCircuit_04.asm","NeuralCircuit_05.asm",
+          "Tensorial_01.asm","Tensorial_02.asm","Tensorial_03.asm","Tensorial_04.asm","Tensorial_05.asm",
+          "Orbital_01.asm","Orbital_02.asm","Orbital_03.asm","Orbital_04.asm","Orbital_05.asm",
+          "KernelLaw_01.asm","KernelLaw_02.asm","KernelLaw_03.asm","KernelLaw_04.asm","KernelLaw_05.asm",
+          "QuantumLaw_01.asm","QuantumLaw_02.asm","QuantumLaw_03.asm","QuantumLaw_04.asm","QuantumLaw_05.asm",
+          "WebGPU_01.asm","WebGPU_02.asm","WebGPU_03.asm","WebGPU_04.asm","WebGPU_05.asm",
+          "WebGTU_01.asm","WebGTU_02.asm","WebGTU_03.asm","WebGTU_04.asm","WebGTU_05.asm",
+          "WebQSharp_01.asm","WebQSharp_02.asm","WebQSharp_03.asm","WebQSharp_04.asm","WebQSharp_05.asm",
+          "LunarQuantum_01.asm","LunarQuantum_02.asm","LunarQuantum_03.asm","LunarQuantum_04.asm","LunarQuantum_05.asm",
+          "MajoranaOrbital_01.asm","MajoranaOrbital_02.asm","MajoranaOrbital_03.asm","MajoranaOrbital_04.asm","MajoranaOrbital_05.asm",
+          "AstroKernel_01.asm","AstroKernel_02.asm","AstroKernel_03.asm","AstroKernel_04.asm","AstroKernel_05.asm",
+          "UnifiedQuantum.asm"
+        ]
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Cache NASM/Emscripten
+        uses: actions/cache@v3
+        with:
+          path: ~/.emsdk
+          key: emsdk-${{ runner.os }}
+
+      - name: Install NASM & Emscripten
+        run: sudo apt-get install nasm && ./emsdk install latest && ./emsdk activate latest
+
+      - name: Compile ASM to WASM
+        run: |
+          base=$(basename ${{ matrix.file }} .asm)
+          nasm -f wasm ${{ matrix.file }} -o ${base}.wasm
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: wasm-${{ matrix.file }}
+          path: ${{ github.workspace }}/${base}.wasm
+
+  release:
+    needs: build-wasm
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./wasm_builds
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ./wasm_builds/*.wasm
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  deploy-to-repo:
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./wasm_builds
+
+      - name: Copy artifacts to WEBASSEMBLY folder
+        run: |
+          mkdir -p WEBASSEMBLY
+          cp ./wasm_builds/*.wasm WEBASSEMBLY/
+
+      - name: Commit and push WASM files
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add WEBASSEMBLY/*.wasm
+          git commit -m "Deploy WASM artifacts to WEBASSEMBLY folder"
+          git push origin main
+
+  generate-html:
+    needs: deploy-to-repo
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Generate index.html
+        run: |
+          mkdir -p docs
+          echo "<!DOCTYPE html>" > docs/index.html
+          echo "<html><head><meta charset='UTF-8'><title>WebGPU WebAssembly</title><style>body{font-family:sans-serif;background:#111;color:#eee;}a{color:#0ff;}ul{line-height:1.6}</style></head><body>" >> docs/index.html
+          echo "<h1>WebGPU WebAssembly Modules</h1><ul>" >> docs/index.html
+          for f in WEBASSEMBLY/*.wasm; do
+            fname=$(basename $f)
+            echo "<li><a href='../WEBASSEMBLY/$fname'>$fname</a></li>" >> docs/index.html
+          done
+          echo "</ul></body></html>" >> docs/index.html
+
+      - name: Commit and push HTML
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/index.html
+          git commit -m "Update docs/index.html with latest WASM modules"
+          git push origin main
+
+  docker:
+    needs: generate-html
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: docker-${{ runner.os }}
+          restore-keys: docker-
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            --file Dockerfile \
+            --tag ghcr.io/${{ github.repository }}/webgpu:latest \
+            .
+
+      - name: Push Docker image
+        run: docker push ghcr.io/${{ github.repository }}/webgpu:latest
