@@ -6,7 +6,7 @@ Report Summary
 ├──────────────────────────────────────────────────────────────────────────────────┼───────────────────┼─────────────────┼─────────┤
 │ JAVA/pom.xml                                                                     │        pom        │        0        │    -    │
 ├──────────────────────────────────────────────────────────────────────────────────┼───────────────────┼─────────────────┼─────────┤
-│ JULIA/Manifest.toml                                                              │       julia       │       38        │    -    │
+│ JULIA/Manifest.toml                                                              │       julia       │       45        │    -    │
 ├──────────────────────────────────────────────────────────────────────────────────┼───────────────────┼─────────────────┼─────────┤
 │ Quantum-Lunar-Base-Simulation/LunarSim/bin/Debug/net6.0/QuantumLunarSimulationP- │    dotnet-core    │        0        │    -    │
 │ roject.deps.json                                                                 │                   │                 │         │
@@ -43,7 +43,7 @@ To disable this notice, set the TRIVY_DISABLE_VEX_NOTICE environment variable.
 
 JULIA/Manifest.toml (julia)
 ===========================
-Total: 38 (UNKNOWN: 0, LOW: 4, MEDIUM: 22, HIGH: 11, CRITICAL: 1)
+Total: 45 (UNKNOWN: 0, LOW: 5, MEDIUM: 24, HIGH: 12, CRITICAL: 4)
 
 ┌─────────────┬────────────────┬──────────┬──────────┬───────────────────┬───────────────┬──────────────────────────────────────────────────────────────┐
 │   Library   │ Vulnerability  │ Severity │  Status  │ Installed Version │ Fixed Version │                            Title                             │
@@ -126,8 +126,16 @@ Total: 38 (UNKNOWN: 0, LOW: 4, MEDIUM: 22, HIGH: 11, CRITICAL: 1)
 │ MbedTLS_jll │ CVE-2025-47917 │ CRITICAL │          │ 2.28.2+1          │ 2.28.1010+0   │ Mbed TLS before 3.6.4 allows a use-after-free in certain     │
 │             │                │          │          │                   │               │ situations of ......                                         │
 │             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2025-47917                   │
-│             ├────────────────┼──────────┤          │                   ├───────────────┼──────────────────────────────────────────────────────────────┤
-│             │ CVE-2023-43615 │ HIGH     │          │                   │ 2.28.6+0      │ Mbed TLS 2.x before 2.28.5 and 3.x before 3.5.0 has a        │
+│             ├────────────────┤          ├──────────┤                   ├───────────────┼──────────────────────────────────────────────────────────────┤
+│             │ CVE-2026-34872 │          │ affected │                   │               │ mbedtls: Mbed TLS and TF-PSA-Crypto: Shared secret           │
+│             │                │          │          │                   │               │ manipulation via improper FFDH input...                      │
+│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2026-34872                   │
+│             ├────────────────┤          │          │                   ├───────────────┼──────────────────────────────────────────────────────────────┤
+│             │ CVE-2026-34877 │          │          │                   │               │ An issue was discovered in Mbed TLS versions from 2.19.0 up  │
+│             │                │          │          │                   │               │ to...                                                        │
+│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2026-34877                   │
+│             ├────────────────┼──────────┼──────────┤                   ├───────────────┼──────────────────────────────────────────────────────────────┤
+│             │ CVE-2023-43615 │ HIGH     │ fixed    │                   │ 2.28.6+0      │ Mbed TLS 2.x before 2.28.5 and 3.x before 3.5.0 has a        │
 │             │                │          │          │                   │               │ Buffer...                                                    │
 │             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2023-43615                   │
 │             ├────────────────┤          │          │                   ├───────────────┼──────────────────────────────────────────────────────────────┤
@@ -142,8 +150,12 @@ Total: 38 (UNKNOWN: 0, LOW: 4, MEDIUM: 22, HIGH: 11, CRITICAL: 1)
 │             │ CVE-2025-52496 │          │          │                   │               │ Mbed TLS before 3.6.4 has a race condition in AESNI          │
 │             │                │          │          │                   │               │ detection if...                                              │
 │             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2025-52496                   │
-│             ├────────────────┼──────────┤          │                   ├───────────────┼──────────────────────────────────────────────────────────────┤
-│             │ CVE-2024-23170 │ MEDIUM   │          │                   │ 2.28.10+0     │ An issue was discovered in Mbed TLS 2.x before 2.28.7 and    │
+│             ├────────────────┤          ├──────────┤                   ├───────────────┼──────────────────────────────────────────────────────────────┤
+│             │ CVE-2026-25835 │          │ affected │                   │               │ Mbed TLS before 3.6.6 and TF-PSA-Crypto before 1.1.0 misuse  │
+│             │                │          │          │                   │               │ seeds in a...                                                │
+│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2026-25835                   │
+│             ├────────────────┼──────────┼──────────┤                   ├───────────────┼──────────────────────────────────────────────────────────────┤
+│             │ CVE-2024-23170 │ MEDIUM   │ fixed    │                   │ 2.28.10+0     │ An issue was discovered in Mbed TLS 2.x before 2.28.7 and    │
 │             │                │          │          │                   │               │ 3.x...                                                       │
 │             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2024-23170                   │
 │             ├────────────────┤          │          │                   │               ├──────────────────────────────────────────────────────────────┤
@@ -173,8 +185,24 @@ Total: 38 (UNKNOWN: 0, LOW: 4, MEDIUM: 22, HIGH: 11, CRITICAL: 1)
 │             ├────────────────┤          │          │                   ├───────────────┼──────────────────────────────────────────────────────────────┤
 │             │ CVE-2025-59438 │          │          │                   │               │ Mbed TLS through 3.6.4 has an Observable Timing Discrepancy. │
 │             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2025-59438                   │
+│             ├────────────────┤          │          │                   ├───────────────┼──────────────────────────────────────────────────────────────┤
+│             │ CVE-2025-66442 │          │          │                   │               │ mbedtls: Mbed TLS and TF-PSA-Crypto: Information disclosure  │
+│             │                │          │          │                   │               │ via compiler-induced timing side channel...                  │
+│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2025-66442                   │
+│             ├────────────────┤          │          │                   ├───────────────┼──────────────────────────────────────────────────────────────┤
+│             │ CVE-2026-34871 │          │          │                   │               │ An issue was discovered in Mbed TLS before 3.6.6 and 4.x     │
+│             │                │          │          │                   │               │ before...                                                    │
+│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2026-34871                   │
 ├─────────────┼────────────────┼──────────┼──────────┼───────────────────┼───────────────┼──────────────────────────────────────────────────────────────┤
-│ nghttp2_jll │ CVE-2023-35945 │ HIGH     │ fixed    │ 1.52.0+1          │ 1.58.0+0      │ envoy: HTTP/2 memory leak in nghttp2 codec                   │
+│ Zlib_jll    │ CVE-2023-45853 │ CRITICAL │ fixed    │ 1.2.13+1          │ 1.3.1+0       │ zlib: integer overflow and resultant heap-based buffer       │
+│             │                │          │          │                   │               │ overflow in zipOpenNewFileInZip4_6                           │
+│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2023-45853                   │
+│             ├────────────────┼──────────┤          │                   ├───────────────┼──────────────────────────────────────────────────────────────┤
+│             │ CVE-2026-27171 │ LOW      │          │                   │ 1.3.2+0       │ zlib: zlib: Denial of Service via infinite loop in CRC32     │
+│             │                │          │          │                   │               │ combine functions...                                         │
+│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2026-27171                   │
+├─────────────┼────────────────┼──────────┤          ├───────────────────┼───────────────┼──────────────────────────────────────────────────────────────┤
+│ nghttp2_jll │ CVE-2023-35945 │ HIGH     │          │ 1.52.0+1          │ 1.58.0+0      │ envoy: HTTP/2 memory leak in nghttp2 codec                   │
 │             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2023-35945                   │
 │             ├────────────────┤          │          │                   │               ├──────────────────────────────────────────────────────────────┤
 │             │ CVE-2023-44487 │          │          │                   │               │ HTTP/2: Multiple HTTP/2 enabled web servers are vulnerable   │
@@ -207,8 +235,8 @@ Total: 28 (UNKNOWN: 0, LOW: 1, MEDIUM: 19, HIGH: 8, CRITICAL: 0)
 │                  │ CVE-2026-42043      │          │        │                   │                        │ axios: Axios: NO_PROXY bypass via crafted URL                │
 │                  │                     │          │        │                   │                        │ https://avd.aquasec.com/nvd/cve-2026-42043                   │
 │                  ├─────────────────────┤          │        │                   ├────────────────────────┼──────────────────────────────────────────────────────────────┤
-│                  │ CVE-2026-42264      │          │        │                   │ 1.15.2                 │ Axios has prototype pollution read-side gadgets in HTTP      │
-│                  │                     │          │        │                   │                        │ adapter that allow credential...                             │
+│                  │ CVE-2026-42264      │          │        │                   │ 1.15.2                 │ Axios is a promise based HTTP client for the browser and     │
+│                  │                     │          │        │                   │                        │ Node.js....                                                  │
 │                  │                     │          │        │                   │                        │ https://avd.aquasec.com/nvd/cve-2026-42264                   │
 │                  ├─────────────────────┼──────────┤        │                   ├────────────────────────┼──────────────────────────────────────────────────────────────┤
 │                  │ CVE-2025-62718      │ MEDIUM   │        │                   │ 1.15.0, 0.31.0         │ axios: Axios: Server-Side Request Forgery and proxy bypass   │
@@ -303,8 +331,8 @@ Total: 28 (UNKNOWN: 0, LOW: 1, MEDIUM: 19, HIGH: 8, CRITICAL: 0)
 │                  │                     │          │        │                   │                        │ injection with crafted POSIX bracket...                      │
 │                  │                     │          │        │                   │                        │ https://avd.aquasec.com/nvd/cve-2026-33672                   │
 ├──────────────────┼─────────────────────┤          │        ├───────────────────┼────────────────────────┼──────────────────────────────────────────────────────────────┤
-│ uuid             │ CVE-2026-41907      │          │        │ 11.1.0            │ 11.1.1, 12.0.1, 13.0.1 │ uuid is for the creation of RFC9562 (formerly RFC4122)       │
-│                  │                     │          │        │                   │                        │ UUIDs. Prior to...                                           │
+│ uuid             │ CVE-2026-41907      │          │        │ 11.1.0            │ 11.1.1, 12.0.1, 13.0.1 │ uuid: uuid: Out-of-bounds write vulnerability impacts data   │
+│                  │                     │          │        │                   │                        │ integrity and confidentiality                                │
 │                  │                     │          │        │                   │                        │ https://avd.aquasec.com/nvd/cve-2026-41907                   │
 └──────────────────┴─────────────────────┴──────────┴────────┴───────────────────┴────────────────────────┴──────────────────────────────────────────────────────────────┘
 
@@ -326,8 +354,8 @@ Total: 28 (UNKNOWN: 0, LOW: 1, MEDIUM: 19, HIGH: 8, CRITICAL: 0)
 │                  │ CVE-2026-42043      │          │        │                   │                        │ axios: Axios: NO_PROXY bypass via crafted URL                │
 │                  │                     │          │        │                   │                        │ https://avd.aquasec.com/nvd/cve-2026-42043                   │
 │                  ├─────────────────────┤          │        │                   ├────────────────────────┼──────────────────────────────────────────────────────────────┤
-│                  │ CVE-2026-42264      │          │        │                   │ 1.15.2                 │ Axios has prototype pollution read-side gadgets in HTTP      │
-│                  │                     │          │        │                   │                        │ adapter that allow credential...                             │
+│                  │ CVE-2026-42264      │          │        │                   │ 1.15.2                 │ Axios is a promise based HTTP client for the browser and     │
+│                  │                     │          │        │                   │                        │ Node.js....                                                  │
 │                  │                     │          │        │                   │                        │ https://avd.aquasec.com/nvd/cve-2026-42264                   │
 │                  ├─────────────────────┼──────────┤        │                   ├────────────────────────┼──────────────────────────────────────────────────────────────┤
 │                  │ CVE-2025-62718      │ MEDIUM   │        │                   │ 1.15.0, 0.31.0         │ axios: Axios: Server-Side Request Forgery and proxy bypass   │
@@ -422,8 +450,8 @@ Total: 28 (UNKNOWN: 0, LOW: 1, MEDIUM: 19, HIGH: 8, CRITICAL: 0)
 │                  │                     │          │        │                   │                        │ injection with crafted POSIX bracket...                      │
 │                  │                     │          │        │                   │                        │ https://avd.aquasec.com/nvd/cve-2026-33672                   │
 ├──────────────────┼─────────────────────┤          │        ├───────────────────┼────────────────────────┼──────────────────────────────────────────────────────────────┤
-│ uuid             │ CVE-2026-41907      │          │        │ 11.1.0            │ 11.1.1, 12.0.1, 13.0.1 │ uuid is for the creation of RFC9562 (formerly RFC4122)       │
-│                  │                     │          │        │                   │                        │ UUIDs. Prior to...                                           │
+│ uuid             │ CVE-2026-41907      │          │        │ 11.1.0            │ 11.1.1, 12.0.1, 13.0.1 │ uuid: uuid: Out-of-bounds write vulnerability impacts data   │
+│                  │                     │          │        │                   │                        │ integrity and confidentiality                                │
 │                  │                     │          │        │                   │                        │ https://avd.aquasec.com/nvd/cve-2026-41907                   │
 └──────────────────┴─────────────────────┴──────────┴────────┴───────────────────┴────────────────────────┴──────────────────────────────────────────────────────────────┘
 
