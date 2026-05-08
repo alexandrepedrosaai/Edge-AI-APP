@@ -141,13 +141,14 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          git reset --hard origin/main
+          cp -r ./wasm_builds/wasm-*/*.wasm WEBASSEMBLY/ 2>/dev/null || true
           git add WEBASSEMBLY/*.wasm
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
             git commit -m "Deploy WASM artifacts to WEBASSEMBLY folder [skip ci]"
-            git fetch origin main
-            git pull --rebase origin main
             git push origin HEAD:main
           fi
 
@@ -160,31 +161,33 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Generate index.html
+      - name: Generate wasm-index.html
         run: |
+          git fetch origin main
+          git reset --hard origin/main
           mkdir -p docs
-          echo "<!DOCTYPE html>" > docs/index.html
-          echo "<html><head><meta charset='UTF-8'><title>WebGPU WebAssembly</title><style>body{font-family:sans-serif;background:#111;color:#eee;}a{color:#0ff;}ul{line-height:1.6}</style></head><body>" >> docs/index.html
-          echo "<h1>WebGPU WebAssembly Modules</h1><ul>" >> docs/index.html
-          for f in WEBASSEMBLY/*.wasm; do
-            if [ -f "$f" ]; then
-              fname=$(basename $f)
-              echo "<li><a href='../WEBASSEMBLY/$fname'>$fname</a></li>" >> docs/index.html
-            fi
-          done
-          echo "</ul></body></html>" >> docs/index.html
+          {
+            echo "<!DOCTYPE html>"
+            echo "<html><head><meta charset='UTF-8'><title>WebGPU WebAssembly</title><style>body{font-family:sans-serif;background:#111;color:#eee;}a{color:#0ff;}ul{line-height:1.6}</style></head><body>"
+            echo "<h1>WebGPU WebAssembly Modules</h1><ul>"
+            for f in WEBASSEMBLY/*.wasm; do
+              if [ -f "$f" ]; then
+                fname=$(basename "$f")
+                echo "<li><a href='../WEBASSEMBLY/$fname'>$fname</a></li>"
+              fi
+            done
+            echo "</ul></body></html>"
+          } > docs/wasm-index.html
 
       - name: Commit and push HTML
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/index.html
+          git add docs/wasm-index.html
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "Update docs/index.html with latest WASM modules [skip ci]"
-            git fetch origin main
-            git pull --rebase origin main
+            git commit -m "Update docs/wasm-index.html with latest WASM modules [skip ci]"
             git push origin HEAD:main
           fi
 
