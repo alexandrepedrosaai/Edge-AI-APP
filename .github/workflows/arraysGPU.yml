@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: arraysgpu-release-main
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -44,6 +48,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Download artifacts
         uses: actions/download-artifact@v4
@@ -58,11 +64,23 @@ jobs:
           cp release/bin/* docs/
           cp release/bin/index.html docs/index.html
           cp release/bin/* WEBASSEMBLY/
+
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git fetch origin main
+          git checkout main
+          git pull --rebase origin main
+
           git add WebGPU docs WEBASSEMBLY
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
           git commit -m "chore(ci): deploy arraysGPU binaries via github-actions[bot]"
-          git push
+          git push origin HEAD:main
 
       # Step 6: Automated release tagging
       - name: Create Release
