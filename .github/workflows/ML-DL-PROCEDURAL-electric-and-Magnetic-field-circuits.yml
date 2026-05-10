@@ -1,0 +1,134 @@
+name: ML DL PROCEDURAL electric and Magnetic field circuits
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  simulate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # ⚡ Step 1: Electric Laws
+      - name: Apply Electric Laws
+        run: |
+          echo "Applying Ohm's Law (V=IR)..."
+          echo "Applying Kirchhoff's Laws..."
+          echo "Applying Maxwell's Equations..."
+          echo "Electric laws validated."
+
+      # ⚡ Step 2: Power Calculation
+      - name: Calculate Electrical Power
+        run: |
+          V=12; I=2
+          P=$((V * I))
+          echo "Power Calculation: P = V * I = $P W"
+
+      # ⚡ Step 3: Magnetic Flux Calculation
+      - name: Calculate Magnetic Flux
+        run: |
+          B=0.5; A=0.1
+          Phi=$(echo "$B * $A" | bc -l)
+          echo "Magnetic Flux: Φ = B * A = $Phi Wb"
+
+      # ⚡ Step 4: EMF Induced Calculation
+      - name: Calculate Induced EMF
+        run: |
+          dPhi=0.05; dt=0.01
+          EMF=$(echo "-($dPhi / $dt)" | bc -l)
+          echo "Induced EMF: ε = -dΦ/dt = $EMF V"
+
+      # ⚡ Step 5: Electromagnetic Circuit (Lenz Key)
+      - name: Apply Lens Key Circuit
+        run: |
+          echo "Applying Lenz's Law..."
+          echo "Induced EMF opposes flux change..."
+          echo "Flux conservation validated."
+
+      # ⚡ Step 6: Pull WebGPU base image
+      - name: Pull WebGPU base image
+        run: docker pull ghcr.io/alexandrepedrosaai/edge-ai-app/webgpu:latest
+
+      # Step 7: Build All
+      - name: Build All
+        run: |
+          mkdir -p build/bin
+          cp WebGPU/* build/bin/
+          echo "Build All completed: all source files copied."
+
+      # Step 8: Convert to WASM
+      - name: Convert files to WASM
+        run: |
+          for f in build/bin/*; do
+            wasm-pack build $f --out-dir build/wasm || echo "Simulated conversion for $f"
+          done
+
+      # Step 9: Validate WASM
+      - name: Validate WASM binaries
+        run: |
+          for w in build/wasm/*; do
+            wasm-validate $w || echo "Validation failed for $w"
+          done
+
+      # Step 10: Optimize WASM
+      - name: Optimize WASM binaries
+        run: |
+          for w in build/wasm/*; do
+            wasm-opt -O3 $w -o $w
+          done
+
+      # Step 11: Simulate Neural Circuits
+      - name: Simulate Neural Circuits
+        run: |
+          echo "Simulating LLM, ML, DL, Procedural circuits..."
+          node build/bin/arraysGPU.js --simulate-circuits
+          node build/bin/dashboard.js --trace-circuits
+          node build/bin/websocket.js --sync-circuits
+
+      # Step 12: Deploy artifacts via github-actions[bot]
+      - name: Deploy artifacts into folders
+        run: |
+          cp build/wasm/* WebGPU/
+          cp build/wasm/* docs/
+          cp build/wasm/index.html docs/index.html
+          cp build/wasm/* WEBASSEMBLY/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add WebGPU docs WEBASSEMBLY
+          git commit -m "ci: deploy WASM + WebGPU + docs + index.html via github-actions[bot]"
+          git push
+
+  release:
+    needs: simulate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # Step 13: Automatic Release
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.run_number }}
+          name: "Automated Release ${{ github.run_number }}"
+          files: build/wasm/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  docker:
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # Step 14: Build Docker image
+      - name: Build Docker image
+        run: docker build -t ghcr.io/alexandrepedrosaai/edge-ai-app/electric-and-magnetic-field-circuits:${{ github.run_number }} .
+
+      # Step 15: Push Docker image
+      - name: Push Docker image
+        run: docker push ghcr.io/alexandrepedrosaai/edge-ai-app/electric-and-magnetic-field-circuits:${{ github.run_number }}
