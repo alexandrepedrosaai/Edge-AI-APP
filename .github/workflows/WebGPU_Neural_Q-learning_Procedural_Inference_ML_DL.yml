@@ -8,6 +8,11 @@ on:
 permissions:
   contents: read
 
+env:
+  CLUSTERS_GPU_IMAGE: ghcr.io/alexandrepedrosaai/edge-ai-app/clusters-arrays-gpu:11
+  WEBGPU_IMAGE: ghcr.io/alexandrepedrosaai/edge-ai-app/webgpu:latest
+  EM_FIELD_IMAGE: ghcr.io/alexandrepedrosaai/edge-ai-app/electric-and-magnetic-field-circuits:26
+
 jobs:
   prepare-matrix:
     runs-on: ubuntu-latest
@@ -18,9 +23,9 @@ jobs:
       - id: generate
         name: Generate per-file matrix
         run: |
-          docker pull ghcr.io/alexandrepedrosaai/edge-ai-app/clusters-arrays-gpu:11
-          docker pull ghcr.io/alexandrepedrosaai/edge-ai-app/webgpu:lastet
-          docker pull ghcr.io/alexandrepedrosaai/edge-ai-app/electric-and-magnetic-field-circuits:26
+          docker pull "$CLUSTERS_GPU_IMAGE"
+          docker pull "$WEBGPU_IMAGE"
+          docker pull "$EM_FIELD_IMAGE"
           asm_matrix=$(find WebGPU -maxdepth 1 -type f -name '*.asm' | sort | jq -R -s -c 'split("\n")[:-1] | map({asm_file: ., artifact: (split("/")[-1] | sub("\\.asm$";"") | ascii_downcase | gsub("[^a-z0-9]+";"-") | gsub("(^-|-$)";""))}) | {include:.}')
           echo "asm_matrix=$asm_matrix" >> "$GITHUB_OUTPUT"
 
@@ -49,9 +54,9 @@ jobs:
 
       - name: Build ASM object (per file)
         run: |
-          docker pull ghcr.io/alexandrepedrosaai/edge-ai-app/clusters-arrays-gpu:11
-          docker pull ghcr.io/alexandrepedrosaai/edge-ai-app/webgpu:lastet
-          docker pull ghcr.io/alexandrepedrosaai/edge-ai-app/electric-and-magnetic-field-circuits:26
+          docker pull "$CLUSTERS_GPU_IMAGE"
+          docker pull "$WEBGPU_IMAGE"
+          docker pull "$EM_FIELD_IMAGE"
           set -euo pipefail
           mkdir -p release
 
@@ -99,9 +104,9 @@ jobs:
           path: release
       - name: Validate build output
         run: |
-          docker pull ghcr.io/alexandrepedrosaai/edge-ai-app/clusters-arrays-gpu:11
-          docker pull ghcr.io/alexandrepedrosaai/edge-ai-app/webgpu:lastet
-          docker pull ghcr.io/alexandrepedrosaai/edge-ai-app/electric-and-magnetic-field-circuits:26
+          docker pull "$CLUSTERS_GPU_IMAGE"
+          docker pull "$WEBGPU_IMAGE"
+          docker pull "$EM_FIELD_IMAGE"
           set -euo pipefail
           meta="release/${{ matrix.artifact }}.json"
           test -f "$meta"
@@ -132,9 +137,9 @@ jobs:
           path: release
       - name: Validate metadata/output consistency
         run: |
-          docker pull ghcr.io/alexandrepedrosaai/edge-ai-app/clusters-arrays-gpu:11
-          docker pull ghcr.io/alexandrepedrosaai/edge-ai-app/webgpu:lastet
-          docker pull ghcr.io/alexandrepedrosaai/edge-ai-app/electric-and-magnetic-field-circuits:26
+          docker pull "$CLUSTERS_GPU_IMAGE"
+          docker pull "$WEBGPU_IMAGE"
+          docker pull "$EM_FIELD_IMAGE"
           set -euo pipefail
           meta="release/${{ matrix.artifact }}.json"
           test -f "$meta"
@@ -163,9 +168,9 @@ jobs:
           path: release
       - name: Simulate Q-learning reward loop
         run: |
-          docker pull ghcr.io/alexandrepedrosaai/edge-ai-app/clusters-arrays-gpu:11
-          docker pull ghcr.io/alexandrepedrosaai/edge-ai-app/webgpu:lastet
-          docker pull ghcr.io/alexandrepedrosaai/edge-ai-app/electric-and-magnetic-field-circuits:26
+          docker pull "$CLUSTERS_GPU_IMAGE"
+          docker pull "$WEBGPU_IMAGE"
+          docker pull "$EM_FIELD_IMAGE"
           set -euo pipefail
           meta="release/${{ matrix.artifact }}.json"
           test -f "$meta"
@@ -212,9 +217,9 @@ jobs:
       - id: object-check
         name: Check compiled object files
         run: |
-          docker pull ghcr.io/alexandrepedrosaai/edge-ai-app/clusters-arrays-gpu:11
-          docker pull ghcr.io/alexandrepedrosaai/edge-ai-app/webgpu:lastet
-          docker pull ghcr.io/alexandrepedrosaai/edge-ai-app/electric-and-magnetic-field-circuits:26
+          docker pull "$CLUSTERS_GPU_IMAGE"
+          docker pull "$WEBGPU_IMAGE"
+          docker pull "$EM_FIELD_IMAGE"
           shopt -s nullglob
           objects=(release/*.o)
           wasm_files=(release/*.wasm)
@@ -259,9 +264,9 @@ jobs:
           path: release
       - name: Copy object files to WEBASSEMBLY and docs
         run: |
-          docker pull ghcr.io/alexandrepedrosaai/edge-ai-app/clusters-arrays-gpu:11
-          docker pull ghcr.io/alexandrepedrosaai/edge-ai-app/webgpu:lastet
-          docker pull ghcr.io/alexandrepedrosaai/edge-ai-app/electric-and-magnetic-field-circuits:26
+          docker pull "$CLUSTERS_GPU_IMAGE"
+          docker pull "$WEBGPU_IMAGE"
+          docker pull "$EM_FIELD_IMAGE"
           shopt -s nullglob
           mkdir -p WEBASSEMBLY docs
           objects=(release/*.o)
@@ -275,9 +280,9 @@ jobs:
           cp "${objects[@]}" docs/
       - name: Update index.html with object file list
         run: |
-          docker pull ghcr.io/alexandrepedrosaai/edge-ai-app/clusters-arrays-gpu:11
-          docker pull ghcr.io/alexandrepedrosaai/edge-ai-app/webgpu:lastet
-          docker pull ghcr.io/alexandrepedrosaai/edge-ai-app/electric-and-magnetic-field-circuits:26
+          docker pull "$CLUSTERS_GPU_IMAGE"
+          docker pull "$WEBGPU_IMAGE"
+          docker pull "$EM_FIELD_IMAGE"
           shopt -s nullglob
           echo "<html><body><h1>Generated Object Files</h1><ul>" > docs/index.html
           for f in release/*.o; do
@@ -291,9 +296,9 @@ jobs:
           echo "</ul></body></html>" >> docs/index.html
       - name: Commit and push
         run: |
-          docker pull ghcr.io/alexandrepedrosaai/edge-ai-app/clusters-arrays-gpu:11
-          docker pull ghcr.io/alexandrepedrosaai/edge-ai-app/webgpu:lastet
-          docker pull ghcr.io/alexandrepedrosaai/edge-ai-app/electric-and-magnetic-field-circuits:26
+          docker pull "$CLUSTERS_GPU_IMAGE"
+          docker pull "$WEBGPU_IMAGE"
+          docker pull "$EM_FIELD_IMAGE"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add WEBASSEMBLY docs
