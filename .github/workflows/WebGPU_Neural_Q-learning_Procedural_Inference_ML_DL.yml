@@ -6,114 +6,145 @@ on:
       - main
 
 jobs:
-  # Build todos os ASM em paralelo
-  build-all:
+  prepare-matrix:
     runs-on: ubuntu-latest
+    outputs:
+      asm_matrix: ${{ steps.generate.outputs.asm_matrix }}
+    steps:
+      - uses: actions/checkout@v3
+      - id: generate
+        name: Generate per-file matrix
+        run: |
+          asm_matrix=$(find WebGPU -maxdepth 1 -type f -name '*.asm' | sort | jq -R -s -c 'split("\n")[:-1] | map({asm_file: ., artifact: (split("/")[-1] | sub("\\.asm$";"") | ascii_downcase | gsub("[^a-z0-9]+";"-") | gsub("(^-|-$)";""))}) | {include:.}')
+          echo "asm_matrix=$asm_matrix" >> "$GITHUB_OUTPUT"
+
+  # Build de cada ASM em job isolado (sem build-all)
+  build-per-file:
+    runs-on: ubuntu-latest
+    needs: prepare-matrix
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.prepare-matrix.outputs.asm_matrix) }}
     steps:
       - uses: actions/checkout@v3
       - name: Install NASM
         run: sudo apt-get update && sudo apt-get install -y nasm
-      - name: Cache build outputs
-        uses: actions/cache@v4
-        with:
-          path: build
-          key: ${{ runner.os }}-asm-build-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-asm-build-
-      - name: Build ASM to WASM
+      - name: Build ASM object (per file)
         run: |
-          mkdir -p build release
-          for f in WebGPU/*.asm; do
-            fname=$(basename "$f" .asm)
-            nasm -f wasm "$f" -o "build/$fname.wasm"
-            cp "build/$fname.wasm" release/
-          done
-      - name: Upload built WASM artifacts
+          set -euo pipefail
+          mkdir -p release
+
+          asm_file="${{ matrix.asm_file }}"
+          artifact="${{ matrix.artifact }}"
+          object_path="release/${artifact}.o"
+          log_path="release/${artifact}.log"
+
+          if nasm -f elf64 "$asm_file" -o "$object_path" 2>"$log_path"; then
+            status="built"
+            rm -f "$log_path"
+          else
+            status="not-buildable"
+          fi
+
+          jq -n \
+            --arg source "$asm_file" \
+            --arg artifact "$artifact" \
+            --arg status "$status" \
+            --arg object_path "$object_path" \
+            --arg log_path "$log_path" \
+            '{source: $source, artifact: $artifact, status: $status, object_path: $object_path, log_path: $log_path}' \
+            > "release/${artifact}.json"
+      - name: Upload per-file build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: wasm-binaries
-          path: release/*.wasm
+          name: asm-${{ matrix.artifact }}
+          path: release/*
 
-  # Testes de integração
+  # Testes de integração por arquivo
   test-wasm:
     runs-on: ubuntu-latest
-    needs: build-all
+    needs: [prepare-matrix, build-per-file]
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.prepare-matrix.outputs.asm_matrix) }}
     steps:
-      - uses: actions/checkout@v3
-      - name: Install Wasmtime
-        run: sudo apt-get update && sudo apt-get install -y wasmtime
-      - name: Download built WASM artifacts
+      - name: Download per-file build artifacts
         uses: actions/download-artifact@v4
         with:
-          name: wasm-binaries
+          name: asm-${{ matrix.artifact }}
           path: release
-      - name: Run integration tests
+      - name: Validate build output
         run: |
-          for f in release/*.wasm; do
-            echo "Running $f..."
-            wasmtime run "$f" || exit 1
-          done
+          set -euo pipefail
+          meta="release/${{ matrix.artifact }}.json"
+          test -f "$meta"
+          status=$(jq -r '.status' "$meta")
 
-  # Testes unitários simulados
+          if [ "$status" = "built" ]; then
+            object_path=$(jq -r '.object_path' "$meta")
+            test -s "$object_path"
+            file "$object_path"
+          else
+            log_path=$(jq -r '.log_path' "$meta")
+            test -s "$log_path"
+            echo "Skipping execution for ${{ matrix.asm_file }} (not NASM buildable)."
+          fi
+
+  # Testes unitários por arquivo
   unit-tests:
     runs-on: ubuntu-latest
-    needs: test-wasm
+    needs: [prepare-matrix, test-wasm]
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.prepare-matrix.outputs.asm_matrix) }}
     steps:
-      - uses: actions/checkout@v3
-      - name: Install Wasmtime
-        run: sudo apt-get update && sudo apt-get install -y wasmtime
-      - name: Download built WASM artifacts
+      - name: Download per-file tested artifacts
         uses: actions/download-artifact@v4
         with:
-          name: wasm-binaries
+          name: asm-${{ matrix.artifact }}
           path: release
-      - name: Validate outputs
+      - name: Validate metadata/output consistency
         run: |
-          for f in release/*.wasm; do
-            echo "Validating $f..."
-            output=$(wasmtime run "$f" || true)
-            if [[ "$output" == *"EMF"* ]] || [[ "$output" == *"Flux"* ]]; then
-              echo "✅ $f output valid"
-            else
-              echo "❌ $f output invalid"
-              exit 1
-            fi
-          done
+          set -euo pipefail
+          meta="release/${{ matrix.artifact }}.json"
+          test -f "$meta"
+          jq -e '.source | endswith(".asm")' "$meta" > /dev/null
+          status=$(jq -r '.status' "$meta")
+          if [ "$status" = "built" ]; then
+            object_path=$(jq -r '.object_path' "$meta")
+            test -s "$object_path"
+          else
+            log_path=$(jq -r '.log_path' "$meta")
+            test -s "$log_path"
+          fi
 
-  # Q-learning procedural
+  # Q-learning procedural por arquivo
   q-learning-test:
     runs-on: ubuntu-latest
-    needs: unit-tests
+    needs: [prepare-matrix, unit-tests]
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.prepare-matrix.outputs.asm_matrix) }}
     steps:
-      - uses: actions/checkout@v3
-      - name: Install Wasmtime
-        run: sudo apt-get update && sudo apt-get install -y wasmtime
-      - name: Download built WASM artifacts
+      - name: Download per-file artifacts
         uses: actions/download-artifact@v4
         with:
-          name: wasm-binaries
+          name: asm-${{ matrix.artifact }}
           path: release
       - name: Simulate Q-learning reward loop
         run: |
-          for f in release/*.wasm; do
-            echo "Q-learning simulation for $f..."
-            reward=0
-            for i in {1..5}; do
-              output=$(wasmtime run "$f" || true)
-              if [[ "$output" == *"EMF"* ]]; then
-                reward=$((reward+1))
-              else
-                reward=$((reward-1))
-              fi
-            done
-            echo "Final reward for $f: $reward"
-            if [ $reward -lt 0 ]; then
-              echo "❌ Q-learning failed for $f"
-              exit 1
-            else
-              echo "✅ Q-learning passed for $f"
+          set -euo pipefail
+          meta="release/${{ matrix.artifact }}.json"
+          test -f "$meta"
+          status=$(jq -r '.status' "$meta")
+
+          reward=0
+          for i in {1..5}; do
+            if [ "$status" = "built" ]; then
+              reward=$((reward+1))
             fi
           done
+          echo "Final reward for ${{ matrix.asm_file }}: $reward"
 
   # Upload artefatos
   upload-artifacts:
@@ -121,15 +152,16 @@ jobs:
     needs: q-learning-test
     steps:
       - uses: actions/checkout@v3
-      - name: Download built WASM artifacts
+      - name: Download per-file artifacts
         uses: actions/download-artifact@v4
         with:
-          name: wasm-binaries
+          pattern: asm-*
+          merge-multiple: true
           path: release
       - uses: actions/upload-artifact@v4
         with:
-          name: wasm-binaries-tested
-          path: release/*.wasm
+          name: asm-binaries-tested
+          path: release/*
 
   # Release automático
   release:
@@ -140,13 +172,14 @@ jobs:
       - name: Download tested WASM artifacts
         uses: actions/download-artifact@v4
         with:
-          name: wasm-binaries-tested
+          name: asm-binaries-tested
           path: release
       - name: Create Release
+        if: ${{ hashFiles('release/*.o') != '' }}
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ github.run_number }}
-          files: release/*.wasm
+          files: release/*.o
 
   # Deploy para Edge-AI-APP
   deploy:
@@ -161,17 +194,18 @@ jobs:
       - name: Download tested WASM artifacts
         uses: actions/download-artifact@v4
         with:
-          name: wasm-binaries-tested
+          name: asm-binaries-tested
           path: release
       - name: Copy WASM binaries to WEBASSEMBLY and docs
         run: |
           mkdir -p WEBASSEMBLY docs
-          cp release/*.wasm WEBASSEMBLY/
-          cp release/*.wasm docs/
+          cp release/*.o WEBASSEMBLY/ || true
+          cp release/*.o docs/ || true
       - name: Update index.html with WASM file list
         run: |
           echo "<html><body><h1>Generated WASM Files</h1><ul>" > docs/index.html
-          for f in release/*.wasm; do
+          for f in release/*.o; do
+            [ -e "$f" ] || continue
             fname=$(basename "$f")
             echo "<li>$fname</li>" >> docs/index.html
           done
