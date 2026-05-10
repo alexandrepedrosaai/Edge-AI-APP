@@ -1,0 +1,111 @@
+using System;
+using System.Collections.Generic;
+using System.Numerics;
+
+namespace MecânicaNewtoniana
+{
+    // Classe que representa um corpo celeste
+    public class CorpoCeleste
+    {
+        public string Nome { get; set; }
+        public double Massa { get; set; } // em kg
+        public Vector3 Posicao { get; set; } // em metros
+        public Vector3 Velocidade { get; set; } // em m/s
+
+        public CorpoCeleste(string nome, double massa, Vector3 posicao, Vector3 velocidade)
+        {
+            Nome = nome;
+            Massa = massa;
+            Posicao = posicao;
+            Velocidade = velocidade;
+        }
+    }
+
+    public class SimuladorNewton
+    {
+        private const double G = 6.67430e-11; // Constante gravitacional
+        public List<CorpoCeleste> Corpos { get; set; }
+
+        public SimuladorNewton()
+        {
+            Corpos = new List<CorpoCeleste>();
+        }
+
+        public void AdicionarCorpo(CorpoCeleste corpo)
+        {
+            Corpos.Add(corpo);
+        }
+
+        // Calcula força gravitacional entre dois corpos
+        private Vector3 ForcaGravitacional(CorpoCeleste a, CorpoCeleste b)
+        {
+            Vector3 direcao = b.Posicao - a.Posicao;
+            double distancia = direcao.Length();
+            double intensidade = G * a.Massa * b.Massa / (distancia * distancia);
+            return Vector3.Normalize(direcao) * (float)intensidade;
+        }
+
+        // Atualiza posições e velocidades
+        public void Atualizar(double deltaT)
+        {
+            Dictionary<CorpoCeleste, Vector3> forcas = new Dictionary<CorpoCeleste, Vector3>();
+
+            foreach (var corpo in Corpos)
+                forcas[corpo] = Vector3.Zero;
+
+            // Calcula forças entre todos os pares
+            for (int i = 0; i < Corpos.Count; i++)
+            {
+                for (int j = i + 1; j < Corpos.Count; j++)
+                {
+                    var f = ForcaGravitacional(Corpos[i], Corpos[j]);
+                    forcas[Corpos[i]] += f;
+                    forcas[Corpos[j]] -= f;
+                }
+            }
+
+            // Atualiza movimento (Segunda Lei de Newton: F = m*a)
+            foreach (var corpo in Corpos)
+            {
+                Vector3 aceleracao = forcas[corpo] / (float)corpo.Massa;
+                corpo.Velocidade += aceleracao * (float)deltaT;
+                corpo.Posicao += corpo.Velocidade * (float)deltaT;
+            }
+        }
+
+        public void MostrarEstado()
+        {
+            foreach (var corpo in Corpos)
+            {
+                Console.WriteLine($"{corpo.Nome}: Pos=({corpo.Posicao.X:F2},{corpo.Posicao.Y:F2},{corpo.Posicao.Z:F2}) Vel=({corpo.Velocidade.X:F2},{corpo.Velocidade.Y:F2},{corpo.Velocidade.Z:F2})");
+            }
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            SimuladorNewton sim = new SimuladorNewton();
+
+            // Sol
+            sim.AdicionarCorpo(new CorpoCeleste("Sol", 1.989e30, new Vector3(0, 0, 0), new Vector3(0, 0, 0)));
+
+            // Terra
+            sim.AdicionarCorpo(new CorpoCeleste("Terra", 5.972e24, new Vector3(1.496e11f, 0, 0), new Vector3(0, 29780, 0)));
+
+            // Marte
+            sim.AdicionarCorpo(new CorpoCeleste("Marte", 6.39e23, new Vector3(2.279e11f, 0, 0), new Vector3(0, 24077, 0)));
+
+            // Simulação de 365 dias
+            double segundosPorDia = 86400;
+            for (int dia = 0; dia < 365; dia++)
+            {
+                sim.Atualizar(segundosPorDia);
+                Console.WriteLine($"Dia {dia + 1}");
+                sim.MostrarEstado();
+                Console.WriteLine("-----------------------------");
+            }
+        }
+    }
+}
