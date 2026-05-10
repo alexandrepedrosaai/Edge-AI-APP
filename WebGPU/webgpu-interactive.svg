@@ -2,63 +2,69 @@
   <!-- Background Image -->
   <image xlink:href="webgpu-bg.jpg" width="1536" height="1024" />
   
-  <!-- Magnetic Field Lines (B-Field) - Subtle glowing curves -->
-  <g stroke="#40e0d0" stroke-width="2" fill="none" opacity="0.4">
-    <path d="M768,400 Q900,200 1100,400" stroke-dasharray="10,10">
-      <animate attributeName="stroke-dashoffset" from="100" to="0" dur="5s" repeatCount="indefinite" />
+  <defs>
+    <filter id="neonGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+    <filter id="ionGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Magnetic Field Lines (B-Field) - Thicker and stronger color -->
+  <g stroke="#00d4ff" stroke-width="6" fill="none" opacity="0.8" filter="url(#neonGlow)">
+    <path d="M768,400 Q950,100 1200,400" stroke-dasharray="20,15">
+      <animate attributeName="stroke-dashoffset" from="200" to="0" dur="3s" repeatCount="indefinite" />
     </path>
-    <path d="M768,400 Q636,200 436,400" stroke-dasharray="10,10">
-      <animate attributeName="stroke-dashoffset" from="0" to="100" dur="5s" repeatCount="indefinite" />
+    <path d="M768,400 Q586,100 336,400" stroke-dasharray="20,15">
+      <animate attributeName="stroke-dashoffset" from="0" to="200" dur="3s" repeatCount="indefinite" />
     </path>
-    <path d="M768,400 Q900,600 1100,400" stroke-dasharray="10,10">
-      <animate attributeName="stroke-dashoffset" from="100" to="0" dur="5s" repeatCount="indefinite" />
+    <path d="M768,400 Q950,700 1200,400" stroke-dasharray="20,15">
+      <animate attributeName="stroke-dashoffset" from="200" to="0" dur="3s" repeatCount="indefinite" />
     </path>
-    <path d="M768,400 Q636,600 436,400" stroke-dasharray="10,10">
-      <animate attributeName="stroke-dashoffset" from="0" to="100" dur="5s" repeatCount="indefinite" />
+    <path d="M768,400 Q586,700 336,400" stroke-dasharray="20,15">
+      <animate attributeName="stroke-dashoffset" from="0" to="200" dur="3s" repeatCount="indefinite" />
     </path>
   </g>
 
-  <!-- Flowing Electrons - Glowing cyan circles -->
-  <g>
-    <!-- Path 1: Top Right -->
-    <circle r="4" fill="#00ffff">
-      <animateMotion dur="2s" repeatCount="indefinite" path="M850,350 L1100,250 L1200,300" />
+  <!-- Flowing Ions - Neon Green and Strong -->
+  <g filter="url(#ionGlow)">
+    <!-- Ion 1 -->
+    <circle r="8" fill="#39ff14">
+      <animateMotion dur="1.5s" repeatCount="indefinite" path="M850,350 L1150,200 L1300,350" />
+      <animate attributeName="opacity" values="0;1;1;0" dur="1.5s" repeatCount="indefinite" />
+    </circle>
+    
+    <!-- Ion 2 -->
+    <circle r="8" fill="#39ff14">
+      <animateMotion dur="2s" repeatCount="indefinite" path="M680,450 L350,600 L250,450" begin="0.3s" />
       <animate attributeName="opacity" values="0;1;1;0" dur="2s" repeatCount="indefinite" />
-      <filter id="glow">
-        <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-        <feMerge>
-          <feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/>
-        </feMerge>
-      </filter>
-    </circle>
-    
-    <!-- Path 2: Bottom Left -->
-    <circle r="4" fill="#00ffff" filter="url(#glow)">
-      <animateMotion dur="2.5s" repeatCount="indefinite" path="M680,450 L400,550 L300,500" begin="0.5s" />
-      <animate attributeName="opacity" values="0;1;1;0" dur="2.5s" repeatCount="indefinite" />
     </circle>
 
-    <!-- Path 3: Towards Buffer Initialization -->
-    <circle r="4" fill="#ffaa00" filter="url(#glow)">
-      <animateMotion dur="3s" repeatCount="indefinite" path="M768,500 L768,750 L300,750" begin="1s" />
-      <animate attributeName="opacity" values="0;1;1;0" dur="3s" repeatCount="indefinite" />
+    <!-- Ion 3: Main Pipeline Flow -->
+    <circle r="10" fill="#39ff14">
+      <animateMotion dur="2.2s" repeatCount="indefinite" path="M768,450 L768,800 L250,800" begin="0.6s" />
+      <animate attributeName="opacity" values="0;1;1;0" dur="2.2s" repeatCount="indefinite" />
     </circle>
 
-    <!-- Path 4: Towards Data Loading -->
-    <circle r="4" fill="#ffaa00" filter="url(#glow)">
-      <animateMotion dur="2.8s" repeatCount="indefinite" path="M768,500 L768,750 L1200,750" begin="1.5s" />
-      <animate attributeName="opacity" values="0;1;1;0" dur="2.8s" repeatCount="indefinite" />
+    <!-- Ion 4: Main Pipeline Flow -->
+    <circle r="10" fill="#39ff14">
+      <animateMotion dur="1.8s" repeatCount="indefinite" path="M768,450 L768,800 L1300,800" begin="0.9s" />
+      <animate attributeName="opacity" values="0;1;1;0" dur="1.8s" repeatCount="indefinite" />
     </circle>
     
-    <!-- More electrons for density -->
-    <circle r="3" fill="#00ffff" opacity="0.8">
-      <animateMotion dur="1.8s" repeatCount="indefinite" path="M900,400 L1050,450 L1150,400" begin="0.2s" />
+    <!-- Rapid Ions -->
+    <circle r="6" fill="#39ff14">
+      <animateMotion dur="1.2s" repeatCount="indefinite" path="M950,450 L1100,500 L1250,450" begin="0.1s" />
     </circle>
-    <circle r="3" fill="#00ffff" opacity="0.8">
-      <animateMotion dur="2.2s" repeatCount="indefinite" path="M636,400 L486,450 L386,400" begin="0.7s" />
+    <circle r="6" fill="#39ff14">
+      <animateMotion dur="1.4s" repeatCount="indefinite" path="M586,450 L436,500 L286,450" begin="0.4s" />
     </circle>
   </g>
 
-  <!-- Labels -->
-  <text x="768" y="350" fill="#00ffff" font-family="Arial" font-size="14" text-anchor="middle" font-weight="bold" opacity="0.6">MAGNETIC FLUX ACTIVE</text>
+  <!-- High Intensity Labels -->
+  <text x="768" y="320" fill="#00d4ff" font-family="Arial" font-size="24" text-anchor="middle" font-weight="bold" filter="url(#neonGlow)">MAGNETIC FIELD: HIGH INTENSITY</text>
+  <text x="768" y="880" fill="#39ff14" font-family="Arial" font-size="24" text-anchor="middle" font-weight="bold" filter="url(#ionGlow)">NEON ION FLUX: MAX</text>
 </svg>
