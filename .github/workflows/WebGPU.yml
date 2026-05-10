@@ -56,6 +56,12 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y nasm git wabt
 
+      - name: Pull required Docker images
+        run: |
+          docker pull ghcr.io/alexandrepedrosaai/edge-ai-app/clusters-arrays-gpu:11
+          docker pull ghcr.io/alexandrepedrosaai/edge-ai-app/webgpu:latest
+          docker pull ghcr.io/alexandrepedrosaai/edge-ai-app/electric-and-magnetic-field-circuits:26
+
       - name: Install Emscripten
         run: |
           if [ ! -d "$HOME/.emsdk" ]; then
@@ -112,9 +118,18 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          files: ./wasm_builds/**/*.wasm
+          files: |
+            ./wasm_builds/**/*.wasm
+            ./wasm_builds/**/*.sm
           tag_name: webgpu-wasm-${{ github.run_number }}
-          name: WebGPU WASM Release #${{ github.run_number }}
+          name: "🧠 LLM NEURAL ML DL PROCEDURAL WebGPU WASM Release #${{ github.run_number }}"
+          body: |
+            🚀 **Automatic Neural Deployment**
+            
+            This release contains the latest WebAssembly neural modules and the silicon-colored 3D neural network integration.
+            
+            **Execution:** #${{ github.run_number }}
+            **Commit:** ${{ github.sha }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -183,11 +198,18 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/wasm-index.html
+          git fetch origin main
+          git reset --hard origin/main
+          
+          # Deploy WASM files to docs/ for GitHub Pages
+          mkdir -p docs/WEBASSEMBLY
+          find ./wasm_builds -name "*.wasm" -exec cp {} docs/WEBASSEMBLY/ \;
+          
+          git add docs/wasm-index.html docs/WEBASSEMBLY/*.wasm
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "Update docs/wasm-index.html with latest WASM modules [skip ci]"
+            git commit -m "Update docs/wasm-index.html and deploy WASM modules to Pages [skip ci]"
             git push origin HEAD:main
           fi
 
