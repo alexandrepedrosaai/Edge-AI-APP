@@ -56,7 +56,9 @@ jobs:
 
       # ⚡ Step 6: Pull WebGPU base image
       - name: Pull WebGPU base image
-        run: docker pull ghcr.io/alexandrepedrosaai/edge-ai-app/webgpu:latest
+        run: |
+          docker pull ghcr.io/alexandrepedrosaai/edge-ai-app/webgpu:latest
+          docker pull ghcr.io/alexandrepedrosaai/edge-ai-app/clusters-arrays-gpu:11
 
       # Step 7: Build All
       - name: Build All
@@ -142,6 +144,13 @@ jobs:
           echo "Failed to push after retries"
           exit 1
 
+      # Step 13.1: Upload all binaries WASM
+      - name: Upload all binaries WASM
+        uses: actions/upload-artifact@v4
+        with:
+          name: wasm-binaries
+          path: build/wasm/*.wasm
+
   release:
     needs: simulate
     runs-on: ubuntu-latest
@@ -155,7 +164,9 @@ jobs:
         with:
           tag_name: v${{ github.run_number }}
           name: "Automated Release ${{ github.run_number }}"
-          files: WebGPU/*
+          files: |
+            WebGPU/*
+            WEBASSEMBLY/*.wasm
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
