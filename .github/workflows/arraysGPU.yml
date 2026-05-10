@@ -79,9 +79,13 @@ jobs:
             git checkout main
             git reset --hard origin/main
 
+            # Copy to WebGPU and WEBASSEMBLY
             cp release/bin/* WebGPU/
-            cp release/bin/* docs/
             cp release/bin/* WEBASSEMBLY/
+            
+            # Copy to docs but EXCLUDE index.html to preserve the existing one
+            # We copy everything except index.html
+            find release/bin/ -maxdepth 1 -type f ! -name 'index.html' -exec cp {} docs/ \;
 
             git add WebGPU docs WEBASSEMBLY
 
@@ -90,7 +94,7 @@ jobs:
               exit 0
             fi
 
-            git commit -m "chore(ci): deploy arraysGPU binaries via github-actions[bot]" && \
+            git commit -m "chore(ci): deploy arraysGPU binaries via github-actions[bot] (excluding index.html from docs)" && \
             git push origin HEAD:main && exit 0
 
             git reset --hard HEAD~1 || true
@@ -153,5 +157,6 @@ jobs:
       - name: Build Docker image
         run: docker build -t ghcr.io/alexandrepedrosaai/edge-ai-app/clusters-arrays-gpu:${{ github.run_number }} .
 
+      # Step 9: Push Docker image
       - name: Push Docker image
         run: docker push ghcr.io/alexandrepedrosaai/edge-ai-app/clusters-arrays-gpu:${{ github.run_number }}
