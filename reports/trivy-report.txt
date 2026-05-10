@@ -6,7 +6,7 @@ Report Summary
 ├──────────────────────────────────────────────────────────────────────────────────┼───────────────────┼─────────────────┼─────────┤
 │ JAVA/pom.xml                                                                     │        pom        │        0        │    -    │
 ├──────────────────────────────────────────────────────────────────────────────────┼───────────────────┼─────────────────┼─────────┤
-│ JULIA/Manifest.toml                                                              │       julia       │       45        │    -    │
+│ JULIA/Manifest.toml                                                              │       julia       │       46        │    -    │
 ├──────────────────────────────────────────────────────────────────────────────────┼───────────────────┼─────────────────┼─────────┤
 │ Quantum-Lunar-Base-Simulation/LunarSim/bin/Debug/net6.0/QuantumLunarSimulationP- │    dotnet-core    │        0        │    -    │
 │ roject.deps.json                                                                 │                   │                 │         │
@@ -43,7 +43,7 @@ To disable this notice, set the TRIVY_DISABLE_VEX_NOTICE environment variable.
 
 JULIA/Manifest.toml (julia)
 ===========================
-Total: 45 (UNKNOWN: 0, LOW: 5, MEDIUM: 24, HIGH: 12, CRITICAL: 4)
+Total: 46 (UNKNOWN: 0, LOW: 5, MEDIUM: 24, HIGH: 12, CRITICAL: 5)
 
 ┌─────────────┬────────────────┬──────────┬──────────┬───────────────────┬───────────────┬──────────────────────────────────────────────────────────────┐
 │   Library   │ Vulnerability  │ Severity │  Status  │ Installed Version │ Fixed Version │                            Title                             │
@@ -119,7 +119,11 @@ Total: 45 (UNKNOWN: 0, LOW: 5, MEDIUM: 24, HIGH: 12, CRITICAL: 4)
 │             │                │          │          │                   │               │ git_index_add                                                │
 │             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2024-24577                   │
 ├─────────────┼────────────────┼──────────┤          ├───────────────────┼───────────────┼──────────────────────────────────────────────────────────────┤
-│ LibSSH2_jll │ CVE-2023-48795 │ MEDIUM   │          │ 1.11.0+1          │ 1.11.3+0      │ ssh: Prefix truncation attack on Binary Packet Protocol      │
+│ LibSSH2_jll │ CVE-2026-7598  │ CRITICAL │          │ 1.11.0+1          │ 1.11.101+0    │ libssh2: integer overflow via large username or password     │
+│             │                │          │          │                   │               │ arguments                                                    │
+│             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2026-7598                    │
+│             ├────────────────┼──────────┤          │                   ├───────────────┼──────────────────────────────────────────────────────────────┤
+│             │ CVE-2023-48795 │ MEDIUM   │          │                   │ 1.11.3+0      │ ssh: Prefix truncation attack on Binary Packet Protocol      │
 │             │                │          │          │                   │               │ (BPP)                                                        │
 │             │                │          │          │                   │               │ https://avd.aquasec.com/nvd/cve-2023-48795                   │
 ├─────────────┼────────────────┼──────────┤          ├───────────────────┼───────────────┼──────────────────────────────────────────────────────────────┤
