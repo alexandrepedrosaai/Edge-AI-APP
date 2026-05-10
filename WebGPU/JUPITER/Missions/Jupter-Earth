@@ -1,0 +1,103 @@
+namespace QuantumGravity {
+    open Microsoft.Quantum.Intrinsic;
+    open Microsoft.Quantum.Canon;
+
+    // ============================================
+    // File: GravityTerraMarte.qs
+    // Objetivo: Representar equações físicas e químicas
+    // da gravidade geral da Terra e Marte em analogia quântica
+    // ============================================
+
+    // Constantes físicas
+    function ConstanteGravitacional() : Double {
+        return 6.67430e-11; // N·m^2/kg^2
+    }
+
+    function MassaTerra() : Double { return 5.972e24; }
+    function RaioTerra() : Double { return 6.371e6; }
+    function MassaMarte() : Double { return 6.39e23; }
+    function RaioMarte() : Double { return 3.389e6; }
+
+    // Equação da gravidade: g = GM/R^2
+    function Gravidade(massa : Double, raio : Double) : Double {
+        return ConstanteGravitacional() * massa / (raio * raio);
+    }
+
+    // Velocidade de escape: v = sqrt(2GM/R)
+    function VelocidadeEscape(massa : Double, raio : Double) : Double {
+        return Sqrt(2.0 * ConstanteGravitacional() * massa / raio);
+    }
+
+    // Energia potencial gravitacional: U = -GMm/r
+    function EnergiaPotencial(massaPlaneta : Double, massaObjeto : Double, distancia : Double) : Double {
+        return -ConstanteGravitacional() * massaPlaneta * massaObjeto / distancia;
+    }
+
+    // ============================================
+    // Analogias quânticas para estados físicos/químicos
+    // ============================================
+
+    // Representa estados físicos da água em Marte
+    // |0⟩ = gelo, |1⟩ = vapor, superposição = líquido instável
+    operation EstadoAguaMarte() : Unit {
+        using (q = Qubit()) {
+            H(q); // superposição: líquido instável
+            let resultado = M(q);
+            if (resultado == Zero) {
+                Message("Água em Marte está no estado sólido (gelo).");
+            } else {
+                Message("Água em Marte está no estado gasoso (sublimação).");
+            }
+            Reset(q);
+        }
+    }
+
+    // Representa retenção atmosférica
+    // Terra: qubit estável, Marte: qubit decai rapidamente
+    operation AtmosferaTerraMarte() : Unit {
+        using (terra = Qubit()) {
+        using (marte = Qubit()) {
+            // Terra: mantém estado |1⟩ (atmosfera retida)
+            X(terra);
+
+            // Marte: aplica rotação pequena (perda de gases leves)
+            Ry(0.2, marte);
+
+            let rTerra = M(terra);
+            let rMarte = M(marte);
+
+            Message($"Atmosfera Terra: {rTerra}");
+            Message($"Atmosfera Marte: {rMarte}");
+
+            Reset(terra);
+            Reset(marte);
+        }}
+    }
+
+    // ============================================
+    // Programa principal
+    // ============================================
+    operation SimulacaoGravidade() : Unit {
+        // Gravidade
+        let gTerra = Gravidade(MassaTerra(), RaioTerra());
+        let gMarte = Gravidade(MassaMarte(), RaioMarte());
+        Message($"Gravidade na Terra: {gTerra} m/s^2");
+        Message($"Gravidade em Marte: {gMarte} m/s^2");
+
+        // Velocidade de escape
+        let vTerra = VelocidadeEscape(MassaTerra(), RaioTerra());
+        let vMarte = VelocidadeEscape(MassaMarte(), RaioMarte());
+        Message($"Velocidade de escape Terra: {vTerra} m/s");
+        Message($"Velocidade de escape Marte: {vMarte} m/s");
+
+        // Energia potencial exemplo
+        let UTerra = EnergiaPotencial(MassaTerra(), 1000.0, RaioTerra());
+        let UMarte = EnergiaPotencial(MassaMarte(), 1000.0, RaioMarte());
+        Message($"Energia potencial na Terra: {UTerra} J");
+        Message($"Energia potencial em Marte: {UMarte} J");
+
+        // Estados físicos e químicos
+        EstadoAguaMarte();
+        AtmosferaTerraMarte();
+    }
+}
