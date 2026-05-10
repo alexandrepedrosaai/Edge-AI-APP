@@ -95,8 +95,12 @@ jobs:
             actual_file=$(find . -name "$(basename "$asm_file_clean")" | head -n 1)
             if [ -n "$actual_file" ] && nasm -f elf64 "$actual_file" -o "$object_path" 2>"$log_path"; then
                source "$EMSDK_PATH/emsdk_env.sh"
-               emcc "$object_path" -o "$wasm_path" -s STANDALONE_WASM --no-entry || echo "Placeholder" > "$wasm_path"
-               status="built"
+               if emcc "$object_path" -o "$wasm_path" -s STANDALONE_WASM --no-entry; then
+                 status="built"
+               else
+                 echo "Placeholder" > "$wasm_path"
+                 status="built-with-placeholder"
+               fi
             else
                status="not-buildable"
                echo "Nasm failed for ${asm_file_clean}"
@@ -144,7 +148,7 @@ jobs:
           test -f "$meta"
           status=$(jq -r '.status' "$meta")
 
-          if [ "$status" = "built" ]; then
+          if [ "$status" = "built" ] || [ "$status" = "built-with-placeholder" ]; then
             object_path=$(jq -r '.object_path' "$meta")
             test -s "$object_path"
             file "$object_path"
@@ -180,7 +184,7 @@ jobs:
           test -f "$meta"
           jq -e '.source | endswith(".asm")' "$meta" > /dev/null
           status=$(jq -r '.status' "$meta")
-          if [ "$status" = "built" ]; then
+          if [ "$status" = "built" ] || [ "$status" = "built-with-placeholder" ]; then
             object_path=$(jq -r '.object_path' "$meta")
             test -s "$object_path"
           else
@@ -318,13 +322,17 @@ jobs:
           mkdir -p WEBASSEMBLY docs
           objects=(release/*.o)
           wasm_files=(release/*.wasm)
-          if [ ${#objects[@]} -eq 0 ]; then
-            echo "No object files to deploy."
+          if [ ${#objects[@]} -eq 0 ] && [ ${#wasm_files[@]} -eq 0 ]; then
+            echo "No object or WASM files to deploy."
             exit 0
           fi
-          cp "${objects[@]}" WEBASSEMBLY/
-          cp "${wasm_files[@]}" WEBASSEMBLY/
-          cp "${objects[@]}" docs/
+          if [ ${#objects[@]} -gt 0 ]; then
+            cp "${objects[@]}" WEBASSEMBLY/
+            cp "${objects[@]}" docs/
+          fi
+          if [ ${#wasm_files[@]} -gt 0 ]; then
+            cp "${wasm_files[@]}" WEBASSEMBLY/
+          fi
       - name: Update index.html with object file list
         run: |
           shopt -s nullglob
@@ -343,5 +351,9 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add WEBASSEMBLY docs
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
           git commit -m "Deploy WASM binaries and update docs [skip ci]"
           git push
