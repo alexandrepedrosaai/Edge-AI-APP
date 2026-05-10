@@ -1,0 +1,145 @@
+name: WebGPU Neural Q-learning Procedural Inference ML DL
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  # Build todos os ASM em paralelo
+  build-all:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Cache build outputs
+        uses: actions/cache@v4
+        with:
+          path: build
+          key: ${{ runner.os }}-asm-build-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-asm-build-
+      - name: Build ASM to WASM
+        run: |
+          mkdir -p build release
+          for f in WebGPU/*.asm; do
+            fname=$(basename "$f" .asm)
+            nasm -f wasm "$f" -o "build/$fname.wasm"
+            cp "build/$fname.wasm" release/
+          done
+
+  # Testes de integração
+  test-wasm:
+    runs-on: ubuntu-latest
+    needs: build-all
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Wasmtime
+        run: sudo apt-get update && sudo apt-get install -y wasmtime
+      - name: Run integration tests
+        run: |
+          for f in release/*.wasm; do
+            echo "Running $f..."
+            wasmtime run "$f" || exit 1
+          done
+
+  # Testes unitários simulados
+  unit-tests:
+    runs-on: ubuntu-latest
+    needs: test-wasm
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Wasmtime
+        run: sudo apt-get update && sudo apt-get install -y wasmtime
+      - name: Validate outputs
+        run: |
+          for f in release/*.wasm; do
+            echo "Validating $f..."
+            output=$(wasmtime run "$f" || true)
+            if [[ "$output" == *"EMF"* ]] || [[ "$output" == *"Flux"* ]]; then
+              echo "✅ $f output valid"
+            else
+              echo "❌ $f output invalid"
+              exit 1
+            fi
+          done
+
+  # Q-learning procedural
+  q-learning-test:
+    runs-on: ubuntu-latest
+    needs: unit-tests
+    steps:
+      - uses: actions/checkout@v3
+      - name: Simulate Q-learning reward loop
+        run: |
+          for f in release/*.wasm; do
+            echo "Q-learning simulation for $f..."
+            reward=0
+            for i in {1..5}; do
+              output=$(wasmtime run "$f" || true)
+              if [[ "$output" == *"EMF"* ]]; then
+                reward=$((reward+1))
+              else
+                reward=$((reward-1))
+              fi
+            done
+            echo "Final reward for $f: $reward"
+            if [ $reward -lt 0 ]; then
+              echo "❌ Q-learning failed for $f"
+              exit 1
+            else
+              echo "✅ Q-learning passed for $f"
+            fi
+          done
+
+  # Upload artefatos
+  upload-artifacts:
+    runs-on: ubuntu-latest
+    needs: q-learning-test
+    steps:
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wasm-binaries
+          path: release/*.wasm
+
+  # Release automático
+  release:
+    runs-on: ubuntu-latest
+    needs: upload-artifacts
+    steps:
+      - uses: actions/checkout@v3
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ github.run_number }}
+          files: release/*.wasm
+
+  # Deploy para Edge-AI-APP
+  deploy:
+    runs-on: ubuntu-latest
+    needs: release
+    steps:
+      - name: Checkout target repo
+        uses: actions/checkout@v3
+        with:
+          repository: alexandrepedrosaai/Edge-AI-APP
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Copy WASM binaries to WEBASSEMBLY and docs
+        run: |
+          mkdir -p WEBASSEMBLY docs
+          cp release/*.wasm WEBASSEMBLY/
+          cp release/*.wasm docs/
+      - name: Update index.html with WASM file list
+        run: |
+          echo "<html><body><h1>Generated WASM Files</h1><ul>" > docs/index.html
+          for f in release/*.wasm; do
+            fname=$(basename "$f")
+            echo "<li>$fname</li>" >> docs/index.html
+          done
+          echo "</ul></body></html>" >> docs/index.html
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add WEBASSEMBLY docs
+          git commit -m "Deploy WASM binaries and update docs"
+          git push
