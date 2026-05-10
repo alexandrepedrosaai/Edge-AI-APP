@@ -1,3 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDGE-AI 3D PIPELINE</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000;
+            color: #00ffcc;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        canvas {
+            display: block;
+        }
+        #ui-container {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
+            pointer-events: none;
+        }
+        .panel {
+            background: rgba(0, 20, 20, 0.8);
+            border: 1px solid #00ffcc;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            width: 300px;
+            pointer-events: auto;
+        }
+        .panel h2 {
+            margin: 0 0 10px 0;
+            font-size: 18px;
+            letter-spacing: 2px;
+            border-bottom: 1px solid #00ffcc;
+            padding-bottom: 5px;
+        }
+        .status-row {
+            margin: 5px 0;
+            font-size: 12px;
+        }
+        .status-value {
+            color: #00ff00;
+            font-weight: bold;
+        }
+        .component-list {
+            font-size: 11px;
+            line-height: 1.4;
+        }
+        .component-item {
+            color: #00ccff;
+        }
+        .download-btn {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 8px 15px;
+            border: 1px solid #00ffcc;
+            background: transparent;
+            color: #00ffcc;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+        .download-btn:hover {
+            background: #00ffcc;
+            color: #000;
+        }
+        #footer {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            text-align: right;
+            font-size: 12px;
+            pointer-events: none;
+        }
+        .footer-text {
+            margin: 2px 0;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div id="ui-container">
+        <div class="panel">
+            <h2>EDGE-AI 3D PIPELINE</h2>
+            <div class="status-row">Status: <span class="status-value">OPERATIONAL</span></div>
+            <div class="status-row" style="word-break: break-all;">Commit: <span id="commit-hash">4c350ef84b0801cc8cf1df677c7e14f5de8f9521</span></div>
+        </div>
+        <div class="panel">
+            <h2>NEURAL COMPONENTS</h2>
+            <div class="component-list">
+                <div class="component-item">>> WebQSharp_05.wasm</div>
+                <div class="component-item">>> WebQSharp_04.wasm</div>
+                <div class="component-item">>> WebQSharp_03.wasm</div>
+                <div class="component-item">>> WebQSharp_02.wasm</div>
+                <div class="component-item">>> WebQSharp_01.wasm</div>
+                <div class="component-item">>> WebGTU_05.wasm</div>
+                <div class="component-item">>> WebGTU_04.wasm</div>
+                <div class="component-item">>> WebGTU_03.wasm</div>
+                <div class="component-item">>> WebGTU_02.wasm</div>
+                <div class="component-item">>> WebGTU_01.wasm</div>
+                <div class="component-item">>> WebGPU_05.wasm</div>
+                <div class="component-item">>> WebGPU_04.wasm</div>
+                <div class="component-item">>> WebGPU_03.wasm</div>
+                <div class="component-item">>> WebGPU_02.wasm</div>
+                <div class="component-item">>> WebGPU_01.wasm</div>
+                <div class="component-item">>> UnifiedQuantum.wasm</div>
+                <div class="component-item">>> Tensorial_05.wasm</div>
+                <div class="component-item">>> Tensorial_04.wasm</div>
+                <div class="component-item">>> Tensorial_03.wasm</div>
+                <div class="component-item">>> Tensorial_02.wasm</div>
+                <div class="component-item">>> Tensorial_01.wasm</div>
+                <div class="component-item">>> QuantumLaw_05.wasm</div>
+                <div class="component-item">>> QuantumLaw_04.wasm</div>
+                <div class="component-item">>> QuantumLaw_03.wasm</div>
+                <div class="component-item">>> QuantumLaw_02.wasm</div>
+                <div class="component-item">>> QuantumLaw_01.wasm</div>
+                <div class="component-item">>> QuantumKernel_05.wasm</div>
+                <div class="component-item">>> QuantumKernel_04.wasm</div>
+                <div class="component-item">>> QuantumKernel_03.wasm</div>
+                <div class="component-item">>> QuantumKernel_02.wasm</div>
+                <div class="component-item">>> QuantumKernel_01.wasm</div>
+                <div class="component-item">>> Pipeline_05.wasm</div>
+                <div class="component-item">>> Pipeline_04.wasm</div>
+                <div class="component-item">>> Pipeline_03.wasm</div>
+                <div class="component-item">>> Pipeline_02.wasm</div>
+                <div class="component-item">>> Pipeline_01.wasm</div>
+                <div class="component-item">>> NeuralWave_05.wasm</div>
+                <div class="component-item">>> NeuralWave_04.wasm</div>
+                <div class="component-item">>> NeuralWave_03.wasm</div>
+                <div class="component-item">>> NeuralWave_02.wasm</div>
+                <div class="component-item">>> NeuralWave_01.wasm</div>
+                <div class="component-item">>> NeuralCircuit_05.wasm</div>
+                <div class="component-item">>> NeuralCircuit_04.wasm</div>
+                <div class="component-item">>> NeuralCircuit_03.wasm</div>
+                <div class="component-item">>> NeuralCircuit_02.wasm</div>
+                <div class="component-item">>> NeuralCircuit_01.wasm</div>
+                <div class="component-item">>> MatrixDerivative.wasm</div>
+                <div class="component-item">>> Majorana_05.wasm</div>
+                <div class="component-item">>> Majorana_04.wasm</div>
+                <div class="component-item">>> Majorana_03.wasm</div>
+                <div class="component-item">>> Majorana_02.wasm</div>
+                <div class="component-item">>> Majorana_01.wasm</div>
+                <div class="component-item">>> MajoranaOrbital_05.wasm</div>
+                <div class="component-item">>> MajoranaOrbital_04.wasm</div>
+                <div class="component-item">>> MajoranaOrbital_03.wasm</div>
+                <div class="component-item">>> MajoranaOrbital_02.wasm</div>
+                <div class="component-item">>> MajoranaOrbital_01.wasm</div>
+                <div class="component-item">>> LunarQuantum_05.wasm</div>
+                <div class="component-item">>> LunarQuantum_04.wasm</div>
+                <div class="component-item">>> LunarQuantum_03.wasm</div>
+                <div class="component-item">>> LunarQuantum_02.wasm</div>
+                <div class="component-item">>> LunarQuantum_01.wasm</div>
+                <div class="component-item">>> LunarBase_05.wasm</div>
+                <div class="component-item">>> LunarBase_04.wasm</div>
+                <div class="component-item">>> LunarBase_03.wasm</div>
+                <div class="component-item">>> LunarBase_02.wasm</div>
+                <div class="component-item">>> LunarBase_01.wasm</div>
+                <div class="component-item">>> KernelLaw_05.wasm</div>
+                <div class="component-item">>> KernelLaw_04.wasm</div>
+                <div class="component-item">>> KernelLaw_03.wasm</div>
+                <div class="component-item">>> KernelLaw_02.wasm</div>
+                <div class="component-item">>> KernelLaw_01.wasm</div>
+                <div class="component-item">>> AstroKernel_05.wasm</div>
+                <div class="component-item">>> AstroKernel_04.wasm</div>
+                <div class="component-item">>> AstroKernel_03.wasm</div>
+                <div class="component-item">>> AstroKernel_02.wasm</div>
+                <div class="component-item">>> AstroKernel_01.wasm</div>
+                <div class="component-item">>> ASM_HEX_10.wasm</div>
+                <div class="component-item">>> ASM_HEX_09.wasm</div>
+                <div class="component-item">>> ASM_HEX_08.wasm</div>
+                <div class="component-item">>> ASM_HEX_07.wasm</div>
+                <div class="component-item">>> ASM_HEX_06.wasm</div>
+                <div class="component-item">>> ASM_HEX_05.wasm</div>
+                <div class="component-item">>> ASM_HEX_04.wasm</div>
+                <div class="component-item">>> ASM_HEX_03.wasm</div>
+                <div class="component-item">>> ASM_HEX_02.wasm</div>
+                <div class="component-item">>> ASM_HEX_01.wasm</div>
+                <div class="component-item">>> FILE_10_Integrals.wasm</div>
+                <div class="component-item">>> FILE_09_Derivatives.wasm</div>
+                <div class="component-item">>> FILE_08_ExpModInvTrig.wasm</div>
+                <div class="component-item">>> FILE_07_Logarithmic.wasm</div>
+                <div class="component-item">>> FILE_06_Parabolic.wasm</div>
+                <div class="component-item">>> FILE_05_LinearPolymeric.wasm</div>
+                <div class="component-item">>> FILE_04_IrrationalWave.wasm</div>
+                <div class="component-item">>> FILE_03_Matrix.wasm</div>
+                <div class="component-item">>> FILE_02_Complex.wasm</div>
+                <div class="component-item">>> FILE_01_Trigonometric.wasm</div>
+                <div class="component-item">>> FILE_01.wasm</div>
+                <div class="component-item">>> AdvancedLinear.wasm</div>
+                <div class="component-item">>> Factor.wasm</div>
+                <div class="component-item">>> Functions.wasm</div>
+                <div class="component-item">>> Hyperbolic.wasm</div>
+                <div class="component-item">>> Linear.wasm</div>
+                <div class="component-item">>> Matrixderivate.wasm</div>
+                <div class="component-item">>> Ratio.wasm</div>
+                <div class="component-item">>> Unified.wasm</div>
 <html><head><title>Generated Files</title></head><body><h1>Generated Files</h1><ul>
 <li>accordion.o (Object File)</li>
 <li>alert-dialog.o (Object File)</li>
@@ -289,3 +491,150 @@
 <li>usepersistfn.wasm (WASM File)</li>
 <li>vite-config.wasm (WASM File)</li>
 </ul></body></html>
+            </div>
+        </div>
+        <div class="panel" style="padding: 10px; width: auto; display: inline-block;">
+            <a href="NeuralModel.sm" class="download-btn">[ DOWNLOAD MODEL.SM ]</a>
+        </div>
+    </div>
+
+    <div id="footer">
+        <div class="footer-text">Dynamic 3D Visualization</div>
+        <div class="footer-text">Powered by Three.js & WASM</div>
+    </div>
+
+    <script>
+        // Scene Setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0x404040);
+        scene.add(ambientLight);
+        const pointLight = new THREE.PointLight(0x00ffcc, 1, 100);
+        pointLight.position.set(10, 10, 10);
+        scene.add(pointLight);
+
+        // Neural Network Graph
+        const nodes = [];
+        const nodeCount = 40;
+        const nodeGeometry = new THREE.SphereGeometry(0.15, 16, 16);
+        const nodeMaterial = new THREE.MeshPhongMaterial({ color: 0x00ffcc, emissive: 0x00ffcc, emissiveIntensity: 0.5 });
+
+        for (let i = 0; i < nodeCount; i++) {
+            const node = new THREE.Mesh(nodeGeometry, nodeMaterial);
+            node.position.set(
+                (Math.random() - 0.5) * 15,
+                (Math.random() - 0.5) * 15,
+                (Math.random() - 0.5) * 15
+            );
+            node.velocity = new THREE.Vector3(
+                (Math.random() - 0.5) * 0.02,
+                (Math.random() - 0.5) * 0.02,
+                (Math.random() - 0.5) * 0.02
+            );
+            scene.add(node);
+            nodes.push(node);
+        }
+
+        // Connections (Lines)
+        const lineMaterial = new THREE.LineBasicMaterial({ color: 0x00ffcc, transparent: true, opacity: 0.2 });
+        const connections = [];
+
+        for (let i = 0; i < nodes.length; i++) {
+            for (let j = i + 1; j < nodes.length; j++) {
+                if (nodes[i].position.distanceTo(nodes[j].position) < 4) {
+                    const geometry = new THREE.BufferGeometry().setFromPoints([nodes[i].position, nodes[j].position]);
+                    const line = new THREE.Line(geometry, lineMaterial);
+                    scene.add(line);
+                    connections.push({ line, start: nodes[i], end: nodes[j] });
+                }
+            }
+        }
+
+        // Interactive Cube (from the second image)
+        const cubeGeometry = new THREE.BoxGeometry(2, 2, 2);
+        const cubeMaterials = [
+            new THREE.MeshBasicMaterial({ color: 0x00ffff }), // Cyan
+            new THREE.MeshBasicMaterial({ color: 0xffff00 }), // Yellow
+            new THREE.MeshBasicMaterial({ color: 0xff00ff }), // Magenta
+            new THREE.MeshBasicMaterial({ color: 0x00ff00 }), // Green
+            new THREE.MeshBasicMaterial({ color: 0x0000ff }), // Blue
+            new THREE.MeshBasicMaterial({ color: 0xff0000 })  // Red
+        ];
+        const cube = new THREE.Mesh(cubeGeometry, cubeMaterials);
+        cube.position.set(0, 0, 0);
+        scene.add(cube);
+
+        camera.position.z = 10;
+
+        // Interaction
+        let isDragging = false;
+        let previousMousePosition = { x: 0, y: 0 };
+
+        document.addEventListener('mousedown', () => isDragging = true);
+        document.addEventListener('mouseup', () => isDragging = false);
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                const deltaMove = {
+                    x: e.offsetX - previousMousePosition.x,
+                    y: e.offsetY - previousMousePosition.y
+                };
+
+                const rotationQuaternion = new THREE.Quaternion()
+                    .setFromEuler(new THREE.Euler(
+                        deltaMove.y * 0.01,
+                        deltaMove.x * 0.01,
+                        0,
+                        'XYZ'
+                    ));
+                
+                scene.quaternion.multiplyQuaternions(rotationQuaternion, scene.quaternion);
+            }
+            previousMousePosition = { x: e.offsetX, y: e.offsetY };
+        });
+
+        // Animation Loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Move nodes
+            nodes.forEach(node => {
+                node.position.add(node.velocity);
+                if (Math.abs(node.position.x) > 8) node.velocity.x *= -1;
+                if (Math.abs(node.position.y) > 8) node.velocity.y *= -1;
+                if (Math.abs(node.position.z) > 8) node.velocity.z *= -1;
+            });
+
+            // Update lines
+            connections.forEach(conn => {
+                const positions = conn.line.geometry.attributes.position.array;
+                positions[0] = conn.start.position.x;
+                positions[1] = conn.start.position.y;
+                positions[2] = conn.start.position.z;
+                positions[3] = conn.end.position.x;
+                positions[4] = conn.end.position.y;
+                positions[5] = conn.end.position.z;
+                conn.line.geometry.attributes.position.needsUpdate = true;
+            });
+
+            // Rotate cube slightly
+            cube.rotation.x += 0.005;
+            cube.rotation.y += 0.005;
+
+            renderer.render(scene, camera);
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        animate();
+    </script>
+</body>
+</html>
