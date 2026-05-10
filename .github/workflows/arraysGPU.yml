@@ -81,7 +81,6 @@ jobs:
 
             cp release/bin/* WebGPU/
             cp release/bin/* docs/
-            cp release/bin/index.html docs/index.html
             cp release/bin/* WEBASSEMBLY/
 
             git add WebGPU docs WEBASSEMBLY
