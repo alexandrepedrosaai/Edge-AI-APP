@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebGPU - Electron & Magnetic Field Demo</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#000; overflow:hidden; font-family:'Courier New',monospace; }
+  canvas { position:absolute; top:0; left:0; }
+  #bg { position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; opacity:0.6; }
+  #hud {
+    position:absolute; top:15px; left:15px; z-index:10;
+    background:rgba(0,10,20,0.85); border:1px solid #0af; border-radius:6px;
+    padding:12px 16px; color:#0ff; font-size:12px; min-width:200px;
+  }
+  #hud h2 { font-size:14px; margin-bottom:8px; color:#0af; letter-spacing:2px; }
+  #hud .row { margin:3px 0; }
+  #hud .val { color:#0f0; }
+  #footer {
+    position:absolute; bottom:10px; right:15px; color:#0af; font-size:11px;
+    opacity:0.7; z-index:10;
+  }
+</style>
+</head>
+<body>
+<img id="bg" src="webgpu-bg.jpg" alt="WebGPU Background">
+<canvas id="c"></canvas>
+<div id="hud">
+  <h2>⚡ ELECTRON FIELD</h2>
+  <div class="row">Electrons: <span class="val" id="eCount">0</span></div>
+  <div class="row">B-Field: <span class="val" id="bField">0.00 T</span></div>
+  <div class="row">Avg Velocity: <span class="val" id="avgV">0.00 c</span></div>
+  <div class="row">Status: <span class="val">ACTIVE</span></div>
+</div>
+<div id="footer">WebGPU Electron & Magnetic Field Simulation</div>
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+let W, H;
+
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+const NUM = 60;
+const electrons = [];
+for (let i = 0; i < NUM; i++) {
+  const cx = W / 2 + (Math.random() - 0.5) * W * 0.6;
+  const cy = H / 2 + (Math.random() - 0.5) * H * 0.6;
+  const r = 30 + Math.random() * 120;
+  const speed = 0.005 + Math.random() * 0.015;
+  const angle = Math.random() * Math.PI * 2;
+  const dir = Math.random() > 0.5 ? 1 : -1;
+  electrons.push({ cx, cy, r, speed, angle, dir, size: 2 + Math.random() * 3 });
+}
+
+const fieldLines = [];
+for (let i = 0; i < 25; i++) {
+  fieldLines.push({
+    x: Math.random() * W,
+    y: Math.random() * H,
+    len: 40 + Math.random() * 80,
+    angle: Math.random() * Math.PI * 2,
+    drift: 0.002 + Math.random() * 0.005
+  });
+}
+
+let t = 0;
+
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+
+  ctx.strokeStyle = 'rgba(0,100,255,0.25)';
+  ctx.lineWidth = 1;
+  fieldLines.forEach(f => {
+    f.angle += f.drift;
+    const x1 = f.x + Math.cos(f.angle) * f.len / 2;
+    const y1 = f.y + Math.sin(f.angle) * f.len / 2;
+    const x2 = f.x - Math.cos(f.angle) * f.len / 2;
+    const y2 = f.y - Math.sin(f.angle) * f.len / 2;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+    const ax = x1 - Math.cos(f.angle - 0.4) * 8;
+    const ay = y1 - Math.sin(f.angle - 0.4) * 8;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(ax, ay);
+    ctx.stroke();
+  });
+
+  ctx.strokeStyle = 'rgba(0,150,255,0.08)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 5; i++) {
+    const r = 80 + i * 60 + Math.sin(t * 0.02 + i) * 20;
+    ctx.beginPath();
+    ctx.arc(W / 2, H / 2, r, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  electrons.forEach(e => {
+    e.angle += e.speed * e.dir;
+    const x = e.cx + Math.cos(e.angle) * e.r;
+    const y = e.cy + Math.sin(e.angle) * e.r;
+
+    ctx.strokeStyle = 'rgba(0,200,255,0.15)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let j = 0; j < 15; j++) {
+      const ta = e.angle - e.speed * e.dir * j * 3;
+      const tx = e.cx + Math.cos(ta) * e.r;
+      const ty = e.cy + Math.sin(ta) * e.r;
+      if (j === 0) ctx.moveTo(tx, ty);
+      else ctx.lineTo(tx, ty);
+    }
+    ctx.stroke();
+
+    const grad = ctx.createRadialGradient(x, y, 0, x, y, e.size * 4);
+    grad.addColorStop(0, 'rgba(0,220,255,0.8)');
+    grad.addColorStop(0.5, 'rgba(0,150,255,0.3)');
+    grad.addColorStop(1, 'rgba(0,100,255,0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(x, y, e.size * 4, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#0ef';
+    ctx.beginPath();
+    ctx.arc(x, y, e.size, 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  document.getElementById('eCount').textContent = NUM;
+  document.getElementById('bField').textContent = (0.5 + Math.sin(t * 0.01) * 0.2).toFixed(2) + ' T';
+  document.getElementById('avgV').textContent = (0.12 + Math.sin(t * 0.015) * 0.03).toFixed(3) + ' c';
+
+  t++;
+  requestAnimationFrame(draw);
+}
+
+draw();
+</script>
+</body>
+</html>

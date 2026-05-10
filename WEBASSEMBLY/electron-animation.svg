@@ -1,0 +1,54 @@
+<svg width="800" height="400" viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="800" height="400" fill="#0a0a0a" />
+  
+  <!-- Magnetic Field Lines (B-Field) -->
+  <g stroke="#00f" stroke-width="1" opacity="0.3">
+    <line x1="0" y1="50" x2="800" y2="50" />
+    <line x1="0" y1="100" x2="800" y2="100" />
+    <line x1="0" y1="150" x2="800" y2="150" />
+    <line x1="0" y1="200" x2="800" y2="200" />
+    <line x1="0" y1="250" x2="800" y2="250" />
+    <line x1="0" y1="300" x2="800" y2="300" />
+    <line x1="0" y1="350" x2="800" y2="350" />
+  </g>
+
+  <!-- Flowing Electrons -->
+  <g>
+    <!-- Electron 1 -->
+    <circle r="3" fill="#0ff">
+      <animateMotion dur="3s" repeatCount="indefinite" path="M-10,100 Q400,50 810,100" />
+      <animate attributeName="opacity" values="0;1;1;0" dur="3s" repeatCount="indefinite" />
+    </circle>
+    <!-- Electron 2 -->
+    <circle r="3" fill="#0ff">
+      <animateMotion dur="2.5s" repeatCount="indefinite" path="M-10,200 Q400,250 810,200" begin="0.5s" />
+      <animate attributeName="opacity" values="0;1;1;0" dur="2.5s" repeatCount="indefinite" />
+    </circle>
+    <!-- Electron 3 -->
+    <circle r="3" fill="#0ff">
+      <animateMotion dur="4s" repeatCount="indefinite" path="M-10,300 Q400,200 810,300" begin="1s" />
+      <animate attributeName="opacity" values="0;1;1;0" dur="4s" repeatCount="indefinite" />
+    </circle>
+    <!-- Electron 4 -->
+    <circle r="3" fill="#0ff">
+      <animateMotion dur="3.2s" repeatCount="indefinite" path="M-10,150 Q400,100 810,150" begin="1.5s" />
+      <animate attributeName="opacity" values="0;1;1;0" dur="3.2s" repeatCount="indefinite" />
+    </circle>
+    <!-- Electron 5 -->
+    <circle r="3" fill="#0ff">
+      <animateMotion dur="2.8s" repeatCount="indefinite" path="M-10,250 Q400,350 810,250" begin="0.2s" />
+      <animate attributeName="opacity" values="0;1;1;0" dur="2.8s" repeatCount="indefinite" />
+    </circle>
+  </g>
+
+  <!-- Magnetic Field Labels -->
+  <text x="10" y="30" fill="#00f" font-family="Arial" font-size="12" font-weight="bold">B-FIELD (Magnetic Flux)</text>
+  <text x="700" y="380" fill="#0ff" font-family="Arial" font-size="12" font-weight="bold">ELECTRON FLOW</text>
+  
+  <!-- WebGPU Pipeline Overlay (Simplified) -->
+  <rect x="100" y="100" width="600" height="200" fill="none" stroke="#0ff" stroke-width="2" stroke-dasharray="5,5" opacity="0.5">
+    <animate attributeName="stroke-dashoffset" from="0" to="20" dur="1s" repeatCount="indefinite" />
+  </rect>
+  <text x="400" y="205" fill="#0ff" font-family="Arial" font-size="20" text-anchor="middle" opacity="0.8">WebGPU PIPELINE</text>
+</svg>
