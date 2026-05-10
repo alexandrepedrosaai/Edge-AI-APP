@@ -160,6 +160,7 @@ jobs:
 
       # Step 14: Automatic Release
       - name: Create Release
+        id: create_release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ github.run_number }}
@@ -169,6 +170,27 @@ jobs:
             WEBASSEMBLY/*.wasm
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Step 14.1: Deploy Release Artifacts to WEBASSEMBLY folder
+      - name: Deploy Release Artifacts to WEBASSEMBLY
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          git checkout main
+          git reset --hard origin/main
+          
+          mkdir -p WEBASSEMBLY
+          # Copy files from the build/wasm directory (which were used for release)
+          cp build/wasm/*.wasm WEBASSEMBLY/ || true
+          
+          git add WEBASSEMBLY/
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore(ci): deploy release WASM artifacts to WEBASSEMBLY folder"
+            git push origin HEAD:main
+          fi
 
   docker:
     needs: release
