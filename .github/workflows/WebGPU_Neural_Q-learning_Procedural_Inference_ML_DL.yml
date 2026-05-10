@@ -335,23 +335,4 @@ jobs:
             cp "${wasm_files[@]}" docs/
           fi
 
-          # Update index.html
-          echo "<html><head><title>Generated Files</title></head><body><h1>Generated Files</h1><ul>" > docs/index.html
-          for f in WEBASSEMBLY/*.o; do
-            fname=$(basename "$f")
-            echo "<li>$fname (Object File)</li>" >> docs/index.html
-          done
-          for f in WEBASSEMBLY/*.wasm; do
-            fname=$(basename "$f")
-            echo "<li>$fname (WASM File)</li>" >> docs/index.html
-          done
-          echo "</ul></body></html>" >> docs/index.html
-
-          git add WEBASSEMBLY/*.o WEBASSEMBLY/*.wasm docs/index.html docs/*.o docs/*.wasm
-          
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "Deploy WASM binaries and update docs [skip ci]"
-            git push origin HEAD:main
-          fi
+  
