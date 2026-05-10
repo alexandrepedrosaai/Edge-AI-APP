@@ -1,0 +1,133 @@
+namespace QuantumGravity {
+    open Microsoft.Quantum.Intrinsic;
+    open Microsoft.Quantum.Canon;
+
+    // ============================================
+    // File 1: Constantes físicas
+    // ============================================
+    function ConstanteGravitacional() : Double { return 6.67430e-11; }
+    function MassaTerra() : Double { return 5.972e24; }
+    function RaioTerra() : Double { return 6.371e6; }
+    function MassaMarte() : Double { return 6.39e23; }
+    function RaioMarte() : Double { return 3.389e6; }
+
+    // ============================================
+    // File 2: Gravidade superficial
+    // g = GM/R^2
+    // ============================================
+    function Gravidade(massa : Double, raio : Double) : Double {
+        return ConstanteGravitacional() * massa / (raio * raio);
+    }
+
+    // ============================================
+    // File 3: Velocidade de escape
+    // v = sqrt(2GM/R)
+    // ============================================
+    function VelocidadeEscape(massa : Double, raio : Double) : Double {
+        return Sqrt(2.0 * ConstanteGravitacional() * massa / raio);
+    }
+
+    // ============================================
+    // File 4: Energia potencial gravitacional
+    // U = -GMm/r
+    // ============================================
+    function EnergiaPotencial(massaPlaneta : Double, massaObjeto : Double, distancia : Double) : Double {
+        return -ConstanteGravitacional() * massaPlaneta * massaObjeto / distancia;
+    }
+
+    // ============================================
+    // File 5: Estados físicos da água em Marte
+    // |0⟩ = gelo, |1⟩ = vapor
+    // ============================================
+    operation EstadoAguaMarte() : Unit {
+        using (q = Qubit()) {
+            H(q); // superposição = líquido instável
+            let resultado = M(q);
+            if (resultado == Zero) {
+                Message("Água em Marte está no estado sólido (gelo).");
+            } else {
+                Message("Água em Marte está no estado gasoso (sublimação).");
+            }
+            Reset(q);
+        }
+    }
+
+    // ============================================
+    // File 6: Atmosfera Terra vs Marte
+    // Terra retém gases, Marte perde
+    // ============================================
+    operation AtmosferaTerraMarte() : Unit {
+        using (terra = Qubit()) {
+        using (marte = Qubit()) {
+            X(terra); // Terra mantém atmosfera
+            Ry(0.2, marte); // Marte perde gases leves
+
+            let rTerra = M(terra);
+            let rMarte = M(marte);
+
+            Message($"Atmosfera Terra: {rTerra}");
+            Message($"Atmosfera Marte: {rMarte}");
+
+            Reset(terra);
+            Reset(marte);
+        }}
+    }
+
+    // ============================================
+    // File 7: Clausius-Clapeyron (transição de fases)
+    // dP/dT = L / (T * ΔV)
+    // ============================================
+    function ClausiusClapeyron(L : Double, T : Double, deltaV : Double) : Double {
+        return L / (T * deltaV);
+    }
+
+    // ============================================
+    // File 8: Lei de Graham (difusão atmosférica)
+    // r1/r2 = sqrt(M2/M1)
+    // ============================================
+    function LeiDeGraham(M1 : Double, M2 : Double) : Double {
+        return Sqrt(M2 / M1);
+    }
+
+    // ============================================
+    // File 9: Energia orbital total
+    // E = -GMm/(2r)
+    // ============================================
+    function EnergiaOrbital(massaPlaneta : Double, massaObjeto : Double, raio : Double) : Double {
+        return -ConstanteGravitacional() * massaPlaneta * massaObjeto / (2.0 * raio);
+    }
+
+    // ============================================
+    // File 10: Programa principal
+    // ============================================
+    operation SimulacaoGravidade() : Unit {
+        let gTerra = Gravidade(MassaTerra(), RaioTerra());
+        let gMarte = Gravidade(MassaMarte(), RaioMarte());
+        Message($"Gravidade na Terra: {gTerra} m/s^2");
+        Message($"Gravidade em Marte: {gMarte} m/s^2");
+
+        let vTerra = VelocidadeEscape(MassaTerra(), RaioTerra());
+        let vMarte = VelocidadeEscape(MassaMarte(), RaioMarte());
+        Message($"Velocidade de escape Terra: {vTerra} m/s");
+        Message($"Velocidade de escape Marte: {vMarte} m/s");
+
+        let UTerra = EnergiaPotencial(MassaTerra(), 1000.0, RaioTerra());
+        let UMarte = EnergiaPotencial(MassaMarte(), 1000.0, RaioMarte());
+        Message($"Energia potencial na Terra: {UTerra} J");
+        Message($"Energia potencial em Marte: {UMarte} J");
+
+        EstadoAguaMarte();
+        AtmosferaTerraMarte();
+
+        let dPdT = ClausiusClapeyron(2.26e6, 273.0, 0.001);
+        Message($"Clausius-Clapeyron (água): {dPdT}");
+
+        let difusao = LeiDeGraham(2.0, 28.0);
+        Message($"Lei de Graham (H2 vs N2): {difusao}");
+
+        let EOrbTerra = EnergiaOrbital(MassaTerra(), 1000.0, RaioTerra());
+        let EOrbMarte = EnergiaOrbital(MassaMarte(), 1000.0, RaioMarte());
+        Message($"Energia orbital Terra: {EOrbTerra}");
+        Message($"Energia orbital Marte: {EOrbMarte}");
+    }
+}
