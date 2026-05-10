@@ -52,7 +52,7 @@ jobs:
         run: |
           source "$EMSDK_PATH/emsdk_env.sh"
 
-      - name: Build ASM object (per file)
+      - name: Build ASM object and WASM (per file)
         run: |
           docker pull "$CLUSTERS_GPU_IMAGE"
           docker pull "$WEBGPU_IMAGE"
@@ -63,15 +63,25 @@ jobs:
           asm_file="${{ matrix.asm_file }}"
           artifact="${{ matrix.artifact }}"
           object_path="release/${artifact}.o"
+          wasm_path="release/${artifact}.wasm"
           log_path="release/${artifact}.log"
 
+          # 1. Compile ASM to Object file
           if nasm -f elf64 "$asm_file" -o "$object_path" 2>"$log_path"; then
+            # 2. Convert Object to WASM using Emscripten (as in WebGPU.yml example)
             source "$EMSDK_PATH/emsdk_env.sh"
-            emcc "$object_path" -o "release/${artifact}.wasm" -s STANDALONE_WASM || echo "Warning: Direct link failed, creating placeholder for ${artifact}.wasm"
-            status="built"
+            if emcc "$object_path" -o "$wasm_path" -s STANDALONE_WASM --no-entry; then
+              status="built"
+              echo "Successfully built $wasm_path"
+            else
+              echo "Warning: Emcc failed for ${artifact}, creating placeholder"
+              echo "Placeholder for ${artifact}" > "$wasm_path"
+              status="built-with-placeholder"
+            fi
             rm -f "$log_path"
           else
             status="not-buildable"
+            echo "Nasm failed for ${asm_file}"
           fi
 
           jq -n \
@@ -215,7 +225,7 @@ jobs:
           name: asm-binaries-tested
           path: release
       - id: object-check
-        name: Check compiled object files
+        name: Check compiled object and WASM files
         run: |
           docker pull "$CLUSTERS_GPU_IMAGE"
           docker pull "$WEBGPU_IMAGE"
@@ -223,13 +233,14 @@ jobs:
           shopt -s nullglob
           objects=(release/*.o)
           wasm_files=(release/*.wasm)
-          if [ ${#objects[@]} -gt 0 ]; then
-            echo "has_objects=true" >> "$GITHUB_OUTPUT"
+          echo "Found ${#objects[@]} object files and ${#wasm_files[@]} WASM files."
+          if [ ${#objects[@]} -gt 0 ] || [ ${#wasm_files[@]} -gt 0 ]; then
+            echo "has_assets=true" >> "$GITHUB_OUTPUT"
           else
-            echo "has_objects=false" >> "$GITHUB_OUTPUT"
+            echo "has_assets=false" >> "$GITHUB_OUTPUT"
           fi
       - name: Create Release
-        if: ${{ steps.object-check.outputs.has_objects == 'true' }}
+        if: ${{ steps.object-check.outputs.has_assets == 'true' }}
         uses: softprops/action-gh-release@v1
         with:
           tag_name: neural-wasm-${{ github.run_number }}
