@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Edge-AI-APP Dashboard 3D</title>
+  <style>
+    body { margin:0; background:#111; color:#eee; font-family:Arial; }
+    header, footer { background:#222; padding:10px; text-align:center; }
+    h1 { margin:0; font-size:20px; color:#0ff; }
+    #tooltip { position:absolute; background:#222; color:#fff; padding:5px; border-radius:4px; font-size:12px; display:none; }
+    footer { font-size:12px; color:#888; }
+    canvas { display:block; }
+  </style>
+</head>
+<body>
+  <header><h1>Edge-AI-APP / WebGPU Dashboard 3D</h1></header>
+  <div id="tooltip"></div>
+
+  <script type="module">
+    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+
+    let scene=new THREE.Scene();
+    let camera=new THREE.PerspectiveCamera(75,window.innerWidth/window.innerHeight,0.1,1000);
+    let renderer=new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth,window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // Luz ambiente
+    scene.add(new THREE.AmbientLight(0xffffff,0.8));
+
+    // Barras dos clusters
+    const colors={blue:0x0000ff,green:0x00ff00,red:0xff0000,quantum:0x800080};
+    let bars={};
+    let metrics={blue:10,green:20,red:30,quantum:40};
+    let history={blue:[],green:[],red:[],quantum:[]};
+    let compare=[];
+
+    let i=0;
+    for(let key in colors){
+      let geometry=new THREE.BoxGeometry(1,metrics[key]/10,1);
+      let material=new THREE.MeshPhongMaterial({color:colors[key]});
+      let bar=new THREE.Mesh(geometry,material);
+      bar.position.set(i*2-3,metrics[key]/20,0);
+      scene.add(bar);
+      bars[key]=bar;
+      i++;
+    }
+
+    camera.position.z=10;
+
+    function animate(){
+      requestAnimationFrame(animate);
+      // Atualiza métricas
+      metrics.blue=(metrics.blue+Math.random()*2)%100;
+      metrics.green=(metrics.green+Math.random()*3)%100;
+      metrics.red=(metrics.red+Math.random()*4)%100;
+      metrics.quantum=(metrics.quantum+Math.random()*5)%100;
+
+      for(let key in history){
+        history[key].push(metrics[key]);
+        if(history[key].length>200) history[key].shift();
+        bars[key].scale.y=metrics[key]/10;
+        bars[key].position.y=metrics[key]/20;
+      }
+
+      renderer.render(scene,camera);
+    }
+
+    animate();
+
+    // Clique para comparar clusters
+    window.addEventListener('click',(e)=>{
+      let keys=Object.keys(bars);
+      let idx=Math.floor(Math.random()*keys.length);
+      if(compare.length<2 && !compare.includes(keys[idx])) compare.push(keys[idx]);
+      console.log("Comparando:",compare);
+    });
+  </script>
+
+  <footer><p>© 2026 Quantum Neural Q-learning · Alexandre Pedrosa</p></footer>
+</body>
+</html>
