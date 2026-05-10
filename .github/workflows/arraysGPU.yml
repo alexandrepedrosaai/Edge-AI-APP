@@ -60,27 +60,35 @@ jobs:
       # Step 5: Deploy artifacts into repo folders
       - name: Deploy artifacts into folders
         run: |
-          cp release/bin/* WebGPU/
-          cp release/bin/* docs/
-          cp release/bin/index.html docs/index.html
-          cp release/bin/* WEBASSEMBLY/
-
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git fetch origin main
-          git checkout main
-          git pull --rebase origin main
+          for i in 1 2 3; do
+            git fetch origin main
+            git checkout main
+            git reset --hard origin/main
 
-          git add WebGPU docs WEBASSEMBLY
+            cp release/bin/* WebGPU/
+            cp release/bin/* docs/
+            cp release/bin/index.html docs/index.html
+            cp release/bin/* WEBASSEMBLY/
 
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
-            exit 0
-          fi
+            git add WebGPU docs WEBASSEMBLY
 
-          git commit -m "chore(ci): deploy arraysGPU binaries via github-actions[bot]"
-          git push origin HEAD:main
+            if git diff --cached --quiet; then
+              echo "No changes to commit"
+              exit 0
+            fi
+
+            git commit -m "chore(ci): deploy arraysGPU binaries via github-actions[bot]" && \
+            git push origin HEAD:main && exit 0
+
+            git reset --hard HEAD~1 || true
+            sleep 2
+          done
+
+          echo "Failed to push after retries"
+          exit 1
 
       # Step 6: Automated release tagging
       - name: Create Release
