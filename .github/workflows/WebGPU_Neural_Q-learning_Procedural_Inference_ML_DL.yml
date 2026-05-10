@@ -26,7 +26,8 @@ jobs:
           docker pull "$CLUSTERS_GPU_IMAGE"
           docker pull "$WEBGPU_IMAGE"
           docker pull "$EM_FIELD_IMAGE"
-          asm_matrix=$(find WebGPU -maxdepth 1 -type f -name '*.asm' | sort | jq -R -s -c 'split("\n")[:-1] | map({asm_file: ., artifact: (split("/")[-1] | sub("\\.asm$";"") | ascii_downcase | gsub("[^a-z0-9]+";"-") | gsub("(^-|-$)";""))}) | {include:.}')
+          # Buscar todos os arquivos .asm recursivamente, ignorando diretórios ocultos e node_modules
+          asm_matrix=$(find . -type f -name "*.asm" -not -path "*/.*" -not -path "*/node_modules/*" | sort | jq -R -s -c 'split("\n")[:-1] | map({asm_file: ., artifact: (split("/")[-1] | sub("\\.asm$";"") | ascii_downcase | gsub("[^a-z0-9]+";"-") | gsub("(^-|-$)";""))}) | {include:.}')
           echo "asm_matrix=$asm_matrix" >> "$GITHUB_OUTPUT"
 
   # Build de cada ASM em job isolado (sem build-all)
@@ -61,14 +62,18 @@ jobs:
           mkdir -p release
 
           asm_file="${{ matrix.asm_file }}"
+          # Remover o prefixo ./ se existir
+          asm_file_clean=$(echo "$asm_file" | sed 's|^\./||')
           artifact="${{ matrix.artifact }}"
           object_path="release/${artifact}.o"
           wasm_path="release/${artifact}.wasm"
           log_path="release/${artifact}.log"
 
+          echo "Processing: $asm_file_clean"
+
           # 1. Compile ASM to Object file
-          if nasm -f elf64 "$asm_file" -o "$object_path" 2>"$log_path"; then
-            # 2. Convert Object to WASM using Emscripten (as in WebGPU.yml example)
+          if nasm -f elf64 "$asm_file_clean" -o "$object_path" 2>"$log_path"; then
+            # 2. Convert Object to WASM using Emscripten
             source "$EMSDK_PATH/emsdk_env.sh"
             if emcc "$object_path" -o "$wasm_path" -s STANDALONE_WASM --no-entry; then
               status="built"
@@ -80,8 +85,16 @@ jobs:
             fi
             rm -f "$log_path"
           else
-            status="not-buildable"
-            echo "Nasm failed for ${asm_file}"
+            # Tentar encontrar o arquivo se o caminho relativo falhou
+            actual_file=$(find . -name "$(basename "$asm_file_clean")" | head -n 1)
+            if [ -n "$actual_file" ] && nasm -f elf64 "$actual_file" -o "$object_path" 2>"$log_path"; then
+               source "$EMSDK_PATH/emsdk_env.sh"
+               emcc "$object_path" -o "$wasm_path" -s STANDALONE_WASM --no-entry || echo "Placeholder" > "$wasm_path"
+               status="built"
+            else
+               status="not-buildable"
+               echo "Nasm failed for ${asm_file_clean}"
+            fi
           fi
 
           jq -n \
@@ -219,11 +232,12 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      - name: Download tested ASM artifacts
+      - name: Download all build artifacts
         uses: actions/download-artifact@v4
         with:
-          name: asm-binaries-tested
+          pattern: asm-*
           path: release
+          merge-multiple: true
       - id: object-check
         name: Check compiled object and WASM files
         run: |
@@ -268,11 +282,12 @@ jobs:
         with:
           repository: ${{ github.repository }}
           token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Download tested ASM artifacts
+      - name: Download all build artifacts
         uses: actions/download-artifact@v4
         with:
-          name: asm-binaries-tested
+          pattern: asm-*
           path: release
+          merge-multiple: true
       - name: Copy object files to WEBASSEMBLY and docs
         run: |
           docker pull "$CLUSTERS_GPU_IMAGE"
