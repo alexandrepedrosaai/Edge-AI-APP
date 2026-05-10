@@ -68,11 +68,13 @@ jobs:
       # Step 8: Install WASM Tools
       - name: Install WebAssembly tools
         run: |
+          set -euo pipefail
           sudo apt-get update
           sudo apt-get install -y wabt
-          curl -L https://github.com/WebAssembly/binaryen/releases/latest/download/binaryen-version_122-x86_64-linux.tar.gz -o binaryen.tar.gz
+          curl -fsSL https://github.com/WebAssembly/binaryen/releases/download/version_122/binaryen-version_122-x86_64-linux.tar.gz -o binaryen.tar.gz
           tar -xzf binaryen.tar.gz
-          sudo cp binaryen-*/bin/wasm-opt /usr/local/bin/
+          sudo cp binaryen-version_122/bin/wasm-opt /usr/local/bin/
+          wasm-opt --version
 
       # Step 9: Convert to WASM (Modified to handle only WASM if exists)
       - name: Prepare WASM directory
