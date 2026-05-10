@@ -5,12 +5,18 @@ on:
     branches:
       - main
 
+concurrency:
+  group: ml-dl-procedural-release-main
+  cancel-in-progress: false
+
 jobs:
   simulate:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       # ⚡ Step 1: Electric Laws
       - name: Apply Electric Laws
@@ -59,28 +65,39 @@ jobs:
           cp WebGPU/* build/bin/
           echo "Build All completed: all source files copied."
 
-      # Step 8: Convert to WASM
-      - name: Convert files to WASM
+      # Step 8: Install WASM Tools
+      - name: Install WebAssembly tools
         run: |
-          for f in build/bin/*; do
-            wasm-pack build $f --out-dir build/wasm || echo "Simulated conversion for $f"
-          done
+          sudo apt-get update
+          sudo apt-get install -y wabt
+          curl -L https://github.com/WebAssembly/binaryen/releases/latest/download/binaryen-version_122-x86_64-linux.tar.gz -o binaryen.tar.gz
+          tar -xzf binaryen.tar.gz
+          sudo cp binaryen-*/bin/wasm-opt /usr/local/bin/
 
-      # Step 9: Validate WASM
+      # Step 9: Convert to WASM (Modified to handle only WASM if exists)
+      - name: Prepare WASM directory
+        run: |
+          mkdir -p build/wasm
+          # If you have actual WASM files or want to copy JS files as placeholders:
+          cp -r build/bin/* build/wasm/ || true
+
+      # Step 10: Validate WASM
       - name: Validate WASM binaries
         run: |
-          for w in build/wasm/*; do
-            wasm-validate $w || echo "Validation failed for $w"
+          shopt -s nullglob
+          for w in build/wasm/*.wasm; do
+            wasm-validate "$w" || echo "Validation failed for $w"
           done
 
-      # Step 10: Optimize WASM
+      # Step 11: Optimize WASM
       - name: Optimize WASM binaries
         run: |
-          for w in build/wasm/*; do
-            wasm-opt -O3 $w -o $w
+          shopt -s nullglob
+          for w in build/wasm/*.wasm; do
+            wasm-opt -O3 "$w" -o "$w"
           done
 
-      # Step 11: Simulate Neural Circuits
+      # Step 12: Simulate Neural Circuits
       - name: Simulate Neural Circuits
         run: |
           echo "Simulating LLM, ML, DL, Procedural circuits..."
@@ -88,18 +105,40 @@ jobs:
           node build/bin/dashboard.js --trace-circuits
           node build/bin/websocket.js --sync-circuits
 
-      # Step 12: Deploy artifacts via github-actions[bot]
+      # Step 13: Deploy artifacts via github-actions[bot]
       - name: Deploy artifacts into folders
         run: |
-          cp build/wasm/* WebGPU/
-          cp build/wasm/* docs/
-          cp build/wasm/index.html docs/index.html
-          cp build/wasm/* WEBASSEMBLY/
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add WebGPU docs WEBASSEMBLY
-          git commit -m "ci: deploy WASM + WebGPU + docs + index.html via github-actions[bot]"
-          git push
+
+          for i in 1 2 3; do
+            git fetch origin main
+            git checkout main
+            git reset --hard origin/main
+
+            # Copy artifacts but EXCLUDE index.html from docs
+            cp -r build/wasm/* WebGPU/
+            cp -r build/wasm/* WEBASSEMBLY/
+            
+            # Copy to docs but EXCLUDE index.html to preserve the existing one
+            find build/wasm/ -maxdepth 1 -type f ! -name 'index.html' -exec cp {} docs/ \;
+
+            git add WebGPU docs WEBASSEMBLY
+
+            if git diff --cached --quiet; then
+              echo "No changes to commit"
+              exit 0
+            fi
+
+            git commit -m "chore(ci): deploy WASM + WebGPU assets (excluding index.html from docs)" && \
+            git push origin HEAD:main && exit 0
+
+            git reset --hard HEAD~1 || true
+            sleep 2
+          done
+
+          echo "Failed to push after retries"
+          exit 1
 
   release:
     needs: simulate
@@ -108,13 +147,13 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      # Step 13: Automatic Release
+      # Step 14: Automatic Release
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ github.run_number }}
           name: "Automated Release ${{ github.run_number }}"
-          files: build/wasm/*
+          files: WebGPU/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -125,10 +164,10 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      # Step 14: Build Docker image
+      # Step 15: Build Docker image
       - name: Build Docker image
         run: docker build -t ghcr.io/alexandrepedrosaai/edge-ai-app/electric-and-magnetic-field-circuits:${{ github.run_number }} .
 
-      # Step 15: Push Docker image
+      # Step 16: Push Docker image
       - name: Push Docker image
         run: docker push ghcr.io/alexandrepedrosaai/edge-ai-app/electric-and-magnetic-field-circuits:${{ github.run_number }}
