@@ -128,9 +128,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Step 7: Build Docker image with arraysGPU name
+      # Step 7: Build Docker image with clusters-arrays-gpu name
       - name: Build Docker image
-        run: docker build -t ghcr.io/alexandrepedrosaai/edge-ai-app/arraysGPU:${{ github.run_number }} .
+        run: docker build -t ghcr.io/alexandrepedrosaai/edge-ai-app/clusters-arrays-gpu:${{ github.run_number }} .
 
       - name: Push Docker image
-        run: docker push ghcr.io/alexandrepedrosaai/edge-ai-app/arraysGPU:${{ github.run_number }}
+        run: docker push ghcr.io/alexandrepedrosaai/edge-ai-app/clusters-arrays-gpu:${{ github.run_number }}
