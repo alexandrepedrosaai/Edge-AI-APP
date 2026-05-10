@@ -4,7 +4,7 @@
 
 Interactive simulation showing electrons orbiting under a magnetic field, rendered over the WebGPU pipeline visualization.
 
-![WebGPU Interactive Animation](webgpu-interactive.svg)
+![WebGPU Electron Flux & Magnetic Field](webgpu-flux.gif)
 
 > Electrons circulating through the WebGPU buffer initialization and data loading pipeline under an applied magnetic field (B-field).
 
@@ -23,7 +23,8 @@ Interactive simulation showing electrons orbiting under a magnetic field, render
 |------|-------------|
 | `electron-demo.html` | Interactive electron & magnetic field simulation |
 | `webgpu-interactive.svg` | Animated SVG overlaying the original background |
-| `webgpu-bg.jpg` | Original WebGPU pipeline background image |
+| `webgpu-flux.gif` | Animated GIF with electron flux and magnetic field |
+| `webgpu_base.jpg` | Original WebGPU pipeline background image |
 | `index.html` | Edge-AI-APP Dashboard 3D |
 | `*.wgsl` | WebGPU shader files |
 | `*.asm` | Assembly circuit files |
