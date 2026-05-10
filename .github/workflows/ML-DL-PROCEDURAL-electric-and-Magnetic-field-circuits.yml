@@ -195,14 +195,21 @@ jobs:
   docker:
     needs: release
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      # Step 15: Build Docker image
+      # Step 15: Log in to GitHub Container Registry
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+      # Step 16: Build Docker image
       - name: Build Docker image
         run: docker build -t ghcr.io/alexandrepedrosaai/edge-ai-app/electric-and-magnetic-field-circuits:${{ github.run_number }} .
 
-      # Step 16: Push Docker image
+      # Step 17: Push Docker image
       - name: Push Docker image
         run: docker push ghcr.io/alexandrepedrosaai/edge-ai-app/electric-and-magnetic-field-circuits:${{ github.run_number }}
