@@ -20,12 +20,15 @@ jobs:
       asm_matrix: ${{ steps.generate.outputs.asm_matrix }}
     steps:
       - uses: actions/checkout@v4
-      - id: generate
-        name: Generate per-file matrix
+      - name: Pull optional container images
+        continue-on-error: true
         run: |
           docker pull "$CLUSTERS_GPU_IMAGE"
           docker pull "$WEBGPU_IMAGE"
           docker pull "$EM_FIELD_IMAGE"
+      - id: generate
+        name: Generate per-file matrix
+        run: |
           # Buscar todos os arquivos .asm recursivamente, ignorando diretórios ocultos e node_modules
           asm_matrix=$(find . -type f -name "*.asm" -not -path "*/.*" -not -path "*/node_modules/*" | sort | jq -R -s -c 'split("\n")[:-1] | map({asm_file: ., artifact: (split("/")[-1] | sub("\\.asm$";"") | ascii_downcase | gsub("[^a-z0-9]+";"-") | gsub("(^-|-$)";""))}) | {include:.}')
           echo "asm_matrix=$asm_matrix" >> "$GITHUB_OUTPUT"
@@ -39,6 +42,12 @@ jobs:
       matrix: ${{ fromJson(needs.prepare-matrix.outputs.asm_matrix) }}
     steps:
       - uses: actions/checkout@v4
+      - name: Pull optional container images
+        continue-on-error: true
+        run: |
+          docker pull "$CLUSTERS_GPU_IMAGE"
+          docker pull "$WEBGPU_IMAGE"
+          docker pull "$EM_FIELD_IMAGE"
       - name: Install NASM and Emscripten
         run: |
           sudo apt-get update
@@ -55,9 +64,6 @@ jobs:
 
       - name: Build ASM object and WASM (per file)
         run: |
-          docker pull "$CLUSTERS_GPU_IMAGE"
-          docker pull "$WEBGPU_IMAGE"
-          docker pull "$EM_FIELD_IMAGE"
           set -euo pipefail
           mkdir -p release
 
@@ -125,11 +131,14 @@ jobs:
         with:
           name: asm-${{ matrix.artifact }}
           path: release
-      - name: Validate build output
+      - name: Pull optional container images
+        continue-on-error: true
         run: |
           docker pull "$CLUSTERS_GPU_IMAGE"
           docker pull "$WEBGPU_IMAGE"
           docker pull "$EM_FIELD_IMAGE"
+      - name: Validate build output
+        run: |
           set -euo pipefail
           meta="release/${{ matrix.artifact }}.json"
           test -f "$meta"
@@ -158,11 +167,14 @@ jobs:
         with:
           name: asm-${{ matrix.artifact }}
           path: release
-      - name: Validate metadata/output consistency
+      - name: Pull optional container images
+        continue-on-error: true
         run: |
           docker pull "$CLUSTERS_GPU_IMAGE"
           docker pull "$WEBGPU_IMAGE"
           docker pull "$EM_FIELD_IMAGE"
+      - name: Validate metadata/output consistency
+        run: |
           set -euo pipefail
           meta="release/${{ matrix.artifact }}.json"
           test -f "$meta"
@@ -189,11 +201,14 @@ jobs:
         with:
           name: asm-${{ matrix.artifact }}
           path: release
-      - name: Simulate Q-learning reward loop
+      - name: Pull optional container images
+        continue-on-error: true
         run: |
           docker pull "$CLUSTERS_GPU_IMAGE"
           docker pull "$WEBGPU_IMAGE"
           docker pull "$EM_FIELD_IMAGE"
+      - name: Simulate Q-learning reward loop
+        run: |
           set -euo pipefail
           meta="release/${{ matrix.artifact }}.json"
           test -f "$meta"
@@ -238,12 +253,15 @@ jobs:
           pattern: asm-*
           path: release
           merge-multiple: true
-      - id: object-check
-        name: Check compiled object and WASM files
+      - name: Pull optional container images
+        continue-on-error: true
         run: |
           docker pull "$CLUSTERS_GPU_IMAGE"
           docker pull "$WEBGPU_IMAGE"
           docker pull "$EM_FIELD_IMAGE"
+      - id: object-check
+        name: Check compiled object and WASM files
+        run: |
           shopt -s nullglob
           objects=(release/*.o)
           wasm_files=(release/*.wasm)
@@ -288,11 +306,14 @@ jobs:
           pattern: asm-*
           path: release
           merge-multiple: true
-      - name: Copy object files to WEBASSEMBLY and docs
+      - name: Pull optional container images
+        continue-on-error: true
         run: |
           docker pull "$CLUSTERS_GPU_IMAGE"
           docker pull "$WEBGPU_IMAGE"
           docker pull "$EM_FIELD_IMAGE"
+      - name: Copy object files to WEBASSEMBLY and docs
+        run: |
           shopt -s nullglob
           mkdir -p WEBASSEMBLY docs
           objects=(release/*.o)
@@ -306,9 +327,6 @@ jobs:
           cp "${objects[@]}" docs/
       - name: Update index.html with object file list
         run: |
-          docker pull "$CLUSTERS_GPU_IMAGE"
-          docker pull "$WEBGPU_IMAGE"
-          docker pull "$EM_FIELD_IMAGE"
           shopt -s nullglob
           echo "<html><body><h1>Generated Object Files</h1><ul>" > docs/index.html
           for f in release/*.o; do
@@ -322,9 +340,6 @@ jobs:
           echo "</ul></body></html>" >> docs/index.html
       - name: Commit and push
         run: |
-          docker pull "$CLUSTERS_GPU_IMAGE"
-          docker pull "$WEBGPU_IMAGE"
-          docker pull "$EM_FIELD_IMAGE"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add WEBASSEMBLY docs
