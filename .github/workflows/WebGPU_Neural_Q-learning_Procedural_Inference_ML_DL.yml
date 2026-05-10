@@ -365,5 +365,9 @@ jobs:
             exit 0
           fi
           git commit -m "Deploy WASM binaries and update docs [skip ci]"
-          git pull --rebase origin "$BRANCH_NAME"
+          if ! git pull --rebase origin "$BRANCH_NAME"; then
+            echo "Rebase failed due to conflicts with origin/$BRANCH_NAME."
+            git rebase --abort || true
+            exit 1
+          fi
           git push origin HEAD:"$BRANCH_NAME"
