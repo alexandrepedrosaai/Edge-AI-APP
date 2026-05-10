@@ -1,0 +1,64 @@
+<svg width="1536" height="1024" viewBox="0 0 1536 1024" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <!-- Background Image -->
+  <image xlink:href="webgpu-bg.jpg" width="1536" height="1024" />
+  
+  <!-- Magnetic Field Lines (B-Field) - Subtle glowing curves -->
+  <g stroke="#40e0d0" stroke-width="2" fill="none" opacity="0.4">
+    <path d="M768,400 Q900,200 1100,400" stroke-dasharray="10,10">
+      <animate attributeName="stroke-dashoffset" from="100" to="0" dur="5s" repeatCount="indefinite" />
+    </path>
+    <path d="M768,400 Q636,200 436,400" stroke-dasharray="10,10">
+      <animate attributeName="stroke-dashoffset" from="0" to="100" dur="5s" repeatCount="indefinite" />
+    </path>
+    <path d="M768,400 Q900,600 1100,400" stroke-dasharray="10,10">
+      <animate attributeName="stroke-dashoffset" from="100" to="0" dur="5s" repeatCount="indefinite" />
+    </path>
+    <path d="M768,400 Q636,600 436,400" stroke-dasharray="10,10">
+      <animate attributeName="stroke-dashoffset" from="0" to="100" dur="5s" repeatCount="indefinite" />
+    </path>
+  </g>
+
+  <!-- Flowing Electrons - Glowing cyan circles -->
+  <g>
+    <!-- Path 1: Top Right -->
+    <circle r="4" fill="#00ffff">
+      <animateMotion dur="2s" repeatCount="indefinite" path="M850,350 L1100,250 L1200,300" />
+      <animate attributeName="opacity" values="0;1;1;0" dur="2s" repeatCount="indefinite" />
+      <filter id="glow">
+        <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+        <feMerge>
+          <feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+    </circle>
+    
+    <!-- Path 2: Bottom Left -->
+    <circle r="4" fill="#00ffff" filter="url(#glow)">
+      <animateMotion dur="2.5s" repeatCount="indefinite" path="M680,450 L400,550 L300,500" begin="0.5s" />
+      <animate attributeName="opacity" values="0;1;1;0" dur="2.5s" repeatCount="indefinite" />
+    </circle>
+
+    <!-- Path 3: Towards Buffer Initialization -->
+    <circle r="4" fill="#ffaa00" filter="url(#glow)">
+      <animateMotion dur="3s" repeatCount="indefinite" path="M768,500 L768,750 L300,750" begin="1s" />
+      <animate attributeName="opacity" values="0;1;1;0" dur="3s" repeatCount="indefinite" />
+    </circle>
+
+    <!-- Path 4: Towards Data Loading -->
+    <circle r="4" fill="#ffaa00" filter="url(#glow)">
+      <animateMotion dur="2.8s" repeatCount="indefinite" path="M768,500 L768,750 L1200,750" begin="1.5s" />
+      <animate attributeName="opacity" values="0;1;1;0" dur="2.8s" repeatCount="indefinite" />
+    </circle>
+    
+    <!-- More electrons for density -->
+    <circle r="3" fill="#00ffff" opacity="0.8">
+      <animateMotion dur="1.8s" repeatCount="indefinite" path="M900,400 L1050,450 L1150,400" begin="0.2s" />
+    </circle>
+    <circle r="3" fill="#00ffff" opacity="0.8">
+      <animateMotion dur="2.2s" repeatCount="indefinite" path="M636,400 L486,450 L386,400" begin="0.7s" />
+    </circle>
+  </g>
+
+  <!-- Labels -->
+  <text x="768" y="350" fill="#00ffff" font-family="Arial" font-size="14" text-anchor="middle" font-weight="bold" opacity="0.6">MAGNETIC FLUX ACTIVE</text>
+</svg>
