@@ -1,0 +1,29 @@
+namespace NewtonianMechanics {
+    open Microsoft.Quantum.Intrinsic;
+    open Microsoft.Quantum.Canon;
+
+    // File 201: Lei da Gravitação Universal
+    operation GravitationExample() : Unit {
+        using (q1 = Qubit()) {
+        using (q2 = Qubit()) {
+            // Representa dois corpos celestes como qubits
+            H(q1); // corpo 1 em superposição
+            X(q2); // corpo 2 em movimento inicial
+
+            // Interação gravitacional (analogia)
+            CNOT(q1, q2);
+            Ry(0.25, q1);
+            Ry(0.25, q2);
+
+            // Medição dos estados
+            let r1 = M(q1);
+            let r2 = M(q2);
+
+            Message($"Corpo 1 medido: {r1}");
+            Message($"Corpo 2 medido: {r2}");
+
+            Reset(q1);
+            Reset(q2);
+        }}
+    }
+}
