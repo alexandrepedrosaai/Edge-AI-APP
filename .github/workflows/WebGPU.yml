@@ -179,7 +179,7 @@ jobs:
         with:
           path: ./wasm_builds
 
-      - name: Generate and Deploy HTML
+      - name: Update index.html and Deploy
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -191,124 +191,23 @@ jobs:
           # Copy WASM files to docs/WEBASSEMBLY
           find ./wasm_builds -name "*.wasm" -exec cp {} docs/WEBASSEMBLY/ \;
           
-          # Generate index.html with commit number
+          # Update commit hash in index.html using python
           SHORT_SHA=$(git rev-parse --short HEAD)
-          cat <<EOF > docs/index.html
-          <!DOCTYPE html>
-          <html lang="en">
-          <head>
-              <meta charset="UTF-8">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>Edge AI - WebGPU Deployment</title>
-              <style>
-                  body { margin: 0; background-color: #000; color: #00ffcc; font-family: 'Courier New', Courier, monospace; overflow: hidden; }
-                  #info { position: absolute; top: 10px; left: 10px; z-index: 100; background: rgba(0,0,0,0.7); padding: 10px; border: 1px solid #00ffcc; }
-                  a { color: #ffff00; text-decoration: none; }
-                  a:hover { text-decoration: underline; }
-              </style>
-          </head>
-          <body>
-              <div id="info">
-                  <h1>🚀 Edge AI WebGPU</h1>
-                  <p>Commit: <strong>$SHORT_SHA</strong></p>
-                  <p>Status: Neural Network Active</p>
-                  <hr>
-                  <h3>WASM Modules:</h3>
-                  <ul>
-          EOF
-          
-          for f in docs/WEBASSEMBLY/*.wasm; do
-              if [ -f "$f" ]; then
-                  fname=$(basename "$f")
-                  echo "            <li><a href='WEBASSEMBLY/$fname'>$fname</a></li>" >> docs/index.html
-              fi
-          done
-          
-          cat <<EOF >> docs/index.html
-                  </ul>
-              </div>
-              <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-              <script>
-                  const scene = new THREE.Scene();
-                  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-                  const renderer = new THREE.WebGLRenderer({ antialias: true });
-                  renderer.setSize(window.innerWidth, window.innerHeight);
-                  document.body.appendChild(renderer.domElement);
-
-                  const ambientLight = new THREE.AmbientLight(0x404040);
-                  scene.add(ambientLight);
-                  const pointLight = new THREE.PointLight(0x00ffcc, 1, 100);
-                  pointLight.position.set(10, 10, 10);
-                  scene.add(pointLight);
-
-                  const nodes = [];
-                  const nodeCount = 40;
-                  const nodeGeometry = new THREE.SphereGeometry(0.15, 16, 16);
-                  const nodeMaterial = new THREE.MeshPhongMaterial({ color: 0x00ffcc, emissive: 0x00ffcc, emissiveIntensity: 0.5 });
-                  for (let i = 0; i < nodeCount; i++) {
-                      const node = new THREE.Mesh(nodeGeometry, nodeMaterial);
-                      node.position.set((Math.random() - 0.5) * 15, (Math.random() - 0.5) * 15, (Math.random() - 0.5) * 15);
-                      node.velocity = new THREE.Vector3((Math.random() - 0.5) * 0.02, (Math.random() - 0.5) * 0.02, (Math.random() - 0.5) * 0.02);
-                      scene.add(node);
-                      nodes.push(node);
-                  }
-
-                  const lineMaterial = new THREE.LineBasicMaterial({ color: 0x00ffcc, transparent: true, opacity: 0.2 });
-                  const connections = [];
-                  for (let i = 0; i < nodes.length; i++) {
-                      for (let j = i + 1; j < nodes.length; j++) {
-                          if (nodes[i].position.distanceTo(nodes[j].position) < 4) {
-                              const geometry = new THREE.BufferGeometry().setFromPoints([nodes[i].position, nodes[j].position]);
-                              const line = new THREE.Line(geometry, lineMaterial);
-                              scene.add(line);
-                              connections.push({ line, start: nodes[i], end: nodes[j] });
-                          }
-                      }
-                  }
-
-                  const cubeGeometry = new THREE.BoxGeometry(2, 2, 2);
-                  const cubeMaterials = [
-                      new THREE.MeshBasicMaterial({ color: 0x00ffff }), new THREE.MeshBasicMaterial({ color: 0xffff00 }),
-                      new THREE.MeshBasicMaterial({ color: 0xff00ff }), new THREE.MeshBasicMaterial({ color: 0x00ff00 }),
-                      new THREE.MeshBasicMaterial({ color: 0x0000ff }), new THREE.MeshBasicMaterial({ color: 0xff0000 })
-                  ];
-                  const cube = new THREE.Mesh(cubeGeometry, cubeMaterials);
-                  scene.add(cube);
-                  camera.position.z = 10;
-
-                  function animate() {
-                      requestAnimationFrame(animate);
-                      nodes.forEach(node => {
-                          node.position.add(node.velocity);
-                          if (Math.abs(node.position.x) > 8) node.velocity.x *= -1;
-                          if (Math.abs(node.position.y) > 8) node.velocity.y *= -1;
-                          if (Math.abs(node.position.z) > 8) node.velocity.z *= -1;
-                      });
-                      connections.forEach(conn => {
-                          const positions = conn.line.geometry.attributes.position.array;
-                          positions[0] = conn.start.position.x; positions[1] = conn.start.position.y; positions[2] = conn.start.position.z;
-                          positions[3] = conn.end.position.x; positions[4] = conn.end.position.y; positions[5] = conn.end.position.z;
-                          conn.line.geometry.attributes.position.needsUpdate = true;
-                      });
-                      cube.rotation.x += 0.005; cube.rotation.y += 0.005;
-                      renderer.render(scene, camera);
-                  }
-                  window.addEventListener('resize', () => {
-                      camera.aspect = window.innerWidth / window.innerHeight;
-                      camera.updateProjectionMatrix();
-                      renderer.setSize(window.innerWidth, window.innerHeight);
-                  });
-                  animate();
-              </script>
-          </body>
-          </html>
-          EOF
+          python3 -c "
+          import re
+          import os
+          path = 'docs/index.html'
+          if os.path.exists(path):
+              with open(path, 'r') as f: content = f.read()
+              new_content = re.sub(r'<span id=\"commit-hash\">.*?</span>', f'<span id=\"commit-hash\">{SHORT_SHA}</span>', content)
+              with open(path, 'w') as f: f.write(new_content)
+          "
           
           git add docs/index.html docs/WEBASSEMBLY/*.wasm
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "Update docs/index.html with commit $SHORT_SHA and deploy WASM modules [skip ci]"
+            git commit -m "Update docs/index.html with commit $SHORT_SHA [skip ci]"
             git push origin HEAD:main
           fi
 
