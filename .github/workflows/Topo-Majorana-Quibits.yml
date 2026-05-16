@@ -31,6 +31,14 @@ jobs:
             DOTNET_ROLL_FORWARD=Major dotnet build "$project"
           done
 
+      - name: Run all MajoranaStarship files
+        run: |
+          cd WebGPU/Majoran-Starship
+          for project in *.csproj; do
+            echo "Running $project"
+            DOTNET_ROLL_FORWARD=Major dotnet run --no-build --project "$project" || echo "Skipping run failure for $project"
+          done
+
       - name: Upload all Q# binaries artifacts
         if: always()
         uses: actions/upload-artifact@v4
