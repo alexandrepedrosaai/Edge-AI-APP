@@ -4,24 +4,50 @@
 namespace MajoranaStarship {
     open Microsoft.Quantum.Intrinsic;
     open Microsoft.Quantum.Math;
+    open Microsoft.Quantum.Random;
+    open Microsoft.Quantum.Convert;
 
     operation MajoranaStarshipEngineDiracYangMills(input : Double[]) : Complex {
         mutable diracYangMillsCalc = Complex(0.0, 0.0);
 
         // 10 linhas de cálculos Dirac + Yang-Mills
         for (i in 0..9) {
-            let gammaTerm = Complex(Sin(PI() * i / 180.0), Cos(PI() * i / 180.0)); // matriz γ
-            let spinor = Complex(RandomDouble(), RandomDouble()); // estado de spinor ψ
-            let massTerm = Complex(0.5 * i, -0.25 * i); // termo de massa mψ
-            let derivative = Complex(Sin(PI() * i / 90.0), Cos(PI() * i / 90.0)); // ∂μψ
-            let gaugeField = Complex(Sin(PI() * i / 300.0), Cos(PI() * i / 300.0)); // campo Aμ
-            let fieldStrength = Complex(RandomDouble(), -RandomDouble()); // tensor Fμν
-            let covariantDeriv = Complex(Exp(-i / 50.0), Log(1.0 + i)); // Dμ = ∂μ + Aμ
-            let interaction = Complex(Sin(PI() * i / 60.0), Cos(PI() * i / 60.0)); // ψγμAμψ
-            let symmetry = Complex(RandomDouble(), RandomDouble()); // SU(N) simetria
-            let contribution = gammaTerm * spinor * massTerm * derivative * gaugeField * fieldStrength * covariantDeriv * interaction * symmetry * Complex(input[i % Length(input)], 0.8 * i);
+            let idx = IntAsDouble(i);
+            let gammaTerm = Complex(Sin(PI() * idx / 180.0), Cos(PI() * idx / 180.0)); // matriz γ
+            
+            let r1 = DrawRandomDouble();
+            let r2 = DrawRandomDouble();
+            let spinor = Complex(r1, r2); // estado de spinor ψ
+            
+            let massTerm = Complex(0.5 * idx, -0.25 * idx); // termo de massa mψ
+            let derivative = Complex(Sin(PI() * idx / 90.0), Cos(PI() * idx / 90.0)); // ∂μψ
+            let gaugeField = Complex(Sin(PI() * idx / 300.0), Cos(PI() * idx / 300.0)); // campo Aμ
+            
+            let r3 = DrawRandomDouble();
+            let r4 = DrawRandomDouble();
+            let fieldStrength = Complex(r3, -r4); // tensor Fμν
+            
+            let covariantDeriv = Complex(Exp(-idx / 50.0), Log(1.0 + idx)); // Dμ = ∂μ + Aμ
+            let interaction = Complex(Sin(PI() * idx / 60.0), Cos(PI() * idx / 60.0)); // ψγμAμψ
+            
+            let r5 = DrawRandomDouble();
+            let r6 = DrawRandomDouble();
+            let symmetry = Complex(r5, r6); // SU(N) simetria
+            
+            let inputTerm = Complex(input[i % Length(input)], 0.8 * idx);
+            
+            // Chained ComplexMultiply for the contribution
+            mutable contribution = ComplexMultiply(gammaTerm, spinor);
+            set contribution = ComplexMultiply(contribution, massTerm);
+            set contribution = ComplexMultiply(contribution, derivative);
+            set contribution = ComplexMultiply(contribution, gaugeField);
+            set contribution = ComplexMultiply(contribution, fieldStrength);
+            set contribution = ComplexMultiply(contribution, covariantDeriv);
+            set contribution = ComplexMultiply(contribution, interaction);
+            set contribution = ComplexMultiply(contribution, symmetry);
+            set contribution = ComplexMultiply(contribution, inputTerm);
 
-            set diracYangMillsCalc += contribution;
+            set diracYangMillsCalc = ComplexAdd(diracYangMillsCalc, contribution);
         }
 
         return diracYangMillsCalc;
