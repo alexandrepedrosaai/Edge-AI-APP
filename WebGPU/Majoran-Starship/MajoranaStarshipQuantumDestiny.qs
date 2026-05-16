@@ -26,16 +26,28 @@ namespace MajoranaStarship {
             let inevitabilityFactor = Complex(Sqrt(0.5), Sqrt(0.5)); // fator de inevitabilidade
             let quantumChoice = Complex(ExpD(-idx / 150.0), Sin(PI() * idx / 80.0)); // escolha quântica
             let holography = Complex(Sin(PI() * idx / 90.0), Cos(PI() * idx / 90.0)); // holografia do destino
-            let entanglement = Complex(DrawRandomDouble(), DrawRandomDouble()); // entrelaçamento do destino
+            
+            let! entReal = DrawRandomDouble();
+            let! entImag = DrawRandomDouble();
+            let entanglement = Complex(entReal, entImag); // entrelaçamento do destino
+            
             let decoherence = Complex(ExpD(-idx / 50.0), 0.0); // decoerência das escolhas
             let resonance = Complex(Sin(PI() * idx / 70.0), Cos(PI() * idx / 70.0)); // ressonância do destino
-            let tunneling = Complex(DrawRandomDouble(), -DrawRandomDouble()); // tunelamento entre futuros
+            
+            let! tunReal = DrawRandomDouble();
+            let! tunImag = DrawRandomDouble();
+            let tunneling = Complex(tunReal, -tunImag); // tunelamento entre futuros
+            
             let curvaturePath = Complex(Sin(PI() * idx / 60.0), Cos(PI() * idx / 60.0)); // curvatura das trajetórias
             let spinStructure = Complex(Log(1.0 + idx), ExpD(-idx / 100.0)); // estrutura de spin do destino
             let recurrence = Complex(Sin(PI() * idx / 85.0), Cos(PI() * idx / 85.0)); // recorrência inevitável
             let synchronization = Complex(ExpD(-idx / 120.0), Log(1.0 + idx)); // sincronização cósmica
             let multiverseBranch = Complex(Sin(PI() * idx / 110.0), Cos(PI() * idx / 110.0)); // ramificação multiversal
-            let quantumFoam = Complex(DrawRandomDouble(), DrawRandomDouble()); // espuma quântica do destino
+            
+            let! qfReal = DrawRandomDouble();
+            let! qfImag = DrawRandomDouble();
+            let quantumFoam = Complex(qfReal, qfImag); // espuma quântica do destino
+            
             let normalization = Complex(Sqrt(0.5), Sqrt(0.5)); // normalização
             
             let inputContribution = Complex(input[i % Length(input)], 0.8 * idx);
