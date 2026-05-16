@@ -5,6 +5,7 @@ namespace MajoranaStarship {
     open Microsoft.Quantum.Intrinsic;
     open Microsoft.Quantum.Math;
     open Microsoft.Quantum.Random;
+    open Microsoft.Quantum.Convert;
 
     operation MajoranaStarshipEngineLoopGravity(input : Double[]) : Complex {
         mutable loopGravityCalc = Complex(0.0, 0.0);
@@ -21,7 +22,7 @@ namespace MajoranaStarship {
             let edgeWeight = Complex(Sin(PI() * qd / 60.0), Cos(PI() * qd / 60.0)); // Peso de aresta
             let intertwiner = Complex(DrawRandomDouble(), DrawRandomDouble()); // Intertwiner SU(2)
             let quantumState = Complex(Sqrt(0.5), Sqrt(0.5)); // Estado quântico normalizado
-            let contribution = ComplexMultiply(spinNetwork, areaOp);
+            mutable contribution = ComplexMultiply(spinNetwork, areaOp);
             set contribution = ComplexMultiply(contribution, volumeOp);
             set contribution = ComplexMultiply(contribution, holonomy);
             set contribution = ComplexMultiply(contribution, flux);
@@ -31,7 +32,7 @@ namespace MajoranaStarship {
             set contribution = ComplexMultiply(contribution, quantumState);
             set contribution = ComplexMultiply(contribution, Complex(input[q % Length(input)], 0.8 * qd));
 
-            set loopGravityCalc += contribution;
+            set loopGravityCalc = ComplexAdd(loopGravityCalc, contribution);
         }
 
         return loopGravityCalc;
