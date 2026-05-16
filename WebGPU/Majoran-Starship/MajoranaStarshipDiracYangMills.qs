@@ -7,11 +7,19 @@ namespace MajoranaStarship {
     open Microsoft.Quantum.Random;
     open Microsoft.Quantum.Convert;
 
+    function ComplexMultiply(a : Complex, b : Complex) : Complex {
+        return Complex(a::Real * b::Real - a::Imag * b::Imag, a::Real * b::Imag + a::Imag * b::Real);
+    }
+
+    function ComplexAdd(a : Complex, b : Complex) : Complex {
+        return Complex(a::Real + b::Real, a::Imag + b::Imag);
+    }
+
     operation MajoranaStarshipEngineDiracYangMills(input : Double[]) : Complex {
         mutable diracYangMillsCalc = Complex(0.0, 0.0);
 
         // 10 linhas de cálculos Dirac + Yang-Mills
-        for (i in 0..9) {
+        for i in 0..9 {
             let idx = IntAsDouble(i);
             let gammaTerm = Complex(Sin(PI() * idx / 180.0), Cos(PI() * idx / 180.0)); // matriz γ
             
