@@ -2,57 +2,5 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFramework>net8.0</TargetFramework>
-    <LanguageTargets>$(MSBuildToolsPath)\Microsoft.CSharp.targets</LanguageTargets>
   </PropertyGroup>
-
-  <ItemGroup>
-    <QSharpCompile Remove="**/*.qs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <QSharpCompile Include="MajoranaQuantumAuditorQubotsStability.qs" />
-    <QSharpCompile Include="MajoranaQuantumBlockchain.qs" />
-    <QSharpCompile Include="MajoranaQuantumRegistryExplorer.qs" />
-    <QSharpCompile Include="MajoranaQuantumValidator.qs" />
-    <QSharpCompile Include="MajoranaStarshipCategoryTopos.qs" />
-    <QSharpCompile Include="MajoranaStarshipCausalityHolography.qs" />
-    <QSharpCompile Include="MajoranaStarshipCosmology.qs" />
-    <QSharpCompile Include="MajoranaStarshipDiracYangMills.qs" />
-    <QSharpCompile Include="MajoranaStarshipEinsteinMaxwell.qs" />
-    <QSharpCompile Include="MajoranaStarshipHilbert.qs" />
-    <QSharpCompile Include="MajoranaStarshipLoopGravity.qs" />
-    <QSharpCompile Include="MajoranaStarshipMTheory.qs" />
-    <QSharpCompile Include="MajoranaStarshipModalInfo.qs" />
-    <QSharpCompile Include="MajoranaStarshipMultiverseQubits.qs" />
-    <QSharpCompile Include="MajoranaStarshipPDE.qs" />
-    <QSharpCompile Include="MajoranaStarshipQKD.qs" />
-    <QSharpCompile Include="MajoranaStarshipQuantumBlackHole.qs" />
-    <QSharpCompile Include="MajoranaStarshipQuantumBlackHoles.qs" />
-    <QSharpCompile Include="MajoranaStarshipQuantumChaosDynamics.qs" />
-    <QSharpCompile Include="MajoranaStarshipQuantumCosmicStrings.qs" />
-    <QSharpCompile Include="MajoranaStarshipQuantumCreation.qs" />
-    <QSharpCompile Include="MajoranaStarshipQuantumDestiny.qs" />
-    <QSharpCompile Include="MajoranaStarshipQuantumEntanglementNetworks.qs" />
-    <QSharpCompile Include="MajoranaStarshipQuantumEternity.qs" />
-    <QSharpCompile Include="MajoranaStarshipQuantumExoplanets.qs" />
-    <QSharpCompile Include="MajoranaStarshipQuantumFractals.qs" />
-    <QSharpCompile Include="MajoranaStarshipQuantumFreedom.qs" />
-    <QSharpCompile Include="MajoranaStarshipQuantumGalaxies.qs" />
-    <QSharpCompile Include="MajoranaStarshipQuantumGeometry.qs" />
-    <QSharpCompile Include="MajoranaStarshipQuantumGravityWaves.qs" />
-    <QSharpCompile Include="MajoranaStarshipQuantumHyperdimensional.qs" />
-    <QSharpCompile Include="MajoranaStarshipQuantumInfinity.qs" />
-    <QSharpCompile Include="MajoranaStarshipQuantumMultiverse.qs" />
-    <QSharpCompile Include="MajoranaStarshipQuantumNebulae.qs" />
-    <QSharpCompile Include="MajoranaStarshipQuantumNeuralStarship.qs" />
-    <QSharpCompile Include="MajoranaStarshipQuantumSingularity.qs" />
-    <QSharpCompile Include="MajoranaStarshipQuantumSupernovae.qs" />
-    <QSharpCompile Include="MajoranaStarshipQuantumSymmetryBreaking.qs" />
-    <QSharpCompile Include="MajoranaStarshipQuantumTimeCrystal.qs" />
-    <QSharpCompile Include="MajoranaStarshipQuantumTimeTravel.qs" />
-    <QSharpCompile Include="MajoranaStarshipQuantumTopology.qs" />
-    <QSharpCompile Include="MajoranaStarshipQuantumWormholes.qs" />
-    <QSharpCompile Include="MajoranaStarshipStringTheory.qs" />
-    <QSharpCompile Include="MajoranaStarshipTemporalDistributed.qs" />
-  </ItemGroup>
 </Project>
