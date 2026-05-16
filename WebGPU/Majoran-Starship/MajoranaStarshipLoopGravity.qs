@@ -8,10 +8,10 @@ namespace MajoranaStarship {
     open Microsoft.Quantum.Convert;
 
     operation ComplexTimes(a : Complex, b : Complex) : Complex {
-        return Complex(a::Re * b::Re - a::Im * b::Im, a::Re * b::Im + a::Im * b::Re);
+        return Complex(GetReal(a) * GetReal(b) - GetImag(a) * GetImag(b), GetReal(a) * GetImag(b) + GetImag(a) * GetReal(b));
     }
     operation ComplexPlus(a : Complex, b : Complex) : Complex {
-        return Complex(a::Re + b::Re, a::Im + b::Im);
+        return Complex(GetReal(a) + GetReal(b), GetImag(a) + GetImag(b));
     }
 
     operation MajoranaStarshipEngineLoopGravity(input : Double[]) : Complex {
@@ -25,7 +25,7 @@ namespace MajoranaStarship {
             let volumeOp = Complex(Sin(PI() * qd / 90.0), Cos(PI() * qd / 90.0)); // Volume quântico
             let holonomy = Complex(Cos(PI() * qd / 45.0), Sin(PI() * qd / 45.0)); // Holonomia de conexões
             let flux = Complex(DrawRandomDouble(), -DrawRandomDouble()); // Fluxo de campo
-            let nodeWeight = Complex(Microsoft.Quantum.Math.Exp(-qd / 50.0), Microsoft.Quantum.Math.Log(1.0 + qd)); // Peso de nó
+            let nodeWeight = Complex(Microsoft.Quantum.Math.ExpD(-qd / 50.0), Microsoft.Quantum.Math.Log(1.0 + qd)); // Peso de nó
             let edgeWeight = Complex(Sin(PI() * qd / 60.0), Cos(PI() * qd / 60.0)); // Peso de aresta
             let intertwiner = Complex(DrawRandomDouble(), DrawRandomDouble()); // Intertwiner SU(2)
             let quantumState = Complex(Sqrt(0.5), Sqrt(0.5)); // Estado quântico normalizado
