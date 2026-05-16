@@ -2,30 +2,72 @@
 // Black Hole Information + Hawking Radiation + Entropy
 
 namespace MajoranaStarship {
-    open Std.Convert;
-    open Std.Random;
-    open Std.Intrinsic;
-    open Std.Math;
+    open Microsoft.Quantum.Math;
+    open Microsoft.Quantum.Convert;
+    open Microsoft.Quantum.Arrays;
+    open Microsoft.Quantum.Measurement;
+
+    newtype Complex = (Double, Double);
+
+    function PiConstant() : Double {
+        return 3.141592653589793;
+    }
+
+    function ToDouble(value : Int) : Double {
+        return IntAsDouble(value);
+    }
+
+    function DeterministicUnitValue(seed : Int, salt : Int) : Double {
+        // Deterministic pseudo-random-like value in [0, 1], avoiding SDK-specific random APIs.
+        let angle = 12.9898 * ToDouble(seed + 1) + 78.233 * ToDouble(salt + 1);
+        return 0.5 + 0.5 * Sin(angle);
+    }
 
     operation MajoranaStarshipEngineQuantumBlackHole(input : Double[]) : Complex {
         mutable blackHoleCalc = Complex(0.0, 0.0);
 
         // 10 linhas de cálculos Quantum Black Hole
         for i in 0..9 {
-            let horizonArea = Complex(8.0 * PI() * IntAsDouble(i+1), 0.0); // área do horizonte
-            let entropyBH = Complex(Log(1.0 + IntAsDouble(i)), Exp(-IntAsDouble(i) / 200.0)); // entropia de Bekenstein-Hawking
-            let hawkingRadiation = Complex(Sin(PI() * IntAsDouble(i) / 90.0), Cos(PI() * IntAsDouble(i) / 90.0)); // radiação Hawking
-            let rand1 = DrawRandomDouble(0.0, 1.0);
-            let rand2 = DrawRandomDouble(0.0, 1.0);
-            let informationFlow = Complex(rand1, rand2);
+            let iAsDouble = ToDouble(i);
+            let pi = PiConstant();
+            let inputContribution = input[i % Length(input)];
+
+            let horizonArea = Complex(8.0 * pi * ToDouble(i + 1), 0.0); // área do horizonte
+            let entropyBH = Complex(Log(1.0 + iAsDouble), ExpD(-iAsDouble / 200.0)); // entropia de Bekenstein-Hawking
+            let hawkingRadiation = Complex(Sin(pi * iAsDouble / 90.0), Cos(pi * iAsDouble / 90.0)); // radiação Hawking
+            let informationFlow = Complex(DeterministicUnitValue(i, 1), DeterministicUnitValue(i, 2));
             let holographicBound = Complex(Sqrt(0.5), Sqrt(0.5)); // princípio holográfico
-            let evaporation = Complex(Exp(-IntAsDouble(i) / 50.0), 0.0); // evaporação do buraco negro
-            let entanglement = Complex(Sin(PI() * IntAsDouble(i) / 80.0), Cos(PI() * IntAsDouble(i) / 80.0)); // entrelaçamento quântico
-            let rand3 = DrawRandomDouble(0.0, 1.0);
-            let rand4 = DrawRandomDouble(0.0, 1.0);
-            let firewall = Complex(rand3, -rand4);
+            let evaporation = Complex(ExpD(-iAsDouble / 50.0), 0.0); // evaporação do buraco negro
+            let entanglement = Complex(Sin(pi * iAsDouble / 80.0), Cos(pi * iAsDouble / 80.0)); // entrelaçamento quântico
+            let firewall = Complex(DeterministicUnitValue(i, 3), -DeterministicUnitValue(i, 4));
             let normalization = Complex(Sqrt(0.5), Sqrt(0.5)); // normalização
-            let contribution = ComplexMul(ComplexMul(ComplexMul(ComplexMul(ComplexMul(ComplexMul(ComplexMul(ComplexMul(ComplexMul(horizonArea, entropyBH), hawkingRadiation), informationFlow), holographicBound), evaporation), entanglement), firewall), normalization), Complex(input[i % Length(input)], 0.8 * IntAsDouble(i)));
+            let inputState = Complex(inputContribution, 0.8 * iAsDouble);
+
+            let contribution = ComplexMul(
+                ComplexMul(
+                    ComplexMul(
+                        ComplexMul(
+                            ComplexMul(
+                                ComplexMul(
+                                    ComplexMul(
+                                        ComplexMul(
+                                            ComplexMul(horizonArea, entropyBH),
+                                            hawkingRadiation
+                                        ),
+                                        informationFlow
+                                    ),
+                                    holographicBound
+                                ),
+                                evaporation
+                            ),
+                            entanglement
+                        ),
+                        firewall
+                    ),
+                    normalization
+                ),
+                inputState
+            );
 
             set blackHoleCalc = ComplexAdd(blackHoleCalc, contribution);
         }
@@ -37,6 +79,17 @@ namespace MajoranaStarship {
         let (aRe, aIm) = a!;
         let (bRe, bIm) = b!;
         return Complex(aRe * bRe - aIm * bIm, aRe * bIm + aIm * bRe);
+    }
+
+    function ExpD(value : Double) : Double {
+        // Taylor series approximation for e^x = 1 + x + x^2/2! + x^3/3! + ...
+        // This is a simplified approximation for demonstration purposes.
+        // For higher precision, more terms would be needed.
+        let term1 = 1.0;
+        let term2 = value;
+        let term3 = value * value / 2.0;
+        let term4 = value * value * value / 6.0;
+        return term1 + term2 + term3 + term4;
     }
 
     function ComplexAdd(a : Complex, b : Complex) : Complex {
