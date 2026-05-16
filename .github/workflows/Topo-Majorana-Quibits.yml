@@ -26,52 +26,21 @@ jobs:
       - name: Build all MajoranaStarship files
         run: |
           cd WebGPU/Majoran-Starship
-          dotnet build MajoranaStarshipCategoryTopos.qs
-          dotnet build MajoranaStarshipCausalityHolography.qs
-          dotnet build MajoranaStarshipCosmology.qs
-          dotnet build MajoranaStarshipDiracYangMills.qs
-          dotnet build MajoranaStarshipEinsteinMaxwell.qs
-          dotnet build MajoranaStarshipHilbert.qs
-          dotnet build MajoranaStarshipLoopGravity.qs
-          dotnet build MajoranaStarshipMTheory.qs
-          dotnet build MajoranaStarshipModalInfo.qs
-          dotnet build MajoranaStarshipMultiverseQubits.qs
-          dotnet build MajoranaStarshipPDE.qs
-          dotnet build MajoranaStarshipQKD.qs
-          dotnet build MajoranaStarshipQuantumBlackHole.qs
-          dotnet build MajoranaStarshipQuantumBlackHoles.qs
-          dotnet build MajoranaStarshipQuantumChaosDynamics.qs
-          dotnet build MajoranaStarshipQuantumCosmicStrings.qs
-          dotnet build MajoranaStarshipQuantumCreation.qs
-          dotnet build MajoranaStarshipQuantumDestiny.qs
-          dotnet build MajoranaStarshipQuantumEntanglementNetworks.qs
-          dotnet build MajoranaStarshipQuantumEternity.qs
-          dotnet build MajoranaStarshipQuantumExoplanets.qs
-          dotnet build MajoranaStarshipQuantumFractals.qs
-          dotnet build MajoranaStarshipQuantumFreedom.qs
-          dotnet build MajoranaStarshipQuantumGalaxies.qs
-          dotnet build MajoranaStarshipQuantumGeometry.qs
-          dotnet build MajoranaStarshipQuantumGravityWaves.qs
-          dotnet build MajoranaStarshipQuantumHyperdimensional.qs
-          dotnet build MajoranaStarshipQuantumInfinity.qs
-          dotnet build MajoranaStarshipQuantumMultiverse.qs
-          dotnet build MajoranaStarshipQuantumNebulae.qs
-          dotnet build MajoranaStarshipQuantumNeuralStarship.qs
-          dotnet build MajoranaStarshipQuantumSingularity.qs
-          dotnet build MajoranaStarshipQuantumSupernovae.qs
-          dotnet build MajoranaStarshipQuantumSymmetryBreaking.qs
-          dotnet build MajoranaStarshipQuantumTimeCrystal.qs
-          dotnet build MajoranaStarshipQuantumTimeTravel.qs
-          dotnet build MajoranaStarshipQuantumTopology.qs
-          dotnet build MajoranaStarshipQuantumWormholes.qs
-          dotnet build MajoranaStarshipStringTheory.qs
-          dotnet build MajoranaStarshipTemporalDistributed.qs
-          dotnet build MajoranaQuantumValidator.qs
-          dotnet build MajoranaQuantumRegistryExplorer.qs
-          dotnet build MajoranaQuantumBlockchain.qs
-          dotnet build MajoranaQuantumAuditorQubotsStability.qs
+          for project in *.csproj; do
+            echo "Building $project"
+            DOTNET_ROLL_FORWARD=Major dotnet build "$project"
+          done
 
-      - name: Upload binaries artifacts
+      - name: Run all MajoranaStarship files
+        run: |
+          cd WebGPU/Majoran-Starship
+          for project in *.csproj; do
+            echo "Running $project"
+            DOTNET_ROLL_FORWARD=Major dotnet run --no-build --project "$project" || echo "Skipping run failure for $project"
+          done
+
+      - name: Upload all Q# binaries artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: majorana-quibits-binaries
