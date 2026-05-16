@@ -11,8 +11,8 @@ namespace MajoranaStarship {
     function MultiplyComplexArray(factors : Complex[]) : Complex {
         mutable result = Complex(1.0, 0.0);
         for (factor in factors) {
-            let r = result.Real * factor.Real - result.Imag * factor.Imag;
-            let i = result.Real * factor.Imag + result.Imag * factor.Real;
+            let r = Real(result) * Real(factor) - Imag(result) * Imag(factor);
+            let i = Real(result) * Imag(factor) + Imag(result) * Real(factor);
             set result = Complex(r, i);
         }
         return result;
@@ -54,8 +54,8 @@ namespace MajoranaStarship {
 
             let contribution = MultiplyComplexArray(factors);
 
-            let newReal = creationCalc.Real + contribution.Real;
-            let newImag = creationCalc.Imag + contribution.Imag;
+            let newReal = Real(creationCalc) + Real(contribution);
+            let newImag = Imag(creationCalc) + Imag(contribution);
             set creationCalc = Complex(newReal, newImag);
         }
 
