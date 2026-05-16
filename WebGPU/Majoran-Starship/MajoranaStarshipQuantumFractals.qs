@@ -4,33 +4,73 @@
 namespace MajoranaStarship {
     open Microsoft.Quantum.Intrinsic;
     open Microsoft.Quantum.Math;
+    open Microsoft.Quantum.Random;
+    open Microsoft.Quantum.Convert;
+
+    function ComplexMultiply(left : Complex, right : Complex) : Complex {
+        let real = left::Real * right::Real - left::Imag * right::Imag;
+        let imag = left::Real * right::Imag + left::Imag * right::Real;
+        return Complex(real, imag);
+    }
 
     operation MajoranaStarshipEngineQuantumFractals(input : Double[]) : Complex {
-        mutable fractalCalc = Complex(0.0, 0.0);
+        mutable fractalCalcReal = 0.0;
+        mutable fractalCalcImag = 0.0;
 
         // 20 linhas de cálculos Quantum Fractals
-        for (i in 0..19) {
-            let mandelbrot = Complex(Sin(PI() * i / 100.0), Cos(PI() * i / 100.0)); // conjunto de Mandelbrot
-            let juliaSet = Complex(Log(1.0 + i), Exp(-i / 200.0)); // conjunto de Julia
+        for i in 0..19 {
+            let idx = IntAsDouble(i);
+            
+            let mandelbrot = Complex(Sin(PI() * idx / 100.0), Cos(PI() * idx / 100.0)); // conjunto de Mandelbrot
+            let juliaSet = Complex(Log(1.0 + idx), ExpD(-idx / 200.0)); // conjunto de Julia
             let selfSimilarity = Complex(Sqrt(0.5), Sqrt(0.5)); // auto-similaridade
-            let scaling = Complex(Exp(-i / 150.0), Sin(PI() * i / 80.0)); // escala fractal
-            let holography = Complex(Sin(PI() * i / 90.0), Cos(PI() * i / 90.0)); // princípio holográfico fractal
-            let entanglement = Complex(RandomDouble(), RandomDouble()); // entrelaçamento fractal
-            let decoherence = Complex(Exp(-i / 50.0), 0.0); // decoerência
-            let recursion = Complex(Sin(PI() * i / 70.0), Cos(PI() * i / 70.0)); // recursão fractal
-            let branching = Complex(RandomDouble(), -RandomDouble()); // ramificação fractal
-            let quantumFoam = Complex(Log(1.0 + i), Exp(-i / 100.0)); // espuma quântica fractal
-            let tunneling = Complex(Sin(PI() * i / 60.0), Cos(PI() * i / 60.0)); // tunelamento fractal
-            let resonance = Complex(Sin(PI() * i / 85.0), Cos(PI() * i / 85.0)); // ressonância fractal
-            let multiverseBranch = Complex(Sin(PI() * i / 110.0), Cos(PI() * i / 110.0)); // ramificação multiversal fractal
-            let recurrence = Complex(Exp(-i / 120.0), Log(1.0 + i)); // recorrência fractal
-            let synchronization = Complex(RandomDouble(), RandomDouble()); // sincronização fractal
+            let scaling = Complex(ExpD(-idx / 150.0), Sin(PI() * idx / 80.0)); // escala fractal
+            let holography = Complex(Sin(PI() * idx / 90.0), Cos(PI() * idx / 90.0)); // princípio holográfico fractal
+            
+            // Substituído RandomDouble por Sin/Cos determinístico
+            let entanglement = Complex(Sin(idx * 1.5), Cos(idx * 1.5)); // entrelaçamento fractal
+            
+            let decoherence = Complex(ExpD(-idx / 50.0), 0.0); // decoerência
+            let recursion = Complex(Sin(PI() * idx / 70.0), Cos(PI() * idx / 70.0)); // recursão fractal
+            
+            // Substituído RandomDouble por Sin/Cos determinístico
+            let branching = Complex(Sin(idx * 2.1), -Cos(idx * 2.1)); // ramificação fractal
+            
+            let quantumFoam = Complex(Log(1.0 + idx), ExpD(-idx / 100.0)); // espuma quântica fractal
+            let tunneling = Complex(Sin(PI() * idx / 60.0), Cos(PI() * idx / 60.0)); // tunelamento fractal
+            let resonance = Complex(Sin(PI() * idx / 85.0), Cos(PI() * idx / 85.0)); // ressonância fractal
+            let multiverseBranch = Complex(Sin(PI() * idx / 110.0), Cos(PI() * idx / 110.0)); // ramificação multiversal fractal
+            let recurrence = Complex(ExpD(-idx / 120.0), Log(1.0 + idx)); // recorrência fractal
+            
+            // Substituído RandomDouble por Sin/Cos determinístico
+            let synchronization = Complex(Sin(idx * 3.3), Cos(idx * 3.3)); // sincronização fractal
+            
             let normalization = Complex(Sqrt(0.5), Sqrt(0.5)); // normalização
-            let contribution = mandelbrot * juliaSet * selfSimilarity * scaling * holography * entanglement * decoherence * recursion * branching * quantumFoam * tunneling * resonance * multiverseBranch * recurrence * synchronization * normalization * Complex(input[i % Length(input)], 0.8 * i);
+            
+            let inputContribution = Complex(input[i % Length(input)], 0.8 * idx);
 
-            set fractalCalc += contribution;
+            mutable contribution = mandelbrot;
+            set contribution = ComplexMultiply(contribution, juliaSet);
+            set contribution = ComplexMultiply(contribution, selfSimilarity);
+            set contribution = ComplexMultiply(contribution, scaling);
+            set contribution = ComplexMultiply(contribution, holography);
+            set contribution = ComplexMultiply(contribution, entanglement);
+            set contribution = ComplexMultiply(contribution, decoherence);
+            set contribution = ComplexMultiply(contribution, recursion);
+            set contribution = ComplexMultiply(contribution, branching);
+            set contribution = ComplexMultiply(contribution, quantumFoam);
+            set contribution = ComplexMultiply(contribution, tunneling);
+            set contribution = ComplexMultiply(contribution, resonance);
+            set contribution = ComplexMultiply(contribution, multiverseBranch);
+            set contribution = ComplexMultiply(contribution, recurrence);
+            set contribution = ComplexMultiply(contribution, synchronization);
+            set contribution = ComplexMultiply(contribution, normalization);
+            set contribution = ComplexMultiply(contribution, inputContribution);
+
+            set fractalCalcReal += contribution::Real;
+            set fractalCalcImag += contribution::Imag;
         }
 
-        return fractalCalc;
+        return Complex(fractalCalcReal, fractalCalcImag);
     }
 }
