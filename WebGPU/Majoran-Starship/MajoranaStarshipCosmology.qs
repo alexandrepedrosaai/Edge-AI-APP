@@ -4,24 +4,47 @@
 namespace MajoranaStarship {
     open Microsoft.Quantum.Intrinsic;
     open Microsoft.Quantum.Math;
+    open Microsoft.Quantum.Convert;
+
+    function ComplexMultiplyCosmo(left : Complex, right : Complex) : Complex {
+        let real = left::Real * right::Real - left::Imag * right::Imag;
+        let imag = left::Real * right::Imag + left::Imag * right::Real;
+        return Complex(real, imag);
+    }
 
     operation MajoranaStarshipEngineCosmology(input : Double[]) : Complex {
         mutable cosmologyCalc = Complex(0.0, 0.0);
 
         // 10 linhas de cálculos Cosmology
-        for (i in 0..9) {
-            let inflation = Complex(Exp(i / 100.0), Sin(PI() * i / 90.0)); // inflação primordial
-            let scalarField = Complex(RandomDouble(), RandomDouble()); // campo inflaton
-            let cmbRadiation = Complex(Sin(PI() * i / 120.0), Cos(PI() * i / 120.0)); // radiação cósmica de fundo
-            let densityPerturb = Complex(Log(1.0 + i), Exp(-i / 200.0)); // perturbações de densidade
-            let darkMatter = Complex(Sin(PI() * i / 80.0), Cos(PI() * i / 80.0)); // componente de matéria escura
-            let darkEnergy = Complex(Exp(-i / 50.0), 0.0); // energia escura Λ
-            let gravitationalWaves = Complex(Sin(PI() * i / 60.0), Cos(PI() * i / 60.0)); // ondas gravitacionais
-            let horizon = Complex(RandomDouble(), -RandomDouble()); // horizonte cosmológico
-            let normalization = Complex(Sqrt(0.5), Sqrt(0.5)); // normalização
-            let contribution = inflation * scalarField * cmbRadiation * densityPerturb * darkMatter * darkEnergy * gravitationalWaves * horizon * normalization * Complex(input[i % Length(input)], 0.8 * i);
+        for i in 0..9 {
+            let x = IntAsDouble(i);
+            let inputValue = input[i % Length(input)];
+            let inflation        = Complex(Exp(x / 100.0), Sin(PI() * x / 90.0));         // inflação primordial
+            let scalarField      = Complex(0.5, 0.5);                                      // campo inflaton (determinístico)
+            let cmbRadiation     = Complex(Sin(PI() * x / 120.0), Cos(PI() * x / 120.0)); // radiação cósmica de fundo
+            let densityPerturb   = Complex(Log(1.0 + x), Exp(-x / 200.0));                // perturbações de densidade
+            let darkMatter       = Complex(Sin(PI() * x / 80.0), Cos(PI() * x / 80.0));   // componente de matéria escura
+            let darkEnergy       = Complex(Exp(-x / 50.0), 0.0);                           // energia escura Λ
+            let gravitationalWaves = Complex(Sin(PI() * x / 60.0), Cos(PI() * x / 60.0)); // ondas gravitacionais
+            let horizon          = Complex(0.5, -0.5);                                     // horizonte cosmológico (determinístico)
+            let normalization    = Complex(Sqrt(0.5), Sqrt(0.5));                          // normalização
+            let inputContribution = Complex(inputValue, 0.8 * x);
 
-            set cosmologyCalc += contribution;
+            mutable contribution = inflation;
+            set contribution = ComplexMultiplyCosmo(contribution, scalarField);
+            set contribution = ComplexMultiplyCosmo(contribution, cmbRadiation);
+            set contribution = ComplexMultiplyCosmo(contribution, densityPerturb);
+            set contribution = ComplexMultiplyCosmo(contribution, darkMatter);
+            set contribution = ComplexMultiplyCosmo(contribution, darkEnergy);
+            set contribution = ComplexMultiplyCosmo(contribution, gravitationalWaves);
+            set contribution = ComplexMultiplyCosmo(contribution, horizon);
+            set contribution = ComplexMultiplyCosmo(contribution, normalization);
+            set contribution = ComplexMultiplyCosmo(contribution, inputContribution);
+
+            set cosmologyCalc = Complex(
+                cosmologyCalc::Real + contribution::Real,
+                cosmologyCalc::Imag + contribution::Imag
+            );
         }
 
         return cosmologyCalc;
