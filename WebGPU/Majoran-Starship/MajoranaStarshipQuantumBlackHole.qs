@@ -13,13 +13,13 @@ namespace MajoranaStarship {
         // 10 linhas de cálculos Quantum Black Hole
         for i in 0..9 {
             let horizonArea = Complex(8.0 * Microsoft.Quantum.Math.PI() * IntAsDouble(i+1), 0.0); // área do horizonte
-            let entropyBH = Complex(Microsoft.Quantum.Math.Log(1.0 + IntAsDouble(i)), Microsoft.Quantum.Math.Exp(-IntAsDouble(i) / 200.0)); // entropia de Bekenstein-Hawking
+            let entropyBH = Complex(Microsoft.Quantum.Math.Log(1.0 + IntAsDouble(i)), Microsoft.Quantum.Convert.ExpD(-IntAsDouble(i) / 200.0)); // entropia de Bekenstein-Hawking
             let hawkingRadiation = Complex(Microsoft.Quantum.Math.Sin(Microsoft.Quantum.Math.PI() * IntAsDouble(i) / 90.0), Microsoft.Quantum.Math.Cos(Microsoft.Quantum.Math.PI() * IntAsDouble(i) / 90.0)); // radiação Hawking
             let rand1 = DrawRandomDouble();
             let rand2 = DrawRandomDouble();
             let informationFlow = Complex(rand1, rand2);
             let holographicBound = Complex(Microsoft.Quantum.Math.Sqrt(0.5), Microsoft.Quantum.Math.Sqrt(0.5)); // princípio holográfico
-            let evaporation = Complex(Microsoft.Quantum.Math.Exp(-IntAsDouble(i) / 50.0), 0.0); // evaporação do buraco negro
+            let evaporation = Complex(Microsoft.Quantum.Convert.ExpD(-IntAsDouble(i) / 50.0), 0.0); // evaporação do buraco negro
             let entanglement = Complex(Microsoft.Quantum.Math.Sin(Microsoft.Quantum.Math.PI() * IntAsDouble(i) / 80.0), Microsoft.Quantum.Math.Cos(Microsoft.Quantum.Math.PI() * IntAsDouble(i) / 80.0)); // entrelaçamento quântico
             let rand3 = DrawRandomDouble();
             let rand4 = DrawRandomDouble();
