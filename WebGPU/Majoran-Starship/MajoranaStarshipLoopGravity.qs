@@ -8,10 +8,14 @@ namespace MajoranaStarship {
     open Microsoft.Quantum.Convert;
 
     operation ComplexTimes(a : Complex, b : Complex) : Complex {
-        return Complex(ComplexReal(a) * ComplexReal(b) - ComplexImag(a) * ComplexImag(b), ComplexReal(a) * ComplexImag(b) + ComplexImag(a) * ComplexReal(b));
+        let (aRe, aIm) = a!;
+        let (bRe, bIm) = b!;
+        return Complex(aRe * bRe - aIm * bIm, aRe * bIm + aIm * bRe);
     }
     operation ComplexPlus(a : Complex, b : Complex) : Complex {
-        return Complex(ComplexReal(a) + ComplexReal(b), ComplexImag(a) + ComplexImag(b));
+        let (aRe, aIm) = a!;
+        let (bRe, bIm) = b!;
+        return Complex(aRe + bRe, aIm + bIm);
     }
 
     operation MajoranaStarshipEngineLoopGravity(input : Double[]) : Complex {
@@ -21,11 +25,6 @@ namespace MajoranaStarship {
         for q in 0..9 {
             let qd = IntAsDouble(q);
             let spinNetwork = Complex(Sqrt(qd + 1.0), Sqrt(qd + 2.0)); // SU(2) labels
-            
-            // Fix for type mismatch: DrawRandomDouble returns Double, not Unit.
-            // However, the error message says "Expected type (Double, Double), but actual type was Unit."
-            // In Q#, DrawRandomDouble is an operation, it must be called with () if it has no arguments or just used as a call.
-            // Actually, DrawRandomDouble() is a call.
             
             let areaVal = DrawRandomDouble(0.0, 1.0); 
             let areaOp = Complex(8.0 * PI() * areaVal, 0.0); // Área quântica
