@@ -2,6 +2,7 @@
 // Black Hole Information + Hawking Radiation + Entropy
 
 namespace MajoranaStarship {
+    open Microsoft.Quantum.Convert;
     open Microsoft.Quantum.Random;
     open Microsoft.Quantum.Intrinsic;
     open Microsoft.Quantum.Math;
@@ -22,13 +23,21 @@ namespace MajoranaStarship {
             let normalization = Complex(Sqrt(0.5), Sqrt(0.5)); // normalização
             let contribution = ComplexMul(ComplexMul(ComplexMul(ComplexMul(ComplexMul(ComplexMul(ComplexMul(ComplexMul(ComplexMul(horizonArea, entropyBH), hawkingRadiation), informationFlow), holographicBound), evaporation), entanglement), firewall), normalization), Complex(input[i % Length(input)], 0.8 * IntAsDouble(i)));
 
-            set blackHoleCalc += contribution;
+            set blackHoleCalc = ComplexAdd(blackHoleCalc, contribution);
         }
 
         return blackHoleCalc;
     }
 
     function ComplexMul(a : Complex, b : Complex) : Complex {
-        return Complex(a::Re * b::Re - a::Im * b::Im, a::Re * b::Im + a::Im * b::Re);
+        let (aRe, aIm) = a!;
+        let (bRe, bIm) = b!;
+        return Complex(aRe * bRe - aIm * bIm, aRe * bIm + aIm * bRe);
+    }
+
+    function ComplexAdd(a : Complex, b : Complex) : Complex {
+        let (aRe, aIm) = a!;
+        let (bRe, bIm) = b!;
+        return Complex(aRe + bRe, aIm + bIm);
     }
 }
