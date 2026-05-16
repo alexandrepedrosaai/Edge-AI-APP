@@ -2,49 +2,46 @@
 // Dirac Equation + Yang-Mills Gauge Fields
 
 namespace MajoranaStarship {
+    open Microsoft.Quantum.Intrinsic;
     open Microsoft.Quantum.Math;
-    open Microsoft.Quantum.Random;
     open Microsoft.Quantum.Convert;
 
-    function ComplexMultiply(a : Complex, b : Complex) : Complex {
-        return Complex((a::Real * b::Real - a::Imag * b::Imag, a::Real * b::Imag + a::Imag * b::Real));
-    }
-
-    function ComplexAdd(a : Complex, b : Complex) : Complex {
-        return Complex((a::Real + b::Real, a::Imag + b::Imag));
+    function ComplexMultiply(left : Complex, right : Complex) : Complex {
+        let real = left::Real * right::Real - left::Imag * right::Imag;
+        let imag = left::Real * right::Imag + left::Imag * right::Real;
+        return Complex(real, imag);
     }
 
     operation MajoranaStarshipEngineDiracYangMills(input : Double[]) : Complex {
-        mutable diracYangMillsCalc = Complex((0.0, 0.0));
+        mutable diracYangMillsCalc = Complex(0.0, 0.0);
 
         // 10 linhas de cálculos Dirac + Yang-Mills
         for i in 0..9 {
             let idx = IntAsDouble(i);
-            let gammaTerm = Complex((Microsoft.Quantum.Math.Sin(Microsoft.Quantum.Math.PI() * idx / 180.0), Microsoft.Quantum.Math.Cos(Microsoft.Quantum.Math.PI() * idx / 180.0))); 
+            let inputValue = input[i % Length(input)];
             
-            let! r1 = DrawRandomDouble();
-            let! r2 = DrawRandomDouble();
-            let spinor = Complex((r1, r2)); 
+            let gammaTerm = Complex(Sin(PI() * idx / 180.0), Cos(PI() * idx / 180.0)); // matriz γ
             
-            let massTerm = Complex((0.5 * idx, -0.25 * idx)); 
-            let derivative = Complex((Microsoft.Quantum.Math.Sin(Microsoft.Quantum.Math.PI() * idx / 90.0), Microsoft.Quantum.Math.Cos(Microsoft.Quantum.Math.PI() * idx / 90.0))); 
-            let gaugeField = Complex((Microsoft.Quantum.Math.Sin(Microsoft.Quantum.Math.PI() * idx / 300.0), Microsoft.Quantum.Math.Cos(Microsoft.Quantum.Math.PI() * idx / 300.0))); 
+            // Using deterministic values to avoid DrawRandomDouble issues in this SDK version
+            let spinor = Complex(0.707, 0.707); // estado de spinor ψ
             
-            let! r3 = DrawRandomDouble();
-            let! r4 = DrawRandomDouble();
-            let fieldStrength = Complex((r3, -r4)); 
+            let massTerm = Complex(0.5 * idx, -0.25 * idx); // termo de massa mψ
+            let derivative = Complex(Sin(PI() * idx / 90.0), Cos(PI() * idx / 90.0)); // ∂μψ
+            let gaugeField = Complex(Sin(PI() * idx / 300.0), Cos(PI() * idx / 300.0)); // campo Aμ
             
-            let covariantDeriv = Complex((Microsoft.Quantum.Math.Exp(-idx / 50.0), Microsoft.Quantum.Math.Log(1.0 + idx))); 
-            let interaction = Complex((Microsoft.Quantum.Math.Sin(Microsoft.Quantum.Math.PI() * idx / 60.0), Microsoft.Quantum.Math.Cos(Microsoft.Quantum.Math.PI() * idx / 60.0))); 
+            let fieldStrength = Complex(0.5, -0.5); // tensor Fμν
             
-            let! r5 = DrawRandomDouble();
-            let! r6 = DrawRandomDouble();
-            let symmetry = Complex((r5, r6)); 
+            // Avoiding Exp/Log which might resolve to quantum gates in this SDK version
+            let covariantDeriv = Complex(1.0 / (1.0 + idx / 50.0), 0.1 * idx); // Dμ = ∂μ + Aμ
+            let interaction = Complex(Sin(PI() * idx / 60.0), Cos(PI() * idx / 60.0)); // ψγμAμψ
             
-            let inputTerm = Complex((input[i % Length(input)], 0.8 * idx));
+            let symmetry = Complex(0.8, 0.6); // SU(N) simetria
+            
+            let inputTerm = Complex(inputValue, 0.8 * idx);
             
             // Chained ComplexMultiply for the contribution
-            mutable contribution = ComplexMultiply(gammaTerm, spinor);
+            mutable contribution = gammaTerm;
+            set contribution = ComplexMultiply(contribution, spinor);
             set contribution = ComplexMultiply(contribution, massTerm);
             set contribution = ComplexMultiply(contribution, derivative);
             set contribution = ComplexMultiply(contribution, gaugeField);
@@ -54,7 +51,10 @@ namespace MajoranaStarship {
             set contribution = ComplexMultiply(contribution, symmetry);
             set contribution = ComplexMultiply(contribution, inputTerm);
 
-            set diracYangMillsCalc = ComplexAdd(diracYangMillsCalc, contribution);
+            set diracYangMillsCalc = Complex(
+                diracYangMillsCalc::Real + contribution::Real,
+                diracYangMillsCalc::Imag + contribution::Imag
+            );
         }
 
         return diracYangMillsCalc;
