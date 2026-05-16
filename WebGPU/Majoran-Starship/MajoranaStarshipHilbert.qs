@@ -4,24 +4,45 @@
 namespace MajoranaStarship {
     open Microsoft.Quantum.Intrinsic;
     open Microsoft.Quantum.Math;
+    open Microsoft.Quantum.Convert;
+
+    function ComplexMultiplyHilbert(left : Complex, right : Complex) : Complex {
+        let real = left::Real * right::Real - left::Imag * right::Imag;
+        let imag = left::Real * right::Imag + left::Imag * right::Real;
+        return Complex(real, imag);
+    }
 
     operation MajoranaStarshipEngineHilbert(input : Double[]) : Complex {
         mutable hilbertCalc = Complex(0.0, 0.0);
 
         // 10 linhas de cálculos Higgs + SUSY + Hilbert
-        for (i in 0..9) {
+        for i in 0..9 {
+            let idx = IntAsDouble(i);
             let phi = input[i % Length(input)]; // campo escalar
+            
             let higgsPotential = Complex(phi*phi + 0.5*phi*phi*phi*phi, 0.0); // V(φ)
             let boson = Complex(phi, 0.0); // estado bosônico
             let fermion = Complex(0.0, phi); // estado fermiônico
-            let susyPair = boson * fermion; // par SUSY
-            let superposition = Complex(Sin(PI()*i/100.0), Cos(PI()*i/100.0)); // superposição
+            
+            let susyPair = ComplexMultiplyHilbert(boson, fermion); // par SUSY
+            let superposition = Complex(Sin(PI()*idx/100.0), Cos(PI()*idx/100.0)); // superposição
             let entanglement = Complex(Sqrt(0.5), Sqrt(0.5)); // entrelaçamento
-            let innerProduct = Complex(phi * phi, Exp(-i/50.0)); // produto interno Hilbert
+            
+            // Using algebraic approximation for Exp to avoid quantum gate conflict
+            let innerProduct = Complex(phi * phi, 1.0 / (1.0 + idx/50.0)); // produto interno Hilbert
             let normalization = Complex(Sqrt(0.5), Sqrt(0.5)); // normalização
-            let contribution = higgsPotential * susyPair * superposition * entanglement * innerProduct * normalization;
+            
+            mutable contribution = higgsPotential;
+            set contribution = ComplexMultiplyHilbert(contribution, susyPair);
+            set contribution = ComplexMultiplyHilbert(contribution, superposition);
+            set contribution = ComplexMultiplyHilbert(contribution, entanglement);
+            set contribution = ComplexMultiplyHilbert(contribution, innerProduct);
+            set contribution = ComplexMultiplyHilbert(contribution, normalization);
 
-            set hilbertCalc += contribution;
+            set hilbertCalc = Complex(
+                hilbertCalc::Real + contribution::Real,
+                hilbertCalc::Imag + contribution::Imag
+            );
         }
 
         return hilbertCalc;
