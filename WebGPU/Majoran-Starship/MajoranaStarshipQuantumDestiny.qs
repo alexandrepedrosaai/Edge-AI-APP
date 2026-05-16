@@ -4,33 +4,64 @@
 namespace MajoranaStarship {
     open Microsoft.Quantum.Intrinsic;
     open Microsoft.Quantum.Math;
+    open Microsoft.Quantum.Random;
+    open Microsoft.Quantum.Convert;
+
+    function ComplexMultiply(left : Complex, right : Complex) : Complex {
+        let real = left::Real * right::Real - left::Imag * right::Imag;
+        let imag = left::Real * right::Imag + left::Imag * right::Real;
+        return Complex(real, imag);
+    }
 
     operation MajoranaStarshipEngineQuantumDestiny(input : Double[]) : Complex {
-        mutable destinyCalc = Complex(0.0, 0.0);
+        mutable destinyCalcReal = 0.0;
+        mutable destinyCalcImag = 0.0;
 
         // 20 linhas de cálculos Quantum Destiny
-        for (i in 0..19) {
-            let probabilityAlignment = Complex(Sin(PI() * i / 100.0), Cos(PI() * i / 100.0)); // alinhamento probabilístico
-            let cosmicTrajectory = Complex(Log(1.0 + i), Exp(-i / 200.0)); // trajetória cósmica
+        for i in 0..19 {
+            let idx = IntAsDouble(i);
+            
+            let probabilityAlignment = Complex(Sin(PI() * idx / 100.0), Cos(PI() * idx / 100.0)); // alinhamento probabilístico
+            let cosmicTrajectory = Complex(Log(1.0 + idx), ExpD(-idx / 200.0)); // trajetória cósmica
             let inevitabilityFactor = Complex(Sqrt(0.5), Sqrt(0.5)); // fator de inevitabilidade
-            let quantumChoice = Complex(Exp(-i / 150.0), Sin(PI() * i / 80.0)); // escolha quântica
-            let holography = Complex(Sin(PI() * i / 90.0), Cos(PI() * i / 90.0)); // holografia do destino
-            let entanglement = Complex(RandomDouble(), RandomDouble()); // entrelaçamento do destino
-            let decoherence = Complex(Exp(-i / 50.0), 0.0); // decoerência das escolhas
-            let resonance = Complex(Sin(PI() * i / 70.0), Cos(PI() * i / 70.0)); // ressonância do destino
-            let tunneling = Complex(RandomDouble(), -RandomDouble()); // tunelamento entre futuros
-            let curvaturePath = Complex(Sin(PI() * i / 60.0), Cos(PI() * i / 60.0)); // curvatura das trajetórias
-            let spinStructure = Complex(Log(1.0 + i), Exp(-i / 100.0)); // estrutura de spin do destino
-            let recurrence = Complex(Sin(PI() * i / 85.0), Cos(PI() * i / 85.0)); // recorrência inevitável
-            let synchronization = Complex(Exp(-i / 120.0), Log(1.0 + i)); // sincronização cósmica
-            let multiverseBranch = Complex(Sin(PI() * i / 110.0), Cos(PI() * i / 110.0)); // ramificação multiversal
-            let quantumFoam = Complex(RandomDouble(), RandomDouble()); // espuma quântica do destino
+            let quantumChoice = Complex(ExpD(-idx / 150.0), Sin(PI() * idx / 80.0)); // escolha quântica
+            let holography = Complex(Sin(PI() * idx / 90.0), Cos(PI() * idx / 90.0)); // holografia do destino
+            let entanglement = Complex(DrawRandomDouble(), DrawRandomDouble()); // entrelaçamento do destino
+            let decoherence = Complex(ExpD(-idx / 50.0), 0.0); // decoerência das escolhas
+            let resonance = Complex(Sin(PI() * idx / 70.0), Cos(PI() * idx / 70.0)); // ressonância do destino
+            let tunneling = Complex(DrawRandomDouble(), -DrawRandomDouble()); // tunelamento entre futuros
+            let curvaturePath = Complex(Sin(PI() * idx / 60.0), Cos(PI() * idx / 60.0)); // curvatura das trajetórias
+            let spinStructure = Complex(Log(1.0 + idx), ExpD(-idx / 100.0)); // estrutura de spin do destino
+            let recurrence = Complex(Sin(PI() * idx / 85.0), Cos(PI() * idx / 85.0)); // recorrência inevitável
+            let synchronization = Complex(ExpD(-idx / 120.0), Log(1.0 + idx)); // sincronização cósmica
+            let multiverseBranch = Complex(Sin(PI() * idx / 110.0), Cos(PI() * idx / 110.0)); // ramificação multiversal
+            let quantumFoam = Complex(DrawRandomDouble(), DrawRandomDouble()); // espuma quântica do destino
             let normalization = Complex(Sqrt(0.5), Sqrt(0.5)); // normalização
-            let contribution = probabilityAlignment * cosmicTrajectory * inevitabilityFactor * quantumChoice * holography * entanglement * decoherence * resonance * tunneling * curvaturePath * spinStructure * recurrence * synchronization * multiverseBranch * quantumFoam * normalization * Complex(input[i % Length(input)], 0.8 * i);
+            
+            let inputContribution = Complex(input[i % Length(input)], 0.8 * idx);
 
-            set destinyCalc += contribution;
+            mutable contribution = probabilityAlignment;
+            set contribution = ComplexMultiply(contribution, cosmicTrajectory);
+            set contribution = ComplexMultiply(contribution, inevitabilityFactor);
+            set contribution = ComplexMultiply(contribution, quantumChoice);
+            set contribution = ComplexMultiply(contribution, holography);
+            set contribution = ComplexMultiply(contribution, entanglement);
+            set contribution = ComplexMultiply(contribution, decoherence);
+            set contribution = ComplexMultiply(contribution, resonance);
+            set contribution = ComplexMultiply(contribution, tunneling);
+            set contribution = ComplexMultiply(contribution, curvaturePath);
+            set contribution = ComplexMultiply(contribution, spinStructure);
+            set contribution = ComplexMultiply(contribution, recurrence);
+            set contribution = ComplexMultiply(contribution, synchronization);
+            set contribution = ComplexMultiply(contribution, multiverseBranch);
+            set contribution = ComplexMultiply(contribution, quantumFoam);
+            set contribution = ComplexMultiply(contribution, normalization);
+            set contribution = ComplexMultiply(contribution, inputContribution);
+
+            set destinyCalcReal += contribution::Real;
+            set destinyCalcImag += contribution::Imag;
         }
 
-        return destinyCalc;
+        return Complex(destinyCalcReal, destinyCalcImag);
     }
 }
