@@ -8,10 +8,10 @@ namespace MajoranaStarship {
     open Microsoft.Quantum.Convert;
 
     operation ComplexTimes(a : Complex, b : Complex) : Complex {
-        return Complex(GetReal(a) * GetReal(b) - GetImag(a) * GetImag(b), GetReal(a) * GetImag(b) + GetImag(a) * GetReal(b));
+        return Complex(a::Re * b::Re - a::Im * b::Im, a::Re * b::Im + a::Im * b::Re);
     }
     operation ComplexPlus(a : Complex, b : Complex) : Complex {
-        return Complex(GetReal(a) + GetReal(b), GetImag(a) + GetImag(b));
+        return Complex(a::Re + b::Re, a::Im + b::Im);
     }
 
     operation MajoranaStarshipEngineLoopGravity(input : Double[]) : Complex {
