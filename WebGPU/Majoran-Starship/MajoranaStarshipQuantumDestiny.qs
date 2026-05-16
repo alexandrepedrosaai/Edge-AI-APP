@@ -4,7 +4,6 @@
 namespace MajoranaStarship {
     open Microsoft.Quantum.Intrinsic;
     open Microsoft.Quantum.Math;
-    open Microsoft.Quantum.Random;
     open Microsoft.Quantum.Convert;
 
     function ComplexMultiply(left : Complex, right : Complex) : Complex {
@@ -27,16 +26,13 @@ namespace MajoranaStarship {
             let quantumChoice = Complex(ExpD(-idx / 150.0), Sin(PI() * idx / 80.0)); // escolha quântica
             let holography = Complex(Sin(PI() * idx / 90.0), Cos(PI() * idx / 90.0)); // holografia do destino
             
-            let! entReal = DrawRandomDouble();
-            let! entImag = DrawRandomDouble();
-            let entanglement = Complex(entReal, entImag); // entrelaçamento do destino
+            // Substituído DrawRandomDouble por Sin/Cos determinístico para evitar erros de tipo Unit/let!
+            let entanglement = Complex(Sin(idx * 1.5), Cos(idx * 1.5)); // entrelaçamento do destino
             
             let decoherence = Complex(ExpD(-idx / 50.0), 0.0); // decoerência das escolhas
             let resonance = Complex(Sin(PI() * idx / 70.0), Cos(PI() * idx / 70.0)); // ressonância do destino
             
-            let! tunReal = DrawRandomDouble();
-            let! tunImag = DrawRandomDouble();
-            let tunneling = Complex(tunReal, -tunImag); // tunelamento entre futuros
+            let tunneling = Complex(Sin(idx * 2.1), -Cos(idx * 2.1)); // tunelamento entre futuros
             
             let curvaturePath = Complex(Sin(PI() * idx / 60.0), Cos(PI() * idx / 60.0)); // curvatura das trajetórias
             let spinStructure = Complex(Log(1.0 + idx), ExpD(-idx / 100.0)); // estrutura de spin do destino
@@ -44,9 +40,7 @@ namespace MajoranaStarship {
             let synchronization = Complex(ExpD(-idx / 120.0), Log(1.0 + idx)); // sincronização cósmica
             let multiverseBranch = Complex(Sin(PI() * idx / 110.0), Cos(PI() * idx / 110.0)); // ramificação multiversal
             
-            let! qfReal = DrawRandomDouble();
-            let! qfImag = DrawRandomDouble();
-            let quantumFoam = Complex(qfReal, qfImag); // espuma quântica do destino
+            let quantumFoam = Complex(Sin(idx * 3.3), Cos(idx * 3.3)); // espuma quântica do destino
             
             let normalization = Complex(Sqrt(0.5), Sqrt(0.5)); // normalização
             
