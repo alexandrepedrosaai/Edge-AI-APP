@@ -20,24 +20,22 @@ namespace MajoranaStarship {
         // 10 linhas de cálculos Dirac + Yang-Mills
         for i in 0..9 {
             let idx = IntAsDouble(i);
+            let gammaTerm = Complex((Microsoft.Quantum.Math.Sin(Microsoft.Quantum.Math.PI() * idx / 180.0), Microsoft.Quantum.Math.Cos(Microsoft.Quantum.Math.PI() * idx / 180.0))); 
             
-            let gammaTerm = Complex((Sin(PI() * idx / 180.0), Cos(PI() * idx / 180.0))); 
-            
-            // DrawRandomDouble is an operation, must use let! to bind the result
             let! r1 = DrawRandomDouble();
             let! r2 = DrawRandomDouble();
             let spinor = Complex((r1, r2)); 
             
             let massTerm = Complex((0.5 * idx, -0.25 * idx)); 
-            let derivative = Complex((Sin(PI() * idx / 90.0), Cos(PI() * idx / 90.0))); 
-            let gaugeField = Complex((Sin(PI() * idx / 300.0), Cos(PI() * idx / 300.0))); 
+            let derivative = Complex((Microsoft.Quantum.Math.Sin(Microsoft.Quantum.Math.PI() * idx / 90.0), Microsoft.Quantum.Math.Cos(Microsoft.Quantum.Math.PI() * idx / 90.0))); 
+            let gaugeField = Complex((Microsoft.Quantum.Math.Sin(Microsoft.Quantum.Math.PI() * idx / 300.0), Microsoft.Quantum.Math.Cos(Microsoft.Quantum.Math.PI() * idx / 300.0))); 
             
             let! r3 = DrawRandomDouble();
             let! r4 = DrawRandomDouble();
             let fieldStrength = Complex((r3, -r4)); 
             
-            let covariantDeriv = Complex((Exp(-idx / 50.0), Log(1.0 + idx))); 
-            let interaction = Complex((Sin(PI() * idx / 60.0), Cos(PI() * idx / 60.0))); 
+            let covariantDeriv = Complex((Microsoft.Quantum.Math.Exp(-idx / 50.0), Microsoft.Quantum.Math.Log(1.0 + idx))); 
+            let interaction = Complex((Microsoft.Quantum.Math.Sin(Microsoft.Quantum.Math.PI() * idx / 60.0), Microsoft.Quantum.Math.Cos(Microsoft.Quantum.Math.PI() * idx / 60.0))); 
             
             let! r5 = DrawRandomDouble();
             let! r6 = DrawRandomDouble();
