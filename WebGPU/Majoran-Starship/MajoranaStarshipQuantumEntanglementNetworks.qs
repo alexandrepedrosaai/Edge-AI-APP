@@ -4,26 +4,56 @@
 namespace MajoranaStarship {
     open Microsoft.Quantum.Intrinsic;
     open Microsoft.Quantum.Math;
+    open Microsoft.Quantum.Random;
+    open Microsoft.Quantum.Convert;
+
+    function ComplexMultiply(left : Complex, right : Complex) : Complex {
+        let real = left::Real * right::Real - left::Imag * right::Imag;
+        let imag = left::Real * right::Imag + left::Imag * right::Real;
+        return Complex(real, imag);
+    }
 
     operation MajoranaStarshipEngineQuantumEntanglementNetworks(input : Double[]) : Complex {
-        mutable entanglementNetworkCalc = Complex(0.0, 0.0);
+        mutable entanglementNetworkCalcReal = 0.0;
+        mutable entanglementNetworkCalcImag = 0.0;
 
         // 10 linhas de cálculos Entanglement Networks
-        for (i in 0..9) {
-            let qubitPair = Complex(Sqrt(0.5), Sqrt(0.5)); // par de qubits entrelaçados
-            let bellState = Complex(Sin(PI() * i / 100.0), Cos(PI() * i / 100.0)); // estado de Bell
-            let teleportation = Complex(Exp(-i / 200.0), Log(1.0 + i)); // teleportação quântica
-            let networkNode = Complex(RandomDouble(), RandomDouble()); // nó da rede
-            let quantumChannel = Complex(Sin(PI() * i / 90.0), Cos(PI() * i / 90.0)); // canal quântico
-            let fidelity = Complex(Exp(-i / 50.0), 0.0); // fidelidade da transmissão
-            let decoherence = Complex(RandomDouble(), -RandomDouble()); // decoerência
-            let synchronization = Complex(Sin(PI() * i / 80.0), Cos(PI() * i / 80.0)); // sincronização de rede
-            let normalization = Complex(Sqrt(0.5), Sqrt(0.5)); // normalização
-            let contribution = qubitPair * bellState * teleportation * networkNode * quantumChannel * fidelity * decoherence * synchronization * normalization * Complex(input[i % Length(input)], 0.8 * i);
+        for i in 0..9 {
+            let idx = IntAsDouble(i);
 
-            set entanglementNetworkCalc += contribution;
+            let qubitPair = Complex(Sqrt(0.5), Sqrt(0.5)); // par de qubits entrelaçados
+            let bellState = Complex(Sin(PI() * idx / 100.0), Cos(PI() * idx / 100.0)); // estado de Bell
+            let teleportation = Complex(ExpD(-idx / 200.0), Log(1.0 + idx)); // teleportação quântica
+            
+            // Substituído RandomDouble por Sin/Cos determinístico
+            let networkNode = Complex(Sin(idx * 1.5), Cos(idx * 1.5)); // nó da rede
+            
+            let quantumChannel = Complex(Sin(PI() * idx / 90.0), Cos(PI() * idx / 90.0)); // canal quântico
+            let fidelity = Complex(ExpD(-idx / 50.0), 0.0); // fidelidade da transmissão
+            
+            // Substituído RandomDouble por Sin/Cos determinístico
+            let decoherence = Complex(Sin(idx * 2.1), -Cos(idx * 2.1)); // decoerência
+            
+            let synchronization = Complex(Sin(PI() * idx / 80.0), Cos(PI() * idx / 80.0)); // sincronização de rede
+            let normalization = Complex(Sqrt(0.5), Sqrt(0.5)); // normalização
+            
+            let inputContribution = Complex(input[i % Length(input)], 0.8 * idx);
+
+            mutable contribution = qubitPair;
+            set contribution = ComplexMultiply(contribution, bellState);
+            set contribution = ComplexMultiply(contribution, teleportation);
+            set contribution = ComplexMultiply(contribution, networkNode);
+            set contribution = ComplexMultiply(contribution, quantumChannel);
+            set contribution = ComplexMultiply(contribution, fidelity);
+            set contribution = ComplexMultiply(contribution, decoherence);
+            set contribution = ComplexMultiply(contribution, synchronization);
+            set contribution = ComplexMultiply(contribution, normalization);
+            set contribution = ComplexMultiply(contribution, inputContribution);
+
+            set entanglementNetworkCalcReal += contribution::Real;
+            set entanglementNetworkCalcImag += contribution::Imag;
         }
 
-        return entanglementNetworkCalc;
+        return Complex(entanglementNetworkCalcReal, entanglementNetworkCalcImag);
     }
 }
