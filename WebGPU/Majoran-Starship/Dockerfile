@@ -5,7 +5,14 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 RUN apt-get update && apt-get install -y \
     curl \
     git \
+    wget \
     && rm -rf /var/lib/apt/lists/*
+
+# Instalar .NET 6.0 SDK
+RUN wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh && \
+    chmod +x dotnet-install.sh && \
+    ./dotnet-install.sh --version 6.0.428 --install-dir /usr/share/dotnet && \
+    rm dotnet-install.sh
 
 # Diretório de trabalho
 WORKDIR /app/WebGPU/Majoran-Starship

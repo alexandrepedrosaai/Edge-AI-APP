@@ -72,7 +72,9 @@ jobs:
       - name: Setup Q# environment
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: |
+            6.0.x
+            8.0.x
           cache: true
           cache-dependency-path: 'WebGPU/Majoran-Starship/${{ matrix.project }}'
 
@@ -161,8 +163,12 @@ jobs:
         with:
           tag_name: ${{ steps.tag.outputs.version }}
           name: "Topo-Majorana-Quibits Release ${{ steps.tag.outputs.version }}"
-          body: "Automated release containing all binaries and source files for Majorana Starship. (Some problematic builds were excluded)"
-          files: majorana-starship-full-package.zip
+          body: "Automated release containing all binaries and source files for Majorana Starship. Each project binary is uploaded as a separate asset."
+          files: |
+            majorana-starship-full-package.zip
+            artifacts/**/*.dll
+            artifacts/**/*.exe
+            artifacts/**/*.pdb
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
