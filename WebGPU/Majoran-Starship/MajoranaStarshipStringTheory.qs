@@ -4,7 +4,6 @@
 namespace MajoranaStarship {
     open Microsoft.Quantum.Random;
     open Microsoft.Quantum.Convert;
-    open Microsoft.Quantum.Intrinsic;
     open Microsoft.Quantum.Math;
 
     function ComplexAdd(a : (Double, Double), b : (Double, Double)) : (Double, Double) {
@@ -32,11 +31,20 @@ namespace MajoranaStarship {
             let vibration = (Sin(2.0 * PI() * dI / 100.0), Cos(2.0 * PI() * dI / 100.0)); // vibração da corda
             let tension = (0.5 * dI, -0.25 * dI); // tensão da corda
             let compactification = (Exp(-dI / 200.0), Sin(PI() * dI / 70.0)); // Calabi-Yau
-            let modeExpansion = (RandomReal(0.0, 1.0), RandomReal(0.0, 1.0)); // modos de oscilação
+            
+            // Get random values as separate variables to ensure they are treated as Doubles
+            let r1 = RandomReal(0.0, 1.0);
+            let r2 = RandomReal(0.0, 1.0);
+            let modeExpansion = (r1, r2); // modos de oscilação
+            
             let braneInteraction = (Sin(PI() * dI / 90.0), Cos(PI() * dI / 90.0)); // interação com branas
             let extraDimension = (Log(1.0 + dI), Exp(-dI / 100.0)); // dimensão extra
             let duality = (Sin(PI() * dI / 60.0), Cos(PI() * dI / 60.0)); // T-dualidade
-            let symmetry = (RandomReal(0.0, 1.0), RandomReal(0.0, 1.0)); // simetria E8×E8
+            
+            let s1 = RandomReal(0.0, 1.0);
+            let s2 = RandomReal(0.0, 1.0);
+            let symmetry = (s1, s2); // simetria E8×E8
+            
             let normalization = (Sqrt(0.5), Sqrt(0.5)); // normalização
             
             let inputVal = (input[i % Length(input)], 0.8 * dI);
@@ -49,7 +57,7 @@ namespace MajoranaStarship {
                                ComplexMul(extraDimension, 
                                ComplexMul(duality, 
                                ComplexMul(symmetry, 
-                               ComplexMul(normalization, inputVal))))))))));
+                               ComplexMul(normalization, inputVal)))))))));
 
             set stringTheoryCalc = ComplexAdd(stringTheoryCalc, contribution);
         }
