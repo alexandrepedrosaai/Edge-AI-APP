@@ -2,7 +2,12 @@
 // Quantum Time Crystals + Broken Time Symmetry
 
 namespace MajoranaStarship {
-    
+    open Microsoft.Quantum.Intrinsic;
+    open Microsoft.Quantum.Math;
+    open Microsoft.Quantum.Convert;
+
+    newtype Complex = (Real : Double, Imag : Double);
+
     function ComplexAdd(a : Complex, b : Complex) : Complex {
         return Complex(a::Real + b::Real, a::Imag + b::Imag);
     }
@@ -12,9 +17,6 @@ namespace MajoranaStarship {
         let imagPart = a::Real * b::Imag + a::Imag * b::Real;
         return Complex(realPart, imagPart);
     }
-
-    open Microsoft.Quantum.Intrinsic;
-    open Microsoft.Quantum.Math;
 
     operation MajoranaStarshipEngineQuantumTimeCrystal(input : Double[]) : Complex {
         mutable timeCrystalCalc = Complex(0.0, 0.0);
@@ -39,7 +41,8 @@ namespace MajoranaStarship {
             let multiverseBranch = Complex(Sin(PI() * d / 110.0), Cos(PI() * d / 110.0)); // ramificação multiversal
             let synchronization = Complex(0.5, 0.25); // sincronização temporal
             let normalization = Complex(Sqrt(0.5), Sqrt(0.5)); // normalização
-            let contribution = ComplexMultiply(periodicOscillation, brokenSymmetry);
+            
+            mutable contribution = ComplexMultiply(periodicOscillation, brokenSymmetry);
             set contribution = ComplexMultiply(contribution, floquetState);
             set contribution = ComplexMultiply(contribution, qubitSuperposition);
             set contribution = ComplexMultiply(contribution, entanglement);
