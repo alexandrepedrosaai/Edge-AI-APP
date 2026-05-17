@@ -57,6 +57,36 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-dotnet-build-${{ matrix.project }}-
 
+      - name: Cache Docker Images
+        id: cache-docker
+        uses: actions/cache@v4
+        with:
+          path: /tmp/docker-images
+          key: ${{ runner.os }}-docker-images-${{ hashFiles('.github/workflows/Topo-Majorana-Quibits.yml') }}
+
+      - name: Load Docker Images from Cache
+        if: steps.cache-docker.outputs.cache-hit == 'true'
+        run: |
+          if [ -f /tmp/docker-images/images.tar ]; then
+            docker load -i /tmp/docker-images/images.tar
+          fi
+
+      - name: Pull required Docker images
+        run: |
+          docker pull ghcr.io/alexandrepedrosaai/edge-ai-app/webgpu:latest
+          docker pull ghcr.io/alexandrepedrosaai/edge-ai-app/clusters-arrays-gpu:66
+          docker pull ghcr.io/alexandrepedrosaai/edge-ai-app/electric-and-magnetic-field-circuits:48
+
+      - name: Save Docker Images to Cache
+        if: steps.cache-docker.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p /tmp/docker-images
+          docker save \
+            ghcr.io/alexandrepedrosaai/edge-ai-app/webgpu:latest \
+            ghcr.io/alexandrepedrosaai/edge-ai-app/clusters-arrays-gpu:66 \
+            ghcr.io/alexandrepedrosaai/edge-ai-app/electric-and-magnetic-field-circuits:48 \
+            -o /tmp/docker-images/images.tar
+
       - name: Restore dependencies
         run: |
           cd WebGPU/Majoran-Starship
