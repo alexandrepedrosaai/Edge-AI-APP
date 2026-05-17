@@ -6,8 +6,28 @@ on:
       - main
 
 jobs:
-  build:
+  setup:
     runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set matrix
+        id: set-matrix
+        run: |
+          cd WebGPU/Majoran-Starship
+          PROJECTS=$(ls *.csproj | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "matrix=$PROJECTS" >> $GITHUB_OUTPUT
+
+  build-and-run:
+    needs: setup
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        project: ${{ fromJson(needs.setup.outputs.matrix) }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -17,76 +37,54 @@ jobs:
         with:
           dotnet-version: '8.0.x'
           cache: true
-          cache-dependency-path: 'WebGPU/Majoran-Starship/*.csproj'
+          cache-dependency-path: 'WebGPU/Majoran-Starship/${{ matrix.project }}'
 
       - name: Cache NuGet packages
         uses: actions/cache@v4
         with:
           path: ~/.nuget/packages
-          key: ${{ runner.os }}-nuget-${{ hashFiles('WebGPU/Majoran-Starship/*.csproj') }}
+          key: ${{ runner.os }}-nuget-${{ matrix.project }}-${{ hashFiles(format('WebGPU/Majoran-Starship/{0}', matrix.project)) }}
           restore-keys: |
-            ${{ runner.os }}-nuget-
+            ${{ runner.os }}-nuget-${{ matrix.project }}-
 
       - name: Double Cache (bin and obj folders)
         uses: actions/cache@v4
         with:
           path: |
-            WebGPU/Majoran-Starship/**/bin
-            WebGPU/Majoran-Starship/**/obj
-          key: ${{ runner.os }}-dotnet-build-${{ hashFiles('WebGPU/Majoran-Starship/*.csproj', 'WebGPU/Majoran-Starship/*.qs') }}
+            WebGPU/Majoran-Starship/bin
+            WebGPU/Majoran-Starship/obj
+          key: ${{ runner.os }}-dotnet-build-${{ matrix.project }}-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-dotnet-build-
-
-      - name: Cache Docker layers
-        uses: actions/cache@v4
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-docker-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-docker-
-
-      - name: Pull required Docker images
-        run: |
-          docker pull ghcr.io/alexandrepedrosaai/edge-ai-app/webgpu:latest
-          docker pull ghcr.io/alexandrepedrosaai/edge-ai-app/clusters-arrays-gpu:66
-          docker pull ghcr.io/alexandrepedrosaai/edge-ai-app/electric-and-magnetic-field-circuits:48
+            ${{ runner.os }}-dotnet-build-${{ matrix.project }}-
 
       - name: Restore dependencies
         run: |
           cd WebGPU/Majoran-Starship
-          for project in *.csproj; do
-            dotnet restore "$project"
-          done
+          dotnet restore "${{ matrix.project }}"
 
-      - name: Build all MajoranaStarship files
+      - name: Build project
         run: |
           cd WebGPU/Majoran-Starship
-          for project in *.csproj; do
-            echo "Building $project"
-            DOTNET_ROLL_FORWARD=Major dotnet build "$project" --no-restore -c Release
-          done
+          DOTNET_ROLL_FORWARD=Major dotnet build "${{ matrix.project }}" --no-restore -c Release
 
-      - name: Run all MajoranaStarship files
+      - name: Run project
         run: |
           cd WebGPU/Majoran-Starship
-          for project in *.csproj; do
-            echo "Running $project"
-            DOTNET_ROLL_FORWARD=Major dotnet run --no-build -c Release --project "$project" || echo "Skipping run failure for $project"
-          done
+          DOTNET_ROLL_FORWARD=Major dotnet run --no-build -c Release --project "${{ matrix.project }}" || echo "Skipping run failure for ${{ matrix.project }}"
 
-      - name: Package all files and binaries
+      - name: Package project artifacts
         run: |
-          zip -r majorana-starship-full-package.zip WebGPU/Majoran-Starship/
+          cd WebGPU/Majoran-Starship
+          zip -r "${{ matrix.project }}-artifacts.zip" . -i "${{ matrix.project }}" "bin/*" "obj/*" "*.qs"
 
-      - name: Upload all Q# binaries artifacts
-        if: always()
+      - name: Upload project artifact
         uses: actions/upload-artifact@v4
         with:
-          name: majorana-starship-package
-          path: majorana-starship-full-package.zip
+          name: ${{ matrix.project }}-artifact
+          path: WebGPU/Majoran-Starship/${{ matrix.project }}-artifacts.zip
 
   release:
-    needs: build
+    needs: build-and-run
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -96,10 +94,14 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Download artifacts
+      - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          name: majorana-starship-package
+          path: all-artifacts
+
+      - name: Create unified package
+        run: |
+          zip -r majorana-starship-full-package.zip all-artifacts/
 
       - name: Create release tag
         id: tag
@@ -118,13 +120,13 @@ jobs:
         with:
           tag_name: ${{ steps.tag.outputs.version }}
           name: "Topo-Majorana-Quibits Release ${{ steps.tag.outputs.version }}"
-          body: "Automated release containing all binaries and source files for Majorana Starship."
+          body: "Automated parallel release containing all binaries and source files for Majorana Starship."
           files: majorana-starship-full-package.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   docker:
-    needs: build
+    needs: setup
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
