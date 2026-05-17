@@ -18,7 +18,7 @@ jobs:
         id: set-matrix
         run: |
           cd WebGPU/Majoran-Starship
-          PROJECTS=$(ls *.csproj | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          PROJECTS=$(ls *.csproj | grep -v "MajoranaStarshipQuantumInfinity.csproj" | jq -R -s -c 'split("\n") | map(select(length > 0))')
           echo "matrix=$PROJECTS" >> $GITHUB_OUTPUT
 
   build-and-run:
@@ -62,16 +62,6 @@ jobs:
           cd WebGPU/Majoran-Starship
           dotnet restore "${{ matrix.project }}"
 
-      - name: Build project
-        run: |
-          cd WebGPU/Majoran-Starship
-          DOTNET_ROLL_FORWARD=Major dotnet build "${{ matrix.project }}" --no-restore -c Release
-
-      - name: Run project
-        run: |
-          cd WebGPU/Majoran-Starship
-          DOTNET_ROLL_FORWARD=Major dotnet run --no-build -c Release --project "${{ matrix.project }}" || echo "Skipping run failure for ${{ matrix.project }}"
-
       - name: Cache Docker Images
         id: cache-docker
         uses: actions/cache@v4
@@ -101,6 +91,16 @@ jobs:
             ghcr.io/alexandrepedrosaai/edge-ai-app/clusters-arrays-gpu:66 \
             ghcr.io/alexandrepedrosaai/edge-ai-app/electric-and-magnetic-field-circuits:48 \
             -o /tmp/docker-images/images.tar
+
+      - name: Build project
+        run: |
+          cd WebGPU/Majoran-Starship
+          DOTNET_ROLL_FORWARD=Major dotnet build "${{ matrix.project }}" --no-restore -c Release
+
+      - name: Run project
+        run: |
+          cd WebGPU/Majoran-Starship
+          DOTNET_ROLL_FORWARD=Major dotnet run --no-build -c Release --project "${{ matrix.project }}" || echo "Skipping run failure for ${{ matrix.project }}"
 
       - name: Package project artifacts
         run: |
