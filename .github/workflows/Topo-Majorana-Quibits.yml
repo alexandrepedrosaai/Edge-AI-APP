@@ -35,7 +35,7 @@ jobs:
         id: set-projects
         run: |
           # Exclude problematic projects that are known to hang
-          EXCLUDE_LIST=("MajoranaStarshipQuantumWormholes.csproj" "MajoranaStarshipTemporalDistributed.csproj" "MajoranaStarshipQuantumNeuralStarship.csproj")
+          EXCLUDE_LIST=("MajoranaStarshipQuantumWormholes.csproj" "MajoranaStarshipTemporalDistributed.csproj" "MajoranaStarshipQuantumNeuralStarship.csproj" "MajoranaStarshipQuantumTopology.csproj")
           
           # Find all csproj files
           ALL_PROJECTS=$(find WebGPU/Majoran-Starship/ -name "*.csproj" -printf "%f\n")
@@ -139,6 +139,7 @@ jobs:
           rm -f majorana-starship-full-package/WebGPU/Majoran-Starship/MajoranaStarshipQuantumWormholes.qs
           rm -f majorana-starship-full-package/WebGPU/Majoran-Starship/MajoranaStarshipTemporalDistributed.qs
           rm -f majorana-starship-full-package/WebGPU/Majoran-Starship/MajoranaStarshipQuantumNeuralStarship.qs
+          rm -f majorana-starship-full-package/WebGPU/Majoran-Starship/MajoranaStarshipQuantumTopology.qs
           
           find artifacts -name "*.dll" -exec cp {} majorana-starship-full-package/WebGPU/Majoran-Starship/bin/Release/ \; || true
           zip -r majorana-starship-full-package.zip majorana-starship-full-package/
