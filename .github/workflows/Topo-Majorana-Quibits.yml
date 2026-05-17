@@ -34,7 +34,7 @@ jobs:
       - name: Get list of Q# projects
         id: set-projects
         run: |
-          PROJECTS=$(find WebGPU/Majoran-Starship/ -name "*.csproj" -printf "%f\n" | jq -R -s -c ".split(\'\\n\') | map(select(length > 0))")
+          PROJECTS=$(find WebGPU/Majoran-Starship/ -name "*.csproj" -printf "%f\n" | jq -R -s -c 'split("\n") | map(select(length > 0))')
           echo "projects=$PROJECTS" >> $GITHUB_OUTPUT
 
   build-projects:
