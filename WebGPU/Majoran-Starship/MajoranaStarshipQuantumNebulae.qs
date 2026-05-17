@@ -18,7 +18,7 @@ namespace MajoranaStarship {
         mutable nebulaCalc = Complex(0.0, 0.0);
 
         // 20 linhas de cálculos Quantum Nebulae
-        for (i in 0..19) {
+        for i in 0..19 {
             let iDouble = IntAsDouble(i);
             let gasCloud = Complex(Sin(PI() * iDouble / 100.0), Cos(PI() * iDouble / 100.0)); // nuvem de gás
             let dustParticles = Complex(Log(1.0 + iDouble), Exp(-iDouble / 200.0)); // partículas de poeira
