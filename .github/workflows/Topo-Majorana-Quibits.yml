@@ -27,6 +27,16 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nuget-
 
+      - name: Double Cache (bin and obj folders)
+        uses: actions/cache@v4
+        with:
+          path: |
+            WebGPU/Majoran-Starship/**/bin
+            WebGPU/Majoran-Starship/**/obj
+          key: ${{ runner.os }}-dotnet-build-${{ hashFiles('WebGPU/Majoran-Starship/*.csproj', 'WebGPU/Majoran-Starship/*.qs') }}
+          restore-keys: |
+            ${{ runner.os }}-dotnet-build-
+
       - name: Cache Docker layers
         uses: actions/cache@v4
         with:
@@ -66,7 +76,6 @@ jobs:
 
       - name: Package all files and binaries
         run: |
-          # Criar um pacote com tudo (fontes e binários)
           zip -r majorana-starship-full-package.zip WebGPU/Majoran-Starship/
 
       - name: Upload all Q# binaries artifacts
