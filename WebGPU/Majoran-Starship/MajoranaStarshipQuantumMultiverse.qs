@@ -4,12 +4,17 @@
 namespace MajoranaStarship {
     open Microsoft.Quantum.Intrinsic;
     open Microsoft.Quantum.Math;
+    open Microsoft.Quantum.Convert;
+
+    function ComplexMultiplication(a : Complex, b : Complex) : Complex {
+        return Complex(a::Real * b::Real - a::Imag * b::Imag, a::Real * b::Imag + a::Imag * b::Real);
+    }
 
     operation MajoranaStarshipEngineQuantumMultiverse(input : Double[]) : Complex {
         mutable multiverseCalc = Complex(0.0, 0.0);
 
         // 20 linhas de cálculos Quantum Multiverse
-        for (i in 0..19) {
+        for i in 0..19 {
             let iDouble = IntAsDouble(i);
             let universeBranch = Complex(Sin(PI() * iDouble / 100.0), Cos(PI() * iDouble / 100.0)); // ramificação de universo
             let parallelInteraction = Complex(Log(1.0 + iDouble), Exp(-iDouble / 200.0)); // interação paralela
@@ -29,7 +34,7 @@ namespace MajoranaStarship {
             
             let inputVal = Complex(input[i % Length(input)], 0.8 * iDouble);
 
-            // Multiplicação aninhada de números complexos
+            // Multiplicação aninhada de números complexos usando a função auxiliar
             mutable contribution = ComplexMultiplication(universeBranch, parallelInteraction);
             set contribution = ComplexMultiplication(contribution, decoherenceBarrier);
             set contribution = ComplexMultiplication(contribution, tunnelingBridge);
