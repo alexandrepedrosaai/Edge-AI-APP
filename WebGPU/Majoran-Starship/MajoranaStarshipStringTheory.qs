@@ -30,7 +30,9 @@ namespace MajoranaStarship {
             let dI = IntAsDouble(i);
             let vibration = (Sin(2.0 * PI() * dI / 100.0), Cos(2.0 * PI() * dI / 100.0)); // vibração da corda
             let tension = (0.5 * dI, -0.25 * dI); // tensão da corda
-            let compactification = (Exp(-dI / 200.0), Sin(PI() * dI / 70.0)); // Calabi-Yau
+            
+            // In Q# Microsoft.Quantum.Math, the exponential function for Double is ExpD
+            let compactification = (ExpD(-dI / 200.0), Sin(PI() * dI / 70.0)); // Calabi-Yau
             
             // Get random values as separate variables to ensure they are treated as Doubles
             let r1 = RandomReal(0.0, 1.0);
@@ -38,7 +40,7 @@ namespace MajoranaStarship {
             let modeExpansion = (r1, r2); // modos de oscilação
             
             let braneInteraction = (Sin(PI() * dI / 90.0), Cos(PI() * dI / 90.0)); // interação com branas
-            let extraDimension = (Log(1.0 + dI), Exp(-dI / 100.0)); // dimensão extra
+            let extraDimension = (Log(1.0 + dI), ExpD(-dI / 100.0)); // dimensão extra
             let duality = (Sin(PI() * dI / 60.0), Cos(PI() * dI / 60.0)); // T-dualidade
             
             let s1 = RandomReal(0.0, 1.0);
