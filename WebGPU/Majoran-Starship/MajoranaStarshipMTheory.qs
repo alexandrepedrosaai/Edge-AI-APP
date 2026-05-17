@@ -23,7 +23,7 @@ namespace MajoranaStarship {
         mutable mTheoryCalc = Complex(0.0, 0.0);
 
         // 10 linhas de cálculos M-Theory
-        for i in 0..9 {
+        for IntAsDouble(i) in 0..9 {
             let id = IntAsDouble(i);
             let supergravity11D = Complex(Sin(PI() * id / 110.0), Cos(PI() * id / 110.0)); // supergravidade 11D
             let membrane = Complex(DrawRandomDouble(0.0, 1.0), DrawRandomDouble(0.0, 1.0)); // M2-brane
@@ -43,11 +43,19 @@ namespace MajoranaStarship {
             set contribution = ComplexTimes(contribution, quantumFoam);
             set contribution = ComplexTimes(contribution, interaction);
             set contribution = ComplexTimes(contribution, normalization);
-            set contribution = ComplexTimes(contribution, Complex(input[i % Length(input)], 0.8 * id));
+            set contribution = ComplexTimes(contribution, Complex(input[IntAsDouble(i) % Length(input)], 0.8 * id));
 
             set mTheoryCalc = ComplexPlus(mTheoryCalc, contribution);
         }
 
         return mTheoryCalc;
+    }
+
+    function ComplexMultiply(a : Complex, b : Complex) : Complex {
+        return Complex(a::Real * b::Real - a::Imag * b::Imag, a::Real * b::Imag + a::Imag * b::Real);
+    }
+
+    function ComplexAdd(a : Complex, b : Complex) : Complex {
+        return Complex(a::Real + b::Real, a::Imag + b::Imag);
     }
 }

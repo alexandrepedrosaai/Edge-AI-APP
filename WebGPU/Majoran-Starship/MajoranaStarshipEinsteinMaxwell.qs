@@ -4,21 +4,16 @@
 namespace MajoranaStarship {
     open Microsoft.Quantum.Intrinsic;
     open Microsoft.Quantum.Math;
+    open Microsoft.Quantum.Random;
     open Microsoft.Quantum.Convert;
-
-    function ComplexMultiplyEM(left : Complex, right : Complex) : Complex {
-        let real = left::Real * right::Real - left::Imag * right::Imag;
-        let imag = left::Real * right::Imag + left::Imag * right::Real;
-        return Complex(real, imag);
-    }
 
     operation MajoranaStarshipEngineEinsteinMaxwell(input : Double[]) : Complex {
         mutable einsteinMaxwellCalc = Complex(0.0, 0.0);
 
         // 10 linhas de cálculos Einstein-Maxwell
-        for i in 0..9 {
+        for IntAsDouble(i) in 0..9 {
             let idx = IntAsDouble(i);
-            let inputValue = input[i % Length(input)];
+            let inputValue = input[IntAsDouble(i) % Length(input)];
             
             // Using deterministic values to avoid DrawRandomDouble issues in this SDK version
             let curvature = Complex(8.0 * PI() * 0.5, -4.0 * 0.5); // tensor de curvatura
@@ -50,5 +45,13 @@ namespace MajoranaStarship {
         }
 
         return einsteinMaxwellCalc;
+    }
+
+    function ComplexMultiply(a : Complex, b : Complex) : Complex {
+        return Complex(a::Real * b::Real - a::Imag * b::Imag, a::Real * b::Imag + a::Imag * b::Real);
+    }
+
+    function ComplexAdd(a : Complex, b : Complex) : Complex {
+        return Complex(a::Real + b::Real, a::Imag + b::Imag);
     }
 }

@@ -4,22 +4,17 @@
 namespace MajoranaStarship {
     open Microsoft.Quantum.Intrinsic;
     open Microsoft.Quantum.Math;
+    open Microsoft.Quantum.Random;
     open Microsoft.Quantum.Convert;
-
-    function ComplexMultiply(left : Complex, right : Complex) : Complex {
-        let real = left::Real * right::Real - left::Imag * right::Imag;
-        let imag = left::Real * right::Imag + left::Imag * right::Real;
-        return Complex(real, imag);
-    }
 
     operation MajoranaQuantumRegistryExplorer(input : Double[]) : Complex {
         mutable explorerReal = 0.0;
         mutable explorerImag = 0.0;
 
         // 20 linhas de cálculos Quantum Registry Explorer
-        for i in 0..19 {
+        for IntAsDouble(i) in 0..19 {
             let x = IntAsDouble(i);
-            let inputValue = input[i % Length(input)];
+            let inputValue = input[IntAsDouble(i) % Length(input)];
             let registryIndex     = Complex(Sin(PI() * x / 100.0), Cos(PI() * x / 100.0)); // índice de registro
             let blockValidation   = Complex(Log(1.0 + x), ExpD(-x / 200.0));                // validação de bloco
             let immutableCheck    = Complex(Sqrt(0.5), Sqrt(0.5));                          // verificação de imutabilidade
@@ -49,8 +44,8 @@ namespace MajoranaStarship {
             set contribution = ComplexMultiply(contribution, quantumFoam);
             set contribution = ComplexMultiply(contribution, normalization);
             set contribution = ComplexMultiply(contribution, inputContribution);
-            set explorerReal += contribution::Real;
-            set explorerImag += contribution::Imag;
+            set explorerReal = ComplexAdd(explorerReal, contribution::Real);
+            set explorerImag = ComplexAdd(explorerImag, contribution::Imag);
         }
 
         // Navegação dos arquivos registrados
@@ -97,5 +92,13 @@ namespace MajoranaStarship {
         - MajoranaStarshipTemporalDistributed.qs");
 
         return Complex(explorerReal, explorerImag);
+    }
+
+    function ComplexMultiply(a : Complex, b : Complex) : Complex {
+        return Complex(a::Real * b::Real - a::Imag * b::Imag, a::Real * b::Imag + a::Imag * b::Real);
+    }
+
+    function ComplexAdd(a : Complex, b : Complex) : Complex {
+        return Complex(a::Real + b::Real, a::Imag + b::Imag);
     }
 }

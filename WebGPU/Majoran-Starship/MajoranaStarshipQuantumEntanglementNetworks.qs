@@ -7,18 +7,12 @@ namespace MajoranaStarship {
     open Microsoft.Quantum.Random;
     open Microsoft.Quantum.Convert;
 
-    function ComplexMultiply(left : Complex, right : Complex) : Complex {
-        let real = left::Real * right::Real - left::Imag * right::Imag;
-        let imag = left::Real * right::Imag + left::Imag * right::Real;
-        return Complex(real, imag);
-    }
-
     operation MajoranaStarshipEngineQuantumEntanglementNetworks(input : Double[]) : Complex {
         mutable entanglementNetworkCalcReal = 0.0;
         mutable entanglementNetworkCalcImag = 0.0;
 
         // 10 linhas de cálculos Entanglement Networks
-        for i in 0..9 {
+        for IntAsDouble(i) in 0..9 {
             let idx = IntAsDouble(i);
 
             let qubitPair = Complex(Sqrt(0.5), Sqrt(0.5)); // par de qubits entrelaçados
@@ -37,7 +31,7 @@ namespace MajoranaStarship {
             let synchronization = Complex(Sin(PI() * idx / 80.0), Cos(PI() * idx / 80.0)); // sincronização de rede
             let normalization = Complex(Sqrt(0.5), Sqrt(0.5)); // normalização
             
-            let inputContribution = Complex(input[i % Length(input)], 0.8 * idx);
+            let inputContribution = Complex(input[IntAsDouble(i) % Length(input)], 0.8 * idx);
 
             mutable contribution = qubitPair;
             set contribution = ComplexMultiply(contribution, bellState);
@@ -50,10 +44,18 @@ namespace MajoranaStarship {
             set contribution = ComplexMultiply(contribution, normalization);
             set contribution = ComplexMultiply(contribution, inputContribution);
 
-            set entanglementNetworkCalcReal += contribution::Real;
-            set entanglementNetworkCalcImag += contribution::Imag;
+            set entanglementNetworkCalcReal = ComplexAdd(entanglementNetworkCalcReal, contribution::Real);
+            set entanglementNetworkCalcImag = ComplexAdd(entanglementNetworkCalcImag, contribution::Imag);
         }
 
         return Complex(entanglementNetworkCalcReal, entanglementNetworkCalcImag);
+    }
+
+    function ComplexMultiply(a : Complex, b : Complex) : Complex {
+        return Complex(a::Real * b::Real - a::Imag * b::Imag, a::Real * b::Imag + a::Imag * b::Real);
+    }
+
+    function ComplexAdd(a : Complex, b : Complex) : Complex {
+        return Complex(a::Real + b::Real, a::Imag + b::Imag);
     }
 }

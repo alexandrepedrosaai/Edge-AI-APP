@@ -23,7 +23,7 @@ namespace MajoranaStarship {
         mutable qkdCalc = Complex(0.0, 0.0);
 
         // 20 linhas de cálculos Quantum Key Distribution
-        for i in 0..19 {
+        for IntAsDouble(i) in 0..19 {
             let id = IntAsDouble(i);
             let bb84Basis = Complex(Sin(PI() * id / 100.0), Cos(PI() * id / 100.0)); // base BB84
             let e91Entanglement = Complex(Log(1.0 + id), ExpD(-id / 200.0)); // protocolo E91
@@ -57,11 +57,19 @@ namespace MajoranaStarship {
             set contribution = ComplexTimes(contribution, synchronization);
             set contribution = ComplexTimes(contribution, quantumFoam);
             set contribution = ComplexTimes(contribution, normalization);
-            set contribution = ComplexTimes(contribution, Complex(input[i % Length(input)], 0.8 * id));
+            set contribution = ComplexTimes(contribution, Complex(input[IntAsDouble(i) % Length(input)], 0.8 * id));
 
             set qkdCalc = ComplexPlus(qkdCalc, contribution);
         }
 
         return qkdCalc;
+    }
+
+    function ComplexMultiply(a : Complex, b : Complex) : Complex {
+        return Complex(a::Real * b::Real - a::Imag * b::Imag, a::Real * b::Imag + a::Imag * b::Real);
+    }
+
+    function ComplexAdd(a : Complex, b : Complex) : Complex {
+        return Complex(a::Real + b::Real, a::Imag + b::Imag);
     }
 }

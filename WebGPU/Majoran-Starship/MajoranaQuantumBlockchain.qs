@@ -4,21 +4,16 @@
 namespace MajoranaStarship {
     open Microsoft.Quantum.Intrinsic;
     open Microsoft.Quantum.Math;
+    open Microsoft.Quantum.Random;
     open Microsoft.Quantum.Convert;
-
-    function ComplexMultiply(left : Complex, right : Complex) : Complex {
-        let real = left::Real * right::Real - left::Imag * right::Imag;
-        let imag = left::Real * right::Imag + left::Imag * right::Real;
-        return Complex(real, imag);
-    }
 
     operation MajoranaQuantumBlockchainRegistry(input : Double[]) : Complex {
         mutable blockchainCalc = Complex(0.0, 0.0);
 
         // 20 linhas de cálculos Quantum Blockchain
-        for i in 0..19 {
+        for IntAsDouble(i) in 0..19 {
             let x = IntAsDouble(i);
-            let inputValue = input[i % Length(input)];
+            let inputValue = input[IntAsDouble(i) % Length(input)];
             let quantumHash        = Complex(Sin(PI() * x / 100.0), Cos(PI() * x / 100.0)); // hash quântico
             let entangledLedger    = Complex(Log(1.0 + x), ExpD(-x / 200.0));                // livro razão entrelaçado
             let immutableRecord    = Complex(Sqrt(0.5), Sqrt(0.5));                         // registro imutável
@@ -103,5 +98,13 @@ namespace MajoranaStarship {
         MajoranaStarshipTemporalDistributed.qs");
 
         return blockchainCalc;
+    }
+
+    function ComplexMultiply(a : Complex, b : Complex) : Complex {
+        return Complex(a::Real * b::Real - a::Imag * b::Imag, a::Real * b::Imag + a::Imag * b::Real);
+    }
+
+    function ComplexAdd(a : Complex, b : Complex) : Complex {
+        return Complex(a::Real + b::Real, a::Imag + b::Imag);
     }
 }

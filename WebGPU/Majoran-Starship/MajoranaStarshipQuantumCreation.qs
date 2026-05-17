@@ -4,20 +4,15 @@
 namespace MajoranaStarship {
     open Microsoft.Quantum.Intrinsic;
     open Microsoft.Quantum.Math;
+    open Microsoft.Quantum.Random;
     open Microsoft.Quantum.Convert;
-
-    function ComplexMultiply(left : Complex, right : Complex) : Complex {
-        let real = left::Real * right::Real - left::Imag * right::Imag;
-        let imag = left::Real * right::Imag + left::Imag * right::Real;
-        return Complex(real, imag);
-    }
 
     operation MajoranaStarshipEngineQuantumCreation(input : Double[]) : Complex {
         mutable creationCalcReal = 0.0;
         mutable creationCalcImag = 0.0;
 
         // 20 linhas de cálculos Quantum Creation
-        for i in 0..19 {
+        for IntAsDouble(i) in 0..19 {
             let x = IntAsDouble(i);
             
             let bigBangExpansion = Complex(Sin(PI() * x / 100.0), Cos(PI() * x / 100.0)); // expansão inicial
@@ -37,7 +32,7 @@ namespace MajoranaStarship {
             let quantumFoam = Complex(Sin(x * 3.3), Cos(x * 3.3)); // espuma quântica primordial
             let normalization = Complex(Sqrt(0.5), Sqrt(0.5)); // normalização
             
-            let inputContribution = Complex(input[i % Length(input)], 0.8 * x);
+            let inputContribution = Complex(input[IntAsDouble(i) % Length(input)], 0.8 * x);
 
             mutable contribution = bigBangExpansion;
             set contribution = ComplexMultiply(contribution, quantumFluctuation);
@@ -57,10 +52,18 @@ namespace MajoranaStarship {
             set contribution = ComplexMultiply(contribution, normalization);
             set contribution = ComplexMultiply(contribution, inputContribution);
 
-            set creationCalcReal += contribution::Real;
-            set creationCalcImag += contribution::Imag;
+            set creationCalcReal = ComplexAdd(creationCalcReal, contribution::Real);
+            set creationCalcImag = ComplexAdd(creationCalcImag, contribution::Imag);
         }
 
         return Complex(creationCalcReal, creationCalcImag);
+    }
+
+    function ComplexMultiply(a : Complex, b : Complex) : Complex {
+        return Complex(a::Real * b::Real - a::Imag * b::Imag, a::Real * b::Imag + a::Imag * b::Real);
+    }
+
+    function ComplexAdd(a : Complex, b : Complex) : Complex {
+        return Complex(a::Real + b::Real, a::Imag + b::Imag);
     }
 }

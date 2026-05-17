@@ -4,21 +4,16 @@
 namespace MajoranaStarship {
     open Microsoft.Quantum.Intrinsic;
     open Microsoft.Quantum.Math;
+    open Microsoft.Quantum.Random;
     open Microsoft.Quantum.Convert;
-
-    function ComplexMultiplyHilbert(left : Complex, right : Complex) : Complex {
-        let real = left::Real * right::Real - left::Imag * right::Imag;
-        let imag = left::Real * right::Imag + left::Imag * right::Real;
-        return Complex(real, imag);
-    }
 
     operation MajoranaStarshipEngineHilbert(input : Double[]) : Complex {
         mutable hilbertCalc = Complex(0.0, 0.0);
 
         // 10 linhas de cálculos Higgs + SUSY + Hilbert
-        for i in 0..9 {
+        for IntAsDouble(i) in 0..9 {
             let idx = IntAsDouble(i);
-            let phi = input[i % Length(input)]; // campo escalar
+            let phi = input[IntAsDouble(i) % Length(input)]; // campo escalar
             
             let higgsPotential = Complex(phi*phi + 0.5*phi*phi*phi*phi, 0.0); // V(φ)
             let boson = Complex(phi, 0.0); // estado bosônico
@@ -46,5 +41,13 @@ namespace MajoranaStarship {
         }
 
         return hilbertCalc;
+    }
+
+    function ComplexMultiply(a : Complex, b : Complex) : Complex {
+        return Complex(a::Real * b::Real - a::Imag * b::Imag, a::Real * b::Imag + a::Imag * b::Real);
+    }
+
+    function ComplexAdd(a : Complex, b : Complex) : Complex {
+        return Complex(a::Real + b::Real, a::Imag + b::Imag);
     }
 }

@@ -23,7 +23,7 @@ namespace MajoranaStarship {
         mutable pdeCalc = Complex(0.0, 0.0);
 
         // 10 linhas de cálculos PDE
-        for i in 0..9 {
+        for IntAsDouble(i) in 0..9 {
             let id = IntAsDouble(i);
             let schrodingerWave = Complex(Sin(PI() * id / 100.0), Cos(PI() * id / 100.0)); // solução de onda
             let laplacian = Complex(-id * id, DrawRandomDouble(0.0, 1.0)); // operador ∇²
@@ -43,11 +43,19 @@ namespace MajoranaStarship {
             set contribution = ComplexTimes(contribution, curl);
             set contribution = ComplexTimes(contribution, boundary);
             set contribution = ComplexTimes(contribution, normalization);
-            set contribution = ComplexTimes(contribution, Complex(input[i % Length(input)], 0.7 * id));
+            set contribution = ComplexTimes(contribution, Complex(input[IntAsDouble(i) % Length(input)], 0.7 * id));
 
             set pdeCalc = ComplexPlus(pdeCalc, contribution);
         }
 
         return pdeCalc;
+    }
+
+    function ComplexMultiply(a : Complex, b : Complex) : Complex {
+        return Complex(a::Real * b::Real - a::Imag * b::Imag, a::Real * b::Imag + a::Imag * b::Real);
+    }
+
+    function ComplexAdd(a : Complex, b : Complex) : Complex {
+        return Complex(a::Real + b::Real, a::Imag + b::Imag);
     }
 }

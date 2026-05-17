@@ -4,22 +4,17 @@
 namespace MajoranaStarship {
     open Microsoft.Quantum.Intrinsic;
     open Microsoft.Quantum.Math;
+    open Microsoft.Quantum.Random;
     open Microsoft.Quantum.Convert;
-
-    function ComplexMultiply(left : Complex, right : Complex) : Complex {
-        let real = left::Real * right::Real - left::Imag * right::Imag;
-        let imag = left::Real * right::Imag + left::Imag * right::Real;
-        return Complex(real, imag);
-    }
 
     operation MajoranaQuantumAuditorQubotsStability(input : Double[]) : Complex {
         mutable auditorReal = 0.0;
         mutable auditorImag = 0.0;
 
         // 20 linhas de cálculos Quantum Auditor + Qubits Stability
-        for i in 0..19 {
+        for IntAsDouble(i) in 0..19 {
             let x = IntAsDouble(i);
-            let inputValue = input[i % Length(input)];
+            let inputValue = input[IntAsDouble(i) % Length(input)];
             let registryAudit     = Complex(Sin(PI() * x / 100.0), Cos(PI() * x / 100.0)); // auditoria de registros
             let blockIntegrity    = Complex(Log(1.0 + x), ExpD(-x / 200.0)); // integridade de blocos
             let immutabilityCheck = Complex(Sqrt(0.5), Sqrt(0.5));                         // verificação de imutabilidade
@@ -53,13 +48,21 @@ namespace MajoranaStarship {
             set contribution = ComplexMultiply(contribution, quantumFoam);
             set contribution = ComplexMultiply(contribution, normalization);
             set contribution = ComplexMultiply(contribution, inputContribution);
-            set auditorReal += contribution::Real;
-            set auditorImag += contribution::Imag;
+            set auditorReal = ComplexAdd(auditorReal, contribution::Real);
+            set auditorImag = ComplexAdd(auditorImag, contribution::Imag);
         }
 
         // Auditoria dos arquivos registrados
         Message($"Auditando registros com estabilidade de qubits aplicada aos files MajoranaStarship registrados na blockchain quântica.");
 
         return Complex(auditorReal, auditorImag);
+    }
+
+    function ComplexMultiply(a : Complex, b : Complex) : Complex {
+        return Complex(a::Real * b::Real - a::Imag * b::Imag, a::Real * b::Imag + a::Imag * b::Real);
+    }
+
+    function ComplexAdd(a : Complex, b : Complex) : Complex {
+        return Complex(a::Real + b::Real, a::Imag + b::Imag);
     }
 }

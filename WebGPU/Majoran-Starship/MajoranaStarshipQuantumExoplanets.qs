@@ -7,18 +7,12 @@ namespace MajoranaStarship {
     open Microsoft.Quantum.Random;
     open Microsoft.Quantum.Convert;
 
-    function ComplexMultiply(left : Complex, right : Complex) : Complex {
-        let real = left::Real * right::Real - left::Imag * right::Imag;
-        let imag = left::Real * right::Imag + left::Imag * right::Real;
-        return Complex(real, imag);
-    }
-
     operation MajoranaStarshipEngineQuantumExoplanets(input : Double[]) : Complex {
         mutable exoplanetCalcReal = 0.0;
         mutable exoplanetCalcImag = 0.0;
 
         // 20 linhas de cálculos Quantum Exoplanets
-        for i in 0..19 {
+        for IntAsDouble(i) in 0..19 {
             let idx = IntAsDouble(i);
             
             let orbitalDynamics = Complex(Sin(PI() * idx / 100.0), Cos(PI() * idx / 100.0)); // dinâmica orbital
@@ -47,7 +41,7 @@ namespace MajoranaStarship {
             let holography = Complex(Sqrt(0.5), Sqrt(0.5)); // holografia atmosférica
             let normalization = Complex(Sqrt(0.5), Sqrt(0.5)); // normalização
             
-            let inputContribution = Complex(input[i % Length(input)], 0.8 * idx);
+            let inputContribution = Complex(input[IntAsDouble(i) % Length(input)], 0.8 * idx);
 
             mutable contribution = orbitalDynamics;
             set contribution = ComplexMultiply(contribution, transitSignal);
@@ -67,10 +61,18 @@ namespace MajoranaStarship {
             set contribution = ComplexMultiply(contribution, normalization);
             set contribution = ComplexMultiply(contribution, inputContribution);
 
-            set exoplanetCalcReal += contribution::Real;
-            set exoplanetCalcImag += contribution::Imag;
+            set exoplanetCalcReal = ComplexAdd(exoplanetCalcReal, contribution::Real);
+            set exoplanetCalcImag = ComplexAdd(exoplanetCalcImag, contribution::Imag);
         }
 
         return Complex(exoplanetCalcReal, exoplanetCalcImag);
+    }
+
+    function ComplexMultiply(a : Complex, b : Complex) : Complex {
+        return Complex(a::Real * b::Real - a::Imag * b::Imag, a::Real * b::Imag + a::Imag * b::Real);
+    }
+
+    function ComplexAdd(a : Complex, b : Complex) : Complex {
+        return Complex(a::Real + b::Real, a::Imag + b::Imag);
     }
 }

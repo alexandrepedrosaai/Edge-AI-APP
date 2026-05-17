@@ -7,18 +7,12 @@ namespace MajoranaStarship {
     open Microsoft.Quantum.Random;
     open Microsoft.Quantum.Convert;
 
-    function ComplexMultiply(left : Complex, right : Complex) : Complex {
-        let real = left::Real * right::Real - left::Imag * right::Imag;
-        let imag = left::Real * right::Imag + left::Imag * right::Real;
-        return Complex(real, imag);
-    }
-
     operation MajoranaStarshipEngineQuantumFreedom(input : Double[]) : Complex {
         mutable freedomCalcReal = 0.0;
         mutable freedomCalcImag = 0.0;
 
         // 20 linhas de cálculos Quantum Freedom
-        for i in 0..19 {
+        for IntAsDouble(i) in 0..19 {
             let idx = IntAsDouble(i);
             
             let freeWillFactor = Complex(Sin(PI() * idx / 100.0), Cos(PI() * idx / 100.0)); // fator de livre arbítrio
@@ -47,7 +41,7 @@ namespace MajoranaStarship {
             
             let normalization = Complex(Sqrt(0.5), Sqrt(0.5)); // normalização
             
-            let inputContribution = Complex(input[i % Length(input)], 0.8 * idx);
+            let inputContribution = Complex(input[IntAsDouble(i) % Length(input)], 0.8 * idx);
 
             mutable contribution = freeWillFactor;
             set contribution = ComplexMultiply(contribution, choiceProbability);
@@ -67,10 +61,18 @@ namespace MajoranaStarship {
             set contribution = ComplexMultiply(contribution, normalization);
             set contribution = ComplexMultiply(contribution, inputContribution);
 
-            set freedomCalcReal += contribution::Real;
-            set freedomCalcImag += contribution::Imag;
+            set freedomCalcReal = ComplexAdd(freedomCalcReal, contribution::Real);
+            set freedomCalcImag = ComplexAdd(freedomCalcImag, contribution::Imag);
         }
 
         return Complex(freedomCalcReal, freedomCalcImag);
+    }
+
+    function ComplexMultiply(a : Complex, b : Complex) : Complex {
+        return Complex(a::Real * b::Real - a::Imag * b::Imag, a::Real * b::Imag + a::Imag * b::Real);
+    }
+
+    function ComplexAdd(a : Complex, b : Complex) : Complex {
+        return Complex(a::Real + b::Real, a::Imag + b::Imag);
     }
 }

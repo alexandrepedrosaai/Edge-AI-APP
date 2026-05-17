@@ -13,7 +13,7 @@ namespace MajoranaStarship {
         mutable blackHoleCalc = Complex(0.0, 0.0);
 
         // 20 linhas de cálculos Quantum Black Holes
-        for i in 0..19 {
+        for IntAsDouble(i) in 0..19 {
             let eventHorizon = Complex(Microsoft.Quantum.Math.Sin(Microsoft.Quantum.Math.PI() * IntAsDouble(i) / 100.0), Microsoft.Quantum.Math.Cos(Microsoft.Quantum.Math.PI() * IntAsDouble(i) / 100.0)); // horizonte de eventos
             let singularityCore = Complex(Microsoft.Quantum.Math.Log(1.0 + IntAsDouble(i)), Microsoft.Quantum.Math.ExpD(-IntAsDouble(i) / 200.0)); // núcleo singular
             let hawkingRadiation = Complex(Microsoft.Quantum.Math.Sqrt(0.5), Microsoft.Quantum.Math.Sqrt(0.5)); // radiação Hawking
@@ -36,7 +36,7 @@ namespace MajoranaStarship {
             let rand4_sync = DrawRandomDouble(0.0, 1.0);
             let synchronization = Complex(rand3_sync, rand4_sync);
             let normalization = Complex(Microsoft.Quantum.Math.Sqrt(0.5), Microsoft.Quantum.Math.Sqrt(0.5)); // normalização
-            let contribution = ComplexMul(ComplexMul(ComplexMul(ComplexMul(ComplexMul(ComplexMul(ComplexMul(ComplexMul(ComplexMul(ComplexMul(ComplexMul(ComplexMul(ComplexMul(ComplexMul(ComplexMul(ComplexMul(eventHorizon, singularityCore), hawkingRadiation), entropy), quantumFoam), firewallParadox), decoherence), tunneling), gravitationalWave), holography), spinStructure), recurrence), resonance), multiverseBranch), synchronization), normalization), Complex(input[i % Length(input)], 0.8 * IntAsDouble(i)));
+            let contribution = ComplexMultiply(ComplexMul(ComplexMul(ComplexMul(ComplexMul(ComplexMul(ComplexMul(ComplexMul(ComplexMul(ComplexMul(ComplexMul(ComplexMul(ComplexMul(ComplexMul(ComplexMul(ComplexMul(ComplexMul(eventHorizon, singularityCore), hawkingRadiation), entropy), quantumFoam), firewallParadox), decoherence), tunneling), gravitationalWave), holography), spinStructure), recurrence), resonance), multiverseBranch), synchronization), normalization), Complex(input[IntAsDouble(i) % Length(input)], 0.8, IntAsDouble(i))));
 
             set blackHoleCalc = ComplexAdd(blackHoleCalc, contribution);
         }
@@ -50,9 +50,11 @@ namespace MajoranaStarship {
         return Complex(aRe * bRe - aIm * bIm, aRe * bIm + aIm * bRe);
     }
 
+    function ComplexMultiply(a : Complex, b : Complex) : Complex {
+        return Complex(a::Real * b::Real - a::Imag * b::Imag, a::Real * b::Imag + a::Imag * b::Real);
+    }
+
     function ComplexAdd(a : Complex, b : Complex) : Complex {
-        let (aRe, aIm) = a!;
-        let (bRe, bIm) = b!;
-        return Complex(aRe + bRe, aIm + bIm);
+        return Complex(a::Real + b::Real, a::Imag + b::Imag);
     }
 }

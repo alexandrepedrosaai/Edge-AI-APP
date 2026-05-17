@@ -4,21 +4,16 @@
 namespace MajoranaStarship {
     open Microsoft.Quantum.Intrinsic;
     open Microsoft.Quantum.Math;
+    open Microsoft.Quantum.Random;
     open Microsoft.Quantum.Convert;
-
-    function ComplexMultiplyCosmo(left : Complex, right : Complex) : Complex {
-        let real = left::Real * right::Real - left::Imag * right::Imag;
-        let imag = left::Real * right::Imag + left::Imag * right::Real;
-        return Complex(real, imag);
-    }
 
     operation MajoranaStarshipEngineCosmology(input : Double[]) : Complex {
         mutable cosmologyCalc = Complex(0.0, 0.0);
 
         // 10 linhas de cálculos Cosmology
-        for i in 0..9 {
+        for IntAsDouble(i) in 0..9 {
             let x = IntAsDouble(i);
-            let inputValue = input[i % Length(input)];
+            let inputValue = input[IntAsDouble(i) % Length(input)];
             let inflation        = Complex(1.0 + x / 100.0, Sin(PI() * x / 90.0));         // inflação primordial; 1+x/100 approximates Exp(x/100) for x∈[0,9] (Exp resolves to quantum gate in SDK 0.28)
             let scalarField      = Complex(0.5, 0.5);                                      // campo inflaton (determinístico)
             let cmbRadiation     = Complex(Sin(PI() * x / 120.0), Cos(PI() * x / 120.0)); // radiação cósmica de fundo
@@ -48,5 +43,13 @@ namespace MajoranaStarship {
         }
 
         return cosmologyCalc;
+    }
+
+    function ComplexMultiply(a : Complex, b : Complex) : Complex {
+        return Complex(a::Real * b::Real - a::Imag * b::Imag, a::Real * b::Imag + a::Imag * b::Real);
+    }
+
+    function ComplexAdd(a : Complex, b : Complex) : Complex {
+        return Complex(a::Real + b::Real, a::Imag + b::Imag);
     }
 }

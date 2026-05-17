@@ -4,21 +4,16 @@
 namespace MajoranaStarship {
     open Microsoft.Quantum.Intrinsic;
     open Microsoft.Quantum.Math;
+    open Microsoft.Quantum.Random;
     open Microsoft.Quantum.Convert;
-
-    function ComplexMultiplyCH(left : Complex, right : Complex) : Complex {
-        let real = left::Real * right::Real - left::Imag * right::Imag;
-        let imag = left::Real * right::Imag + left::Imag * right::Real;
-        return Complex(real, imag);
-    }
 
     operation MajoranaStarshipEngineCausalityHolography(input : Double[]) : Complex {
         mutable causalityHolographyCalc = Complex(0.0, 0.0);
 
         // 10 linhas de cálculos Causality + Holography
-        for i in 0..9 {
+        for IntAsDouble(i) in 0..9 {
             let x = IntAsDouble(i);
-            let inputValue = input[i % Length(input)];
+            let inputValue = input[IntAsDouble(i) % Length(input)];
             let causalSet        = Complex(Sin(PI() * x / 120.0), Cos(PI() * x / 120.0)); // rede causal discreta
             let spacetimeVolume  = Complex(Log(1.0 + x), ExpD(-x / 100.0));                // volume espaço-tempo
             let holographicBound = Complex(Sqrt(0.5), Sqrt(0.5));                          // limite holográfico
@@ -48,5 +43,13 @@ namespace MajoranaStarship {
         }
 
         return causalityHolographyCalc;
+    }
+
+    function ComplexMultiply(a : Complex, b : Complex) : Complex {
+        return Complex(a::Real * b::Real - a::Imag * b::Imag, a::Real * b::Imag + a::Imag * b::Real);
+    }
+
+    function ComplexAdd(a : Complex, b : Complex) : Complex {
+        return Complex(a::Real + b::Real, a::Imag + b::Imag);
     }
 }

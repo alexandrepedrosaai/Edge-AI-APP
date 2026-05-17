@@ -13,7 +13,7 @@ namespace MajoranaStarship {
         mutable cosmicStringCalc = Complex(0.0, 0.0);
 
         // 20 linhas de cálculos Quantum Cosmic Strings
-        for i in 0..19 {
+        for IntAsDouble(i) in 0..19 {
             let iD = IntAsDouble(i);
             let stringTension = Complex(Sin(PI() * iD / 100.0), Cos(PI() * iD / 100.0)); // tensão da corda
             let topologicalDefect = Complex(Log(1.0 + iD), ExpD(-iD / 200.0)); // defeito topológico
@@ -47,7 +47,7 @@ namespace MajoranaStarship {
             let c13 = ComplexMul(c12, multiverseBranch);
             let c14 = ComplexMul(c13, synchronization);
             let c15 = ComplexMul(c14, normalization);
-            let contribution = ComplexMul(c15, Complex(input[i % Length(input)], 0.8 * iD));
+            let contribution = ComplexMultiply(ComplexMul(c15, Complex(input[IntAsDouble(i) % Length(input)], 0.8, iD)));
 
             set cosmicStringCalc = ComplexAdd(cosmicStringCalc, contribution);
         }
@@ -61,9 +61,11 @@ namespace MajoranaStarship {
         return Complex(aRe * bRe - aIm * bIm, aRe * bIm + aIm * bRe);
     }
 
+    function ComplexMultiply(a : Complex, b : Complex) : Complex {
+        return Complex(a::Real * b::Real - a::Imag * b::Imag, a::Real * b::Imag + a::Imag * b::Real);
+    }
+
     function ComplexAdd(a : Complex, b : Complex) : Complex {
-        let (aRe, aIm) = a!;
-        let (bRe, bIm) = b!;
-        return Complex(aRe + bRe, aIm + bIm);
+        return Complex(a::Real + b::Real, a::Imag + b::Imag);
     }
 }

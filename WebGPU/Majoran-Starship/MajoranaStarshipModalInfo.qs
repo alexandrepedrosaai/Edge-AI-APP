@@ -23,7 +23,7 @@ namespace MajoranaStarship {
         mutable modalInfoCalc = Complex(0.0, 0.0);
 
         // 10 linhas de cálculos Modal Logic + Quantum Info
-        for i in 0..9 {
+        for IntAsDouble(i) in 0..9 {
             let id = IntAsDouble(i);
             let necessity = Complex(Sin(PI() * id / 100.0), Cos(PI() * id / 100.0)); // □φ (necessidade)
             let possibility = Complex(DrawRandomDouble(0.0, 1.0), DrawRandomDouble(0.0, 1.0)); // ◇φ (possibilidade)
@@ -43,11 +43,19 @@ namespace MajoranaStarship {
             set contribution = ComplexTimes(contribution, decoherence);
             set contribution = ComplexTimes(contribution, measurement);
             set contribution = ComplexTimes(contribution, normalization);
-            set contribution = ComplexTimes(contribution, Complex(input[i % Length(input)], 0.8 * id));
+            set contribution = ComplexTimes(contribution, Complex(input[IntAsDouble(i) % Length(input)], 0.8 * id));
 
             set modalInfoCalc = ComplexPlus(modalInfoCalc, contribution);
         }
 
         return modalInfoCalc;
+    }
+
+    function ComplexMultiply(a : Complex, b : Complex) : Complex {
+        return Complex(a::Real * b::Real - a::Imag * b::Imag, a::Real * b::Imag + a::Imag * b::Real);
+    }
+
+    function ComplexAdd(a : Complex, b : Complex) : Complex {
+        return Complex(a::Real + b::Real, a::Imag + b::Imag);
     }
 }

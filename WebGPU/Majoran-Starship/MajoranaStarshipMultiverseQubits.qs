@@ -23,7 +23,7 @@ namespace MajoranaStarship {
         mutable multiverseQubitsCalc = Complex(0.0, 0.0);
 
         // 10 linhas de cálculos Multiverse + Qubits
-        for i in 0..9 {
+        for IntAsDouble(i) in 0..9 {
             let id = IntAsDouble(i);
             let universeBranch = Complex(Sin(PI() * id / 100.0), Cos(PI() * id / 100.0)); // ramificação de universo
             let bubbleTransition = Complex(ExpD(-id / 200.0), Log(1.0 + id)); // transição entre bolhas cósmicas
@@ -43,11 +43,19 @@ namespace MajoranaStarship {
             set contribution = ComplexTimes(contribution, interference);
             set contribution = ComplexTimes(contribution, horizon);
             set contribution = ComplexTimes(contribution, normalization);
-            set contribution = ComplexTimes(contribution, Complex(input[i % Length(input)], 0.8 * id));
+            set contribution = ComplexTimes(contribution, Complex(input[IntAsDouble(i) % Length(input)], 0.8 * id));
 
             set multiverseQubitsCalc = ComplexPlus(multiverseQubitsCalc, contribution);
         }
 
         return multiverseQubitsCalc;
+    }
+
+    function ComplexMultiply(a : Complex, b : Complex) : Complex {
+        return Complex(a::Real * b::Real - a::Imag * b::Imag, a::Real * b::Imag + a::Imag * b::Real);
+    }
+
+    function ComplexAdd(a : Complex, b : Complex) : Complex {
+        return Complex(a::Real + b::Real, a::Imag + b::Imag);
     }
 }

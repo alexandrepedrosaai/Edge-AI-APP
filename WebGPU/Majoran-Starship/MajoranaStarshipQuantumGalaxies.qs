@@ -7,18 +7,12 @@ namespace MajoranaStarship {
     open Microsoft.Quantum.Random;
     open Microsoft.Quantum.Convert;
 
-    function ComplexMultiply(left : Complex, right : Complex) : Complex {
-        let real = left::Real * right::Real - left::Imag * right::Imag;
-        let imag = left::Real * right::Imag + left::Imag * right::Real;
-        return Complex(real, imag);
-    }
-
     operation MajoranaStarshipEngineQuantumGalaxies(input : Double[]) : Complex {
         mutable galaxyCalcReal = 0.0;
         mutable galaxyCalcImag = 0.0;
 
         // 20 linhas de cálculos Quantum Galaxies
-        for i in 0..19 {
+        for IntAsDouble(i) in 0..19 {
             let idx = IntAsDouble(i);
             
             let stellarFormation = Complex(Sin(PI() * idx / 100.0), Cos(PI() * idx / 100.0)); // formação estelar
@@ -47,7 +41,7 @@ namespace MajoranaStarship {
             let holography = Complex(Sqrt(0.5), Sqrt(0.5)); // holografia galáctica
             let normalization = Complex(Sqrt(0.5), Sqrt(0.5)); // normalização
             
-            let inputContribution = Complex(input[i % Length(input)], 0.8 * idx);
+            let inputContribution = Complex(input[IntAsDouble(i) % Length(input)], 0.8 * idx);
 
             mutable contribution = stellarFormation;
             set contribution = ComplexMultiply(contribution, darkMatterHalo);
@@ -67,10 +61,18 @@ namespace MajoranaStarship {
             set contribution = ComplexMultiply(contribution, normalization);
             set contribution = ComplexMultiply(contribution, inputContribution);
 
-            set galaxyCalcReal += contribution::Real;
-            set galaxyCalcImag += contribution::Imag;
+            set galaxyCalcReal = ComplexAdd(galaxyCalcReal, contribution::Real);
+            set galaxyCalcImag = ComplexAdd(galaxyCalcImag, contribution::Imag);
         }
 
         return Complex(galaxyCalcReal, galaxyCalcImag);
+    }
+
+    function ComplexMultiply(a : Complex, b : Complex) : Complex {
+        return Complex(a::Real * b::Real - a::Imag * b::Imag, a::Real * b::Imag + a::Imag * b::Real);
+    }
+
+    function ComplexAdd(a : Complex, b : Complex) : Complex {
+        return Complex(a::Real + b::Real, a::Imag + b::Imag);
     }
 }
