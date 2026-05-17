@@ -1,27 +1,29 @@
 // MajoranaStarship_StringTheory.qs
 // String vibrations + Calabi-Yau compactification
 
-open Microsoft.Quantum.Random;
-
-open Microsoft.Quantum.Convert;
-
 namespace MajoranaStarship {
+    open Microsoft.Quantum.Random;
+    open Microsoft.Quantum.Convert;
     open Microsoft.Quantum.Intrinsic;
     open Microsoft.Quantum.Math;
 
     function ComplexAdd(a : (Double, Double), b : (Double, Double)) : (Double, Double) {
-        return (a::Item1 + b::Item1, a::Item2 + b::Item2);
+        let (a1, a2) = a;
+        let (b1, b2) = b;
+        return (a1 + b1, a2 + b2);
     }
 
     function ComplexMul(a : (Double, Double), b : (Double, Double)) : (Double, Double) {
-        return (a::Item1 * b::Item1 - a::Item2 * b::Item2, a::Item1 * b::Item2 + a::Item2 * b::Item1);
+        let (a1, a2) = a;
+        let (b1, b2) = b;
+        return (a1 * b1 - a2 * b2, a1 * b2 + a2 * b1);
     }
 
     operation MajoranaStarshipEngineStringTheory(input : Double[]) : (Double, Double) {
         mutable stringTheoryCalc = (0.0, 0.0);
 
         // 10 linhas de cálculos String Theory
-        for (i in 0..9) {
+        for i in 0..9 {
             let dI = IntAsDouble(i);
             let vibration = (Sin(2.0 * PI() * dI / 100.0), Cos(2.0 * PI() * dI / 100.0)); // vibração da corda
             let tension = (0.5 * dI, -0.25 * dI); // tensão da corda
