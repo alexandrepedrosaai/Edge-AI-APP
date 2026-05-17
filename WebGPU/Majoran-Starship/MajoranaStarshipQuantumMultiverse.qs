@@ -2,13 +2,14 @@
 // Quantum Multiverse + Parallel Universe Interactions
 
 namespace MajoranaStarship {
-    newtype Complex = (Double, Double);
     open Microsoft.Quantum.Intrinsic;
     open Microsoft.Quantum.Math;
     open Microsoft.Quantum.Convert;
 
+    newtype Complex = (Double, Double);
+
     function ComplexMultiplication(a : Complex, b : Complex) : Complex {
-        return Complex(a::Real * b::Real - a::Imag * b::Imag, a::Real * b::Imag + a::Imag * b::Real);
+        return Complex(a::0 * b::0 - a::1 * b::1, a::0 * b::1 + a::1 * b::0);
     }
 
     operation MajoranaStarshipEngineQuantumMultiverse(input : Double[]) : Complex {
@@ -52,7 +53,7 @@ namespace MajoranaStarship {
             set contribution = ComplexMultiplication(contribution, normalization);
             set contribution = ComplexMultiplication(contribution, inputVal);
 
-            set multiverseCalc = Complex(multiverseCalc::Real + contribution::Real, multiverseCalc::Imag + contribution::Imag);
+            set multiverseCalc = Complex(multiverseCalc::0 + contribution::0, multiverseCalc::1 + contribution::1);
         }
 
         return multiverseCalc;
