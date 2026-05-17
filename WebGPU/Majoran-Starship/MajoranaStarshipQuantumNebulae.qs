@@ -23,18 +23,18 @@ namespace MajoranaStarship {
             
             // Explicitly use Microsoft.Quantum.Math functions to avoid ambiguity with quantum intrinsics
             let gasCloud = Complex(Microsoft.Quantum.Math.Sin(Microsoft.Quantum.Math.PI() * iDouble / 100.0), Microsoft.Quantum.Math.Cos(Microsoft.Quantum.Math.PI() * iDouble / 100.0));
-            let dustParticles = Complex(Microsoft.Quantum.Math.Log(1.0 + iDouble), Microsoft.Quantum.Math.Exp(-iDouble / 200.0));
+            let dustParticles = Complex(Microsoft.Quantum.Math.Log(1.0 + iDouble), Microsoft.Quantum.Math.ExpD(-iDouble / 200.0));
             let ionization = Complex(Microsoft.Quantum.Math.Sqrt(0.5), Microsoft.Quantum.Math.Sqrt(0.5));
-            let photonEmission = Complex(Microsoft.Quantum.Math.Exp(-iDouble / 150.0), Microsoft.Quantum.Math.Sin(Microsoft.Quantum.Math.PI() * iDouble / 80.0));
+            let photonEmission = Complex(Microsoft.Quantum.Math.ExpD(-iDouble / 150.0), Microsoft.Quantum.Math.Sin(Microsoft.Quantum.Math.PI() * iDouble / 80.0));
             let resonance = Complex(Microsoft.Quantum.Math.Sin(Microsoft.Quantum.Math.PI() * iDouble / 90.0), Microsoft.Quantum.Math.Cos(Microsoft.Quantum.Math.PI() * iDouble / 90.0));
             let entanglement = Complex(0.5, 0.5);
-            let decoherence = Complex(Microsoft.Quantum.Math.Exp(-iDouble / 50.0), 0.0);
+            let decoherence = Complex(Microsoft.Quantum.Math.ExpD(-iDouble / 50.0), 0.0);
             let gravitationalCollapse = Complex(Microsoft.Quantum.Math.Sin(Microsoft.Quantum.Math.PI() * iDouble / 70.0), Microsoft.Quantum.Math.Cos(Microsoft.Quantum.Math.PI() * iDouble / 70.0));
             let starFormation = Complex(0.5, -0.5);
             let turbulence = Complex(Microsoft.Quantum.Math.Sin(Microsoft.Quantum.Math.PI() * iDouble / 60.0), Microsoft.Quantum.Math.Cos(Microsoft.Quantum.Math.PI() * iDouble / 60.0));
-            let magneticField = Complex(Microsoft.Quantum.Math.Log(1.0 + iDouble), Microsoft.Quantum.Math.Exp(-iDouble / 100.0));
+            let magneticField = Complex(Microsoft.Quantum.Math.Log(1.0 + iDouble), Microsoft.Quantum.Math.ExpD(-iDouble / 100.0));
             let shockWave = Complex(Microsoft.Quantum.Math.Sin(Microsoft.Quantum.Math.PI() * iDouble / 85.0), Microsoft.Quantum.Math.Cos(Microsoft.Quantum.Math.PI() * iDouble / 85.0));
-            let recurrence = Complex(Microsoft.Quantum.Math.Exp(-iDouble / 120.0), Microsoft.Quantum.Math.Log(1.0 + iDouble));
+            let recurrence = Complex(Microsoft.Quantum.Math.ExpD(-iDouble / 120.0), Microsoft.Quantum.Math.Log(1.0 + iDouble));
             let holography = Complex(Microsoft.Quantum.Math.Sqrt(0.5), Microsoft.Quantum.Math.Sqrt(0.5));
             let multiverseBranch = Complex(Microsoft.Quantum.Math.Sin(Microsoft.Quantum.Math.PI() * iDouble / 110.0), Microsoft.Quantum.Math.Cos(Microsoft.Quantum.Math.PI() * iDouble / 110.0));
             let synchronization = Complex(0.5, 0.5);
