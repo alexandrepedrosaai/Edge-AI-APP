@@ -16,6 +16,24 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
+          cache: true
+          cache-dependency-path: 'WebGPU/Majoran-Starship/*.csproj'
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('WebGPU/Majoran-Starship/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-docker-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-docker-
 
       - name: Pull required Docker images
         run: |
@@ -23,12 +41,19 @@ jobs:
           docker pull ghcr.io/alexandrepedrosaai/edge-ai-app/clusters-arrays-gpu:66
           docker pull ghcr.io/alexandrepedrosaai/edge-ai-app/electric-and-magnetic-field-circuits:48
 
+      - name: Restore dependencies
+        run: |
+          cd WebGPU/Majoran-Starship
+          for project in *.csproj; do
+            dotnet restore "$project"
+          done
+
       - name: Build all MajoranaStarship files
         run: |
           cd WebGPU/Majoran-Starship
           for project in *.csproj; do
             echo "Building $project"
-            DOTNET_ROLL_FORWARD=Major dotnet build "$project"
+            DOTNET_ROLL_FORWARD=Major dotnet build "$project" --no-restore -c Release
           done
 
       - name: Run all MajoranaStarship files
@@ -36,37 +61,58 @@ jobs:
           cd WebGPU/Majoran-Starship
           for project in *.csproj; do
             echo "Running $project"
-            DOTNET_ROLL_FORWARD=Major dotnet run --no-build --project "$project" || echo "Skipping run failure for $project"
+            DOTNET_ROLL_FORWARD=Major dotnet run --no-build -c Release --project "$project" || echo "Skipping run failure for $project"
           done
+
+      - name: Package all files and binaries
+        run: |
+          # Criar um pacote com tudo (fontes e binários)
+          zip -r majorana-starship-full-package.zip WebGPU/Majoran-Starship/
 
       - name: Upload all Q# binaries artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: majorana-quibits-binaries
-          path: 'WebGPU/Majoran-Starship/**/bin/**'
+          name: majorana-starship-package
+          path: majorana-starship-full-package.zip
 
   release:
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: majorana-starship-package
 
       - name: Create release tag
         id: tag
         run: |
           VERSION="v$(date +'%Y.%m.%d.%H%M')"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           git tag $VERSION
           git push origin $VERSION
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create GitHub Release
+      - name: Deploy to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.tag.outputs.version }}
           name: "Topo-Majorana-Quibits Release ${{ steps.tag.outputs.version }}"
-          files: 'WebGPU/Majoran-Starship/**/bin/**'
+          body: "Automated release containing all binaries and source files for Majorana Starship."
+          files: majorana-starship-full-package.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   docker:
     needs: build
@@ -75,9 +121,31 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
       - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: WebGPU/Majoran-Starship
+          file: WebGPU/Majoran-Starship/Dockerfile
+          push: false
+          tags: topo-majorana-quibits:latest
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+
+      - name: Move cache
         run: |
-          docker build -t topo-majorana-quibits:latest -f WebGPU/Majoran-Starship/Dockerfile WebGPU/Majoran-Starship
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
       - name: Push Docker image to GitHub Container Registry
         run: |
