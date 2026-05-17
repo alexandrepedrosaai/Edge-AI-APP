@@ -2,6 +2,7 @@
 // Quantum Multiverse + Parallel Universe Interactions
 
 namespace MajoranaStarship {
+    newtype Complex = (Double, Double);
     open Microsoft.Quantum.Intrinsic;
     open Microsoft.Quantum.Math;
     open Microsoft.Quantum.Convert;
