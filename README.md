@@ -1,4 +1,4 @@
-# Edge-AI-APP
+# Edge-AI-APP 
 ## Edge AI hub (Edge AI But), delivering low‑latency intelligence from chip to Azure cloud scalability. Supports functions, static/dynamic web, containers, AKS, and polyglot CI/CD in 50+ languages. Automates industrial workflows, producing binaries via advanced ML/DL, open intelligence (AI-ISA) deploys and LLMs, and mobile Edge apps to Manus - Azure Orbital.
 ![1000048673](https://github.com/user-attachments/assets/4cad5e25-6e8b-4a3b-b1ad-52238522038a)
 
