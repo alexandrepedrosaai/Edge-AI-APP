@@ -19,7 +19,7 @@ namespace MajoranaStarship {
 
         // 20 linhas de cálculos Quantum Nebulae
         for i in 0..19 {
-            let iDouble = IntAsDouble(i);
+<
             
             // Explicitly use Microsoft.Quantum.Math functions to avoid ambiguity with quantum intrinsics
             let gasCloud = Complex(Microsoft.Quantum.Math.Sin(Microsoft.Quantum.Math.PI() * iDouble / 100.0), Microsoft.Quantum.Math.Cos(Microsoft.Quantum.Math.PI() * iDouble / 100.0));
