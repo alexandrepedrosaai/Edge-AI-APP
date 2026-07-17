@@ -19,27 +19,28 @@ namespace MajoranaStarship {
 
         // 20 linhas de cálculos Quantum Nebulae
         for i in 0..19 {
-            // convert loop index to Double for math ops
-            let iDouble = Microsoft.Quantum.Convert.IntAsDouble(i);
-            let gasCloud = Complex(Sin(PI() * iDouble / 100.0), Cos(PI() * iDouble / 100.0)); // nuvem de gás
-            let dustParticles = Complex(Log(1.0 + iDouble), Exp(-iDouble / 200.0)); // partículas de poeira
-            let ionization = Complex(Sqrt(0.5), Sqrt(0.5)); // ionização
-            let photonEmission = Complex(Exp(-iDouble / 150.0), Sin(PI() * iDouble / 80.0)); // emissão de fótons
-            let resonance = Complex(Sin(PI() * iDouble / 90.0), Cos(PI() * iDouble / 90.0)); // ressonância interestelar
-            let entanglement = Complex(0.5, 0.5); // entrelaçamento quântico (RandomDouble replaced)
-            let decoherence = Complex(Exp(-iDouble / 50.0), 0.0); // decoerência
-            let gravitationalCollapse = Complex(Sin(PI() * iDouble / 70.0), Cos(PI() * iDouble / 70.0)); // colapso gravitacional
-            let starFormation = Complex(0.5, -0.5); // formação estelar (RandomDouble replaced)
-            let turbulence = Complex(Sin(PI() * iDouble / 60.0), Cos(PI() * iDouble / 60.0)); // turbulência
-            let magneticField = Complex(Log(1.0 + iDouble), Exp(-iDouble / 100.0)); // campo magnético
-            let shockWave = Complex(Sin(PI() * iDouble / 85.0), Cos(PI() * iDouble / 85.0)); // onda de choque
-            let recurrence = Complex(Exp(-iDouble / 120.0), Log(1.0 + iDouble)); // recorrência cósmica
-            let holography = Complex(Sqrt(0.5), Sqrt(0.5)); // holografia nebular
-            let multiverseBranch = Complex(Sin(PI() * iDouble / 110.0), Cos(PI() * iDouble / 110.0)); // ramificação multiversal
-            let synchronization = Complex(0.5, 0.5); // sincronização de nuvens (RandomDouble replaced)
-            let normalization = Complex(Sqrt(0.5), Sqrt(0.5)); // normalização
+<
             
-            // Manual complex multiplication chain
+            // Explicitly use Microsoft.Quantum.Math functions to avoid ambiguity with quantum intrinsics
+            let gasCloud = Complex(Microsoft.Quantum.Math.Sin(Microsoft.Quantum.Math.PI() * iDouble / 100.0), Microsoft.Quantum.Math.Cos(Microsoft.Quantum.Math.PI() * iDouble / 100.0));
+            let dustParticles = Complex(Microsoft.Quantum.Math.Log(1.0 + iDouble), Microsoft.Quantum.Math.ExpD(-iDouble / 200.0));
+            let ionization = Complex(Microsoft.Quantum.Math.Sqrt(0.5), Microsoft.Quantum.Math.Sqrt(0.5));
+            let photonEmission = Complex(Microsoft.Quantum.Math.ExpD(-iDouble / 150.0), Microsoft.Quantum.Math.Sin(Microsoft.Quantum.Math.PI() * iDouble / 80.0));
+            let resonance = Complex(Microsoft.Quantum.Math.Sin(Microsoft.Quantum.Math.PI() * iDouble / 90.0), Microsoft.Quantum.Math.Cos(Microsoft.Quantum.Math.PI() * iDouble / 90.0));
+            let entanglement = Complex(0.5, 0.5);
+            let decoherence = Complex(Microsoft.Quantum.Math.ExpD(-iDouble / 50.0), 0.0);
+            let gravitationalCollapse = Complex(Microsoft.Quantum.Math.Sin(Microsoft.Quantum.Math.PI() * iDouble / 70.0), Microsoft.Quantum.Math.Cos(Microsoft.Quantum.Math.PI() * iDouble / 70.0));
+            let starFormation = Complex(0.5, -0.5);
+            let turbulence = Complex(Microsoft.Quantum.Math.Sin(Microsoft.Quantum.Math.PI() * iDouble / 60.0), Microsoft.Quantum.Math.Cos(Microsoft.Quantum.Math.PI() * iDouble / 60.0));
+            let magneticField = Complex(Microsoft.Quantum.Math.Log(1.0 + iDouble), Microsoft.Quantum.Math.ExpD(-iDouble / 100.0));
+            let shockWave = Complex(Microsoft.Quantum.Math.Sin(Microsoft.Quantum.Math.PI() * iDouble / 85.0), Microsoft.Quantum.Math.Cos(Microsoft.Quantum.Math.PI() * iDouble / 85.0));
+            let recurrence = Complex(Microsoft.Quantum.Math.ExpD(-iDouble / 120.0), Microsoft.Quantum.Math.Log(1.0 + iDouble));
+            let holography = Complex(Microsoft.Quantum.Math.Sqrt(0.5), Microsoft.Quantum.Math.Sqrt(0.5));
+            let multiverseBranch = Complex(Microsoft.Quantum.Math.Sin(Microsoft.Quantum.Math.PI() * iDouble / 110.0), Microsoft.Quantum.Math.Cos(Microsoft.Quantum.Math.PI() * iDouble / 110.0));
+            let synchronization = Complex(0.5, 0.5);
+            let normalization = Complex(Microsoft.Quantum.Math.Sqrt(0.5), Microsoft.Quantum.Math.Sqrt(0.5));
+            
+            // Manual complex multiplication chain to avoid operator overloading issues
             mutable contribution = ComplexMul(gasCloud, dustParticles);
             set contribution = ComplexMul(contribution, ionization);
             set contribution = ComplexMul(contribution, photonEmission);
@@ -56,7 +57,11 @@ namespace MajoranaStarship {
             set contribution = ComplexMul(contribution, multiverseBranch);
             set contribution = ComplexMul(contribution, synchronization);
             set contribution = ComplexMul(contribution, normalization);
-            set contribution = ComplexMul(contribution, Complex(input[i % Length(input)], 0.8 * iDouble));
+            
+            // Final contribution with input data
+            let inputVal = input[i % Length(input)];
+            let inputComplex = Complex(inputVal, 0.8 * iDouble);
+            set contribution = ComplexMul(contribution, inputComplex);
 
             set nebulaCalc = ComplexAdd(nebulaCalc, contribution);
         }

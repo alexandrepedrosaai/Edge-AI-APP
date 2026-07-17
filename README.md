@@ -1,9 +1,9 @@
-# Edge-AI-APP
+# Edge-AI-APP 
 ## Edge AI hub (Edge AI But), delivering low‑latency intelligence from chip to Azure cloud scalability. Supports functions, static/dynamic web, containers, AKS, and polyglot CI/CD in 50+ languages. Automates industrial workflows, producing binaries via advanced ML/DL, open intelligence (AI-ISA) deploys and LLMs, and mobile Edge apps to Manus - Azure Orbital.
 ![1000048673](https://github.com/user-attachments/assets/4cad5e25-6e8b-4a3b-b1ad-52238522038a)
 
 ## https://edge-ai-functions.azurewebsites.net/
-## https://edge-ai-app.jollymoss-4b53b752.eastus.azurecontainerapps.io/
+## https://edge-ai-app.jollymoss-4b53b752.eastus.azurecontainerapps.io/ 
 Edge AI App builds on the source software OS‑ALGORITHMIC‑MESH, evolving Microsoft Edge into a living hub of intelligence. This repo unifies vision, roadmap, and timeline with Markdown + Mermaid diagrams, LaTeX slides, and Go/Rust/Python integrations.
 [![Assembly Build Pipeline](https://github.com/alexandrepedrosaai/Edge-AI-APP/actions/workflows/assembly-build.yml/badge.svg)](https://github.com/alexandrepedrosaai/Edge-AI-APP/actions/workflows/assembly-build.yml)
 [![Hex Build Pipeline](https://github.com/alexandrepedrosaai/Edge-AI-APP/actions/workflows/hex-build-pipeline.yml/badge.svg)](https://github.com/alexandrepedrosaai/Edge-AI-APP/actions/workflows/hex-build-pipeline.yml)

@@ -5,16 +5,23 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 RUN apt-get update && apt-get install -y \
     curl \
     git \
+    wget \
     && rm -rf /var/lib/apt/lists/*
+
+# Instalar .NET 6.0 SDK
+RUN wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh && \
+    chmod +x dotnet-install.sh && \
+    ./dotnet-install.sh --version 6.0.428 --install-dir /usr/share/dotnet && \
+    rm dotnet-install.sh
 
 # Diretório de trabalho
 WORKDIR /app/WebGPU/Majoran-Starship
 
-# Copiar todos os arquivos .qs para dentro do container
+# Copiar todos os arquivos para dentro do container
 COPY . .
 
-# Compilar todos os arquivos Q#
-RUN for file in *.qs; do dotnet build $file; done
+# Compilar o projeto Q#
+RUN dotnet build MajoranaStarship.qsproj -c Release
 
 # Runtime image
 FROM mcr.microsoft.com/dotnet/runtime:8.0 AS runtime
@@ -29,5 +36,5 @@ LABEL org.opencontainers.image.source="https://github.com/alexandrepedrosaai/Edg
 LABEL org.opencontainers.image.description="Topo-Majorana-Quibits CI CD container para rodar binários Q#"
 LABEL org.opencontainers.image.workflow="Topo-Majorana-Quibits CI CD"
 
-# Comando padrão: rodar todos os binários
-CMD ["dotnet", "run", "--project", "bin"]
+# Comando padrão: rodar o projeto Q#
+CMD ["dotnet", "run", "--project", "MajoranaStarship.qsproj", "-c", "Release"]

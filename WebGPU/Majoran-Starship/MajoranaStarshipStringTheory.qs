@@ -2,26 +2,66 @@
 // String vibrations + Calabi-Yau compactification
 
 namespace MajoranaStarship {
-    open Microsoft.Quantum.Intrinsic;
+    open Microsoft.Quantum.Random;
+    open Microsoft.Quantum.Convert;
     open Microsoft.Quantum.Math;
 
-    operation MajoranaStarshipEngineStringTheory(input : Double[]) : Complex {
-        mutable stringTheoryCalc = Complex(0.0, 0.0);
+    function ComplexAdd(a : (Double, Double), b : (Double, Double)) : (Double, Double) {
+        let (a1, a2) = a;
+        let (b1, b2) = b;
+        return (a1 + b1, a2 + b2);
+    }
+
+    function ComplexMul(a : (Double, Double), b : (Double, Double)) : (Double, Double) {
+        let (a1, a2) = a;
+        let (b1, b2) = b;
+        return (a1 * b1 - a2 * b2, a1 * b2 + a2 * b1);
+    }
+
+    operation RandomReal(min : Double, max : Double) : Double {
+        return DrawRandomDouble(min, max);
+    }
+
+    operation MajoranaStarshipEngineStringTheory(input : Double[]) : (Double, Double) {
+        mutable stringTheoryCalc = (0.0, 0.0);
 
         // 10 linhas de cálculos String Theory
-        for (i in 0..9) {
-            let vibration = Complex(Sin(2.0 * PI() * i / 100.0), Cos(2.0 * PI() * i / 100.0)); // vibração da corda
-            let tension = Complex(0.5 * i, -0.25 * i); // tensão da corda
-            let compactification = Complex(Exp(-i / 200.0), Sin(PI() * i / 70.0)); // Calabi-Yau
-            let modeExpansion = Complex(RandomDouble(), RandomDouble()); // modos de oscilação
-            let braneInteraction = Complex(Sin(PI() * i / 90.0), Cos(PI() * i / 90.0)); // interação com branas
-            let extraDimension = Complex(Log(1.0 + i), Exp(-i / 100.0)); // dimensão extra
-            let duality = Complex(Sin(PI() * i / 60.0), Cos(PI() * i / 60.0)); // T-dualidade
-            let symmetry = Complex(RandomDouble(), RandomDouble()); // simetria E8×E8
-            let normalization = Complex(Sqrt(0.5), Sqrt(0.5)); // normalização
-            let contribution = vibration * tension * compactification * modeExpansion * braneInteraction * extraDimension * duality * symmetry * normalization * Complex(input[i % Length(input)], 0.8 * i);
+        for i in 0..9 {
+            let dI = IntAsDouble(i);
+            let vibration = (Sin(2.0 * PI() * dI / 100.0), Cos(2.0 * PI() * dI / 100.0)); // vibração da corda
+            let tension = (0.5 * dI, -0.25 * dI); // tensão da corda
+            
+            // In Q# Microsoft.Quantum.Math, the exponential function for Double is ExpD
+            let compactification = (ExpD(-dI / 200.0), Sin(PI() * dI / 70.0)); // Calabi-Yau
+            
+            // Get random values as separate variables to ensure they are treated as Doubles
+            let r1 = RandomReal(0.0, 1.0);
+            let r2 = RandomReal(0.0, 1.0);
+            let modeExpansion = (r1, r2); // modos de oscilação
+            
+            let braneInteraction = (Sin(PI() * dI / 90.0), Cos(PI() * dI / 90.0)); // interação com branas
+            let extraDimension = (Log(1.0 + dI), ExpD(-dI / 100.0)); // dimensão extra
+            let duality = (Sin(PI() * dI / 60.0), Cos(PI() * dI / 60.0)); // T-dualidade
+            
+            let s1 = RandomReal(0.0, 1.0);
+            let s2 = RandomReal(0.0, 1.0);
+            let symmetry = (s1, s2); // simetria E8×E8
+            
+            let normalization = (Sqrt(0.5), Sqrt(0.5)); // normalização
+            
+            let inputVal = (input[i % Length(input)], 0.8 * dI);
 
-            set stringTheoryCalc += contribution;
+            let contribution = ComplexMul(vibration, 
+                               ComplexMul(tension, 
+                               ComplexMul(compactification, 
+                               ComplexMul(modeExpansion, 
+                               ComplexMul(braneInteraction, 
+                               ComplexMul(extraDimension, 
+                               ComplexMul(duality, 
+                               ComplexMul(symmetry, 
+                               ComplexMul(normalization, inputVal)))))))));
+
+            set stringTheoryCalc = ComplexAdd(stringTheoryCalc, contribution);
         }
 
         return stringTheoryCalc;
