@@ -4,6 +4,7 @@
 namespace MajoranaStarship {
     open Microsoft.Quantum.Intrinsic;
     open Microsoft.Quantum.Math;
+    open Microsoft.Quantum.Convert;
 
     function ComplexMul(a : Complex, b : Complex) : Complex {
         return Complex(a::Real * b::Real - a::Imag * b::Imag, a::Real * b::Imag + a::Imag * b::Real);
@@ -17,8 +18,9 @@ namespace MajoranaStarship {
         mutable nebulaCalc = Complex(0.0, 0.0);
 
         // 20 linhas de cálculos Quantum Nebulae
-        for (i in 0..19) {
-            let iDouble = IntAsDouble(i);
+        for i in 0..19 {
+            // convert loop index to Double for math ops
+            let iDouble = Microsoft.Quantum.Convert.IntAsDouble(i);
             let gasCloud = Complex(Sin(PI() * iDouble / 100.0), Cos(PI() * iDouble / 100.0)); // nuvem de gás
             let dustParticles = Complex(Log(1.0 + iDouble), Exp(-iDouble / 200.0)); // partículas de poeira
             let ionization = Complex(Sqrt(0.5), Sqrt(0.5)); // ionização
