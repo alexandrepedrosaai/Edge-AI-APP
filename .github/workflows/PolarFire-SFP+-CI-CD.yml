@@ -31,7 +31,7 @@ jobs:
             choco install cmake -y
             choco install python -y
           elif [ "${{ matrix.os }}" == "macos-latest" ]; then
-            brew install cmake ghdl verilator python3
+            brew install cmake verilator python3
           fi
 
       - name: Build ${{ matrix.language }} Artifacts
@@ -105,7 +105,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           
-          # Se a tag já existir, remove localmente e no servidor para evitar erro 128
           if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
             echo "Tag $TAG_NAME já existe. Atualizando..."
             git tag -d "$TAG_NAME"
@@ -146,4 +145,3 @@ jobs:
             - Python
           files: build/**/*
           generate_release_notes: true
-          
