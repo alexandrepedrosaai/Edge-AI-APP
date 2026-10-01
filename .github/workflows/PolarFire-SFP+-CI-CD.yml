@@ -31,7 +31,7 @@ jobs:
             choco install cmake -y
             choco install python -y
           elif [ "${{ matrix.os }}" == "macos-latest" ]; then
-            brew install cmake ghdl verilator python3
+            brew install cmake verilator python3
           fi
 
       - name: Build ${{ matrix.language }} Artifacts
@@ -146,4 +146,3 @@ jobs:
             - Python
           files: build/**/*
           generate_release_notes: true
-          
