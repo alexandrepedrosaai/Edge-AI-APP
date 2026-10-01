@@ -2,18 +2,18 @@
 # Edge-AI-APP Docker Build
 # Multi-stage build for Assembly, Node.js, and Python development
 # ============================================================================
-FROM node:22-alpine AS builder
+FROM node:22-bookworm-slim AS builder
 
-# Instalar pnpm globalmente
+# Install pnpm globally
 RUN npm install -g pnpm
 
 WORKDIR /app
 
-# Copiar apenas os arquivos de dependências primeiro para aproveitar o cache do Docker
+# Copy dependency manifests first to maximize Docker layer caching
 COPY package.json pnpm-lock.yaml* package-lock.json* ./
 
-# Instalar dependências
-# Se houver pnpm-lock.yaml, usa pnpm. Caso contrário, tenta sincronizar o npm.
+# Install dependencies
+# Use pnpm when a pnpm lockfile exists; otherwise fall back to npm.
 RUN if [ -f pnpm-lock.yaml ]; then \
         pnpm install --frozen-lockfile; \
     elif [ -f package-lock.json ]; then \
@@ -22,7 +22,7 @@ RUN if [ -f pnpm-lock.yaml ]; then \
         npm install; \
     fi
 
-# Copiar o restante dos arquivos e buildar
+# Copy the remaining files and build
 COPY . .
 RUN npm run build || echo "Build step skipped or failed"
 
