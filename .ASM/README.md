@@ -1,4 +1,4 @@
-# .ASM — Conceptual Pseudocode Collection
+  # .ASM — Conceptual Pseudocode Collection
 
 > **Note:** These files contain **conceptual/pseudocode** representations of neural-network and chip-architecture routines. They use a pseudo-ISA invented for this project (Hub CPU, Spiral CPU, Resonance CPU) and are **not intended to be assembled** by any real assembler (e.g. NASM, GAS, Motorola 68k). They are documentation artifacts extracted from GitHub Releases.
 
